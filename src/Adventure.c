@@ -67,10 +67,12 @@ void AdventureWindowAppear(Window *window)
 	INFO_LOG("Back to the adventure.");
 	DEBUG_LOG("Adventure appear floor %d",GetCurrentFloor());
 	MenuAppear(window);
-	ShowMainWindowRow(0, "Floor", UpdateFloorText());
+//	ShowMainWindowRow(0, "Floor", UpdateFloorText());
 	adventureWindow = window;
 	SetUpdateDelay();
-	UpdateClock();
+	time_t now = time(NULL);
+	struct tm *current_time = localtime(&now);
+	UpdateClock(current_time);
 	adventureWindowVisible = true;
 }
 

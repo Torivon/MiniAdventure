@@ -10,8 +10,20 @@
 void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
 	DEBUG_LOG("Main App tick");	
-	UpdateClock();
+	UpdateClock(tick_time);
 	UpdateAdventure();
+	if(units_changed & DAY_UNIT)
+	{
+		UpdateDay(tick_time);
+	}
+	if(units_changed & MONTH_UNIT)
+	{
+		UpdateMonth(tick_time);
+	}
+	if(units_changed & YEAR_UNIT)
+	{
+		UpdateYear(tick_time);
+	}
 }
 
 void handle_init() {
@@ -23,6 +35,8 @@ void handle_init() {
 	srand(now);
 		
 	ShowAdventureWindow();
+	struct tm *current_time = localtime(&now);
+	handle_minute_tick(current_time, MINUTE_UNIT | DAY_UNIT | MONTH_UNIT | YEAR_UNIT);
 	tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
 }
 

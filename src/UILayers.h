@@ -15,7 +15,11 @@ void UnloadTextLayers(void);
 
 void ShowMainWindowRow(int index, const char *text, const char *number);
 
-void UpdateClock(void);
+void UpdateClock(struct tm *current_time);
+void UpdateYear(struct tm *current_time);
+void UpdateMonth(struct tm *current_time);
+void UpdateDay(struct tm *current_time);
+
 void UpdateLevelLayerText(int level);
 
 void UpdateHealthText(int currentHealth, int maxHealth);

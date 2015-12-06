@@ -19,6 +19,12 @@
 #define MENU_ITEM_WIDTH 180 - (MENU_LEFT + MENU_ITEM_OFFSET)
 #endif
 
+TextLayer *levelLayer;
+bool levelLayerInitialized = false;
+TextLayer *currentHealthLayer;
+TextLayer *maxHealthLayer;
+bool healthLayersInitialized = false;
+
 TextLayer * InitializeTextLayer(GRect frame, GFont font)
 {
 	TextLayer *textLayer = text_layer_create(frame);
@@ -357,7 +363,7 @@ GRect clockFrame = {.origin = {.x = 65, .y = 145}, .size = {.w = 144-85, .h = 16
 #endif
 bool clockLayerInitialized = false;
 
-void UpdateClock(void)
+void UpdateClock(struct tm *current_time)
 {
 	if(!clockLayerInitialized) {
 		return;
@@ -373,13 +379,43 @@ void UpdateClock(void)
 	{
 		time_format = "%I:%M";
 	}
-
-	time_t now = time(NULL);
-	struct tm *current_time = localtime(&now);
 	
 	strftime(timeText, sizeof(timeText), time_format, current_time);
 
 	text_layer_set_text(clockLayer, timeText);
+}
+
+void UpdateYear(struct tm *current_time)
+{
+	if(!levelLayerInitialized)
+		return;
+	
+	static char yearText[] = "00"; // Needs to be static because it's used by the system later.
+	strftime(yearText, sizeof(yearText), "%y", current_time);
+	
+	text_layer_set_text(levelLayer, yearText);
+}
+
+void UpdateMonth(struct tm *current_time)
+{
+	if(!healthLayersInitialized)
+		return;
+	
+	static char monthText[] = "00"; // Needs to be static because it's used by the system later.
+	strftime(monthText, sizeof(monthText), "%m", current_time);
+	
+	text_layer_set_text(currentHealthLayer, monthText);
+}
+
+void UpdateDay(struct tm *current_time)
+{
+	if(!healthLayersInitialized)
+		return;
+	
+	static char dayText[] = "00"; // Needs to be static because it's used by the system later.
+	strftime(dayText, sizeof(dayText), "%d", current_time);
+	
+	text_layer_set_text(maxHealthLayer, dayText);
 }
 
 void RemoveClockLayer(void)
@@ -396,20 +432,17 @@ void InitializeClockLayer(Window *window)
 		GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 		clockLayer = InitializeTextLayer(clockFrame, font);
 		clockLayerInitialized = true;
-		UpdateClock();
 	}
 	layer_add_child(window_layer, text_layer_get_layer(clockLayer));
 }
 
 // *********** Level **********//
 
-TextLayer *levelLayer;
 #if defined(PBL_RECT)
 GRect levelFrame = {.origin = {.x = 10, .y = 127}, .size = {.w = 144-85, .h = 168-127}};
 #elif defined(PBL_ROUND)
 GRect levelFrame = {.origin = {.x = 6, .y = 47}, .size = {.w = 144-85, .h = 168-127}};
 #endif
-bool levelLayerInitialized = false;
 
 void UpdateLevelLayerText(int level)
 {
@@ -440,7 +473,6 @@ void InitializeLevelLayer(Window *window)
 
 // ********** Health *********//
 
-TextLayer *currentHealthLayer;
 #if defined(PBL_RECT)
 GRect currentHealthFrame = {.origin = {.x = 42, .y = 126}, .size = {.w = 50, .h = 168-130}};
 GRect maxHealthFrame = {.origin = {.x = 42, .y = 143}, .size = {.w = 50, .h = 168-140}};
@@ -449,8 +481,6 @@ GRect currentHealthFrame = {.origin = {.x = 2, .y = 84}, .size = {.w = 50, .h = 
 GRect maxHealthFrame = {.origin = {.x = 2, .y = 101}, .size = {.w = 50, .h = 168-140}};
 #endif
 
-TextLayer *maxHealthLayer;
-bool healthLayersInitialized = false;
 void UpdateHealthText(int current, int max)
 {
 	if(!healthLayersInitialized)
