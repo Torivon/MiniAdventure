@@ -236,5 +236,7 @@ void MenuClickConfigProvider(void *context)
 
 void SetMenuClickConfigProvider(Window *window)
 {
+#if !WATCH_MODE
 	window_set_click_config_provider(window, (ClickConfigProvider) MenuClickConfigProvider);
+#endif
 }

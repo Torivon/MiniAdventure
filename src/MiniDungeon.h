@@ -10,7 +10,8 @@
 
 // Publish 0 turns on the test menu
 #define PUBLISH 1
-	
+#define WATCH_MODE 1
+
 // Logging
 #define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
 #define ERROR_LOGGING 1 // ERROR_LOG should be used for actual incorrect operation.
