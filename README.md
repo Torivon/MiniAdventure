@@ -1,3 +1,8 @@
+MiniAdventure
+===========
+
+This is an extension of MiniDungeon. It uses the same core engine to support a broader game. Eventual goals include a more complicated battle system, a larger game world, and the ability to support a rudimentary story.
+
 MiniDungeon
 ===========
 
