@@ -1,26 +1,33 @@
 #include "pebble.h"
 
+#include "Adventure.h"
 #include "Battle.h"
 #include "Character.h"
 #include "Items.h"
 #include "Logging.h"
+#include "MainMenu.h"
 #include "Menu.h"
 #include "MiniDungeon.h"
 #include "Monsters.h"
-#include "Adventure.h"
+#include "OptionsMenu.h"
+#include "Story.h"
 #include "UILayers.h"
 #include "Utils.h"
+
+bool gUpdateBattle = false;
+static BattleState gBattleState = {0};
 
 static bool battleCleanExit = true;
 
 typedef void (*BattleAfterExitCallback)(void);
 
-void RemoveConfirmationWindow(void);
+typedef void (*BattleActionCommand)(CharacterData *character, MonsterDef *monster);
 
 void CloseBattleWindow(void)
 {
 	INFO_LOG("Ending battle.");
 	battleCleanExit = true;
+	gUpdateBattle = false;
 	PopMenu();
 }
 
@@ -29,34 +36,26 @@ bool ClosingWhileInBattle(void)
 	return !battleCleanExit;
 }
 
-static int currentFloor = 1;
-
-void ResetFloor(void)
-{
-	currentFloor = 1;
-}
-
-void IncrementFloor(void)
-{
-	++currentFloor;
-}
-
-int GetCurrentFloor(void)
-{
-	return currentFloor;
-}
-
-void SetCurrentFloor(int newFloor)
-{
-	currentFloor = newFloor;
-}
-
 MonsterDef *currentMonster;
-int currentMonsterHealth;
 
 int GetCurrentMonsterHealth(void)
 {
-	return currentMonsterHealth;
+	return gBattleState.currentMonsterHealth;
+}
+
+bool ReadyToAct(uint16_t actionBar)
+{
+	return actionBar >= 100;
+}
+
+bool PlayerReadyToAct(void)
+{
+	return ReadyToAct(gBattleState.playerActionBar);
+}
+
+bool MonsterReadyToAct(void)
+{
+	return ReadyToAct(gBattleState.monsterActionBar);
 }
 
 int ApplyDefense(int baseDamage, int defense)
@@ -80,48 +79,46 @@ int ApplyDefense(int baseDamage, int defense)
 	return totalDamage;
 }
 
-void MonsterAttack(void)
+void MonsterAttack(CharacterData *character, MonsterDef *monster)
 {
 	int baseDamage;
 	int damageToDeal;
-	bool useMagicAttack = (currentMonster->allowMagicAttack && currentMonster->allowPhysicalAttack) ? Random(2) - 1 : currentMonster->allowMagicAttack;
-	baseDamage = ComputePlayerHealth(currentFloor)/GetMonsterPowerDivisor(currentMonster->powerLevel);
-	damageToDeal = ApplyDefense(baseDamage, useMagicAttack ? GetCharacter()->stats.magicDefense : GetCharacter()->stats.defense);
+	bool useMagicAttack = (monster->allowMagicAttack && monster->allowPhysicalAttack) ? Random(2) : monster->allowMagicAttack;
+	baseDamage = ComputePlayerHealth(GetCurrentBaseLevel())/GetMonsterPowerDivisor(monster->powerLevel);
+	damageToDeal = ApplyDefense(baseDamage, useMagicAttack ? character->stats.magicDefense : character->stats.defense);
 
-	if(DealPlayerDamage(damageToDeal))
-	{
-		CloseBattleWindow();
-		ShowEndWindow();
-	}
+	DealPlayerDamage(damageToDeal);
 }
 
 const char  *UpdateMonsterHealthText(void)
 {
 	static char monsterHealthText[] = "00000"; // Needs to be static because it's used by the system later.
 
-	IntToString(monsterHealthText, 5, currentMonster ? currentMonsterHealth : 0);
+	IntToString(monsterHealthText, 5, currentMonster ? gBattleState.currentMonsterHealth : 0);
 	return monsterHealthText;
 }
 
-void BattleUpdate(void)
+// returns true if battle should end
+void PerformPlayerAction(BattleActionCommand playerAction)
 {
-	if(currentMonsterHealth <= 0)
+	if(playerAction)
 	{
-		INFO_LOG("Player wins.");
-		CloseBattleWindow();
-		GrantGold(currentFloor * currentMonster->goldScale);
-		if(currentFloor >= 20)
-		{
-			ShowEndWindow();
-		}
-		else if(GrantExperience(currentFloor))
-		{
-			LevelUp();
-		}
-		return;
+		playerAction(GetCharacter(), currentMonster);
 	}
 
-	MonsterAttack();
+	gBattleState.playerActionBar = 0;
+	RefreshMenuAppearance();
+}
+
+// returns true if the battle should end
+void PerformMonsterAction(BattleActionCommand monsterAction)
+{
+	if(monsterAction)
+	{
+		monsterAction(GetCharacter(), currentMonster);
+	}
+
+	gBattleState.monsterActionBar = 0;
 }
 
 void DamageCurrentMonster(int strength, int level, int defense, int baseMultiplier, int bonusMultiplier)
@@ -131,14 +128,21 @@ void DamageCurrentMonster(int strength, int level, int defense, int baseMultipli
 
 	damageToDeal = damageToDeal * bonusMultiplier / 100;
 	
-	currentMonsterHealth -= damageToDeal;
+	if(damageToDeal > gBattleState.currentMonsterHealth)
+		gBattleState.currentMonsterHealth = 0;
+	else
+		gBattleState.currentMonsterHealth -= damageToDeal;
 	ShowMainWindowRow(0, currentMonster->name, UpdateMonsterHealthText());
-	BattleUpdate();
 }
 
-void AttackCurrentMonster(void)
+void AttackCurrentMonster(CharacterData *character, MonsterDef *monster)
 {
-	DamageCurrentMonster(GetCharacter()->stats.strength, GetCharacter()->level, GetMonsterDefense(currentMonster->defenseLevel), 1, 100);
+	DamageCurrentMonster(character->stats.strength, character->level, GetMonsterDefense(monster->defenseLevel), 1, 100);
+}
+
+void QueuePlayerAction_Attack(void)
+{
+	PerformPlayerAction(AttackCurrentMonster);
 }
 
 void UseFireOnCurrentMonster(void)
@@ -156,20 +160,24 @@ void UseLightningOnCurrentMonster(void)
 	DamageCurrentMonster(GetCharacter()->stats.magic, GetCharacter()->level, GetMonsterDefense(currentMonster->magicDefenseLevel), 3, currentMonster->extraLightningDefenseMultiplier);
 }
 
-void AttemptToRun(void)
+void AttemptToRun(CharacterData *character, MonsterDef *monster)
 {
-	int runCheck = Random(3);
+	int runCheck = Random(3) + 1;
 			
-	if(runCheck == 3 && currentFloor < 20) // if floor is >= 20 you are fighting the dragon
+	if(runCheck == 3 && !currentMonster->preventRun)
 	{
 		INFO_LOG("Player runs.");
 		CloseBattleWindow();
 		IncrementEscapes();
-		return;
 	}
-
-	BattleUpdate();
 }
+
+void QueuePlayerAction_Run(void)
+{
+	PerformPlayerAction(AttemptToRun);
+}
+
+#if ENABLE_ITEMS
 
 void ActivateFireScroll(void)
 {
@@ -198,46 +206,11 @@ void ActivateLightningScroll(void)
 	}
 }
 
-void ShowItemBattleMenu(void);
-
-void BattleWindowAppear(Window *window);
-void BattleWindowInit(Window *window);
-
-MenuDefinition battleMainMenuDef = 
-{
-	.menuEntries = 
-	{
-		{"Attack", "Attack with your sword.", AttackCurrentMonster},
-		{"Item", "Use an item", ShowItemBattleMenu},
-		{NULL, NULL, NULL},
-		{"Progress", "Character advancement", ShowProgressMenu},
-		{NULL, NULL, NULL},
-		{"Run", "Try to run away", AttemptToRun},
-	},
-	.init = BattleWindowInit,
-	.appear = BattleWindowAppear,
-	.disableBackButton = true,
-	.mainImageId = -1
-};
-
-void ShowMainBattleMenu(void)
-{
-	INFO_LOG("Entering battle.");
-	PushNewMenu(&battleMainMenuDef);
-}
-
-void BattleWindowAppear(Window *window)
-{
-	MenuAppear(window);
-	ShowMainWindowRow(0, currentMonster->name, UpdateMonsterHealthText());
-}
-
 void ActivateCombatPotion(void)
 {
 	if(AttemptToUsePotion())
 	{
 		PopMenu();
-		BattleUpdate();
 	}
 }
 
@@ -246,7 +219,6 @@ void ActivateCombatFullPotion(void)
 	if(AttemptToUseFullPotion())
 	{
 		PopMenu();
-		BattleUpdate();
 	}
 }
 
@@ -256,15 +228,16 @@ MenuDefinition itemBattleMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Quit", "Return to battle menu", PopMenu},
-		{"Drink", "Heal 50% of your health", ActivateCombatPotion},
-		{"Drink", "Heal 100% of your health", ActivateCombatFullPotion},
-		{"Throw", "Deal fire damage", ActivateFireScroll},
-		{"Throw", "Deal ice damage", ActivateIceScroll},
-		{"Throw", "Deal lightning damage", ActivateLightningScroll}
+		{.text = "Quit", .description = "Return to battle menu", .menuFunction = PopMenu},
+		{.text = "Drink", .description = "Heal 50% of your health", .menuFunction = ActivateCombatPotion},
+		{.text = "Drink", .description = "Heal 100% of your health", .menuFunction = ActivateCombatFullPotion},
+		{.text = "Throw", .description = "Deal fire damage", .menuFunction = ActivateFireScroll},
+		{.text = "Throw", .description = "Deal ice damage", .menuFunction = ActivateIceScroll},
+		{.text = "Throw", .description = "Deal lightning damage", .menuFunction = ActivateLightningScroll}
 	},
 	.appear = ItemBattleMenuAppear,
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 void ItemBattleMenuAppear(Window *window)
@@ -278,6 +251,99 @@ void ShowItemBattleMenu(void)
 	PushNewMenu(&itemBattleMenuDef);
 }
 
+#endif
+
+void BattleWindowAppear(Window *window);
+void BattleWindowDisappear(Window *window);
+void BattleWindowInit(Window *window);
+
+const char *AttackMenuText(void)
+{
+	if(PlayerReadyToAct())
+	{
+		return "Attack";
+	}
+	
+	return NULL;
+}
+
+const char *AttackMenuDescription(void)
+{
+	return "Attack with your sword.";
+}
+
+const char *ProgressMenuText(void)
+{
+	if(PlayerReadyToAct())
+	{
+		return "Progress";
+	}
+	
+	return NULL;	
+}
+
+const char *ProgressMenuDescription(void)
+{
+	return "Character advancement";
+}
+
+const char *RunMenuText(void)
+{
+	if(PlayerReadyToAct())
+	{
+		return "Run";
+	}
+	
+	return NULL;	
+}
+
+const char *RunMenuDescription(void)
+{
+	return "Try to run away";
+}
+
+MenuDefinition battleMainMenuDef = 
+{
+	.menuEntries = 
+	{
+		{.useFunctions = true, .textFunction = AttackMenuText, .descriptionFunction = AttackMenuDescription, .menuFunction = QueuePlayerAction_Attack},
+#if ENABLE_ITEMS
+		{.text = "Item", .description = "Use an item", .menuFunction = ShowItemBattleMenu},
+#else
+		{.text = NULL, .description = NULL, .menuFunction = NULL},
+#endif
+		{.text = NULL, .description = NULL, .menuFunction = NULL},
+		{.useFunctions = true, .textFunction = ProgressMenuText, .descriptionFunction = ProgressMenuDescription, .menuFunction = ShowProgressMenu},
+		{.text = NULL, .description = NULL, .menuFunction = NULL},
+		{.useFunctions = true, .textFunction = RunMenuText, .descriptionFunction = RunMenuDescription, .menuFunction = QueuePlayerAction_Run},
+	},
+	.init = BattleWindowInit,
+	.appear = BattleWindowAppear,
+	.disappear = BattleWindowDisappear,
+	.disableBackButton = true,
+	.mainImageId = -1,
+	.floorImageId = -1
+};
+
+void ShowMainBattleMenu(void)
+{
+	INFO_LOG("Entering battle.");
+	PushNewMenu(&battleMainMenuDef);
+}
+
+void BattleWindowAppear(Window *window)
+{
+	MenuAppear(window);
+	ShowMainWindowRow(0, currentMonster->name, UpdateMonsterHealthText());
+	gUpdateBattle = true;
+}
+
+void BattleWindowDisappear(Window *window)
+{
+	MenuDisappear(window);
+	gUpdateBattle = false;
+}
+
 int ComputeMonsterHealth(int level)
 {
 	int baseHealth = 20 + ((level-1)*(level)/2) + ((level-1)*(level)*(level+1)/(6*2));
@@ -289,7 +355,7 @@ static int forcedBattleMonsterType = -1;
 static int forcedBattleMonsterHealth = 0;
 void ResumeBattle(int currentMonster, int currentMonsterHealth)
 {
-	if(currentMonster >= 0 && currentMonster < MonsterTypeCount() && currentMonsterHealth > 0)
+	if(currentMonster >= 0 && currentMonsterHealth > 0)
 	{
 		forcedBattle = true;
 		forcedBattleMonsterType = currentMonster;
@@ -309,20 +375,19 @@ void BattleInit(void)
 	{
 		DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
 		currentMonster = GetFixedMonster(forcedBattleMonsterType);
-		currentMonsterHealth = forcedBattleMonsterHealth;	
+		gBattleState.currentMonsterHealth = forcedBattleMonsterHealth;	
 		forcedBattle = false;
 	}
 	
 	if(!currentMonster)
 	{
-		currentMonster = GetRandomMonster(currentFloor);
-		currentMonsterHealth = ComputeMonsterHealth(currentFloor);
+		currentMonster = GetRandomMonster();
+		gBattleState.currentMonsterHealth = ComputeMonsterHealth(GetCurrentBaseLevel());
 	}
 	
 	battleMainMenuDef.mainImageId = currentMonster->imageId;
 #if defined(PBL_COLOR)
 	battleMainMenuDef.floorImageId = RESOURCE_ID_IMAGE_BATTLE_FLOOR;
-	battleMainMenuDef.useFloorImage = true;
 #endif
 	battleCleanExit = false;
 }
@@ -335,5 +400,52 @@ void BattleWindowInit(Window *window)
 
 void ShowBattleWindow(void)
 {
-	ShowMainBattleMenu();
+	if(CurrentLocationAllowsCombat())
+		ShowMainBattleMenu();
+}
+
+void UpdateBattle(void)
+{
+	if(!gUpdateBattle)
+		return;
+	
+	if(PlayerIsDead())
+	{
+		CloseBattleWindow();
+		ShowEndWindow();
+	}
+	
+	if(gBattleState.currentMonsterHealth <= 0)
+	{
+		INFO_LOG("Player wins.");
+		CloseBattleWindow();
+		GrantGold(GetCurrentBaseLevel() * currentMonster->goldScale);
+		if(GrantExperience(GetCurrentBaseLevel()))
+		{
+			LevelUp();
+		}
+		return;
+	}
+
+	// If the enemy gets to act out of turn, remove this
+	if(PlayerReadyToAct())
+		return;
+	
+	// TODO: Speed should be determined by player/monster stats
+	gBattleState.playerActionBar += 10;
+	gBattleState.monsterActionBar += 6;
+
+	// If the monster is ready to act and his bar is higher than the player's, go.
+	// Otherwise, the player gets to act, then the monster will get to go next time around.
+	if(MonsterReadyToAct() && gBattleState.monsterActionBar > gBattleState.playerActionBar)
+	{
+		PerformMonsterAction(MonsterAttack);
+	}
+	
+	if(PlayerReadyToAct())
+	{
+		if(GetVibration())
+			vibes_short_pulse();
+		RefreshMenuAppearance();
+	}
 }

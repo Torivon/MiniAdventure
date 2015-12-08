@@ -48,14 +48,15 @@ MenuDefinition testMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Quit", "", PopMenu},
-		{"Random", "", ForceEvent},
-		{"NewFloor", "", ForceNewFloor},
-		{"Item", "", ForceItemGain},
-		{"Battle", "", ForceBattle},
-		{"Shop", "", ForceShop},
+		{.text = "Quit", .description = "", .menuFunction = PopMenu},
+		{.text = "Random", .description = "", .menuFunction = ForceEvent},
+		{.text = "NewFloor", .description = "", .menuFunction = ForceNewFloor},
+		{.text = "Item", .description = "", .menuFunction = ForceItemGain},
+		{.text = "Battle", .description = "", .menuFunction = ForceBattle},
+		{.text = "Shop", .description = "", .menuFunction = ForceShop},
 	},
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 void ShowTestMenu(void)
@@ -113,7 +114,8 @@ MenuDefinition infoMenuDef =
 		{"Quit", "", PopMenu},
 	},
 	.appear = InfoWindowAppear,
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 const char *UpdateFreeText(void)
@@ -157,20 +159,21 @@ MenuDefinition mainMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Quit", "Return to adventure", PopMenu},
-		{"Items", "Items Owned", ShowMainItemMenu},
-		{"Progress", "Character advancement", ShowProgressMenu},
-		{"Stats", "Character Stats", ShowStatMenu},
-		{"Options", "Open the options menu", ShowOptionsMenu},
-#if ALLOW_TEST_MENU
-		{"Info", "Stats about the app", ShowInfoMenu},
+		{.text = "Quit", .description = "Return to adventure", .menuFunction = PopMenu},
+#if ENABLE_ITEMS
+		{.text = "Items", .description = "Items Owned", .menuFunction = ShowMainItemMenu},
+#else
+		{0},
 #endif
+		{.text = "Progress", .description = "Character advancement", .menuFunction = ShowProgressMenu},
+		{.text = "Stats", .description = "Character Stats", .menuFunction = ShowStatMenu},
+		{.text = "Options", .description = "Open the options menu", .menuFunction = ShowOptionsMenu},
+		{.text = "Reset", .description = "Reset the game", .menuFunction = ResetGame},
 	},
 	.appear = MainMenuWindowAppear,
 	.disappear = MainMenuWindowDisappear,
 	.mainImageId = RESOURCE_ID_IMAGE_REST,
-	.floorImageId = RESOURCE_ID_IMAGE_BATTLE_FLOOR,
-	.useFloorImage = true
+	.floorImageId = RESOURCE_ID_IMAGE_BATTLE_FLOOR
 };
 
 void UpdateBatteryText(BatteryChargeState chargeState, char *buffer, int count)

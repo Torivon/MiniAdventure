@@ -32,6 +32,12 @@ void IntToString(char *buffer, size_t bufferSize, int value)
 	}
 }
 
+void SeedRandom(void)
+{
+	time_t now = time(NULL);
+	srand(now);
+}
+
 void IntToPercent(char *buffer, size_t bufferSize, int value)
 {
 	buffer[bufferSize - 1] = '%';

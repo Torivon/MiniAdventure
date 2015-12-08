@@ -4,7 +4,7 @@
         ""
     ],
     "companyName": "Torivon",
-    "longName": "MiniDungeon",
+    "longName": "MiniAdventure",
     "projectType": "native",
     "resources": {
         "media": [
@@ -93,18 +93,313 @@
                 "file": "images/background.png",
                 "name": "IMAGE_BACKGROUND",
                 "type": "png"
+            },
+            {
+                "file": "images/WaterfallTop.png",
+                "name": "IMAGE_WATERFALL_TOP",
+                "type": "png"
+            },
+            {
+                "file": "images/WaterfallBase.png",
+                "name": "IMAGE_WATERFALL_BASE",
+                "type": "png"
+            },
+            {
+                "file": "images/VillageInterior.png",
+                "name": "IMAGE_VILLAGE_INTERIOR",
+                "type": "png"
+            },
+            {
+                "file": "images/VillageExterior.png",
+                "name": "IMAGE_VILLAGE_EXTERIOR",
+                "type": "png"
+            },
+            {
+                "file": "images/TreasureRoom.png",
+                "name": "IMAGE_TREASURE_ROOM",
+                "type": "png"
+            },
+            {
+                "file": "images/TombEntrance.png",
+                "name": "IMAGE_TOMB_ENTRANCE",
+                "type": "png"
+            },
+            {
+                "file": "images/Title.png",
+                "name": "IMAGE_TITLE",
+                "type": "png"
+            },
+            {
+                "file": "images/Sarcophagus.png",
+                "name": "IMAGE_SARCOPHAGUS",
+                "type": "png"
+            },
+            {
+                "file": "images/RuinedVillageExterior.png",
+                "name": "IMAGE_RUINED_VILLAGE_EXTERIOR",
+                "type": "png"
+            },
+            {
+                "file": "images/Road3.png",
+                "name": "IMAGE_ROAD3",
+                "type": "png"
+            },
+            {
+                "file": "images/Road2.png",
+                "name": "IMAGE_ROAD2",
+                "type": "png"
+            },
+            {
+                "file": "images/Road1.png",
+                "name": "IMAGE_ROAD1",
+                "type": "png"
+            },
+            {
+                "file": "images/PyramidExterior.png",
+                "name": "IMAGE_PYRAMID_EXTERIOR",
+                "type": "png"
+            },
+            {
+                "file": "images/Oasis.png",
+                "name": "IMAGE_OASIS",
+                "type": "png"
+            },
+            {
+                "file": "images/MountainExterior3.png",
+                "name": "IMAGE_MOUNTAIN3",
+                "type": "png"
+            },
+            {
+                "file": "images/MountainExterior2.png",
+                "name": "IMAGE_MOUNTAIN2",
+                "type": "png"
+            },
+            {
+                "file": "images/MountainExterior1.png",
+                "name": "IMAGE_MOUNTAIN1",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster9.png",
+                "name": "IMAGE_MONSTER9",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster8.png",
+                "name": "IMAGE_MONSTER8",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster28.png",
+                "name": "IMAGE_MONSTER28",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster27.png",
+                "name": "IMAGE_MONSTER27",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster26.png",
+                "name": "IMAGE_MONSTER26",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster25.png",
+                "name": "IMAGE_MONSTER25",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster24.png",
+                "name": "IMAGE_MONSTER24",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster23.png",
+                "name": "IMAGE_MONSTER23",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster22.png",
+                "name": "IMAGE_MONSTER22",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster21.png",
+                "name": "IMAGE_MONSTER21",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster20.png",
+                "name": "IMAGE_MONSTER20",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster19.png",
+                "name": "IMAGE_MONSTER19",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster18.png",
+                "name": "IMAGE_MONSTER18",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster17.png",
+                "name": "IMAGE_MONSTER17",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster16.png",
+                "name": "IMAGE_MONSTER16",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster15.png",
+                "name": "IMAGE_MONSTER15",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster14.png",
+                "name": "IMAGE_MONSTER14",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster13.png",
+                "name": "IMAGE_MONSTER13",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster12.png",
+                "name": "IMAGE_MONSTER12",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster11.png",
+                "name": "IMAGE_MONSTER11",
+                "type": "png"
+            },
+            {
+                "file": "images/Monster10.png",
+                "name": "IMAGE_MONSTER10",
+                "type": "png"
+            },
+            {
+                "file": "images/ForestCave.png",
+                "name": "IMAGE_FOREST_CAVE",
+                "type": "png"
+            },
+            {
+                "file": "images/Forest3.png",
+                "name": "IMAGE_FOREST3",
+                "type": "png"
+            },
+            {
+                "file": "images/Forest2.png",
+                "name": "IMAGE_FOREST2",
+                "type": "png"
+            },
+            {
+                "file": "images/Forest1.png",
+                "name": "IMAGE_FOREST1",
+                "type": "png"
+            },
+            {
+                "file": "images/Desert3.png",
+                "name": "IMAGE_DESERT3",
+                "type": "png"
+            },
+            {
+                "file": "images/Desert2.png",
+                "name": "IMAGE_DESERT2",
+                "type": "png"
+            },
+            {
+                "file": "images/Desert1.png",
+                "name": "IMAGE_DESERT1",
+                "type": "png"
+            },
+            {
+                "file": "images/Cellar.png",
+                "name": "IMAGE_CELLAR",
+                "type": "png"
+            },
+            {
+                "file": "images/CaveFixed.png",
+                "name": "IMAGE_CAVE_FIXED",
+                "type": "png"
+            },
+            {
+                "file": "images/Cave3.png",
+                "name": "IMAGE_CAVE3",
+                "type": "png"
+            },
+            {
+                "file": "images/Cave2.png",
+                "name": "IMAGE_CAVE2",
+                "type": "png"
+            },
+            {
+                "file": "images/Cave1.png",
+                "name": "IMAGE_CAVE1",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss7.png",
+                "name": "IMAGE_BOSS7",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss6.png",
+                "name": "IMAGE_BOSS6",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss5.png",
+                "name": "IMAGE_BOSS5",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss4.png",
+                "name": "IMAGE_BOSS4",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss3.png",
+                "name": "IMAGE_BOSS3",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss2.png",
+                "name": "IMAGE_BOSS2",
+                "type": "png"
+            },
+            {
+                "file": "images/Boss1.png",
+                "name": "IMAGE_BOSS1",
+                "type": "png"
+            },
+            {
+                "file": "images/Boat.png",
+                "name": "IMAGE_BOAT",
+                "type": "png"
+            },
+            {
+                "file": "images/Beach.png",
+                "name": "IMAGE_BEACH",
+                "type": "png"
             }
         ]
     },
     "sdkVersion": "3",
-    "shortName": "MiniDungeon",
+    "shortName": "MiniAdventure",
     "targetPlatforms": [
         "aplite",
         "basalt",
         "chalk"
     ],
-    "uuid": "79206a03-76a9-452f-b320-f2a7fc9850ec",
-    "versionLabel": "3.0",
+    "uuid": "39a8ce3d-7be7-4ecc-b7bf-508d9cb4598b",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": false
     }

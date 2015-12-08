@@ -5,12 +5,44 @@
 #include "UILayers.h"
 #include "Utils.h"
 
+const char *GetMenuEntryText(MenuEntry *entry)
+{
+	if(!entry)
+		return NULL;
+	
+	if(entry->useFunctions)
+	{
+		if(entry->textFunction)
+			return entry->textFunction();
+		
+		return NULL;
+	}
+	
+	return entry->text;
+}
+
+const char *GetMenuEntryDescription(MenuEntry *entry)
+{
+	if(!entry)
+		return NULL;
+	
+	if(entry->useFunctions)
+	{
+		if(entry->descriptionFunction)
+			return entry->descriptionFunction();
+		
+		return NULL;
+	}
+	
+	return entry->description;
+}
+
 bool MenuEntryIsActive(MenuEntry *entry)
 {
 	if(!entry)
 		return false;
 
-	return entry->text && entry->menuFunction;
+	return GetMenuEntryText(entry) && entry->menuFunction;
 }
 
 MenuDefinition *currentMenuDef = NULL;
@@ -45,35 +77,20 @@ void MenuDeinit(Window *window)
 	window_destroy(window);
 }
 
-void MenuAppear(Window *window)
+void RefreshMenuAppearance(void)
 {
 	int i;
 	bool setSelected = false;
-	
-	DEBUG_VERBOSE_LOG("MenuAppear");
-	
-	MenuWindow *menuWindow = window_get_user_data(window);
-	if(menuWindow)
-	{
-		SetCurrentMenu(menuWindow->menu);
-	}
-	WindowAppear(window);
-	if(!currentMenuDef)
-	{
-		DEBUG_VERBOSE_LOG("No menu");
-		HideAllMenuLayers();
-		SetMenuDescription(NULL);
-		return;
-	}
 
-	DEBUG_VERBOSE_LOG("Set highlight and visibility");
-	currentMenuDef->currentSelection = -1;
+	if(!currentMenuDef)
+		return;
+	
 	for(i = 0; i < MAX_MENU_ENTRIES; ++i)
 	{
 		MenuEntry *entry = &currentMenuDef->menuEntries[i];
 		if(MenuEntryIsActive(entry))
 		{
-			ShowMenuLayer(i, entry->text);
+			ShowMenuLayer(i, GetMenuEntryText(entry));
 			if(setSelected)
 			{
 				SetMenuHighlight(i, false);
@@ -83,7 +100,7 @@ void MenuAppear(Window *window)
 				SetMenuHighlight(i, true);
 				setSelected = true;
 				currentMenuDef->currentSelection = i;
-				SetMenuDescription(entry->description);
+				SetMenuDescription(GetMenuEntryDescription(entry));
 			}
 		}
 		else
@@ -91,11 +108,33 @@ void MenuAppear(Window *window)
 			HideMenuLayer(i);
 		}
 	}
+	
+	if(!setSelected)
+		SetMenuDescription(NULL);
+}
 
+void MenuAppear(Window *window)
+{
+	DEBUG_VERBOSE_LOG("MenuAppear");
+
+	MenuWindow *menuWindow = window_get_user_data(window);
+	if(menuWindow)
+	{
+		SetCurrentMenu(menuWindow->menu);
+	}	
+	WindowAppear(window);
+	if(!currentMenuDef)
+	{
+		HideAllMenuLayers();
+		SetMenuDescription(NULL);
+		return;
+	}
+
+	RefreshMenuAppearance();
+	
 	if(menuWindow && menuWindow->menu && menuWindow->menu->mainImageId != -1)
 	{
-		DEBUG_VERBOSE_LOG("Load bitmap");
-		LoadMainBmpImage(window, menuWindow->menu->mainImageId, menuWindow->menu->useFloorImage ? menuWindow->menu->floorImageId : -1);
+		LoadMainBmpImage(window, menuWindow->menu->mainImageId, menuWindow->menu->floorImageId);
 	}
 }
 
@@ -114,6 +153,8 @@ void PopMenu(void)
 {
 	window_stack_pop(currentMenuDef ? currentMenuDef->animated : true);
 }
+
+void MenuClickConfigProvider(void *context);
 
 void PushNewMenu(MenuDefinition *menuDef)
 {
@@ -146,7 +187,8 @@ void PushNewMenu(MenuDefinition *menuDef)
 			currentMenuDef->init ? currentMenuDef->init : MenuInit,
 			currentMenuDef->deinit ? currentMenuDef->deinit : MenuDeinit,
 			currentMenuDef->appear ? currentMenuDef->appear : MenuAppear,
-			currentMenuDef->disappear ? currentMenuDef->disappear : MenuDisappear);
+			currentMenuDef->disappear ? currentMenuDef->disappear : MenuDisappear,
+			(ClickConfigProvider) MenuClickConfigProvider);
 	}
 }
 
@@ -154,7 +196,7 @@ void PushNewMenu(MenuDefinition *menuDef)
 
 void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	DEBUG_LOG("Single Click Select");
+	DEBUG_VERBOSE_LOG("Single Click Select");
 	MenuEntry *currentEntry;
 	if(!currentMenuDef)
 		return;
@@ -164,7 +206,7 @@ void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 		return;
 
 	currentEntry->menuFunction();
-	DEBUG_LOG("End Single Click Select");
+	DEBUG_VERBOSE_LOG("End Single Click Select");
 }
 
 void IterateMenuEntries(int direction)
@@ -203,7 +245,7 @@ void IterateMenuEntries(int direction)
 		SetMenuHighlight(currentMenuDef->currentSelection, false);
 		SetMenuHighlight(newSelection, true);
 		currentMenuDef->currentSelection = newSelection;
-		SetMenuDescription(entry->description);
+		SetMenuDescription(GetMenuEntryDescription(entry));
 	}
 }
 
@@ -232,9 +274,4 @@ void MenuClickConfigProvider(void *context)
 	window_single_click_subscribe(BUTTON_ID_DOWN,(ClickHandler)DownSingleClickHandler);
 
 	window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)BackSingleClickHandler);
-}
-
-void SetMenuClickConfigProvider(Window *window)
-{
-	window_set_click_config_provider(window, (ClickConfigProvider) MenuClickConfigProvider);
 }

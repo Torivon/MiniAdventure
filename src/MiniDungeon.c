@@ -10,6 +10,9 @@
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "Shop.h"
+#include "Slideshow.h"
+#include "Story.h"
+#include "TitleMenu.h"
 #include "UILayers.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -22,14 +25,28 @@ bool HasFocus(void)
 }
 
 // Called once per minute
-void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) 
+void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
 	DEBUG_LOG("Main App tick");
 	if(!hasFocus)
 		return;
-	
-	UpdateClock();
-	UpdateAdventure();
+
+	if(gUpdateBattle && (units_changed & SECOND_UNIT))
+	{
+		UpdateBattle();
+	}
+
+	if(units_changed & MINUTE_UNIT)
+	{
+		UpdateClock();
+		if(gUpdateAdventure)
+			UpdateAdventure();
+		
+#if INCLUDE_SLIDESHOW
+		if(gUpdateSlideshow)
+			UpdateSlideshow();
+#endif
+	}
 }
 
 void focus_handler(bool in_focus) {
@@ -47,28 +64,9 @@ void focus_handler(bool in_focus) {
 	}
 }
 
-void InitializeGameData(void)
-{
-	if(!LoadPersistedData())
-		ResetGame();
-}
-
-void ResetGame(void)
-{
-#if ALLOW_STAT_SHOP
-	ResetStatPointsPurchased();
-#endif
-	InitializeCharacter();
-	ResetFloor();
-	ClearInventory();
-	
-	SavePersistedData();
-}
-
 void handle_init() {
 	
-	INFO_LOG("Starting MiniDungeon");
-	time_t now = time(NULL);
+	INFO_LOG("Starting MiniAdventure");
 	
 #if ALLOW_WORKER_APP
 	if(WorkerIsRunning())
@@ -80,14 +78,17 @@ void handle_init() {
 	}
 #endif
 
+	SeedRandom();
 	DEBUG_LOG("Srand");
-	srand(now);
-		
-	InitializeGameData();
-		
-	DEBUG_LOG("InitializeGameData");
-	ShowAdventureWindow();
-	tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
+	
+	handle_time_tick(NULL, SECOND_UNIT);
+	DEBUG_LOG("First handle second");
+	
+	// Just here so that the health and level fields are always filled in.
+	InitializeCharacter();
+	
+	ShowTitleMenu();
+	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 	app_focus_service_subscribe(focus_handler);
 }
 
@@ -97,7 +98,6 @@ void handle_deinit()
 #if ALLOW_WORKER_APP		
 	AppDying(ClosingWhileInBattle());
 #endif
-	SavePersistedData();
 	UnloadBackgroundImage();
 	UnloadMainBmpImage();
 	UnloadTextLayers();

@@ -1,8 +1,12 @@
 #pragma once
 
 void IntToString(char *buffer, size_t bufferSize, int value);
+
+void SeedRandom(void);
+
 void IntToPercent(char *buffer, size_t bufferSize, int value);
 
+// Returns an integer in the range [0,max)
 inline uint16_t Random_inline(uint16_t max)
 {
 	int result = (uint16_t)(rand() % max) + 1;

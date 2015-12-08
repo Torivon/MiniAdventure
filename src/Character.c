@@ -114,17 +114,14 @@ void GrantGold(int gold)
 		characterData.gold = 9999;
 }
 
-bool DealPlayerDamage(int damage)
+void DealPlayerDamage(int damage)
 {
-	int returnValue = false;
 	characterData.stats.currentHealth = characterData.stats.currentHealth - damage;
 	if(characterData.stats.currentHealth <= 0)
 	{
 		characterData.stats.currentHealth = 0;
-		returnValue = true;
 	}
 	UpdateCharacterHealth();
-	return returnValue;
 }
 
 CharacterData *GetCharacter(void)
@@ -146,6 +143,11 @@ bool PlayerIsInjured(void)
 	return characterData.stats.currentHealth < characterData.stats.maxHealth;
 }
 
+bool PlayerIsDead(void)
+{
+	return characterData.stats.currentHealth <= 0;
+}
+
 void EndMenuDisappear(Window *window)
 {
 	ResetGame();
@@ -157,11 +159,12 @@ MenuDefinition endMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Ok", "Restart game", PopMenu}
+		{.text = "Ok", .description = "Restart game", .menuFunction = PopMenu}
 	},
 	.disappear = EndMenuDisappear,
 	.appear = EndMenuAppear,
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 void EndMenuAppear(Window *window)
@@ -171,7 +174,6 @@ void EndMenuAppear(Window *window)
 		ShowMainWindowRow(0, "You lose", "");
 	else
 		ShowMainWindowRow(0, "You win", "");
-	ShowMainWindowRow(1, "Floor", UpdateFloorText());
 	ShowMainWindowRow(2, "Level", UpdateLevelText());
 	ShowMainWindowRow(3, "Gold", UpdateGoldText());
 	ShowMainWindowRow(4, "Escapes", UpdateEscapeText());
@@ -287,14 +289,15 @@ MenuDefinition statMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Quit", "Return to main menu", PopMenu},
-		{"Increase", "Increase strength", IncrementStrength},
-		{"Increase", "Increase defense", IncrementDefense},
-		{"Increase", "Increase magic", IncrementMagic},
-		{"Increase", "Increase magic defense", IncrementMagicDefense},
+		{.text = "Quit", .description = "Return to main menu", .menuFunction = PopMenu},
+		{.text = "Increase", .description = "Increase strength", .menuFunction = IncrementStrength},
+		{.text = "Increase", .description = "Increase defense", .menuFunction = IncrementDefense},
+		{.text = "Increase", .description = "Increase magic", .menuFunction = IncrementMagic},
+		{.text = "Increase", .description = "Increase magic defense", .menuFunction = IncrementMagicDefense},
 	},
 	.appear = StatMenuAppear,
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 void StatMenuAppear(Window *window)
@@ -326,12 +329,12 @@ MenuDefinition progressMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Quit", "Return to main menu", PopMenu},
+		{.text = "Quit", .description = "Return to main menu", .menuFunction = PopMenu},
 #if ALLOW_TEST_MENU
-		{"Lvl Up", "Increase level", ForceLevelUp},
-		{NULL, NULL, NULL},
-		{NULL, NULL, NULL},
-		{"Add Gold", "Add more gold", ForceGold},
+		{.text = "Lvl Up", .description = "Increase level", .menuFunction = ForceLevelUp},
+		{0},
+		{0},
+		{.text = "Add Gold", .description = "Add more gold", .menuFunction = ForceGold},
 		
 #endif
 	},

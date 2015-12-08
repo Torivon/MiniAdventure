@@ -1,5 +1,7 @@
 #include "pebble.h"
 
+#if ENABLE_ITEMS
+
 #include "Character.h"
 #include "Items.h"
 #include "Logging.h"
@@ -81,11 +83,12 @@ MenuDefinition itemGainMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Ok", "Return to adventuring", PopMenu}
+		{.text = "Ok", .description = "Return to adventuring", .menuFunction = PopMenu}
 	},
 	.init = ItemGainMenuInit,
 	.appear = ItemGainMenuAppear,
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 void ShowAllItemCounts(void)
@@ -120,7 +123,7 @@ bool AddItem(ItemType type)
 
 void ItemGainMenuInit(Window *window)
 {
-	int result = Random(100);
+	int result = Random(100) + 1;
 	int i = 0;
 	int acc = 0;
 	MenuInit(window);
@@ -181,12 +184,13 @@ MenuDefinition itemMainMenuDef =
 {
 	.menuEntries = 
 	{
-		{"Quit", "Return to main menu", PopMenu},
-		{"Drink", "Heal 50% of max health", ActivatePotion},
-		{"Drink", "Heal 100% of max health", ActivateFullPotion}
+		{.text = "Quit", .description = "Return to main menu", .menuFunction = PopMenu},
+		{.text = "Drink", .description = "Heal 50% of max health", .menuFunction = ActivatePotion},
+		{.text = "Drink", .description = "Heal 100% of max health", .menuFunction = ActivateFullPotion}
 	},
 	.appear = ItemMainMenuAppear,
-	.mainImageId = -1
+	.mainImageId = -1,
+	.floorImageId = -1
 };
 
 void ItemMainMenuAppear(Window *window)
@@ -225,3 +229,5 @@ bool AttemptToConsumeLightningScroll(void)
 {
 	return AttemptToUseItem(ITEM_TYPE_LIGHTNING_SCROLL);
 }
+
+#endif
