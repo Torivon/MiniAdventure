@@ -7,6 +7,7 @@
 #include "Logging.h"
 #include "MainMenu.h"
 #include "Menu.h"
+#include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "Shop.h"
@@ -34,6 +35,11 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 	if(gUpdateBattle && (units_changed & SECOND_UNIT))
 	{
 		UpdateBattle();
+	}
+	
+	if(InNewBattle() && (units_changed & SECOND_UNIT))
+	{
+		UpdateNewBattle();
 	}
 
 	if(units_changed & MINUTE_UNIT)

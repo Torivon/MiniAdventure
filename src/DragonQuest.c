@@ -8,7 +8,7 @@
 #include "Location.h"
 #include "LocationInternal.h"
 #include "Logging.h"
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 #include "Monsters.h"
 #include "Story.h"
 	

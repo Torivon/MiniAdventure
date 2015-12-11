@@ -1,7 +1,9 @@
+#include <pebble.h>
+#include "BattleTestStory.h"
+
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "DungeonCrawl.h"
 #include "Items.h"
@@ -10,16 +12,15 @@
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Monsters.h"
+#include "NewBattle.h"
 #include "Story.h"
 	
-#if INCLUDE_DUNGEON_CRAWL
+#if INCLUDE_BATTLE_TEST_STORY
 
 enum
 {
-	DUNGEON_ENTRANCE = 0,
-	DUNGEON_FULL,
-	DUNGEON_DRAGONS_ROOM,
-	DUNGEON_TREASURE_ROOM,
+	ARENA = 0,
+	RAT_ROOM,
 };
 
 enum
@@ -33,39 +34,16 @@ enum
 	DUNGEON_DRAGON,
 };
 
-static PathClass DungeonFloorClass =
-{
-	.numberOfMonsters = 6,
-	.monsters = {DUNGEON_RAT, DUNGEON_GOBLIN, DUNGEON_WIZARD, DUNGEON_ZOMBIE, DUNGEON_TURTLE, DUNGEON_LICH},
-	.monsterUnlockLevel = 15,
-	.encounterChance = 20,
-	.numberOfBackgroundImages = 3,
-	.backgroundImages = {RESOURCE_ID_IMAGE_DUNGEONSTRAIGHT, RESOURCE_ID_IMAGE_DUNGEONLEFT, RESOURCE_ID_IMAGE_DUNGEONRIGHT},	
-};
-
-static FixedClass DungeonStairsClass =
-{
-	.backgroundImage = RESOURCE_ID_IMAGE_NEWFLOOR,
-	.allowShop = true,
-};
-
-static FixedClass DragonsRoomClass =
-{
-	.monster = DUNGEON_DRAGON,
-	.backgroundImage = RESOURCE_ID_IMAGE_DUNGEONSTRAIGHT,
-};
-
-static FixedClass TreasureRoomClass =
+static FixedClass ArenaClass =
 {
 	.backgroundImage = RESOURCE_ID_IMAGE_DUNGEONDEADEND,
+	.allowShop = false,
 };
 
-static DungeonClass FullDungeonClass =
+static FixedClass RatClass =
 {
-	.numberOfFloors = 20,
-	.levelIncreaseRate = 1,
-	.pathclass = &DungeonFloorClass,
-	.fixedclass = &DungeonStairsClass,
+	.monster = DUNGEON_RAT,
+	.backgroundImage = RESOURCE_ID_IMAGE_DUNGEONDEADEND,
 };
 
 static MonsterDef monsters[] =
@@ -81,7 +59,8 @@ static MonsterDef monsters[] =
 		.defenseLevel = 0,
 		.magicDefenseLevel = 0,
 		.allowPhysicalAttack = true,
-		.goldScale = 1
+		.goldScale = 1,
+		.speed = 20,
 	},
 
 	{
@@ -173,75 +152,53 @@ static MonsterDef monsters[] =
 
 static Location locationList[] =
 {
-	{
-		.name = "Dungeon Entrance",
+	{ //ARENA
+		.name = "Arena",
 		.type = LOCATIONTYPE_FIXED,
 		.numberOfAdjacentLocations = 1,
-		.adjacentLocations = {DUNGEON_FULL},
-		.fixedclass = &DungeonStairsClass,
+		.adjacentLocations = {RAT_ROOM},
+		.fixedclass = &ArenaClass,
 	},
-	{
-		.name = "Dungeon",
-		.type = LOCATIONTYPE_DUNGEON,
-		.numberOfAdjacentLocations = 2,
-		.adjacentLocations = {DUNGEON_ENTRANCE, DUNGEON_DRAGONS_ROOM},
-		.length = 30,
-		.baseLevel = 1,
-		.dungeonclass = &FullDungeonClass,
-	},
-	{
-		.name = "Dragon's Room",
+	{ //RAT_ROOM
+		.name = "Rat Room",
 		.type = LOCATIONTYPE_FIXED,
 		.numberOfAdjacentLocations = 1,
-		.adjacentLocations = {DUNGEON_TREASURE_ROOM},
-		.fixedclass = &DragonsRoomClass,
+		.adjacentLocations = {ARENA},
+		.fixedclass = &RatClass,
 		.baseLevel = 1,
-		.fixed_ArrivalFunction = ShowBattleWindow,
-	},
-	{
-		.name = "Treasure Room",
-		.type = LOCATIONTYPE_FIXED,
-		.numberOfAdjacentLocations = 0,
-		.fixedclass = &TreasureRoomClass,
-		.fixed_ArrivalFunction = ShowEndWindow,
+		.fixed_ArrivalFunction = ShowNewBattleWindow,
 	},
 };
 
-StoryState dungeonCrawlStoryState = {0};
+StoryState battleTestStoryState = {0};
 
-void InitializeDungeonCrawl(void)
+void InitializeBattleTest(void)
 {
-	dungeonCrawlStoryState.needsSaving = true;
-	dungeonCrawlStoryState.persistedStoryState.currentLocationIndex = 0;
-	dungeonCrawlStoryState.persistedStoryState.currentLocationDuration = 0;
-	dungeonCrawlStoryState.persistedStoryState.currentPathDestination = 0;
-	dungeonCrawlStoryState.persistedStoryState.mostRecentMonster = 0;
-
-#if ENABLE_ITEMS
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-#endif
+	battleTestStoryState.needsSaving = true;
+	battleTestStoryState.persistedStoryState.currentLocationIndex = 0;
+	battleTestStoryState.persistedStoryState.currentLocationDuration = 0;
+	battleTestStoryState.persistedStoryState.currentPathDestination = 0;
+	battleTestStoryState.persistedStoryState.mostRecentMonster = 0;
+	InitializeCharacter();
 }
 
-Story dungeonCrawlStory = 
+Story battleTestStory = 
 {
-	.gameNumber = DUNGEON_CRAWL_INDEX,
+	.gameNumber = BATTLE_TEST_INDEX,
 	.gameDataVersion = 1,
 	.locationList = locationList,
 	.monsterList = monsters,
-	.initializeStory = InitializeDungeonCrawl,
+	.initializeStory = InitializeBattleTest,
 };
 
-void LaunchDungeonCrawl(void)
+void LaunchBattleTestStory(void)
 {
-	dungeonCrawlStory.numberOfLocations = sizeof(locationList)/sizeof(Location);
-	dungeonCrawlStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
-	RegisterStory(&dungeonCrawlStory, &dungeonCrawlStoryState);
+	battleTestStory.numberOfLocations = sizeof(locationList)/sizeof(Location);
+	battleTestStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
+	RegisterStory(&battleTestStory, &battleTestStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
 	ShowAdventureWindow();
+	
 }
 
 #endif

@@ -1,5 +1,5 @@
 #pragma once
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 
 #if DEBUG_LOGGING > 0
 #define DEBUG_LOG(fmt, args...) APP_LOG(APP_LOG_LEVEL_DEBUG, fmt, ## args)

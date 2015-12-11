@@ -19,6 +19,7 @@ typedef struct
 	int escapes;
 	Stats stats;
 	int statPointsToSpend;
+	int speed;
 } CharacterData;
 
 int ComputePlayerHealth(int level);

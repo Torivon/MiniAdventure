@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 
 typedef void (*MenuFunction)(void);
 typedef const char *(*MenuTextFunction)(void);

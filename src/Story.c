@@ -174,6 +174,9 @@ bool CurrentLocationAllowsCombat(void)
 	if(!location)
 		return false;
 	
+	if(IsCurrentLocationFixed())
+		return true;
+	
 	if(!GetLocationEncounterChance(location, currentStoryState->persistedStoryState.dungeonFixed))
 		return false;
 	

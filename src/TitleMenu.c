@@ -4,12 +4,13 @@
 #include "Logging.h"
 #include "MainMenu.h"
 #include "Menu.h"
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 #include "Slideshow.h"
 #include "UILayers.h"
-	
+
 #include "DungeonCrawl.h"
 #include "DragonQuest.h"
+#include "BattleTestStory.h"
 
 void TitleMenuWindowAppear(Window *window)
 {
@@ -29,6 +30,11 @@ static MenuDefinition titleMenuDef =
 #endif
 #if INCLUDE_DRAGON_QUEST
 		{.text = "Quest", .description = "Quest to kill a dragon", .menuFunction = LaunchDragonQuest},
+#else
+		{.text = NULL, .description = NULL, .menuFunction = NULL},
+#endif
+#if INCLUDE_BATTLE_TEST_STORY
+		{.text = "Battle test", .description = "Test new battle system", .menuFunction = LaunchBattleTestStory},
 #else
 		{.text = NULL, .description = NULL, .menuFunction = NULL},
 #endif
