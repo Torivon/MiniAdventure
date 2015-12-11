@@ -16,8 +16,6 @@ typedef struct BattleQueueEntry
 	void *data;
 	bool active;
 	uint16_t index;
-	BattleActor *attacker;
-	BattleActor *defender;
 } BattleQueueEntry;
 
 // priority queue. Probably build a heap.
@@ -45,7 +43,7 @@ static uint16_t GetBattleQueueEntrySpeed(BattleQueueEntry *entry)
 	{
 		case SKILL:
 		{
-			return GetSkillSpeed((Skill*)entry->data);
+			return GetSkillSpeed(GetSkillFromInstance((SkillInstance*)entry->data));
 		}
 		case ACTOR:
 		{
@@ -124,7 +122,7 @@ static BattleQueueEntry *GetNextInactiveEntry(void)
 	return NULL;
 }
 
-static bool BattleQueuePush_internal(BattleQueueEntryType type, void *data, BattleActor *attacker, BattleActor *defender)
+static bool BattleQueuePush_internal(BattleQueueEntryType type, void *data)
 {
 	if(queue.count >= MAX_BATTLE_QUEUE)
 		return false;
@@ -140,8 +138,6 @@ static bool BattleQueuePush_internal(BattleQueueEntryType type, void *data, Batt
 	entry->data = data;
 	entry->currentTime = 0;
 	entry->active = true;
-	entry->attacker = attacker;
-	entry->defender = defender;
 	
 	queue.entries[queue.count] = entry;
 	entry->index = queue.count;
@@ -151,14 +147,11 @@ static bool BattleQueuePush_internal(BattleQueueEntryType type, void *data, Batt
 	return true;
 }
 
-bool BattleQueuePush(BattleQueueEntryType type, void *data, BattleActor *attacker, BattleActor *defender)
+bool BattleQueuePush(BattleQueueEntryType type, void *data)
 {
 	DEBUG_LOG("Push type: %u", type);
 	bool success = true;
-	success = success && BattleQueuePush_internal(type, data, attacker, defender);
-	// SO BAD
-	if(type == SKILL)
-		success = success && BattleQueuePush_internal(ACTOR, attacker, NULL, NULL);
+	success = success && BattleQueuePush_internal(type, data);
 	return success;
 }
 
@@ -168,6 +161,7 @@ static void BattleQueueRemove(uint16_t index)
 	BattleQueueSwap(index, queue.count - 1);
 	BattleQueueEntry *old = queue.entries[queue.count - 1];
 	old->active = false;
+	queue.entries[queue.count - 1] = NULL;
 	--queue.count;
 		
 	Bubble(index, DOWN);
@@ -190,7 +184,9 @@ void LogBattleQueue(void)
 		{
 			case SKILL:
 			{
-				DEBUG_VERBOSE_LOG("Skill: %s, time: %u, speed: %u, active %s", GetSkillName((Skill*)entry->data), entry->currentTime, GetSkillSpeed((Skill*)entry->data), entry->active ? "true" : "false");
+				SkillInstance *instance = (SkillInstance*)entry->data;
+				Skill *skill = GetSkillFromInstance(instance);
+				DEBUG_VERBOSE_LOG("Skill: %s, time: %u, speed: %u, active %s", GetSkillName(skill), entry->currentTime, GetSkillSpeed(skill), entry->active ? "true" : "false");
 				break;
 			}
 			case ACTOR:
@@ -202,41 +198,33 @@ void LogBattleQueue(void)
 	}
 }
 
-bool UpdateBattleQueue(void)
+bool UpdateBattleQueue(BattleQueueEntryType *type, void **data)
 {
+	LogBattleQueue();
+	
+	if(queue.count > 0 && queue.entries[0]->currentTime >= TIME_TO_ACT)
+	{
+		BattleQueueEntry *top = queue.entries[0];
+		*type = top->type;
+		*data = top->data;		
+		BattleQueueRemove(0);
+		return true;
+	}
+	
 	for(int i = 0; i < queue.count; ++i)
 	{
 		UpdateBattleQueueEntry(queue.entries[i]);
 	}
 	
-	LogBattleQueue();
-	
-	while(queue.count > 0 && queue.entries[0]->currentTime >= TIME_TO_ACT)
-	{
-		BattleQueueEntry *top = queue.entries[0];
-		switch(top->type)
-		{
-			case SKILL:
-			{
-				ExecuteSkill((Skill*)top->data, top->attacker, top->defender);
-				break;
-			}
-			case ACTOR:
-			{
-				if(BattleActor_IsPlayer((BattleActor*)top->data))
-				{
-					BattleQueueRemove(0);
-					return true;	
-				}
-				else
-				{
-					BattleQueuePush(SKILL, GetFastAttack(), GetMonsterActor(), GetPlayerActor());
-				}
-				break;
-			}
-		}
-		
-		BattleQueueRemove(0);
-	}
 	return false;
+}
+
+void ResetBattleQueue(void)
+{
+	for(int i = 0; i < MAX_BATTLE_QUEUE; ++i)
+	{
+		queue.entries[i] = NULL;
+		globalEntries[i].active = false;
+	}
+	queue.count = 0;
 }

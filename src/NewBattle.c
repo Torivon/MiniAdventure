@@ -22,6 +22,8 @@ static MonsterDef *currentMonster = NULL;
 
 bool gUpdateNewBattle = false;
 bool gPlayerTurn = false;
+int gSkillDelay = 0;
+const char *gEffectDescription = NULL;
 
 bool InNewBattle(void)
 {
@@ -32,6 +34,7 @@ void CloseNewBattleWindow(void)
 {
 	INFO_LOG("Ending battle.");
 	gUpdateNewBattle = false;
+	ResetBattleQueue();
 	PopMenu();
 }
 
@@ -67,7 +70,9 @@ const char *FastAttackMenuDescription(void)
 
 void PlayerPushFastAttack(void)
 {
-	BattleQueuePush(SKILL, GetFastAttack(), gBattleState.player, gBattleState.monster);
+	SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetPlayerActor(), GetMonsterActor());
+	BattleQueuePush(SKILL, newInstance);
+	BattleQueuePush(ACTOR, GetPlayerActor());
 	gPlayerTurn = false;
 }
 
@@ -88,16 +93,32 @@ const char *SlowAttackMenuDescription(void)
 
 void PlayerPushSlowAttack(void)
 {
-	BattleQueuePush(SKILL, GetSlowAttack(), gBattleState.player, gBattleState.monster);
+	SkillInstance *newInstance = CreateSkillInstance(GetSlowAttack(), GetPlayerActor(), GetMonsterActor());
+	BattleQueuePush(SKILL, newInstance);
+	BattleQueuePush(ACTOR, GetPlayerActor());
 	gPlayerTurn = false;
+}
+
+const char *BattleEffectText(void)
+{
+	if(gSkillDelay > 0)
+		return "Effect";
+	else
+		return NULL;
+}
+
+const char *BattleEffectDescription(void)
+{
+	return gEffectDescription;
 }
 
 MenuDefinition newBattleMainMenuDef = 
 {
 	.menuEntries = 
 	{
-		{.useFunctions = true, .textFunction = FastAttackMenuText, .descriptionFunction = SlowAttackMenuDescription, .menuFunction = PlayerPushFastAttack},
+		{.useFunctions = true, .textFunction = FastAttackMenuText, .descriptionFunction = FastAttackMenuDescription, .menuFunction = PlayerPushFastAttack},
 		{.useFunctions = true, .textFunction = SlowAttackMenuText, .descriptionFunction = SlowAttackMenuDescription, .menuFunction = PlayerPushSlowAttack},
+		{.useFunctions = true, .textFunction = BattleEffectText, .descriptionFunction = BattleEffectDescription, .menuFunction = DoNothing}
 	},
 	.init = NewBattleWindowInit,
 	.appear = NewBattleWindowAppear,
@@ -153,8 +174,8 @@ void NewBattleInit(void)
 	gBattleState.player = InitBattleActor(true, character->level, character->speed, character->stats.maxHealth);
 	gBattleState.monster = InitBattleActor(false, GetCurrentBaseLevel(), currentMonster->speed, gBattleState.currentMonsterHealth);
 	
-	BattleQueuePush(ACTOR, gBattleState.player, NULL, NULL);
-	BattleQueuePush(ACTOR, gBattleState.monster, NULL, NULL);
+	BattleQueuePush(ACTOR, gBattleState.player);
+	BattleQueuePush(ACTOR, gBattleState.monster);
 	
 	newBattleMainMenuDef.mainImageId = currentMonster->imageId;
 #if defined(PBL_COLOR)
@@ -164,6 +185,16 @@ void NewBattleInit(void)
 
 void UpdateNewBattle(void)
 {
+	bool entryRemoved = false;
+	void *data = NULL;
+	BattleQueueEntryType type = ACTOR;
+	
+	if(gSkillDelay > 0)
+	{
+		--gSkillDelay;
+		return;
+	}
+	
 	if(gPlayerTurn)
 		return;
 	
@@ -173,7 +204,38 @@ void UpdateNewBattle(void)
 		return;
 	}
 	
-	gPlayerTurn = UpdateBattleQueue();
+	entryRemoved = UpdateBattleQueue(&type, &data);
+	
+	if(entryRemoved)
+	{
+		switch(type)
+		{
+			case SKILL:
+			{
+				SkillInstance *instance = (SkillInstance*)data;
+				gEffectDescription = ExecuteSkill(instance);
+				gSkillDelay = SKILL_DELAY;
+				break;
+			}
+			case ACTOR:
+			{
+				BattleActor *actor = (BattleActor*)data;
+				if(BattleActor_IsPlayer(actor))
+				{
+					gPlayerTurn = true;
+				}
+				else
+				{
+					// Fake monster AI
+					SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetMonsterActor(), GetPlayerActor());
+					BattleQueuePush(SKILL, newInstance);
+					BattleQueuePush(ACTOR, GetMonsterActor());
+				}
+				break;
+			}
+		}
+	}
+
 	ShowMainWindowRow(0, currentMonster->name, UpdateNewMonsterHealthText());
 	UpdateHealthText(BattleActor_GetHealth(gBattleState.player), BattleActor_GetMaxHealth(gBattleState.player));
 	RefreshMenuAppearance();

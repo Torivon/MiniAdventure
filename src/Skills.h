@@ -15,10 +15,16 @@ typedef void (*ResponseCallback)(void); // This needs to take some arguments inc
 #define PIERCING BIT_FIELD(6)
 
 typedef struct Skill Skill;
+	
+typedef struct SkillInstance SkillInstance;
 
 char *GetSkillName(Skill *skill);
 uint16_t GetSkillSpeed(Skill *skill);
 Skill *GetFastAttack(void);
 Skill *GetSlowAttack(void);
 
-void ExecuteSkill(Skill *skill, BattleActor *attacker, BattleActor *defender);
+Skill *GetSkillFromInstance(SkillInstance *instance);
+
+SkillInstance *CreateSkillInstance(Skill *skill, BattleActor *attacker, BattleActor *defender);
+const char *ExecuteSkill(SkillInstance *instance);
+void FreeSkillInstance(SkillInstance *instance);

@@ -4,16 +4,16 @@
 typedef struct BattleActor
 {
 	bool isPlayer;
-	uint16_t level;
-	uint16_t speed;
-	uint16_t health;
-	uint16_t maxHealth;
+	int level;
+	int speed;
+	int health;
+	int maxHealth;
 } BattleActor;
 
 BattleActor player = {0};
 BattleActor monster = {0};
 
-uint16_t BattleActor_GetSpeed(BattleActor *actor)
+int BattleActor_GetSpeed(BattleActor *actor)
 {
 	return actor->speed;
 }
@@ -23,7 +23,7 @@ bool BattleActor_IsPlayer(BattleActor *actor)
 	return actor->isPlayer;
 }
 
-BattleActor *InitBattleActor(bool isPlayer, uint16_t level, uint16_t speed, uint16_t maxHealth)
+BattleActor *InitBattleActor(bool isPlayer, int level, int speed, int maxHealth)
 {
 	BattleActor *returnValue = isPlayer ? &player : &monster;
 	returnValue->isPlayer = isPlayer;
@@ -33,14 +33,14 @@ BattleActor *InitBattleActor(bool isPlayer, uint16_t level, uint16_t speed, uint
 	return returnValue;
 }
 
-void DealDamage(uint16_t potency, BattleActor *defender)
+void DealDamage(int potency, BattleActor *defender)
 {
 	if(!defender)
 		return;
 	defender->health -= potency;
 }
 
-uint16_t BattleActor_GetHealth(BattleActor *actor)
+int BattleActor_GetHealth(BattleActor *actor)
 {
 	if(!actor)
 		return 0;
@@ -48,7 +48,7 @@ uint16_t BattleActor_GetHealth(BattleActor *actor)
 	return actor->health;
 }
 
-uint16_t BattleActor_GetMaxHealth(BattleActor *actor)
+int BattleActor_GetMaxHealth(BattleActor *actor)
 {
 	if(!actor)
 		return 0;

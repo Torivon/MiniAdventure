@@ -8,5 +8,6 @@ typedef enum
 	SKILL,
 } BattleQueueEntryType;
 
-bool UpdateBattleQueue(void);
-bool BattleQueuePush(BattleQueueEntryType type, void *data, BattleActor *attacker, BattleActor *defender);
+bool UpdateBattleQueue(BattleQueueEntryType *type, void **data);
+bool BattleQueuePush(BattleQueueEntryType type, void *data);
+void ResetBattleQueue(void);
