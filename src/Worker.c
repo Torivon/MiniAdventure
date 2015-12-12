@@ -1,7 +1,7 @@
 #include <pebble_worker.h>
 
 #include "../src/Events.h"
-#include "../src/MiniDungeon.h"
+#include "../src/MiniAdventure.h"
 #include "../src/Utils.h"
 #include "../src/WorkerControl.h"
 #include "Worker_Persistence.h"

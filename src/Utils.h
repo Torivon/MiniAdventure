@@ -1,5 +1,7 @@
 #pragma once
 
+#define BIT_FIELD(num) 1 << num
+
 void IntToString(char *buffer, size_t bufferSize, int value);
 
 void SeedRandom(void);

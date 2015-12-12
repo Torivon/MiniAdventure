@@ -1,5 +1,5 @@
 #pragma once
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 void ShowMainMenu(void);
 void ShowTestMenu(void);
 void ShowTestMenu2(void);

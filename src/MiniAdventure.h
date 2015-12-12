@@ -3,6 +3,7 @@
 // Game tuning 
 #define STAT_POINTS_PER_LEVEL 2
 #define XP_FOR_NEXT_LEVEL 5 * level
+#define SKILL_DELAY 5
 
 // Feature tuning
 #define PAD_WITH_SPACES 1
@@ -16,14 +17,16 @@
 	
 // Stories to include
 #define INCLUDE_DUNGEON_CRAWL 1
-#define INCLUDE_DRAGON_QUEST 1
+#define INCLUDE_DRAGON_QUEST 0
+#define INCLUDE_BATTLE_TEST_STORY 1
 
-#define INCLUDE_SLIDESHOW 1
+#define INCLUDE_SLIDESHOW 0
 
 enum
 {
 	DUNGEON_CRAWL_INDEX = 0,
 	DRAGON_QUEST_INDEX = 1,
+	BATTLE_TEST_INDEX = 2,
 };
 
 // Logging
@@ -51,10 +54,15 @@ enum
 #define MAX_MENU_ENTRIES 6
 
 #define MAX_EVENT_COUNT 10
+
+#define TIME_TO_ACT 100
+#define MAX_BATTLE_QUEUE 10
 	
 #define ALLOW_WORKER_APP 0
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0
+
+#define USE_MENULAYER 0
 
 void ResetGame(void);
 bool HasFocus(void);

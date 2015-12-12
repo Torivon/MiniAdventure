@@ -85,6 +85,8 @@ void RefreshMenuAppearance(void)
 	if(!currentMenuDef)
 		return;
 	
+	DEBUG_LOG("RefreshMenuAppearance");
+	
 	for(i = 0; i < MAX_MENU_ENTRIES; ++i)
 	{
 		MenuEntry *entry = &currentMenuDef->menuEntries[i];

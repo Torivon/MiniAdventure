@@ -1,7 +1,7 @@
 #include "pebble.h"
 
 #include "Logging.h"
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 #include "Utils.h"
 
 // Right justified

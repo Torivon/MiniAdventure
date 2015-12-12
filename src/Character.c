@@ -91,6 +91,7 @@ void InitializeCharacter(void)
 	characterData.stats.defense = 1;
 	characterData.stats.magicDefense = 1;
 	characterData.statPointsToSpend = 0;
+	characterData.speed = 10;
 
 	UpdateCharacterLevel();
 	UpdateCharacterHealth();

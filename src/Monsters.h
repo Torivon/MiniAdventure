@@ -17,6 +17,7 @@ typedef struct MonsterDef
 	int magicDefenseLevel : 3;
 	int goldScale : 5;
 	bool preventRun : 1;
+	int speed;
 } MonsterDef;
 
 int GetMostRecentMonster(void);

@@ -6,7 +6,7 @@
 #include "Items.h"
 #include "Logging.h"
 #include "Menu.h"
-#include "MiniDungeon.h"
+#include "MiniAdventure.h"
 #include "Shop.h"
 #include "UILayers.h"
 #include "Utils.h"
