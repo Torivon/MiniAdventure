@@ -17,10 +17,10 @@
 	
 // Stories to include
 #define INCLUDE_DUNGEON_CRAWL 1
-#define INCLUDE_DRAGON_QUEST 1
+#define INCLUDE_DRAGON_QUEST 0
 #define INCLUDE_BATTLE_TEST_STORY 1
 
-#define INCLUDE_SLIDESHOW 1
+#define INCLUDE_SLIDESHOW 0
 
 enum
 {
@@ -30,7 +30,7 @@ enum
 };
 
 // Logging
-#define DEBUG_LOGGING 2 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
+#define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
 #define ERROR_LOGGING 0 // ERROR_LOG should be used for actual incorrect operation.
 #define WARNING_LOGGING 0 // WARNING_LOG should be used strange edge cases that are not expected
 #define INFO_LOGGING 0 // INFO_LOG should be used to log game flow.
@@ -62,7 +62,7 @@ enum
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0
 
-#define USE_NEW_BATTLE_QUEUE 1
+#define USE_MENULAYER 0
 
 void ResetGame(void);
 bool HasFocus(void);
