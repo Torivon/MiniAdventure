@@ -203,8 +203,12 @@ void InitializeNewMenuLayer(Window *window)
 	{
 		newMenuBackgroundFrame = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MENU_FRAME);
 		GRect frameBounds = gbitmap_get_bounds(newMenuBackgroundFrame);
+		GRect windowBounds = layer_get_bounds(window_get_root_layer(window));
 		newMenuOnScreenPosition.size = frameBounds.size;
 		newMenuOffScreenPosition.size = frameBounds.size;
+		newMenuOnScreenPosition.origin.y = windowBounds.size.h / 2 - newMenuOnScreenPosition.size.h / 2;
+		newMenuOnScreenPosition.origin.x = windowBounds.size.w / 2 - newMenuOnScreenPosition.size.w / 2;
+		newMenuOffScreenPosition.origin.y = windowBounds.size.h / 2 - newMenuOnScreenPosition.size.h / 2;
 		menuFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
 		newTopLevelMenuLayer = layer_create(newMenuOffScreenPosition);
 		newMenuBackgroundLayer = bitmap_layer_create(layer_get_bounds(newTopLevelMenuLayer));

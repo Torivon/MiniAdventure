@@ -22,6 +22,13 @@
 
 #define INCLUDE_SLIDESHOW 0
 
+typedef enum
+{
+	TITLE_MENU = 0,
+	ADVENTURE_MODE,
+	BATTLE_MODE,
+} GameState;
+
 enum
 {
 	DUNGEON_CRAWL_INDEX = 0,
