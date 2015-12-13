@@ -62,7 +62,7 @@ enum
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0
 
-#define USE_MENULAYER 0
+#define USE_MENULAYER_PROTOTYPE 0
 
 void ResetGame(void);
 bool HasFocus(void);

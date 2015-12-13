@@ -176,6 +176,7 @@ static void UpdateBattleQueueEntry(BattleQueueEntry *entry)
 
 void LogBattleQueue(void)
 {
+#if DEBUG_LOGGING > 1
 	DEBUG_VERBOSE_LOG("Queue state");
 	for(int i = 0; i < queue.count; ++i)
 	{
@@ -196,6 +197,7 @@ void LogBattleQueue(void)
 			}
 		}
 	}
+#endif
 }
 
 bool UpdateBattleQueue(BattleQueueEntryType *type, void **data)
