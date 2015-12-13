@@ -3,6 +3,7 @@
 #include "Adventure.h"
 #include "Battle.h"
 #include "Character.h"
+#include "Clock.h"
 #include "Items.h"
 #include "Logging.h"
 #include "MainMenu.h"
@@ -101,6 +102,7 @@ void handle_init() {
 #if USE_MENULAYER_PROTOTYPE	
 	baseWindow = InitializeNewBaseWindow();
 	window_stack_push(baseWindow, false);
+	RegisterTitleMenu();
 #else
 	ShowTitleMenu();
 #endif

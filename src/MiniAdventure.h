@@ -17,7 +17,7 @@
 	
 // Stories to include
 #define INCLUDE_DUNGEON_CRAWL 1
-#define INCLUDE_DRAGON_QUEST 0
+#define INCLUDE_DRAGON_QUEST 1
 #define INCLUDE_BATTLE_TEST_STORY 1
 
 #define INCLUDE_SLIDESHOW 0
@@ -62,7 +62,9 @@ enum
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0
 
-#define USE_MENULAYER_PROTOTYPE 0
+#define USE_MENULAYER_PROTOTYPE 1
+
+#define USE_OLD_UILAYERS 0
 
 void ResetGame(void);
 bool HasFocus(void);

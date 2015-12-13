@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "MenuArrow.h"
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
 
@@ -8,10 +9,13 @@
 
 #define MENU_LAYER_X 50
 #define MENU_LAYER_Y 20
-#define MENU_LAYER_W 80
+#define MENU_LAYER_W 100
 #define MENU_LAYER_H 100
 
-#define MENU_ANIMATION_DURATION 500
+#define INTERNAL_MENU_OFFSET 4
+
+static GBitmap *newMenuBackgroundFrame = NULL;
+static BitmapLayer *newMenuBackgroundLayer = NULL;
 
 static GFont menuFont;
 static GRect newMenuOnScreenPosition = {.origin = {.x = MENU_LAYER_X, .y = MENU_LAYER_Y}, .size = {.w = MENU_LAYER_W, .h = MENU_LAYER_H}};
@@ -25,6 +29,51 @@ static MenuLayer *newMenuLayer = NULL;
 
 static bool menuVisible = false;
 static bool menuAnimating = false;
+
+static uint16_t cellCount = 0;
+static MenuCellDescription *cellList = NULL;
+
+uint16_t GetMenuCellCount(void)
+{
+	return cellCount;
+}
+
+void CallNewMenuSelectCallback(ClickRecognizerRef recognizer, Window *window)
+{
+	if(!newMenuLayerInitialized)
+		return;
+	
+	MenuIndex index = menu_layer_get_selected_index(newMenuLayer);
+	
+	if(index.row < cellCount)
+		cellList[index.row].callback();	
+}
+
+void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
+{
+	if(count == 0)
+	{
+		ClearMenuCellList();
+		return;
+	}
+	
+	cellList = list;
+	cellCount = count;
+	if(newMenuLayerInitialized)
+	{
+		menu_layer_reload_data(newMenuLayer);
+		MenuIndex index = {.section = 0, .row = 0};
+		menu_layer_set_selected_index(newMenuLayer, index, MenuRowAlignTop, false);
+	}
+	ShowMenuArrow();
+}
+
+void ClearMenuCellList(void)
+{
+	cellCount = 0;
+	cellList = NULL;
+	HideMenuArrow();
+}
 
 MenuLayer *GetNewMenuLayer(void)
 {
@@ -49,7 +98,7 @@ bool IsMenuVisible(void)
 static void ShowAnimationStarted(struct Animation *animation, void *context)
 {
 	menuAnimating = true;
-	SetMenuArrowLeft();
+	ActivateMenuArrow();
 }
 
 static void ShowAnimationStopped(struct Animation *animation, bool finished, void *context)
@@ -67,7 +116,7 @@ static void ShowAnimationStopped(struct Animation *animation, bool finished, voi
 static void HideAnimationStarted(struct Animation *animation, void *context)
 {
 	menuAnimating = true;
-	SetMenuArrowRight();
+	InactivateMenuArrow();
 }
 
 static void HideAnimationStopped(struct Animation *animation, bool finished, void *context)
@@ -129,7 +178,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
 {
   switch (section_index) {
     case 0:
-      return NUM_FIRST_MENU_ITEMS;
+      return cellCount;
     default:
       return 0;
   }
@@ -142,33 +191,43 @@ int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex *cell_i
 
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) 
 {
-// Determine which section we're going to draw in
 	char buffer[20];
-	snprintf(buffer, sizeof(buffer), "Section %d, item %d", cell_index->section, cell_index->row);
+	snprintf(buffer, sizeof(buffer), "%s", cellList[cell_index->row].name);
 	GRect bounds = layer_get_bounds(cell_layer);
 	graphics_draw_text(ctx, buffer, menuFont, bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
-//	menu_cell_basic_draw(ctx, cell_layer, NULL, buffer, NULL);
-}
-
-static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) 
-{
 }
 
 void InitializeNewMenuLayer(Window *window)
 {
 	if(!newMenuLayerInitialized)
-	{		
+	{
+		newMenuBackgroundFrame = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MENU_FRAME);
+		GRect frameBounds = gbitmap_get_bounds(newMenuBackgroundFrame);
+		newMenuOnScreenPosition.size = frameBounds.size;
+		newMenuOffScreenPosition.size = frameBounds.size;
 		menuFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
 		newTopLevelMenuLayer = layer_create(newMenuOffScreenPosition);
-		newMenuLayer = menu_layer_create(layer_get_bounds(newTopLevelMenuLayer));
+		newMenuBackgroundLayer = bitmap_layer_create(layer_get_bounds(newTopLevelMenuLayer));
+		bitmap_layer_set_bitmap(newMenuBackgroundLayer, newMenuBackgroundFrame);
+		bitmap_layer_set_alignment(newMenuBackgroundLayer, GAlignCenter);
+		layer_add_child(newTopLevelMenuLayer, bitmap_layer_get_layer(newMenuBackgroundLayer));
+		GRect menu_bounds = layer_get_bounds(newTopLevelMenuLayer);
+		menu_bounds.origin.x += INTERNAL_MENU_OFFSET;
+		menu_bounds.origin.y += INTERNAL_MENU_OFFSET;
+		menu_bounds.size.w -= 2 * INTERNAL_MENU_OFFSET;
+		menu_bounds.size.h -= 2 * INTERNAL_MENU_OFFSET;
+		newMenuLayer = menu_layer_create(menu_bounds);
 		layer_add_child(newTopLevelMenuLayer, menu_layer_get_layer(newMenuLayer));
 		menu_layer_set_callbacks(newMenuLayer, NULL, (MenuLayerCallbacks){
 			.get_num_sections = menu_get_num_sections_callback,
 			.get_num_rows = menu_get_num_rows_callback,
 			.draw_row = menu_draw_row_callback,
-			.select_click = menu_select_callback,
 			.get_cell_height = get_cell_height_callback,
 		});
+#if defined(PBL_COLOR)
+		menu_layer_set_normal_colors(newMenuLayer, GColorBlue, GColorWhite);
+		menu_layer_set_highlight_colors(newMenuLayer, GColorWhite, GColorBlue);
+#endif
 		scroll_layer_set_shadow_hidden(menu_layer_get_scroll_layer(newMenuLayer), false);
 
 		newMenuLayerInitialized = true;
@@ -191,6 +250,8 @@ void CleanupMenu(void)
 	{
 		layer_destroy(newTopLevelMenuLayer);
 		menu_layer_destroy(newMenuLayer);
+		bitmap_layer_destroy(newMenuBackgroundLayer);
+		gbitmap_destroy(newMenuBackgroundFrame);
 		newMenuLayerInitialized = false;
 		if(menuShowAnimation)
 			property_animation_destroy(menuShowAnimation);

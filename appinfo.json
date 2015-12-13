@@ -9,6 +9,16 @@
     "resources": {
         "media": [
             {
+                "file": "images/menu_frame.png",
+                "name": "IMAGE_MENU_FRAME",
+                "type": "png"
+            },
+            {
+                "file": "images/main_image_frame.png",
+                "name": "IMAGE_MAIN_FRAME",
+                "type": "png"
+            },
+            {
                 "file": "images/left_arrow.png",
                 "name": "IMAGE_LEFT_ARROW",
                 "type": "png"
