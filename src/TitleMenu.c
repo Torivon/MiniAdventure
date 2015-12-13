@@ -2,6 +2,7 @@
 
 #include "Adventure.h"
 #include "Logging.h"
+#include "MainImage.h"
 #include "MainMenu.h"
 #include "Menu.h"
 #include "MiniAdventure.h"
@@ -12,6 +13,34 @@
 #include "DragonQuest.h"
 #include "BattleTestStory.h"
 
+#if USE_MENULAYER_PROTOTYPE
+
+#include "NewMenu.h"
+
+MenuCellDescription titleMenuList[] = 
+{
+#if INCLUDE_DUNGEON_CRAWL
+	{.name = "Dungeon", .callback = LaunchDungeonCrawl},
+#endif
+#if INCLUDE_DRAGON_QUEST
+	{.name = "Dragon Quest", .callback = LaunchDragonQuest},
+#endif
+#if INCLUDE_BATTLE_TEST_STORY
+	{.name = "Battle Test", .callback = LaunchBattleTestStory}
+#endif
+#if INCLUDE_SLIDESHOW
+	{.name = "Slideshow", .callback = LaunchSlideshow}
+#endif
+};
+
+void RegisterTitleMenu(void)
+{
+	RegisterMenuCellList(titleMenuList, sizeof(titleMenuList)/sizeof(*titleMenuList));
+	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
+	SetMainImageVisibility(true, true, false);	
+}
+
+#else
 void TitleMenuWindowAppear(Window *window)
 {
 	MenuAppear(window);
@@ -54,3 +83,4 @@ void ShowTitleMenu(void)
 	INFO_LOG("Entering title menu.");
 	PushNewMenu(&titleMenuDef);
 }
+#endif

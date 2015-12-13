@@ -3,6 +3,7 @@
 #include "Adventure.h"
 #include "Battle.h"
 #include "Character.h"
+#include "Clock.h"
 #include "Items.h"
 #include "Logging.h"
 #include "MainMenu.h"
@@ -17,7 +18,12 @@
 #include "UILayers.h"
 #include "Utils.h"
 #include "WorkerControl.h"
+
+#include "NewBaseWindow.h"
+#include "NewMenu.h"
 	 
+Window *baseWindow = NULL;
+
 static bool hasFocus = true;
 
 bool HasFocus(void)
@@ -44,6 +50,7 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 
 	if(units_changed & MINUTE_UNIT)
 	{
+		UpdateNewClock();
 		UpdateClock();
 		if(gUpdateAdventure)
 			UpdateAdventure();
@@ -92,8 +99,13 @@ void handle_init() {
 	
 	// Just here so that the health and level fields are always filled in.
 	InitializeCharacter();
-	
+#if USE_MENULAYER_PROTOTYPE	
+	baseWindow = InitializeNewBaseWindow();
+	window_stack_push(baseWindow, false);
+	RegisterTitleMenu();
+#else
 	ShowTitleMenu();
+#endif
 	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 	app_focus_service_subscribe(focus_handler);
 }
@@ -112,6 +124,9 @@ void handle_deinit()
 #if ALLOW_WORKER_APP && ALLOW_WORKER_APP_LISTENING
 	app_worker_message_unsubscribe();
 #endif
+	CleanupMenu();
+	if(baseWindow)
+		window_destroy(baseWindow);
 }
 
 // The main event/run loop for our app

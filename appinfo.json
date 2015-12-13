@@ -9,6 +9,31 @@
     "resources": {
         "media": [
             {
+                "file": "images/menu_frame.png",
+                "name": "IMAGE_MENU_FRAME",
+                "type": "png"
+            },
+            {
+                "file": "images/main_image_frame.png",
+                "name": "IMAGE_MAIN_FRAME",
+                "type": "png"
+            },
+            {
+                "file": "images/left_arrow.png",
+                "name": "IMAGE_LEFT_ARROW",
+                "type": "png"
+            },
+            {
+                "file": "images/right_arrow.png",
+                "name": "IMAGE_RIGHT_ARROW",
+                "type": "png"
+            },
+            {
+                "file": "images/ClockBackground.png",
+                "name": "IMAGE_CLOCK_BACKGROUND",
+                "type": "png"
+            },
+            {
                 "file": "images/zombie.png",
                 "name": "IMAGE_ZOMBIE",
                 "type": "png"
