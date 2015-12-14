@@ -68,6 +68,8 @@ void FollowFirstPath(void);
 void SetNewLocation(int index);
 int GetCurrentDestinationIndex(void);
 
+uint16_t GetCurrentLocationAdjacentLocations(void);
+
 // Takes an index into the adjacent locations array, and returns a global location index
 int GetCurrentAdjacentLocationIndex(int index);
 

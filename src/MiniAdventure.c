@@ -4,6 +4,7 @@
 #include "Battle.h"
 #include "Character.h"
 #include "Clock.h"
+#include "GlobalState.h"
 #include "Items.h"
 #include "Logging.h"
 #include "MainMenu.h"
@@ -14,7 +15,7 @@
 #include "Shop.h"
 #include "Slideshow.h"
 #include "Story.h"
-#include "TitleMenu.h"
+#include "TitleScreen.h"
 #include "UILayers.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -37,28 +38,13 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 	DEBUG_LOG("Main App tick");
 	if(!hasFocus)
 		return;
-
-	if(gUpdateBattle && (units_changed & SECOND_UNIT))
-	{
-		UpdateBattle();
-	}
 	
-	if(InNewBattle() && (units_changed & SECOND_UNIT))
-	{
-		UpdateNewBattle();
-	}
-
+	UpdateGlobalState(units_changed);
+		
 	if(units_changed & MINUTE_UNIT)
 	{
 		UpdateNewClock();
 		UpdateClock();
-		if(gUpdateAdventure)
-			UpdateAdventure();
-		
-#if INCLUDE_SLIDESHOW
-		if(gUpdateSlideshow)
-			UpdateSlideshow();
-#endif
 	}
 }
 
@@ -102,7 +88,7 @@ void handle_init() {
 #if USE_MENULAYER_PROTOTYPE	
 	baseWindow = InitializeNewBaseWindow();
 	window_stack_push(baseWindow, false);
-	RegisterTitleMenu();
+	RegisterTitleScreen();
 #else
 	ShowTitleMenu();
 #endif

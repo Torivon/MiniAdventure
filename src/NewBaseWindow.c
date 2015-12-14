@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "Clock.h"
 #include "DescriptionFrame.h"
+#include "GlobalState.h"
 #include "MainImage.h"
 #include "MenuArrow.h"
 #include "MiniAdventure.h"
@@ -23,11 +24,12 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 	if(IsMenuUsable())
 	{
 		CallNewMenuSelectCallback(recognizer, window);
+		HideMenu();
 	}
-	else
+	else if(IsMenuHidden())
 	{
 		if(GetMenuCellCount() > 0)
-			ShowMenu();
+			TriggerMenu();
 	}
 }
 
@@ -45,13 +47,23 @@ static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(!IsMenuHidden())
+	switch(GetCurrentGlobalState())
 	{
-		HideMenu();
-		return;
+		case MENU:
+		{
+			if(IsMenuUsable())
+			{
+				HideMenu();
+				return;
+			}
+			break;
+		}
+		default:
+		{
+			PopGlobalState();
+			break;
+		}
 	}
-		
-	window_stack_pop(true);
 }
 
 static void MenuClickConfigProvider(void *context)
@@ -104,7 +116,6 @@ Window * InitializeNewBaseWindow(void)
 	window_set_fullscreen(window, true);
 #endif
 	window_set_background_color(window, GColorBlack);
-	InitializeNewClockLayer(window);
 	SetWindowHandlers(window);
 	window_set_click_config_provider(window, MenuClickConfigProvider);
 	return window;		

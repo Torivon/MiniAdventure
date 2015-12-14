@@ -3,11 +3,15 @@
 #include "Adventure.h"
 #include "Battle.h"
 #include "Character.h"
+#include "DescriptionFrame.h"
 #include "Events.h"
+#include "GlobalState.h"
 #include "Items.h"
 #include "Logging.h"
+#include "MainImage.h"
 #include "MainMenu.h"
 #include "Menu.h"
+#include "NewMenu.h"
 #include "Persistence.h"
 #include "OptionsMenu.h"
 #include "Shop.h"
@@ -18,24 +22,15 @@
 
 bool gUpdateAdventure = false;
 
-int updateDelay = 0;
+static int updateDelay = 0;
+
+static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
 
 void SetUpdateDelay(void)
 {
 	updateDelay = 1;
 }
 
-bool adventureWindowVisible = false;
-
-bool AdventureWindowIsVisible(void)
-{
-	return adventureWindowVisible;
-}
-
-void AdventureWindowAppear(Window *window);
-void AdventureWindowDisappear(Window *window);
-void AdventureWindowInit(Window *window);
-void AdventureWindowDeinit(Window *window);
 void LoadLocationImage(void);
 
 void InitializeGameData(void)
@@ -59,179 +54,48 @@ void ResetGame(void)
 	SavePersistedData();
 }
 
+static uint16_t AdventureMenuCount(void)
+{
+	if(IsCurrentLocationPath())
+		return 0;
+	
+	DEBUG_LOG("AdjacentLocationCount %d", GetCurrentLocationAdjacentLocations());
+	return GetCurrentLocationAdjacentLocations();
+}
+
+static const char *AdventureMenuNameCallback(int row)
+{
+	if(IsCurrentLocationPath())
+		return NULL;
+
+	DEBUG_LOG("AdjacentLocationName %s", GetAdjacentLocationName(row));
+	return GetAdjacentLocationName(row);	
+}
+
+static void AdventureMenuSelectCallback(int row)
+{
+	DEBUG_LOG("Trying to follow path");
+	if(!IsCurrentLocationPath())
+	{
+		TravelToAdjacentLocationByIndex(row);
+		RefreshAdventure();
+	}	
+}
+
 void RefreshAdventure(void)
 {
-	if(!adventureWindowVisible)
-		return;
-	
-	DEBUG_VERBOSE_LOG("Refreshing adventure window.");
-	ShowMainWindowRow(0, GetCurrentLocationName(), GetCurrentLocationFloor());
-	UpdateCharacterHealth();
-	UpdateCharacterLevel();
+	DEBUG_VERBOSE_LOG("Refreshing adventure window. %s", GetCurrentLocationName());
+	SetDescription(GetCurrentLocationName()); //Add floor back in somehow
 	updateDelay = 1;
 	LoadLocationImage();
-	RefreshMenuAppearance();
+	RegisterMenuCellCallbacks(AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
 }
-
-const char *Path0Text(void)
-{
-	if(IsCurrentLocationPath())
-		return NULL;
-
-	return GetAdjacentLocationName(0);
-}
-
-void FollowPath0(void)
-{
-	DEBUG_LOG("Trying to follow first path");
-	if(!IsCurrentLocationPath())
-	{
-		TravelToAdjacentLocationByIndex(0);
-		RefreshAdventure();
-	}
-}
-
-const char *Path1Text(void)
-{
-	if(IsCurrentLocationPath())
-		return NULL;
-
-	return GetAdjacentLocationName(1);
-}
-
-void FollowPath1(void)
-{
-	DEBUG_LOG("Trying to follow second path");
-	if(!IsCurrentLocationPath())
-	{
-		TravelToAdjacentLocationByIndex(1);
-		RefreshAdventure();
-	}
-}
-
-const char *Path2Text(void)
-{
-	if(IsCurrentLocationPath())
-		return NULL;
-
-	return GetAdjacentLocationName(2);
-}
-
-void FollowPath2(void)
-{
-	DEBUG_LOG("Trying to follow first path");
-	if(!IsCurrentLocationPath())
-	{
-		TravelToAdjacentLocationByIndex(2);
-		RefreshAdventure();
-	}
-}
-
-const char *Path3Text(void)
-{
-	if(IsCurrentLocationPath())
-		return NULL;
-
-	return GetAdjacentLocationName(3);
-}
-
-void FollowPath3(void)
-{
-	DEBUG_LOG("Trying to follow first path");
-	if(!IsCurrentLocationPath())
-	{
-		TravelToAdjacentLocationByIndex(3);
-		RefreshAdventure();
-	}
-}
-
-const char *ShopMenuEntryTextFunction(void)
-{
-	if(CurrentLocationAllowsShop())
-		return "Shop";
-	else
-		return NULL;
-}
-
-const char *ShopMenuEntryDescriptionFunction(void)
-{
-	if(CurrentLocationAllowsShop())
-		return "Visit a shop";
-	else
-		return NULL;
-}
-
-MenuDefinition adventureMenuDef = 
-{
-	.menuEntries = 
-	{
-		{.text = "Main", .description = "Open the main menu", .menuFunction = ShowMainMenu},
-#if ENABLE_SHOPS
-		{.useFunctions = true, .textFunction = ShopMenuEntryTextFunction, .descriptionFunction = ShopMenuEntryDescriptionFunction, .menuFunction = ShowShopWindow},
-#else
-		{0},
-#endif			
-		{.useFunctions = true, .textFunction = Path0Text, .descriptionFunction = Path0Text, .menuFunction = FollowPath0},
-		{.useFunctions = true, .textFunction = Path1Text, .descriptionFunction = Path1Text, .menuFunction = FollowPath1},
-		{.useFunctions = true, .textFunction = Path2Text, .descriptionFunction = Path2Text, .menuFunction = FollowPath2},
-		{.useFunctions = true, .textFunction = Path3Text, .descriptionFunction = Path3Text, .menuFunction = FollowPath3},
-	},
-	.appear = AdventureWindowAppear,
-	.disappear = AdventureWindowDisappear,
-	.init = AdventureWindowInit,
-	.deinit = AdventureWindowDeinit,
-	.animated = true,
-	.mainImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT,
-	.floorImageId = -1
-};
-
-Window *adventureWindow = NULL;
 
 void LoadLocationImage(void)
 {
-	adventureMenuDef.mainImageId = GetCurrentBackgroundImage();
-	if(adventureWindow)
-		LoadMainBmpImage(adventureWindow, adventureMenuDef.mainImageId, adventureMenuDef.floorImageId);
-}
-
-void AdventureWindowAppear(Window *window)
-{
-	INFO_LOG("Adventure window: %s", GetCurrentLocationName());
-	MenuAppear(window);
-	adventureWindow = window;
-	adventureWindowVisible = true;
-	gUpdateAdventure = true;
-	RefreshAdventure();
-}
-
-void AdventureWindowDisappear(Window *window)
-{
-	DEBUG_LOG("Adventure disappear");
-	adventureWindowVisible = false;
-	gUpdateAdventure = false;
-	MenuDisappear(window);
-	adventureWindow = NULL;
-}
-
-void AdventureWindowInit(Window *window)
-{
-	MenuInit(window);
-	DEBUG_LOG("InitializeGameData");
-	InitializeGameData();	
-}
-
-void AdventureWindowDeinit(Window *window)
-{
-	SavePersistedData();
-	ClearCurrentStory();
-	MenuDeinit(window);
-}
-
-void ShowAdventureWindow(void)
-{
-	INFO_LOG("Adventure Window");
-	CurrentStoryStateNeedsSaving();
-	PushNewMenu(&adventureMenuDef);
+	adventureImageId = GetCurrentBackgroundImage();
+	SetBackgroundImage(adventureImageId);
+	SetMainImageVisibility(true, false, true);
 }
 
 typedef void (*ShowWindowFunction)(void);
@@ -279,8 +143,6 @@ bool ComputeRandomEvent(void)
 void UpdateAdventure(void)
 {
 	LocationUpdateReturnType returnVal;
-	if(!adventureWindowVisible)
-		return;
 	
 	if(IsBattleForced())
 	{
@@ -312,4 +174,32 @@ void UpdateAdventure(void)
 			RefreshAdventure();
 			break;
 	}
+}
+
+void AdventureScreenPush(void)
+{
+	CurrentStoryStateNeedsSaving();
+	InitializeGameData();	
+}
+
+void AdventureScreenAppear(void)
+{
+	ClearMenuCellList();
+//	RegisterMenuCellList();
+	RefreshAdventure();
+}
+
+void AdventureScreenDisappear(void)
+{
+}
+
+void AdventureScreenPop(void)
+{
+	SavePersistedData();
+	ClearCurrentStory();
+}
+
+void TriggerAdventureScreen(void)
+{
+	PushGlobalState(ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop);
 }

@@ -197,7 +197,7 @@ void LaunchBattleTestStory(void)
 	battleTestStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&battleTestStory, &battleTestStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	ShowAdventureWindow();
+	TriggerAdventureScreen();
 	
 }
 

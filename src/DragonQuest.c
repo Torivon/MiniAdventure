@@ -649,7 +649,7 @@ void LaunchDragonQuest(void)
 	dragonQuestStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&dragonQuestStory, &dragonQuestStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	ShowAdventureWindow();
+	TriggerAdventureScreen();
 }
 
 #endif

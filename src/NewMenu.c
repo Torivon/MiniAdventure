@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "DescriptionFrame.h"
+#include "GlobalState.h"
 #include "MenuArrow.h"
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
@@ -31,14 +32,49 @@ static MenuLayer *newMenuLayer = NULL;
 static bool menuVisible = false;
 static bool menuAnimating = false;
 
+
+static bool useCallbackFunctions = false;
 static uint16_t cellCount = 0;
 static MenuCellDescription *cellList = NULL;
-
-const char *lastDescription = NULL;
+MenuCountCallback menuCountCallback = NULL;
+MenuNameCallback menuNameCallback = NULL;
+MenuDescriptionCallback menuDescriptionCallback = NULL;
+MenuSelectCallback menuSelectCallback = NULL;
 
 uint16_t GetMenuCellCount(void)
 {
-	return cellCount;
+	if(useCallbackFunctions)
+	{
+		return menuCountCallback();
+	}
+	else
+	{
+		return cellCount;
+	}
+}
+
+const char *GetMenuName(MenuIndex *index)
+{
+	if(useCallbackFunctions)
+	{
+		return menuNameCallback(index->row);
+	}
+	else
+	{
+		return cellList[index->row].name;
+	}
+}
+
+const char *GetMenuDescription(MenuIndex *index)
+{
+	if(useCallbackFunctions)
+	{
+		return menuDescriptionCallback(index->row);
+	}
+	else
+	{
+		return cellList[index->row].description;
+	}
 }
 
 void CallNewMenuSelectCallback(ClickRecognizerRef recognizer, Window *window)
@@ -48,8 +84,17 @@ void CallNewMenuSelectCallback(ClickRecognizerRef recognizer, Window *window)
 	
 	MenuIndex index = menu_layer_get_selected_index(newMenuLayer);
 	
-	if(index.row < cellCount)
-		cellList[index.row].callback();	
+	if(index.row < GetMenuCellCount())
+	{
+		if(useCallbackFunctions)
+		{
+			menuSelectCallback(index.row);
+		}
+		else
+		{
+			cellList[index.row].callback();
+		}
+	}
 }
 
 void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
@@ -59,6 +104,12 @@ void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
 		ClearMenuCellList();
 		return;
 	}
+	
+	useCallbackFunctions = false;
+	menuCountCallback = NULL;
+	menuNameCallback = NULL;
+	menuDescriptionCallback = NULL;
+	menuSelectCallback = NULL;
 	
 	cellList = list;
 	cellCount = count;
@@ -71,10 +122,36 @@ void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
 	ShowMenuArrow();
 }
 
+void RegisterMenuCellCallbacks(MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback)
+{
+	useCallbackFunctions = true;
+	menuCountCallback = countCallback;
+	menuNameCallback = nameCallback;
+	menuDescriptionCallback = descriptionCallback;
+	menuSelectCallback = selectCallback;
+	
+	if(!menuCountCallback || menuCountCallback() <= 0)
+	{
+		ClearMenuCellList();
+		return;
+	}
+	
+	cellCount = 0;
+	cellList = NULL;
+
+	ShowMenuArrow();
+}
+
 void ClearMenuCellList(void)
 {
 	cellCount = 0;
 	cellList = NULL;
+	useCallbackFunctions = false;
+	menuCountCallback = NULL;
+	menuNameCallback = NULL;
+	menuDescriptionCallback = NULL;
+	menuSelectCallback = NULL;
+	
 	HideMenuArrow();
 }
 
@@ -102,11 +179,13 @@ static void ShowAnimationStarted(struct Animation *animation, void *context)
 {
 	menuAnimating = true;
 	ActivateMenuArrow();
-	lastDescription = GetDescription();
 	MenuIndex index = menu_layer_get_selected_index(newMenuLayer);
 	
-	if(index.row < cellCount)
-		SetDescription(cellList[index.row].description);
+	if(index.row < GetMenuCellCount())
+	{
+		const char *newDescription = GetMenuDescription(&index);
+		SetDescription(newDescription ? newDescription : "");
+	}
 }
 
 static void ShowAnimationStopped(struct Animation *animation, bool finished, void *context)
@@ -132,10 +211,10 @@ static void HideAnimationStopped(struct Animation *animation, bool finished, voi
 	menuAnimating = false;
 	
 	if(finished)
+	{
 		menuVisible = false;
-	
-	SetDescription(lastDescription);
-	lastDescription = NULL;
+		PopGlobalState();
+	}
 	
 #if !defined(PBL_PLATFORM_APLITE)
 	menuHideAnimation = NULL;	
@@ -189,7 +268,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
 {
   switch (section_index) {
     case 0:
-      return cellCount;
+      return GetMenuCellCount();
     default:
       return 0;
   }
@@ -203,14 +282,14 @@ int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex *cell_i
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) 
 {
 	char buffer[20];
-	snprintf(buffer, sizeof(buffer), "%s", cellList[cell_index->row].name);
+	snprintf(buffer, sizeof(buffer), "%s", GetMenuName(cell_index));
 	GRect bounds = layer_get_bounds(cell_layer);
 	graphics_draw_text(ctx, buffer, menuFont, bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 }
 
 void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_index, MenuIndex old_index, void *callback_context)
 {
-	const char *newDescription = cellList[new_index.row].description;
+	const char *newDescription = GetMenuDescription(&new_index);
 	SetDescription(newDescription ? newDescription : "");
 }
 
@@ -280,4 +359,9 @@ void CleanupMenu(void)
 		if(menuHideAnimation)
 			property_animation_destroy(menuHideAnimation);
 	}
+}
+
+void TriggerMenu(void)
+{
+	PushGlobalState(MENU, 0, NULL, ShowMenu, NULL, NULL, NULL);
 }

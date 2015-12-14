@@ -233,6 +233,15 @@ int GetCurrentAdjacentLocationIndex(int index)
 	return GetAdjacentLocationIndex(currentLocation, index);
 }
 
+uint16_t GetCurrentLocationAdjacentLocations(void)
+{
+	Location *currentLocation = GetCurrentLocation();
+	if(!currentLocation)
+		return 0;
+	
+	return GetAdjacentLocationCount(currentLocation);
+}
+
 void InitializeCurrentStory(void)
 {
 	if(currentStory && currentStory->initializeStory)
