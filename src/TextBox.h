@@ -7,6 +7,7 @@ void InitializeTextBox(Window *window, TextBox *textBox, char *initialText);
 void RemoveTextBox(TextBox *textBox);
 void FreeTextBox(TextBox *textBox);
 
-void TextBoxSetText(TextBox *textBox, char *text);
+void TextBoxSetText(TextBox *textBox, const char *text);
+const char *TextBoxGetText(TextBox *textBox);
 bool TextBoxInitialized(TextBox *textBox);
 

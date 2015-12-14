@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "DescriptionFrame.h"
 #include "MenuArrow.h"
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
@@ -32,6 +33,8 @@ static bool menuAnimating = false;
 
 static uint16_t cellCount = 0;
 static MenuCellDescription *cellList = NULL;
+
+const char *lastDescription = NULL;
 
 uint16_t GetMenuCellCount(void)
 {
@@ -99,6 +102,11 @@ static void ShowAnimationStarted(struct Animation *animation, void *context)
 {
 	menuAnimating = true;
 	ActivateMenuArrow();
+	lastDescription = GetDescription();
+	MenuIndex index = menu_layer_get_selected_index(newMenuLayer);
+	
+	if(index.row < cellCount)
+		SetDescription(cellList[index.row].description);
 }
 
 static void ShowAnimationStopped(struct Animation *animation, bool finished, void *context)
@@ -125,6 +133,9 @@ static void HideAnimationStopped(struct Animation *animation, bool finished, voi
 	
 	if(finished)
 		menuVisible = false;
+	
+	SetDescription(lastDescription);
+	lastDescription = NULL;
 	
 #if !defined(PBL_PLATFORM_APLITE)
 	menuHideAnimation = NULL;	
@@ -197,6 +208,12 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
 	graphics_draw_text(ctx, buffer, menuFont, bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 }
 
+void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_index, MenuIndex old_index, void *callback_context)
+{
+	const char *newDescription = cellList[new_index.row].description;
+	SetDescription(newDescription ? newDescription : "");
+}
+
 void InitializeNewMenuLayer(Window *window)
 {
 	if(!newMenuLayerInitialized)
@@ -227,6 +244,7 @@ void InitializeNewMenuLayer(Window *window)
 			.get_num_rows = menu_get_num_rows_callback,
 			.draw_row = menu_draw_row_callback,
 			.get_cell_height = get_cell_height_callback,
+			.selection_changed = selection_changed_callback
 		});
 #if defined(PBL_COLOR)
 		menu_layer_set_normal_colors(newMenuLayer, GColorBlue, GColorWhite);

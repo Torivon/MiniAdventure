@@ -44,6 +44,7 @@ void SetMenuArrowLeft(void)
 
 static void ActivateAnimationStarted(struct Animation *animation, void *context)
 {
+	SetMenuArrowLeft();
 	arrowAnimating = true;
 }
 
@@ -61,6 +62,7 @@ static void ActivateAnimationStopped(struct Animation *animation, bool finished,
 
 static void InactivateAnimationStarted(struct Animation *animation, void *context)
 {
+	SetMenuArrowRight();
 	arrowAnimating = true;
 }
 

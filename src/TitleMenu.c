@@ -1,6 +1,7 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "DescriptionFrame.h"
 #include "Logging.h"
 #include "MainImage.h"
 #include "MainMenu.h"
@@ -20,16 +21,16 @@
 MenuCellDescription titleMenuList[] = 
 {
 #if INCLUDE_DUNGEON_CRAWL
-	{.name = "Dungeon", .callback = LaunchDungeonCrawl},
+	{.name = "Dungeon", .description = "Simple dungeon delve", .callback = LaunchDungeonCrawl},
 #endif
 #if INCLUDE_DRAGON_QUEST
-	{.name = "Dragon Quest", .callback = LaunchDragonQuest},
+	{.name = "Dragon Quest", .description = "Extended adventure", .callback = LaunchDragonQuest},
 #endif
 #if INCLUDE_BATTLE_TEST_STORY
-	{.name = "Battle Test", .callback = LaunchBattleTestStory}
+	{.name = "Battle Test", .description = "Battle arena", .callback = LaunchBattleTestStory}
 #endif
 #if INCLUDE_SLIDESHOW
-	{.name = "Slideshow", .callback = LaunchSlideshow}
+	{.name = "Slideshow", .description = "Slideshow of all art", .callback = LaunchSlideshow}
 #endif
 };
 
@@ -37,7 +38,8 @@ void RegisterTitleMenu(void)
 {
 	RegisterMenuCellList(titleMenuList, sizeof(titleMenuList)/sizeof(*titleMenuList));
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
-	SetMainImageVisibility(true, true, false);	
+	SetMainImageVisibility(true, true, false);
+	SetDescription("MiniAdventure");
 }
 
 #else
