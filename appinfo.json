@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/description_frame.png",
+                "name": "IMAGE_DESCRIPTION_FRAME",
+                "type": "png"
+            },
+            {
                 "file": "images/menu_frame.png",
                 "name": "IMAGE_MENU_FRAME",
                 "type": "png"
@@ -419,7 +424,6 @@
     "sdkVersion": "3",
     "shortName": "MiniAdventure",
     "targetPlatforms": [
-        "aplite",
         "basalt",
         "chalk"
     ],

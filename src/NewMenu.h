@@ -21,6 +21,7 @@ typedef void (*MenuCellSelectCallback)(void);
 typedef struct MenuCellDescription
 {
 	char *name;
+	char *description;
 	MenuCellSelectCallback callback;
 } MenuCellDescription;
 

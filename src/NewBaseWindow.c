@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "Clock.h"
+#include "DescriptionFrame.h"
 #include "MainImage.h"
 #include "MenuArrow.h"
 #include "MiniAdventure.h"
@@ -66,6 +67,7 @@ static void MenuClickConfigProvider(void *context)
 
 void BaseWindowAppear(Window *window)
 {
+	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
 	InitializeNewMenuLayer(window);
@@ -77,12 +79,14 @@ void BaseWindowDisappear(Window *window)
 	RemoveNewClockLayer();
 	RemoveMenuArrowLayer();
 	RemoveMainImageLayer();
+	RemoveDescriptionLayer();
 }
 
 void BaseWindowUnload(Window *window)
 {
 	FreeMenuArrowLayer();
 	FreeClockLayer();
+	FreeDescriptionLayer();
 	CleanupMainImageLayer();
 }
 
