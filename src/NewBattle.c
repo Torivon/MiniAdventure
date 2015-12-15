@@ -9,6 +9,7 @@
 #include "Menu.h"
 #include "Monsters.h"
 #include "NewMenu.h"
+#include "Persistence.h"
 #include "Skills.h"
 #include "Story.h"
 #include "BattleQueue.h"
@@ -21,8 +22,28 @@ typedef struct NewBattleState
 	BattleActor *monster;
 } NewBattleState;
 
+static bool battleCleanExit = true;
+
 static NewBattleState gBattleState = {0};
 static MonsterDef *currentMonster = NULL;
+
+// in seconds
+#define BATTLE_SAVE_TICK_DELAY 60
+static int battleSaveTickDelay = 0;
+
+void SaveBattleState(void)
+{
+	if(battleSaveTickDelay <= 0)
+	{
+		SavePersistedData();
+		battleSaveTickDelay = BATTLE_SAVE_TICK_DELAY;
+	}
+}
+
+int GetCurrentMonsterHealth(void)
+{
+	return gBattleState.currentMonsterHealth;
+}
 
 bool gUpdateNewBattle = false;
 bool gPlayerTurn = false;
@@ -32,8 +53,14 @@ const char *gEffectDescription = NULL;
 void CloseNewBattleWindow(void)
 {
 	INFO_LOG("Ending battle.");
+	battleCleanExit = true;
 	ResetBattleQueue();
 	PopGlobalState();
+}
+
+bool ClosingWhileInBattle(void)
+{
+	return !battleCleanExit;
 }
 
 BattleActor *GetPlayerActor(void)
@@ -155,9 +182,35 @@ int NewComputeMonsterHealth(int level)
 	return ScaleMonsterHealth(currentMonster, baseHealth);
 }
 
+static bool forcedBattle = false;
+static int forcedBattleMonsterType = -1;
+static int forcedBattleMonsterHealth = 0;
+void ResumeBattle(int currentMonster, int currentMonsterHealth)
+{
+	if(currentMonster >= 0 && currentMonsterHealth > 0)
+	{
+		forcedBattle = true;
+		forcedBattleMonsterType = currentMonster;
+		forcedBattleMonsterHealth = currentMonsterHealth;
+	}
+}
+
+bool IsBattleForced(void)
+{
+	return forcedBattle;
+}
+
 void NewBattleInit(void)
 {
 	currentMonster = NULL;
+
+	if(forcedBattle)
+	{
+		DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
+		currentMonster = GetFixedMonster(forcedBattleMonsterType);
+		gBattleState.currentMonsterHealth = forcedBattleMonsterHealth;	
+		forcedBattle = false;
+	}
 
 	if(!currentMonster)
 	{
@@ -178,6 +231,7 @@ void NewBattleInit(void)
 	SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
 #endif
 	SetMainImageVisibility(true, true, true);
+	battleCleanExit = false;
 }
 
 void UpdateNewBattle(void)
@@ -185,6 +239,11 @@ void UpdateNewBattle(void)
 	bool entryRemoved = false;
 	void *data = NULL;
 	BattleQueueEntryType type = ACTOR;
+	
+	if(battleSaveTickDelay > 0)
+	{
+		--battleSaveTickDelay;
+	}
 	
 	if(gSkillDelay > 0)
 	{

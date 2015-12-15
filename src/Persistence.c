@@ -1,10 +1,11 @@
 #include "pebble.h"
 
-#include "Battle.h"
 #include "Character.h"
+#include "GlobalState.h"
 #include "Items.h"
 #include "Logging.h"
 #include "Monsters.h"
+#include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "Shop.h"

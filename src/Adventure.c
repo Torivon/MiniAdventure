@@ -1,7 +1,6 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "DescriptionFrame.h"
 #include "Events.h"

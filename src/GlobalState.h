@@ -25,4 +25,5 @@ void PushGlobalState(GlobalState state,
 void UpdateGlobalState(TimeUnits units_changed);
 void PopGlobalState(void);
 GlobalState GetCurrentGlobalState(void);
+void PopAllGlobalStates(void);
 

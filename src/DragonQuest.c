@@ -1,7 +1,6 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "DragonQuest.h"
 #include "Items.h"
@@ -10,6 +9,7 @@
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Monsters.h"
+#include "NewBattle.h"
 #include "Story.h"
 	
 #if INCLUDE_DRAGON_QUEST	

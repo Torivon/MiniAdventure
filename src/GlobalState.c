@@ -106,3 +106,11 @@ GlobalState GetCurrentGlobalState(void)
 	
 	return globalStateInstances[globalStateInstanceCount - 1].state;
 }
+
+void PopAllGlobalStates(void)
+{
+	while(globalStateInstanceCount > 0)
+	{
+		PopGlobalState();
+	}
+}

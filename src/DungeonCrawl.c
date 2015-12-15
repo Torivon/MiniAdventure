@@ -1,7 +1,6 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "DungeonCrawl.h"
 #include "Items.h"
@@ -10,6 +9,7 @@
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Monsters.h"
+#include "NewBattle.h"
 #include "Story.h"
 	
 #if INCLUDE_DUNGEON_CRAWL
@@ -196,7 +196,7 @@ static Location locationList[] =
 		.adjacentLocations = {DUNGEON_TREASURE_ROOM},
 		.fixedclass = &DragonsRoomClass,
 		.baseLevel = 1,
-		.fixed_ArrivalFunction = ShowBattleWindow,
+		.fixed_ArrivalFunction = TriggerBattleScreen,
 	},
 	{
 		.name = "Treasure Room",

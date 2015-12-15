@@ -6,6 +6,7 @@
 #include "MenuArrow.h"
 #include "MiniAdventure.h"
 #include "NewBaseWindow.h"
+#include "NewBattle.h"
 #include "NewMenu.h"
 #include "Logging.h"
 #include "Utils.h"
@@ -60,6 +61,7 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 		}
 		case BATTLE:
 		{
+			SaveBattleState();
 			break;
 		}
 		default:

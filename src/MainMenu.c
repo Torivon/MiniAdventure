@@ -2,7 +2,6 @@
 
 #include "Adventure.h"
 #include "Character.h"
-#include "Battle.h"
 #include "Items.h"
 #include "Logging.h"
 #include "MainMenu.h"
