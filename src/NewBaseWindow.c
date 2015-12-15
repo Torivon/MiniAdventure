@@ -24,7 +24,7 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 	if(IsMenuUsable())
 	{
 		CallNewMenuSelectCallback(recognizer, window);
-		HideMenu();
+		HideMenu(); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
 	}
 	else if(IsMenuHidden())
 	{

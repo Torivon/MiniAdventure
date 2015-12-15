@@ -35,5 +35,6 @@ void RegisterMenuCellCallbacks(MenuCountCallback countCallback, MenuNameCallback
 void RegisterMenuCellList(MenuCellDescription *list, uint16_t count);
 void ClearMenuCellList(void);
 uint16_t GetMenuCellCount(void);
+void ReloadMenu(void);
 
 #define MENU_ANIMATION_DURATION 500

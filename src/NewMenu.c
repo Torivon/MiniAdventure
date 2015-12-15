@@ -361,6 +361,22 @@ void CleanupMenu(void)
 	}
 }
 
+void ReloadMenu(void)
+{
+	if(newMenuLayerInitialized)
+	{
+		menu_layer_reload_data(newMenuLayer);
+		if(GetMenuCellCount() > 0)
+		{
+			ShowMenuArrow();
+		}
+		else
+		{
+			HideMenuArrow();
+		}
+	}
+}
+
 void TriggerMenu(void)
 {
 	PushGlobalState(MENU, 0, NULL, ShowMenu, NULL, NULL, NULL);

@@ -26,6 +26,8 @@ static int updateDelay = 0;
 
 static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
 
+static int newLocation = -1;
+
 void SetUpdateDelay(void)
 {
 	updateDelay = 1;
@@ -77,18 +79,17 @@ static void AdventureMenuSelectCallback(int row)
 	DEBUG_LOG("Trying to follow path");
 	if(!IsCurrentLocationPath())
 	{
-		TravelToAdjacentLocationByIndex(row);
-		RefreshAdventure();
+		newLocation = row;
 	}	
 }
 
 void RefreshAdventure(void)
 {
 	DEBUG_VERBOSE_LOG("Refreshing adventure window. %s", GetCurrentLocationName());
-	SetDescription(GetCurrentLocationName()); //Add floor back in somehow
 	updateDelay = 1;
 	LoadLocationImage();
-	RegisterMenuCellCallbacks(AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+	ReloadMenu();
+	SetDescription(GetCurrentLocationName()); //Add floor back in somehow
 }
 
 void LoadLocationImage(void)
@@ -184,8 +185,12 @@ void AdventureScreenPush(void)
 
 void AdventureScreenAppear(void)
 {
-	ClearMenuCellList();
-//	RegisterMenuCellList();
+	RegisterMenuCellCallbacks(AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+	if(newLocation > -1)
+	{
+		TravelToAdjacentLocationByIndex(newLocation);
+	}
+	newLocation = -1;
 	RefreshAdventure();
 }
 
