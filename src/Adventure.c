@@ -11,6 +11,7 @@
 #include "MainImage.h"
 #include "MainMenu.h"
 #include "Menu.h"
+#include "NewBattle.h"
 #include "NewMenu.h"
 #include "Persistence.h"
 #include "OptionsMenu.h"
@@ -85,6 +86,9 @@ static void AdventureMenuSelectCallback(int row)
 
 void RefreshAdventure(void)
 {
+	if(!gUpdateAdventure)
+		return;
+	
 	DEBUG_VERBOSE_LOG("Refreshing adventure window. %s", GetCurrentLocationName());
 	updateDelay = 1;
 	LoadLocationImage();
@@ -110,7 +114,7 @@ typedef struct
 // These should add up to 100
 RandomTableEntry entries[] = 
 {
-	{ShowBattleWindow, 100},
+	{TriggerBattleScreen, 100},
 };
 
 bool ComputeRandomEvent(void)
@@ -148,7 +152,7 @@ void UpdateAdventure(void)
 	if(IsBattleForced())
 	{
 		INFO_LOG("Triggering forced battle.");
-		ShowBattleWindow();
+		TriggerBattleScreen();
 		return;
 	}
 
@@ -185,6 +189,7 @@ void AdventureScreenPush(void)
 
 void AdventureScreenAppear(void)
 {
+	gUpdateAdventure = true;
 	RegisterMenuCellCallbacks(AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
 	if(newLocation > -1)
 	{
@@ -196,6 +201,7 @@ void AdventureScreenAppear(void)
 
 void AdventureScreenDisappear(void)
 {
+	gUpdateAdventure = false;
 }
 
 void AdventureScreenPop(void)

@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "DescriptionFrame.h"
 #include "GlobalState.h"
+#include "Logging.h"
 #include "MenuArrow.h"
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
@@ -99,6 +100,7 @@ void CallNewMenuSelectCallback(ClickRecognizerRef recognizer, Window *window)
 
 void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
 {
+	DEBUG_LOG("RegisterMenuCellList");
 	if(count == 0)
 	{
 		ClearMenuCellList();
@@ -124,13 +126,14 @@ void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
 
 void RegisterMenuCellCallbacks(MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback)
 {
+	DEBUG_LOG("RegisterMenuCellCallbacks");
 	useCallbackFunctions = true;
 	menuCountCallback = countCallback;
 	menuNameCallback = nameCallback;
 	menuDescriptionCallback = descriptionCallback;
 	menuSelectCallback = selectCallback;
 	
-	if(!menuCountCallback || menuCountCallback() <= 0)
+	if(!menuCountCallback)
 	{
 		ClearMenuCellList();
 		return;
@@ -139,7 +142,10 @@ void RegisterMenuCellCallbacks(MenuCountCallback countCallback, MenuNameCallback
 	cellCount = 0;
 	cellList = NULL;
 
-	ShowMenuArrow();
+	if(menuCountCallback() > 0)
+		ShowMenuArrow();
+	else
+		HideMenuArrow();
 }
 
 void ClearMenuCellList(void)
@@ -363,9 +369,12 @@ void CleanupMenu(void)
 
 void ReloadMenu(void)
 {
+	DEBUG_LOG("ReloadMenu");
 	if(newMenuLayerInitialized)
 	{
+		DEBUG_LOG("Reloading");
 		menu_layer_reload_data(newMenuLayer);
+		DEBUG_LOG("%d menu cells", GetMenuCellCount());
 		if(GetMenuCellCount() > 0)
 		{
 			ShowMenuArrow();

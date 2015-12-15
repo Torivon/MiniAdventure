@@ -58,6 +58,10 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 			}
 			break;
 		}
+		case BATTLE:
+		{
+			break;
+		}
 		default:
 		{
 			PopGlobalState();

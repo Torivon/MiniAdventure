@@ -166,7 +166,7 @@ static Location locationList[] =
 		.adjacentLocations = {ARENA},
 		.fixedclass = &RatClass,
 		.baseLevel = 1,
-		.fixed_ArrivalFunction = ShowNewBattleWindow,
+		.fixed_ArrivalFunction = TriggerBattleScreen,
 	},
 };
 
@@ -198,7 +198,6 @@ void LaunchBattleTestStory(void)
 	RegisterStory(&battleTestStory, &battleTestStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
 	TriggerAdventureScreen();
-	
 }
 
 #endif

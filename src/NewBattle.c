@@ -1,10 +1,14 @@
 #include <pebble.h>
 #include "BattleActor.h"
 #include "Character.h"
+#include "DescriptionFrame.h"
+#include "GlobalState.h"
 #include "Logging.h"
 #include "NewBattle.h"
+#include "MainImage.h"
 #include "Menu.h"
 #include "Monsters.h"
+#include "NewMenu.h"
 #include "Skills.h"
 #include "Story.h"
 #include "BattleQueue.h"
@@ -25,17 +29,11 @@ bool gPlayerTurn = false;
 int gSkillDelay = 0;
 const char *gEffectDescription = NULL;
 
-bool InNewBattle(void)
-{
-	return gUpdateNewBattle;
-}
-
 void CloseNewBattleWindow(void)
 {
 	INFO_LOG("Ending battle.");
-	gUpdateNewBattle = false;
 	ResetBattleQueue();
-	PopMenu();
+	PopGlobalState();
 }
 
 BattleActor *GetPlayerActor(void)
@@ -48,47 +46,12 @@ BattleActor *GetMonsterActor(void)
 	return gBattleState.monster;
 }
 
-
-void NewBattleWindowAppear(Window *window);
-void NewBattleWindowDisappear(Window *window);
-void NewBattleWindowInit(Window *window);
-
-const char *FastAttackMenuText(void)
-{
-	if(gPlayerTurn)
-	{
-		return "Fast Attack";
-	}
-	
-	return NULL;
-}
-
-const char *FastAttackMenuDescription(void)
-{
-	return "Quick stab";
-}
-
 void PlayerPushFastAttack(void)
 {
 	SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetPlayerActor(), GetMonsterActor());
 	BattleQueuePush(SKILL, newInstance);
 	BattleQueuePush(ACTOR, GetPlayerActor());
 	gPlayerTurn = false;
-}
-
-const char *SlowAttackMenuText(void)
-{
-	if(gPlayerTurn)
-	{
-		return "Slow Attack";
-	}
-	
-	return NULL;
-}
-
-const char *SlowAttackMenuDescription(void)
-{
-	return "Heavy slash";
 }
 
 void PlayerPushSlowAttack(void)
@@ -99,39 +62,76 @@ void PlayerPushSlowAttack(void)
 	gPlayerTurn = false;
 }
 
-const char *BattleEffectText(void)
+static uint16_t BattleScreenCount(void)
 {
-	if(gSkillDelay > 0)
-		return "Effect";
-	else
+	DEBUG_LOG("BattleScreenCount");
+	if(!gPlayerTurn)
+		return 0;
+	
+	DEBUG_LOG("Returning good value");
+	return 2;
+}
+
+static const char *BattleScreenNameCallback(int row)
+{
+	if(!gPlayerTurn)
 		return NULL;
-}
 
-const char *BattleEffectDescription(void)
-{
-	return gEffectDescription;
-}
-
-MenuDefinition newBattleMainMenuDef = 
-{
-	.menuEntries = 
+	switch(row)
 	{
-		{.useFunctions = true, .textFunction = FastAttackMenuText, .descriptionFunction = FastAttackMenuDescription, .menuFunction = PlayerPushFastAttack},
-		{.useFunctions = true, .textFunction = SlowAttackMenuText, .descriptionFunction = SlowAttackMenuDescription, .menuFunction = PlayerPushSlowAttack},
-		{.useFunctions = true, .textFunction = BattleEffectText, .descriptionFunction = BattleEffectDescription, .menuFunction = DoNothing}
-	},
-	.init = NewBattleWindowInit,
-	.appear = NewBattleWindowAppear,
-	.disappear = NewBattleWindowDisappear,
-	.disableBackButton = true,
-	.mainImageId = -1,
-	.floorImageId = -1
-};
+		case 0:
+		{
+			return "Fast Attack";
+			break;
+		}
+		case 1:
+		{
+			return "Slow Attack";
+			break;
+		}
+	}
+	return "";
+}
 
-void ShowMainNewBattleMenu(void)
+static const char *BattleScreenDescriptionCallback(int row)
 {
-	INFO_LOG("Entering battle.");
-	PushNewMenu(&newBattleMainMenuDef);
+	if(!gPlayerTurn)
+		return NULL;
+
+	switch(row)
+	{
+		case 0:
+		{
+			return "Quick stab";
+			break;
+		}
+		case 1:
+		{
+			return "Heavy slash";
+			break;
+		}
+	}
+	return "";
+}
+
+static void BattleScreenSelectCallback(int row)
+{
+	if(!gPlayerTurn)
+		return;
+
+	switch(row)
+	{
+		case 0:
+		{
+			PlayerPushFastAttack();
+			break;
+		}
+		case 1:
+		{
+			PlayerPushSlowAttack();
+			break;
+		}
+	}
 }
 
 const char  *UpdateNewMonsterHealthText(void)
@@ -142,17 +142,11 @@ const char  *UpdateNewMonsterHealthText(void)
 	return monsterHealthText;
 }
 
-void NewBattleWindowAppear(Window *window)
+void BattleScreenAppear(void)
 {
-	MenuAppear(window);
-	ShowMainWindowRow(0, currentMonster->name, UpdateNewMonsterHealthText());
-	gUpdateNewBattle = true;
-}
-
-void NewBattleWindowDisappear(Window *window)
-{
-	MenuDisappear(window);
-	gUpdateNewBattle = false;
+	SetDescription(currentMonster->name);
+	RegisterMenuCellCallbacks(BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+	ReloadMenu();
 }
 
 int NewComputeMonsterHealth(int level)
@@ -176,11 +170,14 @@ void NewBattleInit(void)
 	
 	BattleQueuePush(ACTOR, gBattleState.player);
 	BattleQueuePush(ACTOR, gBattleState.monster);
-	
-	newBattleMainMenuDef.mainImageId = currentMonster->imageId;
+
+	RegisterMenuCellCallbacks(BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+
+	SetForegroundImage(currentMonster->imageId);
 #if defined(PBL_COLOR)
-	newBattleMainMenuDef.floorImageId = RESOURCE_ID_IMAGE_BATTLE_FLOOR;
+	SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
 #endif
+	SetMainImageVisibility(true, true, true);
 }
 
 void UpdateNewBattle(void)
@@ -192,6 +189,8 @@ void UpdateNewBattle(void)
 	if(gSkillDelay > 0)
 	{
 		--gSkillDelay;
+		if(gSkillDelay == 0)
+			SetDescription(currentMonster->name);
 		return;
 	}
 	
@@ -214,6 +213,7 @@ void UpdateNewBattle(void)
 			{
 				SkillInstance *instance = (SkillInstance*)data;
 				gEffectDescription = ExecuteSkill(instance);
+				SetDescription(gEffectDescription);
 				gSkillDelay = SKILL_DELAY;
 				break;
 			}
@@ -223,6 +223,7 @@ void UpdateNewBattle(void)
 				if(BattleActor_IsPlayer(actor))
 				{
 					gPlayerTurn = true;
+					ReloadMenu();
 				}
 				else
 				{
@@ -235,20 +236,15 @@ void UpdateNewBattle(void)
 			}
 		}
 	}
-
-	ShowMainWindowRow(0, currentMonster->name, UpdateNewMonsterHealthText());
-	UpdateHealthText(BattleActor_GetHealth(gBattleState.player), BattleActor_GetMaxHealth(gBattleState.player));
-	RefreshMenuAppearance();
 }
 
-void NewBattleWindowInit(Window *window)
+void BattleScreenPush(void)
 {
-	MenuInit(window);
 	NewBattleInit();
 }
 
-void ShowNewBattleWindow(void)
+void TriggerBattleScreen(void)
 {
 	if(CurrentLocationAllowsCombat())
-		ShowMainNewBattleMenu();
+		PushGlobalState(BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, NULL);
 }
