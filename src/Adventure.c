@@ -5,16 +5,15 @@
 #include "DescriptionFrame.h"
 #include "Events.h"
 #include "GlobalState.h"
-#include "Items.h"
 #include "Logging.h"
 #include "MainImage.h"
 #include "MainMenu.h"
 #include "Menu.h"
 #include "NewBattle.h"
 #include "NewMenu.h"
+#include "NewBaseWindow.h"
 #include "Persistence.h"
 #include "OptionsMenu.h"
-#include "Shop.h"
 #include "Story.h"
 #include "UILayers.h"
 #include "Utils.h"
@@ -91,7 +90,7 @@ void RefreshAdventure(void)
 	DEBUG_VERBOSE_LOG("Refreshing adventure window. %s", GetCurrentLocationName());
 	updateDelay = 1;
 	LoadLocationImage();
-	ReloadMenu();
+	ReloadMenu(GetMainMenu());
 	SetDescription(GetCurrentLocationName()); //Add floor back in somehow
 }
 
@@ -144,7 +143,7 @@ bool ComputeRandomEvent(void)
 	return true;
 }
 
-void UpdateAdventure(void)
+void UpdateAdventure(void *data)
 {
 	LocationUpdateReturnType returnVal;
 	
@@ -180,16 +179,16 @@ void UpdateAdventure(void)
 	}
 }
 
-void AdventureScreenPush(void)
+void AdventureScreenPush(void *data)
 {
 	CurrentStoryStateNeedsSaving();
 	InitializeGameData();	
 }
 
-void AdventureScreenAppear(void)
+void AdventureScreenAppear(void *data)
 {
 	gUpdateAdventure = true;
-	RegisterMenuCellCallbacks(AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+	RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
 	if(newLocation > -1)
 	{
 		TravelToAdjacentLocationByIndex(newLocation);
@@ -198,12 +197,12 @@ void AdventureScreenAppear(void)
 	RefreshAdventure();
 }
 
-void AdventureScreenDisappear(void)
+void AdventureScreenDisappear(void *data)
 {
 	gUpdateAdventure = false;
 }
 
-void AdventureScreenPop(void)
+void AdventureScreenPop(void *data)
 {
 	SavePersistedData();
 	ClearCurrentStory();
@@ -211,5 +210,5 @@ void AdventureScreenPop(void)
 
 void TriggerAdventureScreen(void)
 {
-	PushGlobalState(ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop);
+	PushGlobalState(ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
 }

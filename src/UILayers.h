@@ -1,5 +1,5 @@
 #pragma once
-
+#if COMPILE_OLD_UILAYERS
 #define MAX_MAIN_TEXT_LAYERS 6
 
 void SetMenuHighlight(int menuItem, bool selected);
@@ -27,3 +27,4 @@ Window * InitializeMenuWindow(void *menuWindow, const char *name, bool animated,
 
 void WindowAppear(Window *window);
 void WindowDisappear(Window *window);
+#endif

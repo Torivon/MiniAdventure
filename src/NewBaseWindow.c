@@ -13,6 +13,13 @@
 
 static bool usingNewWindow = false;
 
+static Menu *mainMenu = NULL;
+
+Menu *GetMainMenu(void)
+{
+	return mainMenu;
+}
+
 bool UsingNewWindow(void)
 {
 	return usingNewWindow;
@@ -22,28 +29,28 @@ bool UsingNewWindow(void)
 
 static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable())
+	if(IsMenuUsable(GetMainMenu()))
 	{
-		CallNewMenuSelectCallback(recognizer, window);
-		HideMenu(); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
+		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
+		HideMenu(GetMainMenu()); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
 	}
-	else if(IsMenuHidden())
+	else if(IsMenuHidden(GetMainMenu()))
 	{
-		if(GetMenuCellCount() > 0)
-			TriggerMenu();
+		if(GetMenuCellCount(GetMainMenu()) > 0)
+			TriggerMenu(GetMainMenu());
 	}
 }
 
 static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable())
-		menu_layer_set_selected_next(GetNewMenuLayer(), true, MenuRowAlignCenter, true);
+	if(IsMenuUsable(GetMainMenu()))
+		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), true, MenuRowAlignCenter, true);
 }
 
 static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable())
-		menu_layer_set_selected_next(GetNewMenuLayer(), false, MenuRowAlignCenter, true);
+	if(IsMenuUsable(GetMainMenu()))
+		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), false, MenuRowAlignCenter, true);
 }
 
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
@@ -52,9 +59,9 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 	{
 		case MENU:
 		{
-			if(IsMenuUsable())
+			if(IsMenuUsable(GetMainMenu()))
 			{
-				HideMenu();
+				HideMenu(GetMainMenu());
 				return;
 			}
 			break;
@@ -88,7 +95,7 @@ void BaseWindowAppear(Window *window)
 	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
-	InitializeNewMenuLayer(window);
+	InitializeNewMenuLayer(GetMainMenu(), window);
 	InitializeMenuArrowLayer(window);
 }
 
@@ -106,6 +113,7 @@ void BaseWindowUnload(Window *window)
 	FreeClockLayer();
 	FreeDescriptionLayer();
 	CleanupMainImageLayer();
+	CleanupMenu(mainMenu);
 }
 
 void SetWindowHandlers(Window *window)
@@ -123,6 +131,12 @@ Window * InitializeNewBaseWindow(void)
 #endif
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
+	mainMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_MENU_FRAME,
+							   50,
+							   4,
+							   110,
+							   true,
+							   true);
 	window_set_click_config_provider(window, MenuClickConfigProvider);
 	return window;		
 }

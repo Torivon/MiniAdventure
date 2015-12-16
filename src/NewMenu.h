@@ -1,21 +1,29 @@
 #pragma once
 
-void InitializeNewMenuLayer(Window *window);
+typedef struct Menu Menu;
 
-bool IsMenuVisible(void);
-void ShowMenu(void);
-void HideMenu(void);
-void TriggerMenu(void);
+Menu *CreateMenuLayer(int backgroundImageId,
+					  int yPos,
+					  int innerOffset,
+					  int onScreenX,
+					  bool offScreenRight,
+					  bool controlMenuArrow);
+void InitializeNewMenuLayer(Menu *menu, Window *window);
 
-void CallNewMenuSelectCallback(ClickRecognizerRef recognizer, Window *window);
+bool IsMenuVisible(Menu *menu);
+void ShowMenu(void *menu);
+void HideMenu(Menu *menu);
+void TriggerMenu(Menu *menu);
 
-bool IsMenuUsable(void);
-bool IsMenuHidden(void);
-bool IsMenuVisible(void);
+void CallNewMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window);
 
-MenuLayer *GetNewMenuLayer(void);
+bool IsMenuUsable(Menu *menu);
+bool IsMenuHidden(Menu *menu);
+bool IsMenuVisible(Menu *menu);
 
-void CleanupMenu(void);
+MenuLayer *GetNewMenuLayer(Menu *menu);
+
+void CleanupMenu(Menu *menu);
 
 typedef uint16_t (*MenuCountCallback)(void);
 typedef const char *(*MenuNameCallback)(int row);
@@ -31,10 +39,10 @@ typedef struct MenuCellDescription
 	MenuCellSelectCallback callback;
 } MenuCellDescription;
 
-void RegisterMenuCellCallbacks(MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback);
-void RegisterMenuCellList(MenuCellDescription *list, uint16_t count);
-void ClearMenuCellList(void);
-uint16_t GetMenuCellCount(void);
-void ReloadMenu(void);
+void RegisterMenuCellCallbacks(Menu *menu, MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback);
+void RegisterMenuCellList(Menu *menu, MenuCellDescription *list, uint16_t count);
+void ClearMenuCellList(Menu *menu);
+uint16_t GetMenuCellCount(Menu *menu);
+void ReloadMenu(Menu *menu);
 
 #define MENU_ANIMATION_DURATION 500

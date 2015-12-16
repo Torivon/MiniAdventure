@@ -8,8 +8,8 @@
 #include "MainMenu.h"
 #include "Menu.h"
 #include "MiniAdventure.h"
+#include "NewBaseWindow.h"
 #include "Slideshow.h"
-#include "UILayers.h"
 
 #include "DungeonCrawl.h"
 #include "DragonQuest.h"
@@ -64,9 +64,9 @@ MenuCellDescription titleScreenMenuList[] =
 #endif
 };
 
-static void TitleScreenAppear(void)
+static void TitleScreenAppear(void *data)
 {
-	RegisterMenuCellList(titleScreenMenuList, sizeof(titleScreenMenuList)/sizeof(*titleScreenMenuList));
+	RegisterMenuCellList(GetMainMenu(), titleScreenMenuList, sizeof(titleScreenMenuList)/sizeof(*titleScreenMenuList));
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
@@ -109,7 +109,7 @@ static void TitleScreenAppear(void)
 	gameToLaunch = STORY_NONE;
 }
 
-static void TitleScreenPop(void)
+static void TitleScreenPop(void *data)
 {
 	SetMainImageVisibility(false, false, false);
 	SetDescription("");
@@ -117,5 +117,5 @@ static void TitleScreenPop(void)
 
 void RegisterTitleScreen(void)
 {
-	PushGlobalState(TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop);
+	PushGlobalState(TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
 }

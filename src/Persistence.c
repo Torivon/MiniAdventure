@@ -2,13 +2,11 @@
 
 #include "Character.h"
 #include "GlobalState.h"
-#include "Items.h"
 #include "Logging.h"
 #include "Monsters.h"
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
-#include "Shop.h"
 #include "Story.h"
 #include "WorkerControl.h"
 
@@ -63,14 +61,6 @@ bool SavePersistedData(void)
 		return false;
 	}
 
-#if ENABLE_ITEMS
-	if(GetSizeOfItemsOwned() > PERSIST_DATA_MAX_LENGTH )
-	{
-		ERROR_LOG("Item data is too big to save (%d).", GetSizeOfItemsOwned());
-		return false;
-	}
-#endif
-
 	ProfileLogStart("SavePersistedData");
 	INFO_LOG("Saving global persisted data.");
 	DEBUG_VERBOSE_LOG("Saving meta data");
@@ -103,12 +93,6 @@ bool SavePersistedData(void)
 		characterData = GetCharacter();
 		persist_write_data(PERSISTED_GAME_CHARACTER_DATA + offset, characterData, sizeof(CharacterData));
 		persist_write_data(PERSISTED_GAME_STORY_DATA + offset, &currentStoryState->persistedStoryState, sizeof(PersistedStoryState));
-#if ENABLE_ITEMS
-		persist_write_data(PERSISTED_GAME_ITEM_DATA + offset, GetItemsOwned(), GetSizeOfItemsOwned());
-#endif
-#if ENABLE_SHOPS
-		persist_write_int(PERSISTED_GAME_STAT_POINTS_PURCHASED + offset, GetStatPointsPurchased());
-#endif
 
 		persist_write_bool(PERSISTED_GAME_IN_COMBAT + offset, ClosingWhileInBattle());
 		persist_write_int(PERSISTED_GAME_MONSTER_TYPE + offset, currentStoryState->persistedStoryState.mostRecentMonster);
@@ -176,12 +160,6 @@ bool LoadPersistedData(void)
 		characterData = GetCharacter();
 		persist_read_data(PERSISTED_GAME_CHARACTER_DATA + offset, characterData, sizeof(CharacterData));
 		persist_read_data(PERSISTED_GAME_STORY_DATA + offset, &currentStoryState->persistedStoryState, sizeof(PersistedStoryState));
-#if ENABLE_ITEMS
-		persist_read_data(PERSISTED_GAME_ITEM_DATA + offset, GetItemsOwned(), GetSizeOfItemsOwned());
-#endif
-#if ENABLE_SHOPS
-		SetStatPointsPurchased(persist_read_int(PERSISTED_GAME_STAT_POINTS_PURCHASED + offset));
-#endif
 		
 		if(persist_read_bool(PERSISTED_GAME_IN_COMBAT + offset))
 		{

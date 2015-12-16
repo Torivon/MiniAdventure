@@ -3,7 +3,6 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "DragonQuest.h"
-#include "Items.h"
 #include "Location.h"
 #include "LocationInternal.h"
 #include "Logging.h"

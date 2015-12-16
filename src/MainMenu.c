@@ -2,15 +2,13 @@
 
 #include "Adventure.h"
 #include "Character.h"
-#include "Items.h"
 #include "Logging.h"
 #include "MainMenu.h"
 #include "Menu.h"
 #include "OptionsMenu.h"
-#include "Shop.h"
 #include "UILayers.h"
 #include "Utils.h"
-
+#if COMPILE_OLD_UILAYERS
 // **************** TEST MENU ******************//
 
 void DoNothing(void)
@@ -224,3 +222,4 @@ void ShowMainMenu(void)
 	INFO_LOG("Entering main menu. Game paused.");
 	PushNewMenu(&mainMenuDef);
 }
+#endif

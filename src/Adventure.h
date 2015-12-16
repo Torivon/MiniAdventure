@@ -6,7 +6,6 @@ const char *UpdateVibrationText(void);
 bool AdventureWindowIsVisible(void);
 
 void SetUpdateDelay(void);
-void UpdateAdventure(void);
 
 void RefreshAdventure(void);
 void ResetGame(void);

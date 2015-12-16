@@ -1,6 +1,6 @@
 #pragma once
 
-typedef void(*GlobalStateChangeCallback)(void);
+typedef void(*GlobalStateChangeCallback)(void *data);
 
 typedef enum
 {
@@ -15,12 +15,13 @@ typedef enum
 } GlobalState;
 
 void PushGlobalState(GlobalState state, 
-				  TimeUnits triggerUnits,
-				  GlobalStateChangeCallback updateCallback,
-				  GlobalStateChangeCallback pushCallback, 
-				  GlobalStateChangeCallback appearCallback, 
-				  GlobalStateChangeCallback disappearCallback, 
-				  GlobalStateChangeCallback popCallback);
+					 TimeUnits triggerUnits,
+					 GlobalStateChangeCallback updateCallback,
+					 GlobalStateChangeCallback pushCallback, 
+					 GlobalStateChangeCallback appearCallback, 
+					 GlobalStateChangeCallback disappearCallback, 
+					 GlobalStateChangeCallback popCallback,
+					 void *data);
 
 void UpdateGlobalState(TimeUnits units_changed);
 void PopGlobalState(void);

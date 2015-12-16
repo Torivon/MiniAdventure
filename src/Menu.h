@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MiniAdventure.h"
-
+#if COMPILE_OLD_UILAYERS
 typedef void (*MenuFunction)(void);
 typedef const char *(*MenuTextFunction)(void);
 
@@ -50,3 +50,4 @@ void MenuAppear(Window *window);
 void MenuDisappear(Window *window);
 void PushNewMenu(MenuDefinition *menuDef);
 void PopMenu(void);
+#endif

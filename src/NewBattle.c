@@ -8,6 +8,7 @@
 #include "MainImage.h"
 #include "Menu.h"
 #include "Monsters.h"
+#include "NewBaseWindow.h"
 #include "NewMenu.h"
 #include "Persistence.h"
 #include "Skills.h"
@@ -169,11 +170,11 @@ const char  *UpdateNewMonsterHealthText(void)
 	return monsterHealthText;
 }
 
-void BattleScreenAppear(void)
+void BattleScreenAppear(void *data)
 {
 	SetDescription(currentMonster->name);
-	RegisterMenuCellCallbacks(BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
-	ReloadMenu();
+	RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+	ReloadMenu(GetMainMenu());
 }
 
 int NewComputeMonsterHealth(int level)
@@ -224,7 +225,7 @@ void NewBattleInit(void)
 	BattleQueuePush(ACTOR, gBattleState.player);
 	BattleQueuePush(ACTOR, gBattleState.monster);
 
-	RegisterMenuCellCallbacks(BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+	RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
 
 	SetForegroundImage(currentMonster->imageId);
 #if defined(PBL_COLOR)
@@ -234,7 +235,7 @@ void NewBattleInit(void)
 	battleCleanExit = false;
 }
 
-void UpdateNewBattle(void)
+void UpdateNewBattle(void *unused)
 {
 	bool entryRemoved = false;
 	void *data = NULL;
@@ -282,7 +283,7 @@ void UpdateNewBattle(void)
 				if(BattleActor_IsPlayer(actor))
 				{
 					gPlayerTurn = true;
-					ReloadMenu();
+					ReloadMenu(GetMainMenu());
 				}
 				else
 				{
@@ -297,7 +298,7 @@ void UpdateNewBattle(void)
 	}
 }
 
-void BattleScreenPush(void)
+void BattleScreenPush(void *data)
 {
 	NewBattleInit();
 }
@@ -305,5 +306,5 @@ void BattleScreenPush(void)
 void TriggerBattleScreen(void)
 {
 	if(CurrentLocationAllowsCombat())
-		PushGlobalState(BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, NULL);
+		PushGlobalState(BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, NULL, NULL);
 }

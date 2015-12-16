@@ -11,6 +11,7 @@ typedef struct GlobalStateInstance
 	GlobalStateChangeCallback appearCallback;
 	GlobalStateChangeCallback disappearCallback;
 	GlobalStateChangeCallback popCallback;
+	void *data;
 } GlobalStateInstance;
 
 #define MAX_GLOBAL_STATES 20
@@ -19,12 +20,13 @@ static GlobalStateInstance globalStateInstances[MAX_GLOBAL_STATES];
 static int globalStateInstanceCount = 0;
 
 void PushGlobalState(GlobalState state, 
-				  TimeUnits triggerUnits, 
-				  GlobalStateChangeCallback updateCallback, 
-				  GlobalStateChangeCallback pushCallback, 
-				  GlobalStateChangeCallback appearCallback, 
-				  GlobalStateChangeCallback disappearCallback, 
-				  GlobalStateChangeCallback popCallback)
+					 TimeUnits triggerUnits, 
+					 GlobalStateChangeCallback updateCallback, 
+					 GlobalStateChangeCallback pushCallback, 
+					 GlobalStateChangeCallback appearCallback, 
+					 GlobalStateChangeCallback disappearCallback, 
+					 GlobalStateChangeCallback popCallback,
+					 void *data)
 {
 	DEBUG_LOG("Push global state: %d", state);
 	if(globalStateInstanceCount == MAX_GLOBAL_STATES)
@@ -34,7 +36,7 @@ void PushGlobalState(GlobalState state,
 	{
 		GlobalStateInstance *oldInstance = &globalStateInstances[globalStateInstanceCount - 1];
 		if(oldInstance->disappearCallback)
-			oldInstance->disappearCallback();
+			oldInstance->disappearCallback(oldInstance->data);
 	}
 	
 	GlobalStateInstance *instance = &globalStateInstances[globalStateInstanceCount];
@@ -47,11 +49,12 @@ void PushGlobalState(GlobalState state,
 	instance->appearCallback = appearCallback;
 	instance->disappearCallback = disappearCallback;
 	instance->popCallback = popCallback;
+	instance->data = data;
 	if(instance->pushCallback)
-		instance->pushCallback();
+		instance->pushCallback(instance->data);
 	DEBUG_LOG("appearcallback for %d", instance->state);
 	if(instance->appearCallback)
-		instance->appearCallback();
+		instance->appearCallback(instance->data);
 }
 
 void UpdateGlobalState(TimeUnits units_changed)
@@ -64,7 +67,7 @@ void UpdateGlobalState(TimeUnits units_changed)
 	
 	if(instance->updateCallback && (units_changed & instance->triggerUnits))
 	{
-		instance->updateCallback();
+		instance->updateCallback(instance->data);
 	}
 	
 }
@@ -79,10 +82,10 @@ void PopGlobalState(void)
 	GlobalStateInstance *oldInstance = &globalStateInstances[globalStateInstanceCount - 1];
 	DEBUG_LOG("pop global state: %d", oldInstance->state);
 	if(oldInstance->disappearCallback)
-		oldInstance->disappearCallback();
+		oldInstance->disappearCallback(oldInstance->data);
 		
 	if(oldInstance->popCallback)
-		oldInstance->popCallback();
+		oldInstance->popCallback(oldInstance->data);
 	
 	globalStateInstanceCount--;
 
@@ -96,7 +99,7 @@ void PopGlobalState(void)
 	DEBUG_LOG("reveal global state: %d", newInstance->state);
 	
 	if(newInstance->appearCallback)
-		newInstance->appearCallback();
+		newInstance->appearCallback(newInstance->data);
 }
 
 GlobalState GetCurrentGlobalState(void)
