@@ -30,6 +30,7 @@ int GetLocationMonsterIndex(Location *location, bool dungeonFixed, uint floor);
 int GetLocationEncounterChance(Location *location, bool dungeonFixed);
 int GetLocationMonsterCount(Location *location, bool dungeonFixed);
 const char *GetLocationName(Location *location);
+uint16_t GetAdjacentLocationCount(Location *location);
 
 size_t SizeOfLocation(void);
 Location *GetLocationByIndex(Location *locationList, int index);

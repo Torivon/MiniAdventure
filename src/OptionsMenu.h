@@ -1,8 +1,6 @@
 #pragma once
 bool GetVibration(void);
 void SetVibration(bool enable);
-bool GetFastMode(void);
-void SetFastMode(bool enable);
 bool GetWorkerApp(void);
 void SetWorkerApp(bool enable);
 bool GetWorkerCanLaunch(void);
@@ -13,3 +11,4 @@ void DrawOptionsMenu(void);
 void ShowOptionsMenu(void);
 
 bool OptionsMenuIsVisible(void);
+void TriggerOptionScreen(void);

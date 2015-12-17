@@ -1,15 +1,14 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "DragonQuest.h"
-#include "Items.h"
 #include "Location.h"
 #include "LocationInternal.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Monsters.h"
+#include "NewBattle.h"
 #include "Story.h"
 	
 #if INCLUDE_DRAGON_QUEST	
@@ -649,7 +648,7 @@ void LaunchDragonQuest(void)
 	dragonQuestStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&dragonQuestStory, &dragonQuestStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	ShowAdventureWindow();
+	TriggerAdventureScreen();
 }
 
 #endif

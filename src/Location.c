@@ -173,6 +173,11 @@ int GetAdjacentLocationIndex(Location *location, int index)
 	return location->adjacentLocations[index];
 }
 
+uint16_t GetAdjacentLocationCount(Location *location)
+{
+	return location->numberOfAdjacentLocations;
+}
+
 LocationType GetLocationType(Location *location)
 {
 	return location->type;

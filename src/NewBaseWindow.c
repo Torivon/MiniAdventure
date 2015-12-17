@@ -1,15 +1,52 @@
 #include <pebble.h>
 #include "Clock.h"
 #include "DescriptionFrame.h"
+#include "DialogFrame.h"
+#include "GlobalState.h"
 #include "MainImage.h"
 #include "MenuArrow.h"
 #include "MiniAdventure.h"
 #include "NewBaseWindow.h"
+#include "NewBattle.h"
 #include "NewMenu.h"
 #include "Logging.h"
 #include "Utils.h"
 
 static bool usingNewWindow = false;
+
+static Menu *mainMenu = NULL;
+static Menu *slaveMenu = NULL;
+static bool useSlaveMenu = false;
+static bool hideMenuOnSelect = true;
+Menu *GetMainMenu(void)
+{
+	return mainMenu;
+}
+
+Menu *GetSlaveMenu(void)
+{
+	return slaveMenu;
+}
+
+void SetUseSlaveMenu(bool enable)
+{
+	useSlaveMenu = enable;
+}
+
+bool GetUseSlaveMenu(void)
+{
+	return useSlaveMenu;
+}
+
+void SetHideMenuOnSelect(bool enable)
+{
+	hideMenuOnSelect = enable;
+}
+
+bool GetHideMenuOnSelect(void)
+{
+	return hideMenuOnSelect;
+}
 
 bool UsingNewWindow(void)
 {
@@ -20,38 +57,84 @@ bool UsingNewWindow(void)
 
 static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable())
+	if(GetCurrentGlobalState() == STATE_DIALOG)
 	{
-		CallNewMenuSelectCallback(recognizer, window);
+		PopGlobalState();
+		return;
 	}
-	else
+	if(IsMenuUsable(GetMainMenu()))
 	{
-		if(GetMenuCellCount() > 0)
-			ShowMenu();
+		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
+		if(hideMenuOnSelect)
+		{
+			HideMenu(GetMainMenu()); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
+			if(IsMenuUsable(GetSlaveMenu()))
+				HideMenu(GetSlaveMenu());
+		}
+	}
+	else if(IsMenuHidden(GetMainMenu()))
+	{
+		if(GetMenuCellCount(GetMainMenu()) > 0)
+		{
+			TriggerMenu(GetMainMenu());
+			if(useSlaveMenu)
+			{
+				ShowMenu(GetSlaveMenu());
+			}
+		}
 	}
 }
 
 static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable())
-		menu_layer_set_selected_next(GetNewMenuLayer(), true, MenuRowAlignCenter, true);
+	if(IsMenuUsable(GetMainMenu()))
+	{
+		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), true, MenuRowAlignCenter, true);
+		if(IsMenuUsable(GetSlaveMenu()))
+		{
+			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), true, MenuRowAlignCenter, true);
+		}
+	}
 }
 
 static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable())
-		menu_layer_set_selected_next(GetNewMenuLayer(), false, MenuRowAlignCenter, true);
+	if(IsMenuUsable(GetMainMenu()))
+	{
+		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), false, MenuRowAlignCenter, true);
+		if(IsMenuUsable(GetSlaveMenu()))
+		{
+			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), false, MenuRowAlignCenter, true);
+		}
+	}
 }
 
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(!IsMenuHidden())
+	switch(GetCurrentGlobalState())
 	{
-		HideMenu();
-		return;
+		case STATE_MENU:
+		{
+			if(IsMenuUsable(GetMainMenu()))
+			{
+				HideMenu(GetMainMenu());
+				if(IsMenuUsable(GetSlaveMenu()))
+					HideMenu(GetSlaveMenu());
+				return;
+			}
+			break;
+		}
+		case STATE_BATTLE:
+		{
+			SaveBattleState();
+			break;
+		}
+		default:
+		{
+			PopGlobalState();
+			break;
+		}
 	}
-		
-	window_stack_pop(true);
 }
 
 static void MenuClickConfigProvider(void *context)
@@ -70,8 +153,10 @@ void BaseWindowAppear(Window *window)
 	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
-	InitializeNewMenuLayer(window);
+	InitializeNewMenuLayer(GetMainMenu(), window);
+	InitializeNewMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
+	InitializeDialogLayer(window);
 }
 
 void BaseWindowDisappear(Window *window)
@@ -80,6 +165,7 @@ void BaseWindowDisappear(Window *window)
 	RemoveMenuArrowLayer();
 	RemoveMainImageLayer();
 	RemoveDescriptionLayer();
+	RemoveDialogLayer();
 }
 
 void BaseWindowUnload(Window *window)
@@ -88,6 +174,9 @@ void BaseWindowUnload(Window *window)
 	FreeClockLayer();
 	FreeDescriptionLayer();
 	CleanupMainImageLayer();
+	CleanupMenu(mainMenu);
+	CleanupMenu(slaveMenu);
+	FreeDialogLayer();
 }
 
 void SetWindowHandlers(Window *window)
@@ -104,8 +193,19 @@ Window * InitializeNewBaseWindow(void)
 	window_set_fullscreen(window, true);
 #endif
 	window_set_background_color(window, GColorBlack);
-	InitializeNewClockLayer(window);
 	SetWindowHandlers(window);
+	slaveMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_SLAVE_MENU_FRAME,
+							   50,
+							   4,
+							   10,
+							   false,
+							   false);
+	mainMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_MENU_FRAME,
+							   50,
+							   4,
+							   110,
+							   true,
+							   true);
 	window_set_click_config_provider(window, MenuClickConfigProvider);
 	return window;		
 }

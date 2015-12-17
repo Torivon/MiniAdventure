@@ -2,15 +2,16 @@
 	
 typedef struct BattleActor BattleActor;
 
-void ShowNewBattleWindow(void);
-
-bool ClosingWhileInNewBattle(void);
+bool ClosingWhileInBattle(void);
+int GetCurrentMonsterHealth(void);
+void SaveBattleState(void);
 
 void ResumeBattle(int currentMonster, int currentMonsterHealth);
 bool IsBattleForced(void);
 
-void UpdateNewBattle(void);
-bool InNewBattle(void);
-
 BattleActor *GetPlayerActor(void);
 BattleActor *GetMonsterActor(void);
+void TriggerBattleScreen(void);
+void ResumeBattle(int currentMonster, int currentMonsterHealth);
+bool IsBattleForced(void);
+bool ClosingWhileInBattle(void);

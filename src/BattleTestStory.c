@@ -6,7 +6,6 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "DungeonCrawl.h"
-#include "Items.h"
 #include "Location.h"
 #include "LocationInternal.h"
 #include "Logging.h"
@@ -166,7 +165,7 @@ static Location locationList[] =
 		.adjacentLocations = {ARENA},
 		.fixedclass = &RatClass,
 		.baseLevel = 1,
-		.fixed_ArrivalFunction = ShowNewBattleWindow,
+		.fixed_ArrivalFunction = TriggerBattleScreen,
 	},
 };
 
@@ -197,8 +196,7 @@ void LaunchBattleTestStory(void)
 	battleTestStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&battleTestStory, &battleTestStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	ShowAdventureWindow();
-	
+	TriggerAdventureScreen();
 }
 
 #endif

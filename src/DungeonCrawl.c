@@ -1,15 +1,14 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "DungeonCrawl.h"
-#include "Items.h"
 #include "Location.h"
 #include "LocationInternal.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Monsters.h"
+#include "NewBattle.h"
 #include "Story.h"
 	
 #if INCLUDE_DUNGEON_CRAWL
@@ -196,7 +195,7 @@ static Location locationList[] =
 		.adjacentLocations = {DUNGEON_TREASURE_ROOM},
 		.fixedclass = &DragonsRoomClass,
 		.baseLevel = 1,
-		.fixed_ArrivalFunction = ShowBattleWindow,
+		.fixed_ArrivalFunction = TriggerBattleScreen,
 	},
 	{
 		.name = "Treasure Room",
@@ -217,13 +216,6 @@ void InitializeDungeonCrawl(void)
 	dungeonCrawlStoryState.persistedStoryState.currentPathDestination = 0;
 	dungeonCrawlStoryState.persistedStoryState.mostRecentMonster = 0;
 
-#if ENABLE_ITEMS
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-	AddItem(ITEM_TYPE_POTION);
-#endif
 }
 
 Story dungeonCrawlStory = 
@@ -241,7 +233,7 @@ void LaunchDungeonCrawl(void)
 	dungeonCrawlStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&dungeonCrawlStory, &dungeonCrawlStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	ShowAdventureWindow();
+	TriggerAdventureScreen();
 }
 
 #endif

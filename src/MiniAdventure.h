@@ -8,9 +8,6 @@
 // Feature tuning
 #define PAD_WITH_SPACES 1
 #define DISABLE_MENU_BMPS 0
-	
-#define ENABLE_ITEMS 0
-#define ENABLE_SHOPS 0
 
 // Publish 0 turns on the test menu
 #define PUBLISH 1
@@ -37,10 +34,10 @@ enum
 };
 
 // Logging
-#define DEBUG_LOGGING 1 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
-#define ERROR_LOGGING 0 // ERROR_LOG should be used for actual incorrect operation.
-#define WARNING_LOGGING 0 // WARNING_LOG should be used strange edge cases that are not expected
-#define INFO_LOGGING 0 // INFO_LOG should be used to log game flow.
+#define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
+#define ERROR_LOGGING 1 // ERROR_LOG should be used for actual incorrect operation.
+#define WARNING_LOGGING 1 // WARNING_LOG should be used strange edge cases that are not expected
+#define INFO_LOGGING 1 // INFO_LOG should be used to log game flow.
 #define PROFILE_LOGGING 0 // PROFILE_LOGGING shows up as DEBUG_VERBOSE_LOG, but should be used for timing
 
 // Features to turn off to make space
@@ -71,7 +68,7 @@ enum
 
 #define USE_MENULAYER_PROTOTYPE 1
 
-#define USE_OLD_UILAYERS 0
+#define COMPILE_OLD_UILAYERS 1
 
 void ResetGame(void);
 bool HasFocus(void);

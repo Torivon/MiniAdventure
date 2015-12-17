@@ -44,7 +44,7 @@ void IntToPercent(char *buffer, size_t bufferSize, int value)
 	IntToString(buffer, bufferSize - 1, value);
 }
 
-// Returns an integer in the range [1,max]
+// Returns an integer in the range [0,max)
 uint16_t Random(uint16_t max)
 {
 	int result = Random_inline(max);

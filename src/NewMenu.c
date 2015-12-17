@@ -1,5 +1,7 @@
 #include <pebble.h>
 #include "DescriptionFrame.h"
+#include "GlobalState.h"
+#include "Logging.h"
 #include "MenuArrow.h"
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
@@ -13,171 +15,276 @@
 #define MENU_LAYER_W 100
 #define MENU_LAYER_H 100
 
-#define INTERNAL_MENU_OFFSET 4
-
-static GBitmap *newMenuBackgroundFrame = NULL;
-static BitmapLayer *newMenuBackgroundLayer = NULL;
-
-static GFont menuFont;
-static GRect newMenuOnScreenPosition = {.origin = {.x = MENU_LAYER_X, .y = MENU_LAYER_Y}, .size = {.w = MENU_LAYER_W, .h = MENU_LAYER_H}};
-static GRect newMenuOffScreenPosition = {.origin = {.x = PBL_IF_RECT_ELSE(144, 180), .y = MENU_LAYER_Y}, .size = {.w = MENU_LAYER_W, .h = MENU_LAYER_H}};
-static PropertyAnimation *menuShowAnimation = NULL;
-static PropertyAnimation *menuHideAnimation = NULL;
-
-static bool newMenuLayerInitialized = false;
-static Layer *newTopLevelMenuLayer = NULL;
-static MenuLayer *newMenuLayer = NULL;
-
-static bool menuVisible = false;
-static bool menuAnimating = false;
-
-static uint16_t cellCount = 0;
-static MenuCellDescription *cellList = NULL;
-
-const char *lastDescription = NULL;
-
-uint16_t GetMenuCellCount(void)
+typedef struct Menu
 {
-	return cellCount;
+	int backgroundImageId;
+	int yPos;
+	int innerOffset;
+	int onScreenX;
+	bool offScreenRight;
+	bool mainMenu;
+	
+	GBitmap *newMenuBackgroundFrame;
+	BitmapLayer *newMenuBackgroundLayer;
+
+	GFont menuFont;
+	GRect newMenuOnScreenPosition;
+	GRect newMenuOffScreenPosition;
+	PropertyAnimation *menuShowAnimation;
+	PropertyAnimation *menuHideAnimation;
+
+	bool newMenuLayerInitialized;
+	Layer *newTopLevelMenuLayer;
+	MenuLayer *newMenuLayer;
+
+	bool menuVisible;
+	bool menuAnimating;
+
+
+	bool useCallbackFunctions;
+	uint16_t cellCount;
+	MenuCellDescription *cellList;
+	MenuCountCallback menuCountCallback;
+	MenuNameCallback menuNameCallback;
+	MenuDescriptionCallback menuDescriptionCallback;
+	MenuSelectCallback menuSelectCallback;
+} Menu;
+
+uint16_t GetMenuCellCount(Menu *menu)
+{
+	if(menu->useCallbackFunctions)
+	{
+		return menu->menuCountCallback();
+	}
+	else
+	{
+		return menu->cellCount;
+	}
 }
 
-void CallNewMenuSelectCallback(ClickRecognizerRef recognizer, Window *window)
+const char *GetMenuName(Menu *menu, MenuIndex *index)
 {
-	if(!newMenuLayerInitialized)
+	if(menu->useCallbackFunctions)
+	{
+		return menu->menuNameCallback(index->row);
+	}
+	else
+	{
+		return menu->cellList[index->row].name;
+	}
+}
+
+const char *GetMenuDescription(Menu *menu, MenuIndex *index)
+{
+	if(menu->useCallbackFunctions)
+	{
+		return menu->menuDescriptionCallback(index->row);
+	}
+	else
+	{
+		return menu->cellList[index->row].description;
+	}
+}
+
+void CallNewMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window)
+{
+	if(!menu->newMenuLayerInitialized)
 		return;
 	
-	MenuIndex index = menu_layer_get_selected_index(newMenuLayer);
+	MenuIndex index = menu_layer_get_selected_index(menu->newMenuLayer);
 	
-	if(index.row < cellCount)
-		cellList[index.row].callback();	
+	if(index.row < GetMenuCellCount(menu))
+	{
+		if(menu->useCallbackFunctions)
+		{
+			menu->menuSelectCallback(index.row);
+		}
+		else
+		{
+			menu->cellList[index.row].callback();
+		}
+	}
 }
 
-void RegisterMenuCellList(MenuCellDescription *list, uint16_t count)
+void RegisterMenuCellList(Menu *menu, MenuCellDescription *list, uint16_t count)
 {
+	DEBUG_LOG("RegisterMenuCellList");
 	if(count == 0)
 	{
-		ClearMenuCellList();
+		ClearMenuCellList(menu);
 		return;
 	}
 	
-	cellList = list;
-	cellCount = count;
-	if(newMenuLayerInitialized)
+	menu->useCallbackFunctions = false;
+	menu->menuCountCallback = NULL;
+	menu->menuNameCallback = NULL;
+	menu->menuDescriptionCallback = NULL;
+	menu->menuSelectCallback = NULL;
+	
+	menu->cellList = list;
+	menu->cellCount = count;
+	if(menu->newMenuLayerInitialized)
 	{
-		menu_layer_reload_data(newMenuLayer);
+		menu_layer_reload_data(menu->newMenuLayer);
 		MenuIndex index = {.section = 0, .row = 0};
-		menu_layer_set_selected_index(newMenuLayer, index, MenuRowAlignTop, false);
+		menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignTop, false);
 	}
-	ShowMenuArrow();
+	if(menu->mainMenu)
+		ShowMenuArrow();
 }
 
-void ClearMenuCellList(void)
+void RegisterMenuCellCallbacks(Menu *menu, MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback)
 {
-	cellCount = 0;
-	cellList = NULL;
-	HideMenuArrow();
+	DEBUG_LOG("RegisterMenuCellCallbacks");
+	menu->useCallbackFunctions = true;
+	menu->menuCountCallback = countCallback;
+	menu->menuNameCallback = nameCallback;
+	menu->menuDescriptionCallback = descriptionCallback;
+	menu->menuSelectCallback = selectCallback;
+	
+	if(!menu->menuCountCallback)
+	{
+		ClearMenuCellList(menu);
+		return;
+	}
+	
+	menu->cellCount = 0;
+	menu->cellList = NULL;
+
+	if(menu->mainMenu)
+	{
+		if(menu->menuCountCallback() > 0)
+			ShowMenuArrow();
+		else
+			HideMenuArrow();
+	}
 }
 
-MenuLayer *GetNewMenuLayer(void)
+void ClearMenuCellList(Menu *menu)
 {
-	return newMenuLayer;
+	menu->cellCount = 0;
+	menu->cellList = NULL;
+	menu->useCallbackFunctions = false;
+	menu->menuCountCallback = NULL;
+	menu->menuNameCallback = NULL;
+	menu->menuDescriptionCallback = NULL;
+	menu->menuSelectCallback = NULL;
+	
+	if(menu->mainMenu)
+		HideMenuArrow();
 }
 
-bool IsMenuUsable(void)
+MenuLayer *GetNewMenuLayer(Menu *menu)
 {
-	return menuVisible && !menuAnimating;
+	return menu->newMenuLayer;
 }
 
-bool IsMenuHidden(void)
+bool IsMenuUsable(Menu *menu)
 {
-	return !menuVisible  && !menuAnimating;
+	return menu->menuVisible && !menu->menuAnimating;
 }
 
-bool IsMenuVisible(void)
+bool IsMenuHidden(Menu *menu)
 {
-	return menuVisible;
+	return !menu->menuVisible  && !menu->menuAnimating;
+}
+
+bool IsMenuVisible(Menu *menu)
+{
+	return menu->menuVisible;
 }
 
 static void ShowAnimationStarted(struct Animation *animation, void *context)
 {
-	menuAnimating = true;
-	ActivateMenuArrow();
-	lastDescription = GetDescription();
-	MenuIndex index = menu_layer_get_selected_index(newMenuLayer);
+	Menu *menu = (Menu*)context;
+	menu->menuAnimating = true;
+	if(menu->mainMenu)
+		ActivateMenuArrow();
+	MenuIndex index = menu_layer_get_selected_index(menu->newMenuLayer);
 	
-	if(index.row < cellCount)
-		SetDescription(cellList[index.row].description);
+	if(index.row < GetMenuCellCount(menu))
+	{
+		const char *newDescription = GetMenuDescription(menu, &index);
+		if(menu->mainMenu)
+			SetDescription(newDescription ? newDescription : "");
+	}
 }
 
 static void ShowAnimationStopped(struct Animation *animation, bool finished, void *context)
 {
-	menuAnimating = false;
+	Menu *menu = (Menu*)context;
+	menu->menuAnimating = false;
 	
 	if(finished)
-		menuVisible = true;
+		menu->menuVisible = true;
 
 #if !defined(PBL_PLATFORM_APLITE)
-	menuShowAnimation = NULL;
+	menu->menuShowAnimation = NULL;
 #endif
 }
 
 static void HideAnimationStarted(struct Animation *animation, void *context)
 {
-	menuAnimating = true;
-	InactivateMenuArrow();
+	Menu *menu = (Menu*)context;
+	menu->menuAnimating = true;
+	if(menu->mainMenu)
+		InactivateMenuArrow();
 }
 
 static void HideAnimationStopped(struct Animation *animation, bool finished, void *context)
 {
-	menuAnimating = false;
+	Menu *menu = (Menu*)context;
+	menu->menuAnimating = false;
 	
 	if(finished)
-		menuVisible = false;
-	
-	SetDescription(lastDescription);
-	lastDescription = NULL;
+	{
+		menu->menuVisible = false;
+		if(menu->mainMenu)
+			PopGlobalState();
+	}
 	
 #if !defined(PBL_PLATFORM_APLITE)
-	menuHideAnimation = NULL;	
+	menu->menuHideAnimation = NULL;	
 #endif
 }
 	
-void ShowMenu(void)
+void ShowMenu(void *data)
 {
-	if(menuShowAnimation && animation_is_scheduled((Animation*)menuShowAnimation))
+	Menu *menu = (Menu*)data;
+	if(menu->menuShowAnimation && animation_is_scheduled((Animation*)menu->menuShowAnimation))
 		return;
 
-	if(!menuShowAnimation)
+	if(!menu->menuShowAnimation)
 	{
-		menuShowAnimation = property_animation_create_layer_frame(newTopLevelMenuLayer, NULL, &newMenuOnScreenPosition);
-		animation_set_duration((Animation*)menuShowAnimation, MENU_ANIMATION_DURATION);
-		animation_set_curve((Animation*)menuShowAnimation, AnimationCurveLinear);
+		menu->menuShowAnimation = property_animation_create_layer_frame(menu->newTopLevelMenuLayer, NULL, &menu->newMenuOnScreenPosition);
+		animation_set_duration((Animation*)menu->menuShowAnimation, MENU_ANIMATION_DURATION);
+		animation_set_curve((Animation*)menu->menuShowAnimation, AnimationCurveLinear);
 		AnimationHandlers showHandlers = {.started = ShowAnimationStarted, .stopped = ShowAnimationStopped};
-		animation_set_handlers((Animation*)menuShowAnimation, showHandlers, NULL);
+		animation_set_handlers((Animation*)menu->menuShowAnimation, showHandlers, menu);
 	}
 	
-	if(menuHideAnimation)
-		animation_unschedule((Animation*) menuHideAnimation);
-	animation_schedule((Animation*) menuShowAnimation);
+	if(menu->menuHideAnimation)
+		animation_unschedule((Animation*) menu->menuHideAnimation);
+	animation_schedule((Animation*) menu->menuShowAnimation);
 }
 
-void HideMenu(void)
+void HideMenu(Menu *menu)
 {
-	if(menuHideAnimation && animation_is_scheduled((Animation*)menuHideAnimation))
+	if(menu->menuHideAnimation && animation_is_scheduled((Animation*)menu->menuHideAnimation))
 		return;
 
-	if(!menuHideAnimation)
+	if(!menu->menuHideAnimation)
 	{
-		menuHideAnimation = property_animation_create_layer_frame(newTopLevelMenuLayer, NULL, &newMenuOffScreenPosition);
-		animation_set_duration((Animation*)menuHideAnimation, MENU_ANIMATION_DURATION);
-		animation_set_curve((Animation*)menuShowAnimation, AnimationCurveLinear);
+		menu->menuHideAnimation = property_animation_create_layer_frame(menu->newTopLevelMenuLayer, NULL, &menu->newMenuOffScreenPosition);
+		animation_set_duration((Animation*)menu->menuHideAnimation, MENU_ANIMATION_DURATION);
+		animation_set_curve((Animation*)menu->menuShowAnimation, AnimationCurveLinear);
 		AnimationHandlers hideHandlers = {.started = HideAnimationStarted, .stopped = HideAnimationStopped};
-		animation_set_handlers((Animation*)menuHideAnimation, hideHandlers, NULL);
+		animation_set_handlers((Animation*)menu->menuHideAnimation, hideHandlers, menu);
 	}
 	
-	if(menuShowAnimation)
-		animation_unschedule((Animation*) menuShowAnimation);
-	animation_schedule((Animation*) menuHideAnimation);
+	if(menu->menuShowAnimation)
+		animation_unschedule((Animation*) menu->menuShowAnimation);
+	animation_schedule((Animation*) menu->menuHideAnimation);
 }
 
 static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data) 
@@ -187,11 +294,12 @@ static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) 
 {
-  switch (section_index) {
-    case 0:
-      return cellCount;
-    default:
-      return 0;
+	Menu *menu = (Menu*)data;
+	switch (section_index) {
+		case 0:
+		return GetMenuCellCount(menu);
+		default:
+		return 0;
   }
 }
 
@@ -202,44 +310,73 @@ int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex *cell_i
 
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) 
 {
+	Menu *menu = (Menu*)data;
 	char buffer[20];
-	snprintf(buffer, sizeof(buffer), "%s", cellList[cell_index->row].name);
+	snprintf(buffer, sizeof(buffer), "%s", GetMenuName(menu, cell_index));
 	GRect bounds = layer_get_bounds(cell_layer);
-	graphics_draw_text(ctx, buffer, menuFont, bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+	graphics_draw_text(ctx, buffer, menu->menuFont, bounds, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 }
 
 void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_index, MenuIndex old_index, void *callback_context)
 {
-	const char *newDescription = cellList[new_index.row].description;
-	SetDescription(newDescription ? newDescription : "");
+	Menu *menu = (Menu*)callback_context;
+	const char *newDescription = GetMenuDescription(menu, &new_index);
+	if(menu->mainMenu)
+		SetDescription(newDescription ? newDescription : "");
 }
 
-void InitializeNewMenuLayer(Window *window)
+Menu *CreateMenuLayer(int backgroundImageId,
+					  int yPos,
+					  int innerOffset,
+					  int onScreenX,
+					  bool offScreenRight,
+					  bool mainMenu)
 {
-	if(!newMenuLayerInitialized)
+	Menu *menu = calloc(sizeof(Menu), 1);
+
+	menu->backgroundImageId = backgroundImageId;
+	menu->yPos = yPos;
+	menu->innerOffset = innerOffset;
+	menu->onScreenX = onScreenX;
+	menu->offScreenRight = offScreenRight;
+	menu->mainMenu = mainMenu;
+	return menu;
+}
+
+void InitializeNewMenuLayer(Menu *menu, Window *window)
+{
+	if(!menu->newMenuLayerInitialized)
 	{
-		newMenuBackgroundFrame = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MENU_FRAME);
-		GRect frameBounds = gbitmap_get_bounds(newMenuBackgroundFrame);
+		menu->newMenuBackgroundFrame = gbitmap_create_with_resource(menu->backgroundImageId);
+		GRect frameBounds = gbitmap_get_bounds(menu->newMenuBackgroundFrame);
 		GRect windowBounds = layer_get_bounds(window_get_root_layer(window));
-		newMenuOnScreenPosition.size = frameBounds.size;
-		newMenuOffScreenPosition.size = frameBounds.size;
-		newMenuOnScreenPosition.origin.y = windowBounds.size.h / 2 - newMenuOnScreenPosition.size.h / 2;
-		newMenuOnScreenPosition.origin.x = windowBounds.size.w / 2 - newMenuOnScreenPosition.size.w / 2;
-		newMenuOffScreenPosition.origin.y = windowBounds.size.h / 2 - newMenuOnScreenPosition.size.h / 2;
-		menuFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-		newTopLevelMenuLayer = layer_create(newMenuOffScreenPosition);
-		newMenuBackgroundLayer = bitmap_layer_create(layer_get_bounds(newTopLevelMenuLayer));
-		bitmap_layer_set_bitmap(newMenuBackgroundLayer, newMenuBackgroundFrame);
-		bitmap_layer_set_alignment(newMenuBackgroundLayer, GAlignCenter);
-		layer_add_child(newTopLevelMenuLayer, bitmap_layer_get_layer(newMenuBackgroundLayer));
-		GRect menu_bounds = layer_get_bounds(newTopLevelMenuLayer);
-		menu_bounds.origin.x += INTERNAL_MENU_OFFSET;
-		menu_bounds.origin.y += INTERNAL_MENU_OFFSET;
-		menu_bounds.size.w -= 2 * INTERNAL_MENU_OFFSET;
-		menu_bounds.size.h -= 2 * INTERNAL_MENU_OFFSET;
-		newMenuLayer = menu_layer_create(menu_bounds);
-		layer_add_child(newTopLevelMenuLayer, menu_layer_get_layer(newMenuLayer));
-		menu_layer_set_callbacks(newMenuLayer, NULL, (MenuLayerCallbacks){
+		menu->newMenuOnScreenPosition.size = frameBounds.size;
+		menu->newMenuOffScreenPosition.size = frameBounds.size;
+		menu->newMenuOnScreenPosition.origin.y = menu->yPos;
+		menu->newMenuOnScreenPosition.origin.x = menu->onScreenX;
+		menu->newMenuOffScreenPosition.origin.y = menu->yPos;
+		if(menu->offScreenRight)
+		{
+			menu->newMenuOffScreenPosition.origin.x = windowBounds.size.w;
+		}
+		else
+		{
+			menu->newMenuOffScreenPosition.origin.x = -frameBounds.size.w;
+		}
+		menu->menuFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+		menu->newTopLevelMenuLayer = layer_create(menu->newMenuOffScreenPosition);
+		menu->newMenuBackgroundLayer = bitmap_layer_create(layer_get_bounds(menu->newTopLevelMenuLayer));
+		bitmap_layer_set_bitmap(menu->newMenuBackgroundLayer, menu->newMenuBackgroundFrame);
+		bitmap_layer_set_alignment(menu->newMenuBackgroundLayer, GAlignCenter);
+		layer_add_child(menu->newTopLevelMenuLayer, bitmap_layer_get_layer(menu->newMenuBackgroundLayer));
+		GRect menu_bounds = layer_get_bounds(menu->newTopLevelMenuLayer);
+		menu_bounds.origin.x += menu->innerOffset;
+		menu_bounds.origin.y += menu->innerOffset;
+		menu_bounds.size.w -= 2 * menu->innerOffset;
+		menu_bounds.size.h -= 2 * menu->innerOffset;
+		menu->newMenuLayer = menu_layer_create(menu_bounds);
+		layer_add_child(menu->newTopLevelMenuLayer, menu_layer_get_layer(menu->newMenuLayer));
+		menu_layer_set_callbacks(menu->newMenuLayer, menu, (MenuLayerCallbacks){
 			.get_num_sections = menu_get_num_sections_callback,
 			.get_num_rows = menu_get_num_rows_callback,
 			.draw_row = menu_draw_row_callback,
@@ -247,37 +384,70 @@ void InitializeNewMenuLayer(Window *window)
 			.selection_changed = selection_changed_callback
 		});
 #if defined(PBL_COLOR)
-		menu_layer_set_normal_colors(newMenuLayer, GColorBlue, GColorWhite);
-		menu_layer_set_highlight_colors(newMenuLayer, GColorWhite, GColorBlue);
+		menu_layer_set_normal_colors(menu->newMenuLayer, GColorBlue, GColorWhite);
+		menu_layer_set_highlight_colors(menu->newMenuLayer, GColorWhite, GColorBlue);
 #endif
-		scroll_layer_set_shadow_hidden(menu_layer_get_scroll_layer(newMenuLayer), false);
+		scroll_layer_set_shadow_hidden(menu_layer_get_scroll_layer(menu->newMenuLayer), false);
 
-		newMenuLayerInitialized = true;
+		menu->newMenuLayerInitialized = true;
 	}
 	Layer *window_layer = window_get_root_layer(window);
-	layer_add_child(window_layer, newTopLevelMenuLayer);
+	layer_add_child(window_layer, menu->newTopLevelMenuLayer);
 }
 
-void RemoveNewMenuLayer(Window *window)
+void RemoveNewMenuLayer(Menu *menu, Window *window)
 {
-	if(!newMenuLayerInitialized)
+	if(!menu->newMenuLayerInitialized)
 		return;
 	
-	layer_remove_from_parent(newTopLevelMenuLayer);
+	layer_remove_from_parent(menu->newTopLevelMenuLayer);
 }
 
-void CleanupMenu(void)
+void CleanupMenu(Menu *menu)
 {
-	if(newMenuLayerInitialized)
+	if(!menu)
+		return;
+	
+	if(menu->newMenuLayerInitialized)
 	{
-		layer_destroy(newTopLevelMenuLayer);
-		menu_layer_destroy(newMenuLayer);
-		bitmap_layer_destroy(newMenuBackgroundLayer);
-		gbitmap_destroy(newMenuBackgroundFrame);
-		newMenuLayerInitialized = false;
-		if(menuShowAnimation)
-			property_animation_destroy(menuShowAnimation);
-		if(menuHideAnimation)
-			property_animation_destroy(menuHideAnimation);
+		layer_destroy(menu->newTopLevelMenuLayer);
+		menu_layer_destroy(menu->newMenuLayer);
+		bitmap_layer_destroy(menu->newMenuBackgroundLayer);
+		gbitmap_destroy(menu->newMenuBackgroundFrame);
+		menu->newMenuLayerInitialized = false;
+		if(menu->menuShowAnimation)
+			property_animation_destroy(menu->menuShowAnimation);
+		if(menu->menuHideAnimation)
+			property_animation_destroy(menu->menuHideAnimation);
 	}
+	
+	free(menu);
+}
+
+void ReloadMenu(Menu *menu)
+{
+	DEBUG_LOG("ReloadMenu");
+	if(menu->newMenuLayerInitialized)
+	{
+		DEBUG_LOG("Reloading");
+		menu_layer_reload_data(menu->newMenuLayer);
+		DEBUG_LOG("%d menu cells", GetMenuCellCount(menu));
+		if(menu->mainMenu)
+		{
+			if(GetMenuCellCount(menu) > 0)
+			{
+				ShowMenuArrow();
+			}
+			else
+			{
+				HideMenuArrow();
+			}
+		}
+	}
+}
+
+// TODO: This doesn't belong here.
+void TriggerMenu(Menu *menu)
+{
+	PushGlobalState(STATE_MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);
 }

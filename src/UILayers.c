@@ -6,6 +6,8 @@
 #include "UILayers.h"
 #include "Utils.h"
 
+#if COMPILE_OLD_UILAYERS
+
 #define WINDOW_ROW_HEIGHT 16
 #define MENU_ITEM_OFFSET 86
 
@@ -587,3 +589,4 @@ void UnloadTextLayers(void) {
 	text_layer_destroy(clockLayer);
 	text_layer_destroy(levelLayer);
 }
+#endif

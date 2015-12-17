@@ -5,6 +5,8 @@
 #include "UILayers.h"
 #include "Utils.h"
 
+#if COMPILE_OLD_UILAYERS
+
 const char *GetMenuEntryText(MenuEntry *entry)
 {
 	if(!entry)
@@ -277,3 +279,4 @@ void MenuClickConfigProvider(void *context)
 
 	window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)BackSingleClickHandler);
 }
+#endif

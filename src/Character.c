@@ -1,9 +1,7 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
-#include "Items.h"
 #include "Logging.h"
 #include "Menu.h"
 #include "UILayers.h"

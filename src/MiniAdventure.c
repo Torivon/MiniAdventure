@@ -1,20 +1,18 @@
 #include "pebble.h"
 
 #include "Adventure.h"
-#include "Battle.h"
 #include "Character.h"
 #include "Clock.h"
-#include "Items.h"
+#include "GlobalState.h"
 #include "Logging.h"
 #include "MainMenu.h"
 #include "Menu.h"
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
-#include "Shop.h"
 #include "Slideshow.h"
 #include "Story.h"
-#include "TitleMenu.h"
+#include "TitleScreen.h"
 #include "UILayers.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -37,28 +35,12 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 	DEBUG_LOG("Main App tick");
 	if(!hasFocus)
 		return;
-
-	if(gUpdateBattle && (units_changed & SECOND_UNIT))
-	{
-		UpdateBattle();
-	}
 	
-	if(InNewBattle() && (units_changed & SECOND_UNIT))
-	{
-		UpdateNewBattle();
-	}
-
+	UpdateGlobalState(units_changed);
+		
 	if(units_changed & MINUTE_UNIT)
 	{
 		UpdateNewClock();
-		UpdateClock();
-		if(gUpdateAdventure)
-			UpdateAdventure();
-		
-#if INCLUDE_SLIDESHOW
-		if(gUpdateSlideshow)
-			UpdateSlideshow();
-#endif
 	}
 }
 
@@ -67,7 +49,7 @@ void focus_handler(bool in_focus) {
 	DEBUG_VERBOSE_LOG("Focus handler");
 	if(hasFocus)
 	{
-		UpdateClock();
+		UpdateNewClock();
 		SetUpdateDelay();
 		INFO_LOG("Gained focus.");
 	}
@@ -102,7 +84,7 @@ void handle_init() {
 #if USE_MENULAYER_PROTOTYPE	
 	baseWindow = InitializeNewBaseWindow();
 	window_stack_push(baseWindow, false);
-	RegisterTitleMenu();
+	RegisterTitleScreen();
 #else
 	ShowTitleMenu();
 #endif
@@ -116,15 +98,11 @@ void handle_deinit()
 #if ALLOW_WORKER_APP		
 	AppDying(ClosingWhileInBattle());
 #endif
-	UnloadBackgroundImage();
-	UnloadMainBmpImage();
-	UnloadTextLayers();
 	tick_timer_service_unsubscribe();
 	app_focus_service_unsubscribe();
 #if ALLOW_WORKER_APP && ALLOW_WORKER_APP_LISTENING
 	app_worker_message_unsubscribe();
 #endif
-	CleanupMenu();
 	if(baseWindow)
 		window_destroy(baseWindow);
 }
