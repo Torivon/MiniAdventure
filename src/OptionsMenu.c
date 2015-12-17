@@ -1,26 +1,20 @@
 #include <pebble.h>
 
+#include "GlobalState.h"
 #include "Menu.h"
+#include "NewBaseWindow.h"
+#include "NewMenu.h"
 #include "OptionsMenu.h"
 #include "UILayers.h"
 #include "WorkerControl.h"
 
+#define USE_NEW_OPTIONS_MENU 1
+
+void DrawOptionsMenu(void);
+
 static bool vibration = true;
-static bool fastMode = false;
 static bool useWorkerApp = false;
 static bool workerCanLaunch = true;
-static bool optionsMenuVisible = false;
-
-void DrawOptionsMenu(void)
-{
-	ShowMainWindowRow(0, "Options", "");
-	ShowMainWindowRow(1, "Vibration", vibration ? "On" : "Off");
-	ShowMainWindowRow(2, "Fast Mode", useWorkerApp ? "-" : fastMode ? "On" : "Off");
-#if ALLOW_WORKER_APP
-	ShowMainWindowRow(3, "Background", useWorkerApp ? "On" : "Off");
-	ShowMainWindowRow(4, "Launch", !useWorkerApp ? "-" : workerCanLaunch ? "On" : "Off");
-#endif
-}
 
 void ToggleVibration(void)
 {
@@ -38,30 +32,9 @@ void SetVibration(bool enable)
 	vibration = enable;
 }
 
-bool GetFastMode(void)
-{
-	return fastMode;
-}
-
-void SetFastMode(bool enable)
-{
-	fastMode = enable;
-}
-
-void ToggleFastMode(void)
-{
-	if(useWorkerApp)
-		return;
-	
-	fastMode = !fastMode;
-	DrawOptionsMenu();
-}
-
 void SetWorkerApp(bool enable)
 {
 	useWorkerApp = enable;
-	if(useWorkerApp)
-		SetFastMode(false);
 	if(OptionsMenuIsVisible())
 		DrawOptionsMenu();
 }
@@ -101,6 +74,144 @@ void ToggleWorkerCanLaunch(void)
 bool GetWorkerCanLaunch(void)
 {
 	return workerCanLaunch;
+}
+
+#if USE_NEW_OPTIONS_MENU
+
+bool OptionsMenuIsVisible(void)
+{
+	return GetCurrentGlobalState() == OPTIONS;
+}
+
+
+void DrawOptionsMenu(void)
+{
+	ReloadMenu(GetMainMenu());
+	ReloadMenu(GetSlaveMenu());
+}
+
+MenuCellDescription optionScreenMenuList[] = 
+{
+	{.name = "Vibration", .description = "Allow Vibration", .callback = NULL},
+	{.name = "Background", .description = "Use worker app", .callback = NULL},
+	{.name = "Launch", .description = "Worker app can launch", .callback = NULL}
+};
+
+static bool firstLaunch = false;
+
+uint16_t OptionMenuCount(void)
+{
+	return sizeof(optionScreenMenuList)/sizeof(*optionScreenMenuList);
+}
+
+const char *OptionMainMenuNameCallback(int row)
+{
+	switch(row)
+	{
+		case 0:
+		{
+			if(GetVibration())
+				return "On";
+			else
+				return "Off";
+		}
+		case 1:
+		{
+			if(GetWorkerApp())
+				return "On";
+			else
+				return "Off";
+		}
+		case 2:
+		{
+			if(GetWorkerCanLaunch())
+				return "On";
+			else
+				return "Off";
+		}
+	}
+	return "";
+}
+
+const char *OptionMainMenuDescriptionCallback(int row)
+{
+	return optionScreenMenuList[row].description;
+}
+
+void OptionMainMenuSelectCallback(int row)
+{
+	switch(row)
+	{
+		case 0:
+		{
+			ToggleVibration();
+			break;
+		}
+		case 1:
+		{
+			ToggleWorkerApp();
+			break;
+		}
+		case 2:
+		{
+			ToggleWorkerCanLaunch();
+			break;
+		}
+	}
+}
+
+void OptionScreenPush(void *data)
+{
+	firstLaunch = true;
+}
+
+void OptionScreenAppear(void *data)
+{
+	SetUseSlaveMenu(true);
+	SetHideMenuOnSelect(false);	
+	RegisterMenuCellCallbacks(GetMainMenu(), OptionMenuCount, OptionMainMenuNameCallback, OptionMainMenuDescriptionCallback, OptionMainMenuSelectCallback);	
+	RegisterMenuCellList(GetSlaveMenu(), optionScreenMenuList, OptionMenuCount());
+	if(firstLaunch)
+	{
+		TriggerMenu(GetMainMenu());
+		ShowMenu(GetSlaveMenu());
+		firstLaunch = false;
+	}
+	else
+	{
+		PopGlobalState();
+	}
+	
+}
+
+void OptionScreenPop(void *data)
+{
+	SetUseSlaveMenu(false);
+	SetHideMenuOnSelect(true);
+}
+
+void TriggerOptionScreen(void)
+{
+	PushGlobalState(OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+}
+
+void ShowOptionsMenu(void)
+{
+	
+}
+
+#else
+
+
+void DrawOptionsMenu(void)
+{
+	ShowMainWindowRow(0, "Options", "");
+	ShowMainWindowRow(1, "Vibration", vibration ? "On" : "Off");
+	ShowMainWindowRow(2, "Fast Mode", useWorkerApp ? "-" : fastMode ? "On" : "Off");
+#if ALLOW_WORKER_APP
+	ShowMainWindowRow(3, "Background", useWorkerApp ? "On" : "Off");
+	ShowMainWindowRow(4, "Launch", !useWorkerApp ? "-" : workerCanLaunch ? "On" : "Off");
+#endif
 }
 
 void OptionsMenuAppear(Window *window);
@@ -146,3 +257,4 @@ bool OptionsMenuIsVisible(void)
 {
 	return optionsMenuVisible;
 }
+#endif

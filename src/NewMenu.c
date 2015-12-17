@@ -22,7 +22,7 @@ typedef struct Menu
 	int innerOffset;
 	int onScreenX;
 	bool offScreenRight;
-	bool controlMenuArrow;
+	bool mainMenu;
 	
 	GBitmap *newMenuBackgroundFrame;
 	BitmapLayer *newMenuBackgroundLayer;
@@ -129,7 +129,7 @@ void RegisterMenuCellList(Menu *menu, MenuCellDescription *list, uint16_t count)
 		MenuIndex index = {.section = 0, .row = 0};
 		menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignTop, false);
 	}
-	if(menu->controlMenuArrow)
+	if(menu->mainMenu)
 		ShowMenuArrow();
 }
 
@@ -151,7 +151,7 @@ void RegisterMenuCellCallbacks(Menu *menu, MenuCountCallback countCallback, Menu
 	menu->cellCount = 0;
 	menu->cellList = NULL;
 
-	if(menu->controlMenuArrow)
+	if(menu->mainMenu)
 	{
 		if(menu->menuCountCallback() > 0)
 			ShowMenuArrow();
@@ -170,7 +170,7 @@ void ClearMenuCellList(Menu *menu)
 	menu->menuDescriptionCallback = NULL;
 	menu->menuSelectCallback = NULL;
 	
-	if(menu->controlMenuArrow)
+	if(menu->mainMenu)
 		HideMenuArrow();
 }
 
@@ -198,14 +198,15 @@ static void ShowAnimationStarted(struct Animation *animation, void *context)
 {
 	Menu *menu = (Menu*)context;
 	menu->menuAnimating = true;
-	if(menu->controlMenuArrow)
+	if(menu->mainMenu)
 		ActivateMenuArrow();
 	MenuIndex index = menu_layer_get_selected_index(menu->newMenuLayer);
 	
 	if(index.row < GetMenuCellCount(menu))
 	{
 		const char *newDescription = GetMenuDescription(menu, &index);
-		SetDescription(newDescription ? newDescription : "");
+		if(menu->mainMenu)
+			SetDescription(newDescription ? newDescription : "");
 	}
 }
 
@@ -226,7 +227,7 @@ static void HideAnimationStarted(struct Animation *animation, void *context)
 {
 	Menu *menu = (Menu*)context;
 	menu->menuAnimating = true;
-	if(menu->controlMenuArrow)
+	if(menu->mainMenu)
 		InactivateMenuArrow();
 }
 
@@ -238,7 +239,8 @@ static void HideAnimationStopped(struct Animation *animation, bool finished, voi
 	if(finished)
 	{
 		menu->menuVisible = false;
-		PopGlobalState(); //TODO: Move this elsewhere, or turn off with bool
+		if(menu->mainMenu)
+			PopGlobalState();
 	}
 	
 #if !defined(PBL_PLATFORM_APLITE)
@@ -319,7 +321,8 @@ void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_inde
 {
 	Menu *menu = (Menu*)callback_context;
 	const char *newDescription = GetMenuDescription(menu, &new_index);
-	SetDescription(newDescription ? newDescription : "");
+	if(menu->mainMenu)
+		SetDescription(newDescription ? newDescription : "");
 }
 
 Menu *CreateMenuLayer(int backgroundImageId,
@@ -327,7 +330,7 @@ Menu *CreateMenuLayer(int backgroundImageId,
 					  int innerOffset,
 					  int onScreenX,
 					  bool offScreenRight,
-					  bool controlMenuArrow)
+					  bool mainMenu)
 {
 	Menu *menu = calloc(sizeof(Menu), 1);
 
@@ -336,7 +339,7 @@ Menu *CreateMenuLayer(int backgroundImageId,
 	menu->innerOffset = innerOffset;
 	menu->onScreenX = onScreenX;
 	menu->offScreenRight = offScreenRight;
-	menu->controlMenuArrow = controlMenuArrow;
+	menu->mainMenu = mainMenu;
 	return menu;
 }
 
@@ -429,7 +432,7 @@ void ReloadMenu(Menu *menu)
 		DEBUG_LOG("Reloading");
 		menu_layer_reload_data(menu->newMenuLayer);
 		DEBUG_LOG("%d menu cells", GetMenuCellCount(menu));
-		if(menu->controlMenuArrow)
+		if(menu->mainMenu)
 		{
 			if(GetMenuCellCount(menu) > 0)
 			{

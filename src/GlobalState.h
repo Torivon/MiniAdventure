@@ -12,6 +12,7 @@ typedef enum
 	LOSS,
 	DIALOG,
 	MENU,
+	OPTIONS,
 } GlobalState;
 
 void PushGlobalState(GlobalState state, 

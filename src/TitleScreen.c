@@ -8,6 +8,7 @@
 #include "MainMenu.h"
 #include "Menu.h"
 #include "MiniAdventure.h"
+#include "OptionsMenu.h"
 #include "NewBaseWindow.h"
 #include "Slideshow.h"
 
@@ -27,25 +28,36 @@ enum
 };
 
 static int gameToLaunch = STORY_NONE;
+static bool launchOptions = false;
 
 void ChooseDungeonCrawl(void)
 {
 	gameToLaunch = DUNGEON_CRAWL;
+	launchOptions = false;
 }
 
 void ChooseDragonQuest(void)
 {
 	gameToLaunch = DRAGON_QUEST;
+	launchOptions = false;
 }
 
 void ChooseBattleTest(void)
 {
 	gameToLaunch = BATTLE_TEST;
+	launchOptions = false;
 }
 
 void ChooseSlideshow(void)
 {
 	gameToLaunch = SLIDESHOW;
+	launchOptions = false;
+}
+
+void ChooseOptions(void)
+{
+	gameToLaunch = STORY_NONE;
+	launchOptions = true;	
 }
 
 MenuCellDescription titleScreenMenuList[] = 
@@ -57,11 +69,12 @@ MenuCellDescription titleScreenMenuList[] =
 	{.name = "Dragon Quest", .description = "Extended adventure", .callback = ChooseDragonQuest},
 #endif
 #if INCLUDE_BATTLE_TEST_STORY
-	{.name = "Battle Test", .description = "Battle arena", .callback = ChooseBattleTest}
+	{.name = "Battle Test", .description = "Battle arena", .callback = ChooseBattleTest},
 #endif
 #if INCLUDE_SLIDESHOW
-	{.name = "Slideshow", .description = "Slideshow of all art", .callback = ChooseSlideshow}
+	{.name = "Slideshow", .description = "Slideshow of all art", .callback = ChooseSlideshow},
 #endif
+	{.name = "Options", .description = "Options", .callback = ChooseOptions},
 };
 
 static void TitleScreenAppear(void *data)
@@ -70,6 +83,12 @@ static void TitleScreenAppear(void *data)
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
+	
+	if(launchOptions)
+	{
+		TriggerOptionScreen();
+		launchOptions = false;
+	}
 	
 	switch(gameToLaunch)
 	{

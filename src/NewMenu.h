@@ -7,7 +7,7 @@ Menu *CreateMenuLayer(int backgroundImageId,
 					  int innerOffset,
 					  int onScreenX,
 					  bool offScreenRight,
-					  bool controlMenuArrow);
+					  bool mainMenu);
 void InitializeNewMenuLayer(Menu *menu, Window *window);
 
 bool IsMenuVisible(Menu *menu);

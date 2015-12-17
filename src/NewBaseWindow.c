@@ -14,10 +14,37 @@
 static bool usingNewWindow = false;
 
 static Menu *mainMenu = NULL;
-
+static Menu *slaveMenu = NULL;
+static bool useSlaveMenu = false;
+static bool hideMenuOnSelect = true;
 Menu *GetMainMenu(void)
 {
 	return mainMenu;
+}
+
+Menu *GetSlaveMenu(void)
+{
+	return slaveMenu;
+}
+
+void SetUseSlaveMenu(bool enable)
+{
+	useSlaveMenu = enable;
+}
+
+bool GetUseSlaveMenu(void)
+{
+	return useSlaveMenu;
+}
+
+void SetHideMenuOnSelect(bool enable)
+{
+	hideMenuOnSelect = enable;
+}
+
+bool GetHideMenuOnSelect(void)
+{
+	return hideMenuOnSelect;
 }
 
 bool UsingNewWindow(void)
@@ -32,25 +59,48 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 	if(IsMenuUsable(GetMainMenu()))
 	{
 		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
-		HideMenu(GetMainMenu()); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
+		if(hideMenuOnSelect)
+		{
+			HideMenu(GetMainMenu()); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
+			if(IsMenuUsable(GetSlaveMenu()))
+				HideMenu(GetSlaveMenu());
+		}
 	}
 	else if(IsMenuHidden(GetMainMenu()))
 	{
 		if(GetMenuCellCount(GetMainMenu()) > 0)
+		{
 			TriggerMenu(GetMainMenu());
+			if(useSlaveMenu)
+			{
+				ShowMenu(GetSlaveMenu());
+			}
+		}
 	}
 }
 
 static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
 	if(IsMenuUsable(GetMainMenu()))
+	{
 		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), true, MenuRowAlignCenter, true);
+		if(IsMenuUsable(GetSlaveMenu()))
+		{
+			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), true, MenuRowAlignCenter, true);
+		}
+	}
 }
 
 static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
 	if(IsMenuUsable(GetMainMenu()))
+	{
 		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), false, MenuRowAlignCenter, true);
+		if(IsMenuUsable(GetSlaveMenu()))
+		{
+			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), false, MenuRowAlignCenter, true);
+		}
+	}
 }
 
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
@@ -62,6 +112,8 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 			if(IsMenuUsable(GetMainMenu()))
 			{
 				HideMenu(GetMainMenu());
+				if(IsMenuUsable(GetSlaveMenu()))
+					HideMenu(GetSlaveMenu());
 				return;
 			}
 			break;
@@ -96,6 +148,7 @@ void BaseWindowAppear(Window *window)
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
 	InitializeNewMenuLayer(GetMainMenu(), window);
+	InitializeNewMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
 }
 
@@ -114,6 +167,7 @@ void BaseWindowUnload(Window *window)
 	FreeDescriptionLayer();
 	CleanupMainImageLayer();
 	CleanupMenu(mainMenu);
+	CleanupMenu(slaveMenu);
 }
 
 void SetWindowHandlers(Window *window)
@@ -131,6 +185,12 @@ Window * InitializeNewBaseWindow(void)
 #endif
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
+	slaveMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_SLAVE_MENU_FRAME,
+							   50,
+							   4,
+							   10,
+							   false,
+							   false);
 	mainMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_MENU_FRAME,
 							   50,
 							   4,
