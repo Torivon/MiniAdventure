@@ -150,6 +150,7 @@ static void MenuClickConfigProvider(void *context)
 
 void BaseWindowAppear(Window *window)
 {
+	DEBUG_LOG("BaseWindowAppear");
 	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
@@ -157,6 +158,7 @@ void BaseWindowAppear(Window *window)
 	InitializeNewMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
 	InitializeDialogLayer(window);
+	DEBUG_LOG("BaseWindowAppear end");
 }
 
 void BaseWindowDisappear(Window *window)
@@ -187,11 +189,9 @@ void SetWindowHandlers(Window *window)
 
 Window * InitializeNewBaseWindow(void)
 {
+	INFO_LOG("InitializeNewBaseWindow");
 	Window *window = window_create();
 	usingNewWindow = true;
-#ifdef PBL_PLATFORM_APLITE
-	window_set_fullscreen(window, true);
-#endif
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
 	slaveMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_SLAVE_MENU_FRAME,

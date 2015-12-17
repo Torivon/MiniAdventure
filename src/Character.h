@@ -23,9 +23,6 @@ typedef struct
 } CharacterData;
 
 int ComputePlayerHealth(int level);
-void UpdateCharacterHealth(void);
-void UpdateCharacterLevel(void);
-const char *UpdateGoldText(void);
 void AddStatPointToSpend(void);
 void IncrementEscapes(void);
 
@@ -41,9 +38,5 @@ bool PlayerIsDead(void);
 bool GrantExperience(int exp);
 void GrantGold(int gold);
 
-void ShowStatMenu(void);
-void ShowProgressMenu(void);
-
 void LevelUpData(void);
 void LevelUp(void);
-void ShowEndWindow(void);

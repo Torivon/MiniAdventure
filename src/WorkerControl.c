@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include "Adventure.h"
 #include "Logging.h"
-#include "MainMenu.h"
 #include "OptionsMenu.h"
 #include "WorkerControl.h"
 #include "Utils.h"

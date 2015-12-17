@@ -6,8 +6,6 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
-#include "MainMenu.h"
-#include "Menu.h"
 #include "MiniAdventure.h"
 #include "OptionsMenu.h"
 #include "NewBaseWindow.h"
@@ -143,5 +141,6 @@ static void TitleScreenPop(void *data)
 
 void RegisterTitleScreen(void)
 {
+	INFO_LOG("RegisterTitleScreen");
 	PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
 }

@@ -5,15 +5,12 @@
 #include "Clock.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "MainMenu.h"
-#include "Menu.h"
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "Slideshow.h"
 #include "Story.h"
 #include "TitleScreen.h"
-#include "UILayers.h"
 #include "Utils.h"
 #include "WorkerControl.h"
 
@@ -83,6 +80,7 @@ void handle_init() {
 	InitializeCharacter();
 #if USE_MENULAYER_PROTOTYPE	
 	baseWindow = InitializeNewBaseWindow();
+	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	RegisterTitleScreen();
 #else
