@@ -10,4 +10,6 @@ void FreeTextBox(TextBox *textBox);
 void TextBoxSetText(TextBox *textBox, const char *text);
 const char *TextBoxGetText(TextBox *textBox);
 bool TextBoxInitialized(TextBox *textBox);
+void ShowTextBox(TextBox *textBox);
+void HideTextBox(TextBox *textBox);
 

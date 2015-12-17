@@ -2,6 +2,7 @@
 
 #include "Adventure.h"
 #include "DescriptionFrame.h"
+#include "DialogFrame.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -20,44 +21,45 @@
 
 enum 
 {
-	STORY_NONE = 0,
-	DUNGEON_CRAWL,
-	DRAGON_QUEST,
-	BATTLE_TEST,
-	SLIDESHOW,
+	TITLE_STORY_NONE = 0,
+	TITLE_DUNGEON_CRAWL,
+	TITLE_DRAGON_QUEST,
+	TITLE_BATTLE_TEST,
+	TITLE_SLIDESHOW,
+	TITLE_OPTIONS,
+	TITLE_CREDITS
 };
 
-static int gameToLaunch = STORY_NONE;
-static bool launchOptions = false;
+static int gameToLaunch = TITLE_STORY_NONE;
 
 void ChooseDungeonCrawl(void)
 {
-	gameToLaunch = DUNGEON_CRAWL;
-	launchOptions = false;
+	gameToLaunch = TITLE_DUNGEON_CRAWL;
 }
 
 void ChooseDragonQuest(void)
 {
-	gameToLaunch = DRAGON_QUEST;
-	launchOptions = false;
+	gameToLaunch = TITLE_DRAGON_QUEST;
 }
 
 void ChooseBattleTest(void)
 {
-	gameToLaunch = BATTLE_TEST;
-	launchOptions = false;
+	gameToLaunch = TITLE_BATTLE_TEST;
 }
 
 void ChooseSlideshow(void)
 {
-	gameToLaunch = SLIDESHOW;
-	launchOptions = false;
+	gameToLaunch = TITLE_SLIDESHOW;
 }
 
 void ChooseOptions(void)
 {
-	gameToLaunch = STORY_NONE;
-	launchOptions = true;	
+	gameToLaunch = TITLE_OPTIONS;
+}
+
+void ChooseCredits(void)
+{
+	gameToLaunch = TITLE_CREDITS;
 }
 
 MenuCellDescription titleScreenMenuList[] = 
@@ -75,6 +77,7 @@ MenuCellDescription titleScreenMenuList[] =
 	{.name = "Slideshow", .description = "Slideshow of all art", .callback = ChooseSlideshow},
 #endif
 	{.name = "Options", .description = "Options", .callback = ChooseOptions},
+	{.name = "Credits", .description = "Credits", .callback = ChooseCredits},
 };
 
 static void TitleScreenAppear(void *data)
@@ -83,41 +86,45 @@ static void TitleScreenAppear(void *data)
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
-	
-	if(launchOptions)
-	{
-		TriggerOptionScreen();
-		launchOptions = false;
-	}
-	
+		
 	switch(gameToLaunch)
 	{
-		case DUNGEON_CRAWL:
+		case TITLE_DUNGEON_CRAWL:
 		{
 #if INCLUDE_DUNGEON_CRAWL
 			LaunchDungeonCrawl();
 #endif
 			break;
 		}
-		case DRAGON_QUEST:
+		case TITLE_DRAGON_QUEST:
 		{
 #if INCLUDE_DRAGON_QUEST
 			LaunchDragonQuest();
 #endif
 			break;
 		}
-		case BATTLE_TEST:
+		case TITLE_BATTLE_TEST:
 		{
 #if INCLUDE_BATTLE_TEST_STORY
 			LaunchBattleTestStory();
 #endif
 			break;
 		}
-		case SLIDESHOW:
+		case TITLE_SLIDESHOW:
 		{
 #if INCLUDE_SLIDESHOW
 			LaunchSlideshow();
 #endif
+			break;
+		}
+		case TITLE_OPTIONS:
+		{
+			TriggerOptionScreen();
+			break;
+		}
+		case TITLE_CREDITS:
+		{
+			TriggerDialog("Programming and art by Jonathan Panttaja, with help from Belphemur and BlackLamb");
 			break;
 		}
 		default:
@@ -125,7 +132,7 @@ static void TitleScreenAppear(void *data)
 			break;
 		}
 	}
-	gameToLaunch = STORY_NONE;
+	gameToLaunch = TITLE_STORY_NONE;
 }
 
 static void TitleScreenPop(void *data)
@@ -136,5 +143,5 @@ static void TitleScreenPop(void *data)
 
 void RegisterTitleScreen(void)
 {
-	PushGlobalState(TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+	PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
 }

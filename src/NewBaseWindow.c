@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "Clock.h"
 #include "DescriptionFrame.h"
+#include "DialogFrame.h"
 #include "GlobalState.h"
 #include "MainImage.h"
 #include "MenuArrow.h"
@@ -56,6 +57,11 @@ bool UsingNewWindow(void)
 
 static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
+	if(GetCurrentGlobalState() == STATE_DIALOG)
+	{
+		PopGlobalState();
+		return;
+	}
 	if(IsMenuUsable(GetMainMenu()))
 	{
 		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
@@ -107,7 +113,7 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 {
 	switch(GetCurrentGlobalState())
 	{
-		case MENU:
+		case STATE_MENU:
 		{
 			if(IsMenuUsable(GetMainMenu()))
 			{
@@ -118,7 +124,7 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 			}
 			break;
 		}
-		case BATTLE:
+		case STATE_BATTLE:
 		{
 			SaveBattleState();
 			break;
@@ -150,6 +156,7 @@ void BaseWindowAppear(Window *window)
 	InitializeNewMenuLayer(GetMainMenu(), window);
 	InitializeNewMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
+	InitializeDialogLayer(window);
 }
 
 void BaseWindowDisappear(Window *window)
@@ -158,6 +165,7 @@ void BaseWindowDisappear(Window *window)
 	RemoveMenuArrowLayer();
 	RemoveMainImageLayer();
 	RemoveDescriptionLayer();
+	RemoveDialogLayer();
 }
 
 void BaseWindowUnload(Window *window)
@@ -168,6 +176,7 @@ void BaseWindowUnload(Window *window)
 	CleanupMainImageLayer();
 	CleanupMenu(mainMenu);
 	CleanupMenu(slaveMenu);
+	FreeDialogLayer();
 }
 
 void SetWindowHandlers(Window *window)

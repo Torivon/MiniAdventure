@@ -9,6 +9,18 @@
     "resources": {
         "media": [
             {
+                "file": "images/ok_frame.png",
+                "name": "IMAGE_OK_FRAME",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/dialog_frame.png",
+                "name": "IMAGE_DIALOG_FRAME",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
                 "file": "images/slave_menu_frame.png",
                 "name": "IMAGE_SLAVE_MENU_FRAME",
                 "targetPlatforms": null,

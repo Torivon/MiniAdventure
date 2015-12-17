@@ -80,7 +80,7 @@ bool GetWorkerCanLaunch(void)
 
 bool OptionsMenuIsVisible(void)
 {
-	return GetCurrentGlobalState() == OPTIONS;
+	return GetCurrentGlobalState() == STATE_OPTIONS;
 }
 
 
@@ -192,7 +192,7 @@ void OptionScreenPop(void *data)
 
 void TriggerOptionScreen(void)
 {
-	PushGlobalState(OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+	PushGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
 }
 
 void ShowOptionsMenu(void)

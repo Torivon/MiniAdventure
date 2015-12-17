@@ -306,5 +306,5 @@ void BattleScreenPush(void *data)
 void TriggerBattleScreen(void)
 {
 	if(CurrentLocationAllowsCombat())
-		PushGlobalState(BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, NULL, NULL);
+		PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, NULL, NULL);
 }

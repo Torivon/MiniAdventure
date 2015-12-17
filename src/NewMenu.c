@@ -449,5 +449,5 @@ void ReloadMenu(Menu *menu)
 // TODO: This doesn't belong here.
 void TriggerMenu(Menu *menu)
 {
-	PushGlobalState(MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);
+	PushGlobalState(STATE_MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);
 }

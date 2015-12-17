@@ -98,3 +98,19 @@ void FreeTextBox(TextBox *textBox)
 	free(textBox);
 }
 
+void ShowTextBox(TextBox *textBox)
+{
+	if(!TextBoxInitialized(textBox))
+		return;
+	
+	layer_set_hidden(bitmap_layer_get_layer(textBox->backgroundLayer), false);
+}
+
+void HideTextBox(TextBox *textBox)
+{
+	if(!TextBoxInitialized(textBox))
+		return;
+	
+	layer_set_hidden(bitmap_layer_get_layer(textBox->backgroundLayer), true);
+
+}
