@@ -68,7 +68,7 @@ enum
 
 #define USE_MENULAYER_PROTOTYPE 1
 
-#define COMPILE_OLD_UILAYERS 1
+#define COMPILE_OLD_UILAYERS 0
 
 void ResetGame(void);
 bool HasFocus(void);

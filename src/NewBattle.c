@@ -6,7 +6,6 @@
 #include "Logging.h"
 #include "NewBattle.h"
 #include "MainImage.h"
-#include "Menu.h"
 #include "Monsters.h"
 #include "NewBaseWindow.h"
 #include "NewMenu.h"
@@ -14,7 +13,6 @@
 #include "Skills.h"
 #include "Story.h"
 #include "BattleQueue.h"
-#include "UILayers.h"
 
 typedef struct NewBattleState
 {

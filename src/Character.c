@@ -3,8 +3,6 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "Logging.h"
-#include "Menu.h"
-#include "UILayers.h"
 #include "Utils.h"
 
 CharacterData characterData;
@@ -12,16 +10,6 @@ CharacterData characterData;
 void AddStatPointToSpend(void)
 {
 	++characterData.statPointsToSpend;
-}
-
-void UpdateCharacterHealth(void)
-{
-	UpdateHealthText(characterData.stats.currentHealth, characterData.stats.maxHealth);
-}
-
-void UpdateCharacterLevel(void)
-{
-	UpdateLevelLayerText(characterData.level);
 }
 
 const char *UpdateLevelText(void)
@@ -90,9 +78,6 @@ void InitializeCharacter(void)
 	characterData.stats.magicDefense = 1;
 	characterData.statPointsToSpend = 0;
 	characterData.speed = 10;
-
-	UpdateCharacterLevel();
-	UpdateCharacterHealth();
 }
 
 // Returns true on levelup
@@ -120,7 +105,6 @@ void DealPlayerDamage(int damage)
 	{
 		characterData.stats.currentHealth = 0;
 	}
-	UpdateCharacterHealth();
 }
 
 CharacterData *GetCharacter(void)
@@ -133,8 +117,6 @@ void HealPlayerByPercent(int percent)
 	characterData.stats.currentHealth += (characterData.stats.maxHealth * percent) / 100;
 	if(characterData.stats.currentHealth > characterData.stats.maxHealth)
 		characterData.stats.currentHealth = characterData.stats.maxHealth;
-
-	UpdateCharacterHealth();
 }
 
 bool PlayerIsInjured(void)
@@ -145,42 +127,6 @@ bool PlayerIsInjured(void)
 bool PlayerIsDead(void)
 {
 	return characterData.stats.currentHealth <= 0;
-}
-
-void EndMenuDisappear(Window *window)
-{
-	ResetGame();
-}
-
-void EndMenuAppear(Window *window);
-
-MenuDefinition endMenuDef = 
-{
-	.menuEntries = 
-	{
-		{.text = "Ok", .description = "Restart game", .menuFunction = PopMenu}
-	},
-	.disappear = EndMenuDisappear,
-	.appear = EndMenuAppear,
-	.mainImageId = -1,
-	.floorImageId = -1
-};
-
-void EndMenuAppear(Window *window)
-{
-	MenuAppear(window);
-	if(characterData.stats.currentHealth <= 0)
-		ShowMainWindowRow(0, "You lose", "");
-	else
-		ShowMainWindowRow(0, "You win", "");
-	ShowMainWindowRow(2, "Level", UpdateLevelText());
-	ShowMainWindowRow(3, "Gold", UpdateGoldText());
-	ShowMainWindowRow(4, "Escapes", UpdateEscapeText());
-}
-
-void ShowEndWindow(void)
-{
-	PushNewMenu(&endMenuDef);
 }
 
 const char  *UpdateStatPointText(void)
@@ -223,22 +169,12 @@ const char  *UpdateMagicDefenseText(void)
 	return magicDefenseText;
 }
 
-void DrawStatWindow(void)
-{
-	ShowMainWindowRow(0, "Stat Points", UpdateStatPointText());	
-	ShowMainWindowRow(1, "Strength", UpdateStrengthText());
-	ShowMainWindowRow(2, "Defense", UpdateDefenseText());
-	ShowMainWindowRow(3, "Magic", UpdateMagicText());
-	ShowMainWindowRow(4, "MagicDef", UpdateMagicDefenseText());
-}
-
 void IncrementStat(int *stat)
 {
 	if(characterData.statPointsToSpend && (*stat) < characterData.level)
 	{
 		++(*stat);
 		--characterData.statPointsToSpend;
-		DrawStatWindow();
 	}
 }
 
@@ -271,43 +207,12 @@ void LevelUpData(void)
 	if(characterData.stats.maxHealth > 9999)
 		characterData.stats.maxHealth = 9999;
 	characterData.stats.currentHealth = characterData.stats.maxHealth;
-	UpdateCharacterLevel();
-	UpdateCharacterHealth();	
 }
 
 void LevelUp(void)
 {
 	INFO_LOG("Level up.");
 	LevelUpData();
-	ShowStatMenu();
-}
-
-void StatMenuAppear(Window *window);
-
-MenuDefinition statMenuDef = 
-{
-	.menuEntries = 
-	{
-		{.text = "Quit", .description = "Return to main menu", .menuFunction = PopMenu},
-		{.text = "Increase", .description = "Increase strength", .menuFunction = IncrementStrength},
-		{.text = "Increase", .description = "Increase defense", .menuFunction = IncrementDefense},
-		{.text = "Increase", .description = "Increase magic", .menuFunction = IncrementMagic},
-		{.text = "Increase", .description = "Increase magic defense", .menuFunction = IncrementMagicDefense},
-	},
-	.appear = StatMenuAppear,
-	.mainImageId = -1,
-	.floorImageId = -1
-};
-
-void StatMenuAppear(Window *window)
-{
-	MenuAppear(window);
-	DrawStatWindow();
-}
-
-void ShowStatMenu(void)
-{
-	PushNewMenu(&statMenuDef);
 }
 
 void ForceLevelUp(void)
@@ -319,40 +224,4 @@ void ForceLevelUp(void)
 void ForceGold(void)
 {
 	GrantGold(100);
-	ShowMainWindowRow(4, "Gold", UpdateGoldText());
-}
-
-void ProgressMenuAppear(Window *window);
-
-MenuDefinition progressMenuDef = 
-{
-	.menuEntries = 
-	{
-		{.text = "Quit", .description = "Return to main menu", .menuFunction = PopMenu},
-#if ALLOW_TEST_MENU
-		{.text = "Lvl Up", .description = "Increase level", .menuFunction = ForceLevelUp},
-		{0},
-		{0},
-		{.text = "Add Gold", .description = "Add more gold", .menuFunction = ForceGold},
-		
-#endif
-	},
-	.appear = ProgressMenuAppear,
-	.mainImageId = -1
-};
-
-void ProgressMenuAppear(Window *window)
-{
-	MenuAppear(window);
-	ShowMainWindowRow(0, "Progress", "");	
-	ShowMainWindowRow(1, "Level", UpdateLevelText());
-	ShowMainWindowRow(2, "XP", UpdateXPText());
-	ShowMainWindowRow(3, "Next XP", UpdateNextXPText());
-	ShowMainWindowRow(4, "Gold", UpdateGoldText());
-	ShowMainWindowRow(5, "Escapes", UpdateEscapeText());
-}
-
-void ShowProgressMenu(void)
-{
-	PushNewMenu(&progressMenuDef);
 }

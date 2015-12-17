@@ -202,7 +202,7 @@ static Location locationList[] =
 		.type = LOCATIONTYPE_FIXED,
 		.numberOfAdjacentLocations = 0,
 		.fixedclass = &TreasureRoomClass,
-		.fixed_ArrivalFunction = ShowEndWindow,
+		.fixed_ArrivalFunction = NULL, //TODO: Victory screen
 	},
 };
 

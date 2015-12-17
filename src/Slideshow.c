@@ -1,8 +1,6 @@
 #include "pebble.h"
 	
-#include "Menu.h"
 #include "Slideshow.h"
-#include "UILayers.h"
 
 #if INCLUDE_SLIDESHOW
 

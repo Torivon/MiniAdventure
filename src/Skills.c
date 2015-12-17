@@ -3,7 +3,6 @@
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Skills.h"
-#include "UILayers.h"
 
 typedef struct Skill
 {
