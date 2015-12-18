@@ -2,10 +2,11 @@
 
 typedef struct Menu Menu;
 
-Menu *CreateMenuLayer(int backgroundImageId,
+Menu *CreateMenuLayer(int onScreenX,
 					  int yPos,
+					  int width,
+					  int height,
 					  int innerOffset,
-					  int onScreenX,
 					  bool offScreenRight,
 					  bool mainMenu);
 void InitializeNewMenuLayer(Menu *menu, Window *window);

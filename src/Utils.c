@@ -52,3 +52,19 @@ uint16_t Random(uint16_t max)
 	return result;
 }
 
+void DrawContentFrame(GContext * ctx, GRect *rect)
+{
+	graphics_context_set_fill_color(ctx, GColorWhite);
+	graphics_fill_rect(ctx, *rect, 2, GCornersAll);
+#if defined(PBL_COLOR)
+	graphics_context_set_fill_color(ctx, GColorBlue);
+#else
+	graphics_context_set_fill_color(ctx, GColorBlack);
+#endif
+	GRect inner_frame = *rect;
+	inner_frame.origin.x += 2;
+	inner_frame.origin.y += 2;
+	inner_frame.size.w -= 4;
+	inner_frame.size.h -= 4;
+	graphics_fill_rect(ctx, inner_frame, 0, GCornerNone);	
+}

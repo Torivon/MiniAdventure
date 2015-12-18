@@ -10,17 +10,19 @@
 static TextBox *dialogTextBox = NULL;
 static TextBox *okTextBox = NULL;
 
-#define DESC_FRAME_WIDTH 84
-#define DESC_FRAME_HEIGHT 30
-#define DESC_TEXT_X_OFFSET 2
-#define DESC_TEXT_Y_OFFSET 2
+#define DIALOG_FRAME_WIDTH 100
+#define DIALOG_FRAME_HEIGHT 80
+#define OK_FRAME_WIDTH 35
+#define OK_FRAME_HEIGHT 21
+#define DIALOG_TEXT_X_OFFSET 2
+#define DIALOG_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
-static GRect dialogFrame = {.origin = {.x = 144 / 2 - DESC_FRAME_WIDTH / 2, .y = 0}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
-static GRect okFrame = {.origin = {.x = 144 - 40, .y = 70}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
+static GRect dialogFrame = {.origin = {.x = 0, .y = 168 / 2 - DIALOG_FRAME_HEIGHT / 2}, .size = {.w = DIALOG_FRAME_WIDTH, .h = DIALOG_FRAME_HEIGHT}};
+static GRect okFrame = {.origin = {.x = 144 - 40, .y = 168 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-#define VERTICAL_OFFSET 10
-static GRect dialogFrame = {.origin = {.x = 180 / 2 - DESC_FRAME_WIDTH / 2, .y = VERTICAL_OFFSET}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
-static GRect okFrame = {.origin = {.x = 180 - 40, .y = 80}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
+#define VERTICAL_OFFSET 20
+static GRect dialogFrame = {.origin = {.x = VERTICAL_OFFSET, .y = 180 / 2 - DIALOG_FRAME_HEIGHT / 2}, .size = {.w = DIALOG_FRAME_WIDTH, .h = DIALOG_FRAME_HEIGHT}};
+static GRect okFrame = {.origin = {.x = 180 - 40, .y = 180 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
 #endif
 
 void SetDialog(const char *text)
@@ -50,8 +52,8 @@ void InitializeDialogLayer(Window *window)
 {
 	if(!dialogTextBox)
 	{
-		dialogTextBox = CreateTextBox(RESOURCE_ID_IMAGE_DIALOG_FRAME, DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), dialogFrame);
-		okTextBox = CreateTextBox(RESOURCE_ID_IMAGE_OK_FRAME, DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame);
+		dialogTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), dialogFrame);
+		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame);
 	}
 	
 	InitializeTextBox(window, dialogTextBox, "");

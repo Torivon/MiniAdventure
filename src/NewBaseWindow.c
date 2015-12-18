@@ -194,16 +194,18 @@ Window * InitializeNewBaseWindow(void)
 	usingNewWindow = true;
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
-	slaveMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_SLAVE_MENU_FRAME,
+	slaveMenu = CreateMenuLayer(10,
+								50,
+								100,
+								80,
+								4,
+								false,
+								false);
+	mainMenu = CreateMenuLayer(110,
 							   50,
+							   80,
+							   80,
 							   4,
-							   10,
-							   false,
-							   false);
-	mainMenu = CreateMenuLayer(RESOURCE_ID_IMAGE_MENU_FRAME,
-							   50,
-							   4,
-							   110,
 							   true,
 							   true);
 	window_set_click_config_provider(window, MenuClickConfigProvider);

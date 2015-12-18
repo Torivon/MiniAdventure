@@ -8,7 +8,7 @@
 static TextBox *descriptionTextBox = NULL;
 
 #define DESC_FRAME_WIDTH 84
-#define DESC_FRAME_HEIGHT 30
+#define DESC_FRAME_HEIGHT 35
 #define DESC_TEXT_X_OFFSET 2
 #define DESC_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
@@ -44,7 +44,7 @@ void InitializeDescriptionLayer(Window *window)
 {
 	if(!descriptionTextBox)
 	{
-		descriptionTextBox = CreateTextBox(RESOURCE_ID_IMAGE_DESCRIPTION_FRAME, DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame);
+		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame);
 	}
 	
 	InitializeTextBox(window, descriptionTextBox, "");

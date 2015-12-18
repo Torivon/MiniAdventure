@@ -48,3 +48,8 @@ inline int ComputeRandomEvent_inline(int baseChanceOfEvent, int ticksSinceLastEv
 }
 
 #define BOOL_TO_STR(b) (b) ? "true" : "false"
+
+typedef struct GContext GContext;
+typedef struct GRect GRect;
+
+void DrawContentFrame(GContext *ctx, GRect *rect);

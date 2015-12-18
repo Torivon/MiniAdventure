@@ -1,20 +1,19 @@
 #include <pebble.h>
 #include "MainImage.h"
 #include "MiniAdventure.h"
+#include "Utils.h"
 
 #define MAIN_IMAGE_LAYER_X 50
 #define MAIN_IMAGE_LAYER_Y 20
-#define MAIN_IMAGE_LAYER_W 100
-#define MAIN_IMAGE_LAYER_H 100
+#define MAIN_IMAGE_LAYER_W 84
+#define MAIN_IMAGE_LAYER_H 84
 
 #define INTERNAL_IMAGE_OFFSET 2
 
-static GBitmap *mainImageBackgroundFrame = NULL;
 static GBitmap *foregroundImage = NULL;
 static GBitmap *backgroundImage = NULL;
 
 static Layer *mainImageTopLayer = NULL;
-static BitmapLayer *mainImageBackgroundLayer = NULL;
 static BitmapLayer *foregroundImageLayer = NULL;
 static BitmapLayer *backgroundImageLayer = NULL;
 
@@ -25,21 +24,20 @@ static bool mainImageInitialized;
 static int foregroundResourceId = -1;
 static int backgroundResourceId = -1;
 
+void MainImageUpdateProc(struct Layer *layer, GContext *ctx)
+{
+	GRect bounds = layer_get_bounds(layer);
+	DrawContentFrame(ctx, &bounds);
+}
+
 void InitializeMainImageLayer(Window *window)
 {
 	if(!mainImageInitialized)
 	{
-		mainImageBackgroundFrame = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MAIN_FRAME);
-		GRect frameBounds = gbitmap_get_bounds(mainImageBackgroundFrame);
-		mainImagePosition.size = frameBounds.size;
 		GRect screen_bounds = layer_get_bounds(window_get_root_layer(window));
 		mainImagePosition.origin.x = screen_bounds.size.w / 2 - mainImagePosition.size.w / 2;
 		mainImagePosition.origin.y = screen_bounds.size.h / 2 - mainImagePosition.size.h / 2;
 		mainImageTopLayer = layer_create(mainImagePosition);
-		mainImageBackgroundLayer = bitmap_layer_create(layer_get_bounds(mainImageTopLayer));
-		bitmap_layer_set_bitmap(mainImageBackgroundLayer, mainImageBackgroundFrame);
-		bitmap_layer_set_alignment(mainImageBackgroundLayer, GAlignCenter);
-		layer_add_child(mainImageTopLayer, bitmap_layer_get_layer(mainImageBackgroundLayer));
 		
 		GRect image_bounds = layer_get_bounds(mainImageTopLayer);
 		image_bounds.origin.x += INTERNAL_IMAGE_OFFSET;
@@ -63,6 +61,7 @@ void InitializeMainImageLayer(Window *window)
 		bitmap_layer_set_compositing_mode(foregroundImageLayer, GCompOpSet);
 #endif
 
+		layer_set_update_proc(mainImageTopLayer, MainImageUpdateProc);
 		layer_add_child(mainImageTopLayer, bitmap_layer_get_layer(foregroundImageLayer));
 
 		mainImageInitialized = true;
@@ -123,10 +122,8 @@ void CleanupMainImageLayer(void)
 	if(mainImageInitialized)
 	{
 		layer_destroy(mainImageTopLayer);
-		bitmap_layer_destroy(mainImageBackgroundLayer);
 		bitmap_layer_destroy(foregroundImageLayer);
 		bitmap_layer_destroy(backgroundImageLayer);
-		gbitmap_destroy(mainImageBackgroundFrame);
 		gbitmap_destroy(foregroundImage);
 		gbitmap_destroy(backgroundImage);
 		mainImageInitialized = false;
