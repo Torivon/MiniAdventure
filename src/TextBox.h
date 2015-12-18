@@ -2,7 +2,7 @@
 
 typedef struct TextBox TextBox;
 
-TextBox *CreateTextBox(int resourceId, int xoffset, int yoffset, GFont font, GRect frame);
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame);
 void InitializeTextBox(Window *window, TextBox *textBox, char *initialText);
 void RemoveTextBox(TextBox *textBox);
 void FreeTextBox(TextBox *textBox);

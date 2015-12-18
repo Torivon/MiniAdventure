@@ -1,16 +1,16 @@
 #include <pebble.h>
 #include "Logging.h"
+#include "OptionsMenu.h"
 #include "TextBox.h"
+#include "Utils.h"
 
 typedef struct TextBox
 {
-	int backgroundResourceId;
 	int xoffset;
 	int yoffset;
 	GFont font;
 	GRect frame;
-	BitmapLayer *backgroundLayer;
-	GBitmap *backgroundImage;
+	Layer *mainLayer;
 	TextLayer *textLayer;
 	bool initialized;
 } TextBox;
@@ -41,18 +41,23 @@ void RemoveTextBox(TextBox *textBox)
 	if(!textBox || !textBox->initialized)
 		return;
 
-	layer_remove_from_parent(bitmap_layer_get_layer(textBox->backgroundLayer));
+	layer_remove_from_parent(textBox->mainLayer);
 }
 
-TextBox *CreateTextBox(int resourceId, int xoffset, int yoffset, GFont font, GRect frame)
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame)
 {
 	TextBox *textBox = calloc(sizeof(TextBox), 1);
-	textBox->backgroundResourceId = resourceId;
 	textBox->font = font;
 	textBox->frame = frame;
 	textBox->xoffset = xoffset;
 	textBox->yoffset = yoffset;
 	return textBox;
+}
+
+void TextBoxUpdateProc(struct Layer *layer, GContext *ctx)
+{
+	GRect bounds = layer_get_bounds(layer);
+	DrawContentFrame(ctx, &bounds);
 }
 
 void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
@@ -61,15 +66,9 @@ void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
 
 	if(!textBox->initialized)
 	{
-		textBox->backgroundImage = gbitmap_create_with_resource(textBox->backgroundResourceId);
-		GRect backgroundFrame = gbitmap_get_bounds(textBox->backgroundImage);
-		textBox->frame.size = backgroundFrame.size;
-		textBox->backgroundLayer = bitmap_layer_create(textBox->frame);
-		bitmap_layer_set_bitmap(textBox->backgroundLayer, textBox->backgroundImage);
-		bitmap_layer_set_alignment(textBox->backgroundLayer, GAlignCenter);
-		layer_add_child(window_layer, bitmap_layer_get_layer(textBox->backgroundLayer));
-		Layer *backgroundLayer = bitmap_layer_get_layer(textBox->backgroundLayer);
-		GRect newFrame = layer_get_bounds(backgroundLayer);
+		textBox->mainLayer = layer_create(textBox->frame);
+		layer_add_child(window_layer, textBox->mainLayer);
+		GRect newFrame = layer_get_bounds(textBox->mainLayer);
 		newFrame.origin.x += textBox->xoffset;
 		newFrame.origin.y += textBox->yoffset;
 		newFrame.size.w -= 2 * textBox->xoffset;
@@ -79,19 +78,20 @@ void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
 		text_layer_set_background_color(textBox->textLayer, GColorClear);
 		text_layer_set_font(textBox->textLayer, textBox->font);
 		text_layer_set_text_alignment(textBox->textLayer, GTextAlignmentCenter);
-		layer_add_child(backgroundLayer, text_layer_get_layer(textBox->textLayer));
+		layer_add_child(textBox->mainLayer, text_layer_get_layer(textBox->textLayer));
 		text_layer_set_text(textBox->textLayer, initialText);
 		textBox->initialized = true;
+
+		layer_set_update_proc(textBox->mainLayer, TextBoxUpdateProc);
 	}
-	layer_add_child(window_layer, bitmap_layer_get_layer(textBox->backgroundLayer));
+	layer_add_child(window_layer, textBox->mainLayer);
 }
 
 void FreeTextBox(TextBox *textBox)
 {
 	if(textBox->initialized)
 	{
-		bitmap_layer_destroy(textBox->backgroundLayer);
-		gbitmap_destroy(textBox->backgroundImage);
+		layer_destroy(textBox->mainLayer);
 		text_layer_destroy(textBox->textLayer);
 	}
 	
@@ -103,7 +103,7 @@ void ShowTextBox(TextBox *textBox)
 	if(!TextBoxInitialized(textBox))
 		return;
 	
-	layer_set_hidden(bitmap_layer_get_layer(textBox->backgroundLayer), false);
+	layer_set_hidden(textBox->mainLayer, false);
 }
 
 void HideTextBox(TextBox *textBox)
@@ -111,6 +111,5 @@ void HideTextBox(TextBox *textBox)
 	if(!TextBoxInitialized(textBox))
 		return;
 	
-	layer_set_hidden(bitmap_layer_get_layer(textBox->backgroundLayer), true);
-
+	layer_set_hidden(textBox->mainLayer, true);
 }

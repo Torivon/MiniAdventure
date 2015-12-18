@@ -77,7 +77,6 @@ bool OptionsMenuIsVisible(void)
 	return GetCurrentGlobalState() == STATE_OPTIONS;
 }
 
-
 void DrawOptionsMenu(void)
 {
 	ReloadMenu(GetMainMenu());
@@ -88,7 +87,7 @@ MenuCellDescription optionScreenMenuList[] =
 {
 	{.name = "Vibration", .description = "Allow Vibration", .callback = NULL},
 	{.name = "Background", .description = "Use worker app", .callback = NULL},
-	{.name = "Launch", .description = "Worker app can launch", .callback = NULL}
+	{.name = "Launch", .description = "Worker app can launch", .callback = NULL},
 };
 
 static bool firstLaunch = false;
@@ -187,9 +186,4 @@ void OptionScreenPop(void *data)
 void TriggerOptionScreen(void)
 {
 	PushGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
-}
-
-void ShowOptionsMenu(void)
-{
-	
 }

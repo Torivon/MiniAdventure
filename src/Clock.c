@@ -56,7 +56,7 @@ void InitializeNewClockLayer(Window *window)
 {
 	if(!clockTextBox)
 	{
-		clockTextBox = CreateTextBox(RESOURCE_ID_IMAGE_CLOCK_BACKGROUND, CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), newClockFrame);
+		clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), newClockFrame);
 	}
 	
 	InitializeTextBox(window, clockTextBox, UpdateClockText());

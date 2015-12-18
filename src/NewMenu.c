@@ -5,28 +5,22 @@
 #include "MenuArrow.h"
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
+#include "Utils.h"
 
 #define WINDOW_ROW_HEIGHT 16
 #define NUM_MENU_SECTIONS 1
 #define NUM_FIRST_MENU_ITEMS 10
 
-#define MENU_LAYER_X 50
-#define MENU_LAYER_Y 20
-#define MENU_LAYER_W 100
-#define MENU_LAYER_H 100
-
 typedef struct Menu
 {
-	int backgroundImageId;
-	int yPos;
-	int innerOffset;
 	int onScreenX;
+	int yPos;
+	int width;
+	int height;
+	int innerOffset;
 	bool offScreenRight;
 	bool mainMenu;
 	
-	GBitmap *newMenuBackgroundFrame;
-	BitmapLayer *newMenuBackgroundLayer;
-
 	GFont menuFont;
 	GRect newMenuOnScreenPosition;
 	GRect newMenuOffScreenPosition;
@@ -218,9 +212,7 @@ static void ShowAnimationStopped(struct Animation *animation, bool finished, voi
 	if(finished)
 		menu->menuVisible = true;
 
-#if !defined(PBL_PLATFORM_APLITE)
 	menu->menuShowAnimation = NULL;
-#endif
 }
 
 static void HideAnimationStarted(struct Animation *animation, void *context)
@@ -243,9 +235,7 @@ static void HideAnimationStopped(struct Animation *animation, bool finished, voi
 			PopGlobalState();
 	}
 	
-#if !defined(PBL_PLATFORM_APLITE)
 	menu->menuHideAnimation = NULL;	
-#endif
 }
 	
 void ShowMenu(void *data)
@@ -325,35 +315,42 @@ void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_inde
 		SetDescription(newDescription ? newDescription : "");
 }
 
-Menu *CreateMenuLayer(int backgroundImageId,
+Menu *CreateMenuLayer(int onScreenX,
 					  int yPos,
+					  int width,
+					  int height,
 					  int innerOffset,
-					  int onScreenX,
 					  bool offScreenRight,
 					  bool mainMenu)
 {
 	Menu *menu = calloc(sizeof(Menu), 1);
 
-	menu->backgroundImageId = backgroundImageId;
-	menu->yPos = yPos;
-	menu->innerOffset = innerOffset;
 	menu->onScreenX = onScreenX;
+	menu->yPos = yPos;
+	menu->width = width;
+	menu->height = height;
+	menu->innerOffset = innerOffset;
 	menu->offScreenRight = offScreenRight;
 	menu->mainMenu = mainMenu;
 	return menu;
+}
+
+void MenuUpdateProc(struct Layer *layer, GContext *ctx)
+{
+	GRect bounds = layer_get_bounds(layer);
+	DrawContentFrame(ctx, &bounds);
 }
 
 void InitializeNewMenuLayer(Menu *menu, Window *window)
 {
 	if(!menu->newMenuLayerInitialized)
 	{
-		menu->newMenuBackgroundFrame = gbitmap_create_with_resource(menu->backgroundImageId);
-		GRect frameBounds = gbitmap_get_bounds(menu->newMenuBackgroundFrame);
 		GRect windowBounds = layer_get_bounds(window_get_root_layer(window));
-		menu->newMenuOnScreenPosition.size = frameBounds.size;
-		menu->newMenuOffScreenPosition.size = frameBounds.size;
-		menu->newMenuOnScreenPosition.origin.y = menu->yPos;
+		menu->newMenuOnScreenPosition.size.w = menu->width;
+		menu->newMenuOnScreenPosition.size.h = menu->height;
+		menu->newMenuOffScreenPosition.size = menu->newMenuOnScreenPosition.size;
 		menu->newMenuOnScreenPosition.origin.x = menu->onScreenX;
+		menu->newMenuOnScreenPosition.origin.y = menu->yPos;
 		menu->newMenuOffScreenPosition.origin.y = menu->yPos;
 		if(menu->offScreenRight)
 		{
@@ -361,14 +358,10 @@ void InitializeNewMenuLayer(Menu *menu, Window *window)
 		}
 		else
 		{
-			menu->newMenuOffScreenPosition.origin.x = -frameBounds.size.w;
+			menu->newMenuOffScreenPosition.origin.x = -menu->newMenuOffScreenPosition.size.w;
 		}
 		menu->menuFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
 		menu->newTopLevelMenuLayer = layer_create(menu->newMenuOffScreenPosition);
-		menu->newMenuBackgroundLayer = bitmap_layer_create(layer_get_bounds(menu->newTopLevelMenuLayer));
-		bitmap_layer_set_bitmap(menu->newMenuBackgroundLayer, menu->newMenuBackgroundFrame);
-		bitmap_layer_set_alignment(menu->newMenuBackgroundLayer, GAlignCenter);
-		layer_add_child(menu->newTopLevelMenuLayer, bitmap_layer_get_layer(menu->newMenuBackgroundLayer));
 		GRect menu_bounds = layer_get_bounds(menu->newTopLevelMenuLayer);
 		menu_bounds.origin.x += menu->innerOffset;
 		menu_bounds.origin.y += menu->innerOffset;
@@ -389,6 +382,7 @@ void InitializeNewMenuLayer(Menu *menu, Window *window)
 #endif
 		scroll_layer_set_shadow_hidden(menu_layer_get_scroll_layer(menu->newMenuLayer), false);
 
+		layer_set_update_proc(menu->newTopLevelMenuLayer, MenuUpdateProc);
 		menu->newMenuLayerInitialized = true;
 	}
 	Layer *window_layer = window_get_root_layer(window);
@@ -412,8 +406,6 @@ void CleanupMenu(Menu *menu)
 	{
 		layer_destroy(menu->newTopLevelMenuLayer);
 		menu_layer_destroy(menu->newMenuLayer);
-		bitmap_layer_destroy(menu->newMenuBackgroundLayer);
-		gbitmap_destroy(menu->newMenuBackgroundFrame);
 		menu->newMenuLayerInitialized = false;
 		if(menu->menuShowAnimation)
 			property_animation_destroy(menu->menuShowAnimation);
@@ -446,7 +438,6 @@ void ReloadMenu(Menu *menu)
 	}
 }
 
-// TODO: This doesn't belong here.
 void TriggerMenu(Menu *menu)
 {
 	PushGlobalState(STATE_MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);

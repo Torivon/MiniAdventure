@@ -9,234 +9,6 @@
     "resources": {
         "media": [
             {
-                "file": "images/ok_frame.png",
-                "name": "IMAGE_OK_FRAME",
-                "targetPlatforms": null,
-                "type": "bitmap"
-            },
-            {
-                "file": "images/dialog_frame.png",
-                "name": "IMAGE_DIALOG_FRAME",
-                "targetPlatforms": null,
-                "type": "bitmap"
-            },
-            {
-                "file": "images/slave_menu_frame.png",
-                "name": "IMAGE_SLAVE_MENU_FRAME",
-                "targetPlatforms": null,
-                "type": "bitmap"
-            },
-            {
-                "file": "images/description_frame.png",
-                "name": "IMAGE_DESCRIPTION_FRAME",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/left_arrow.png",
-                "name": "IMAGE_LEFT_ARROW",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/menu_frame.png",
-                "name": "IMAGE_MENU_FRAME",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/main_image_frame.png",
-                "name": "IMAGE_MAIN_FRAME",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/ClockBackground.png",
-                "name": "IMAGE_CLOCK_BACKGROUND",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster8.png",
-                "name": "IMAGE_MONSTER8",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster28.png",
-                "name": "IMAGE_MONSTER28",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster27.png",
-                "name": "IMAGE_MONSTER27",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster26.png",
-                "name": "IMAGE_MONSTER26",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster25.png",
-                "name": "IMAGE_MONSTER25",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster24.png",
-                "name": "IMAGE_MONSTER24",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster23.png",
-                "name": "IMAGE_MONSTER23",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster22.png",
-                "name": "IMAGE_MONSTER22",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster21.png",
-                "name": "IMAGE_MONSTER21",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster20.png",
-                "name": "IMAGE_MONSTER20",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster19.png",
-                "name": "IMAGE_MONSTER19",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster18.png",
-                "name": "IMAGE_MONSTER18",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Forest2.png",
-                "name": "IMAGE_FOREST2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Forest1.png",
-                "name": "IMAGE_FOREST1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Desert3.png",
-                "name": "IMAGE_DESERT3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Desert2.png",
-                "name": "IMAGE_DESERT2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Desert1.png",
-                "name": "IMAGE_DESERT1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cellar.png",
-                "name": "IMAGE_CELLAR",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/CaveFixed.png",
-                "name": "IMAGE_CAVE_FIXED",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cave3.png",
-                "name": "IMAGE_CAVE3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cave2.png",
-                "name": "IMAGE_CAVE2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster17.png",
-                "name": "IMAGE_MONSTER17",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster16.png",
-                "name": "IMAGE_MONSTER16",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster15.png",
-                "name": "IMAGE_MONSTER15",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster14.png",
-                "name": "IMAGE_MONSTER14",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Monster13.png",
-                "name": "IMAGE_MONSTER13",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cave1.png",
-                "name": "IMAGE_CAVE1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss7.png",
-                "name": "IMAGE_BOSS7",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss6.png",
-                "name": "IMAGE_BOSS6",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss5.png",
-                "name": "IMAGE_BOSS5",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss4.png",
-                "name": "IMAGE_BOSS4",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss3.png",
-                "name": "IMAGE_BOSS3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss2.png",
-                "name": "IMAGE_BOSS2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boss1.png",
-                "name": "IMAGE_BOSS1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boat.png",
-                "name": "IMAGE_BOAT",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Beach.png",
-                "name": "IMAGE_BEACH",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/right_arrow.png",
-                "name": "IMAGE_RIGHT_ARROW",
-                "type": "bitmap"
-            },
-            {
                 "file": "images/zombie.png",
                 "name": "IMAGE_ZOMBIE",
                 "type": "bitmap"
@@ -257,6 +29,11 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/right_arrow.png",
+                "name": "IMAGE_RIGHT_ARROW",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/rest.png",
                 "name": "IMAGE_REST",
                 "type": "bitmap"
@@ -274,6 +51,11 @@
             {
                 "file": "images/lich.png",
                 "name": "IMAGE_LICH",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/left_arrow.png",
+                "name": "IMAGE_LEFT_ARROW",
                 "type": "bitmap"
             },
             {
@@ -315,11 +97,6 @@
             {
                 "file": "images/battlefloor.png",
                 "name": "IMAGE_BATTLE_FLOOR",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/background.png",
-                "name": "IMAGE_BACKGROUND",
                 "type": "bitmap"
             },
             {
@@ -413,6 +190,91 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/Monster8.png",
+                "name": "IMAGE_MONSTER8",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster28.png",
+                "name": "IMAGE_MONSTER28",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster27.png",
+                "name": "IMAGE_MONSTER27",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster26.png",
+                "name": "IMAGE_MONSTER26",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster25.png",
+                "name": "IMAGE_MONSTER25",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster24.png",
+                "name": "IMAGE_MONSTER24",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster23.png",
+                "name": "IMAGE_MONSTER23",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster22.png",
+                "name": "IMAGE_MONSTER22",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster21.png",
+                "name": "IMAGE_MONSTER21",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster20.png",
+                "name": "IMAGE_MONSTER20",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster19.png",
+                "name": "IMAGE_MONSTER19",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster18.png",
+                "name": "IMAGE_MONSTER18",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster17.png",
+                "name": "IMAGE_MONSTER17",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster16.png",
+                "name": "IMAGE_MONSTER16",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster15.png",
+                "name": "IMAGE_MONSTER15",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster14.png",
+                "name": "IMAGE_MONSTER14",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Monster13.png",
+                "name": "IMAGE_MONSTER13",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/Monster12.png",
                 "name": "IMAGE_MONSTER12",
                 "type": "bitmap"
@@ -435,6 +297,101 @@
             {
                 "file": "images/Forest3.png",
                 "name": "IMAGE_FOREST3",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Forest2.png",
+                "name": "IMAGE_FOREST2",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Forest1.png",
+                "name": "IMAGE_FOREST1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Desert3.png",
+                "name": "IMAGE_DESERT3",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Desert2.png",
+                "name": "IMAGE_DESERT2",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Desert1.png",
+                "name": "IMAGE_DESERT1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Cellar.png",
+                "name": "IMAGE_CELLAR",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/CaveFixed.png",
+                "name": "IMAGE_CAVE_FIXED",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Cave3.png",
+                "name": "IMAGE_CAVE3",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Cave2.png",
+                "name": "IMAGE_CAVE2",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Cave1.png",
+                "name": "IMAGE_CAVE1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss7.png",
+                "name": "IMAGE_BOSS7",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss6.png",
+                "name": "IMAGE_BOSS6",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss5.png",
+                "name": "IMAGE_BOSS5",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss4.png",
+                "name": "IMAGE_BOSS4",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss3.png",
+                "name": "IMAGE_BOSS3",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss2.png",
+                "name": "IMAGE_BOSS2",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boss1.png",
+                "name": "IMAGE_BOSS1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Boat.png",
+                "name": "IMAGE_BOAT",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/Beach.png",
+                "name": "IMAGE_BEACH",
                 "type": "bitmap"
             }
         ]
