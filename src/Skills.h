@@ -28,3 +28,4 @@ Skill *GetSkillFromInstance(SkillInstance *instance);
 SkillInstance *CreateSkillInstance(Skill *skill, BattleActor *attacker, BattleActor *defender);
 const char *ExecuteSkill(SkillInstance *instance);
 void FreeSkillInstance(SkillInstance *instance);
+BattleActor *SkillInstanceGetAttacker(SkillInstance *instance);

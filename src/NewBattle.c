@@ -10,6 +10,7 @@
 #include "NewBaseWindow.h"
 #include "NewMenu.h"
 #include "Persistence.h"
+#include "ProgressBar.h"
 #include "Skills.h"
 #include "Story.h"
 #include "BattleQueue.h"
@@ -19,7 +20,34 @@ typedef struct NewBattleState
 	uint16_t currentMonsterHealth;
 	BattleActor *player;
 	BattleActor *monster;
+	int playerCurrentHealth;
+	int playerMaxHealth;
+	int monsterCurrentHealth;
+	int monsterMaxHealth;
+	int playerTime;
+	int monsterTime;
 } NewBattleState;
+
+#if defined(PBL_ROUND)
+static GRect playerHealthFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 50}};
+static GRect playerTimeFrame = {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 50}};
+static GRect monsterHealthFrame = {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 50}};
+static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 50}};
+#else
+static GRect playerHealthFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 50}};
+static GRect playerTimeFrame = {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 50}};
+static GRect monsterHealthFrame = {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 50}};
+static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 50}};
+#endif
+
+
+static ProgressBar *playerHealthBar;
+static ProgressBar *playerTimeBar;
+
+static ProgressBar *monsterHealthBar;
+static ProgressBar *monsterTimeBar;
+
+static int maxTimeCount = 100;
 
 static bool battleCleanExit = true;
 
@@ -76,7 +104,6 @@ void PlayerPushFastAttack(void)
 {
 	SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetPlayerActor(), GetMonsterActor());
 	BattleQueuePush(SKILL, newInstance);
-	BattleQueuePush(ACTOR, GetPlayerActor());
 	gPlayerTurn = false;
 }
 
@@ -84,7 +111,6 @@ void PlayerPushSlowAttack(void)
 {
 	SkillInstance *newInstance = CreateSkillInstance(GetSlowAttack(), GetPlayerActor(), GetMonsterActor());
 	BattleQueuePush(SKILL, newInstance);
-	BattleQueuePush(ACTOR, GetPlayerActor());
 	gPlayerTurn = false;
 }
 
@@ -164,7 +190,7 @@ const char  *UpdateNewMonsterHealthText(void)
 {
 	static char monsterHealthText[] = "00000"; // Needs to be static because it's used by the system later.
 
-	IntToString(monsterHealthText, 5, BattleActor_GetHealth(gBattleState.monster));
+	IntToString(monsterHealthText, 5, BattleActor_GetHealth(GetMonsterActor()));
 	return monsterHealthText;
 }
 
@@ -220,9 +246,22 @@ void NewBattleInit(void)
 	gBattleState.player = InitBattleActor(true, character->level, character->speed, character->stats.maxHealth);
 	gBattleState.monster = InitBattleActor(false, GetCurrentBaseLevel(), currentMonster->speed, gBattleState.currentMonsterHealth);
 	
-	BattleQueuePush(ACTOR, gBattleState.player);
-	BattleQueuePush(ACTOR, gBattleState.monster);
+	BattleQueuePush(ACTOR, GetPlayerActor());
+	BattleQueuePush(ACTOR, GetMonsterActor());
 
+	playerHealthBar = CreateProgressBar(&gBattleState.playerCurrentHealth, &gBattleState.playerMaxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
+	monsterHealthBar = CreateProgressBar(&gBattleState.monsterCurrentHealth, &gBattleState.monsterMaxHealth, FILL_UP, monsterHealthFrame, GColorFolly, -1);
+	playerTimeBar = CreateProgressBar(&gBattleState.playerTime, &maxTimeCount, FILL_UP, playerTimeFrame, GColorVeryLightBlue, -1);
+	monsterTimeBar = CreateProgressBar(&gBattleState.monsterTime, &maxTimeCount, FILL_UP, monsterTimeFrame, GColorRichBrilliantLavender, -1);
+
+	InitializeProgressBar(playerHealthBar, GetBaseWindow());
+	InitializeProgressBar(playerTimeBar, GetBaseWindow());
+	InitializeProgressBar(monsterHealthBar, GetBaseWindow());
+	InitializeProgressBar(monsterTimeBar, GetBaseWindow());
+
+	// Force the main menu to the front
+	InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
+	
 	RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
 
 	SetForegroundImage(currentMonster->imageId);
@@ -233,12 +272,23 @@ void NewBattleInit(void)
 	battleCleanExit = false;
 }
 
+void UpdateProgressBars(void)
+{
+	gBattleState.playerCurrentHealth = BattleActor_GetHealth(GetPlayerActor());
+	gBattleState.playerMaxHealth = BattleActor_GetMaxHealth(GetPlayerActor());
+	gBattleState.monsterCurrentHealth = BattleActor_GetHealth(GetMonsterActor());
+	gBattleState.monsterMaxHealth = BattleActor_GetMaxHealth(GetMonsterActor());
+	
+	gBattleState.playerTime = GetCurrentTimeInQueue(true);
+	gBattleState.monsterTime = GetCurrentTimeInQueue(false);
+}
+
 void UpdateNewBattle(void *unused)
 {
 	bool entryRemoved = false;
 	void *data = NULL;
 	BattleQueueEntryType type = ACTOR;
-	
+
 	if(battleSaveTickDelay > 0)
 	{
 		--battleSaveTickDelay;
@@ -261,8 +311,13 @@ void UpdateNewBattle(void *unused)
 		return;
 	}
 	
+	
 	entryRemoved = UpdateBattleQueue(&type, &data);
 	
+	UpdateProgressBars();
+	MarkProgressBarDirty(playerTimeBar);
+	MarkProgressBarDirty(monsterTimeBar);
+
 	if(entryRemoved)
 	{
 		switch(type)
@@ -271,7 +326,11 @@ void UpdateNewBattle(void *unused)
 			{
 				SkillInstance *instance = (SkillInstance*)data;
 				gEffectDescription = ExecuteSkill(instance);
+				UpdateProgressBars();
+				MarkProgressBarDirty(playerHealthBar);
+				MarkProgressBarDirty(monsterHealthBar);
 				SetDescription(gEffectDescription);
+				BattleQueuePush(ACTOR, SkillInstanceGetAttacker(instance));
 				gSkillDelay = SKILL_DELAY;
 				break;
 			}
@@ -288,7 +347,6 @@ void UpdateNewBattle(void *unused)
 					// Fake monster AI
 					SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetMonsterActor(), GetPlayerActor());
 					BattleQueuePush(SKILL, newInstance);
-					BattleQueuePush(ACTOR, GetMonsterActor());
 				}
 				break;
 			}
@@ -299,10 +357,24 @@ void UpdateNewBattle(void *unused)
 void BattleScreenPush(void *data)
 {
 	NewBattleInit();
+	HideBatteryLevel();
+}
+
+void BattleScreenPop(void *data)
+{
+	ShowBatteryLevel();
+	RemoveProgressBar(playerHealthBar);
+	RemoveProgressBar(playerTimeBar);
+	RemoveProgressBar(monsterHealthBar);
+	RemoveProgressBar(monsterTimeBar);
+	FreeProgressBar(playerHealthBar);
+	FreeProgressBar(playerTimeBar);
+	FreeProgressBar(monsterHealthBar);
+	FreeProgressBar(monsterTimeBar);
 }
 
 void TriggerBattleScreen(void)
 {
 	if(CurrentLocationAllowsCombat())
-		PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, NULL, NULL);
+		PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
 }

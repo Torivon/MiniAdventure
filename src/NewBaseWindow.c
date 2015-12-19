@@ -69,6 +69,16 @@ void UpdateBatteryLevel(int current)
 	currentBatteryLevel = current;
 }
 
+void HideBatteryLevel(void)
+{
+	HideProgressBar(batteryBar);
+}
+
+void ShowBatteryLevel(void)
+{
+	ShowProgressBar(batteryBar);
+}
+
 // ******** CLICK **********//
 
 static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)

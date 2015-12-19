@@ -18,3 +18,4 @@ void FreeProgressBar(ProgressBar *progressBar);
 void RemoveProgressBar(ProgressBar *progressBar);
 void ShowProgressBar(ProgressBar *progressBar);
 void HideProgressBar(ProgressBar *progressBar);
+void MarkProgressBarDirty(ProgressBar *progressBar);

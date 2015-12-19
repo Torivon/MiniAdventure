@@ -11,3 +11,5 @@ typedef enum
 bool UpdateBattleQueue(BattleQueueEntryType *type, void **data);
 bool BattleQueuePush(BattleQueueEntryType type, void *data);
 void ResetBattleQueue(void);
+int GetCurrentTimeInQueue(bool player);
+

@@ -18,7 +18,7 @@ typedef struct BattleQueueEntry
 	uint16_t index;
 } BattleQueueEntry;
 
-// priority queue. Probably build a heap.
+// priority queue. Linear scan because it has so few elements
 typedef struct BattleQueue	
 {
 	BattleQueueEntry *entries[MAX_BATTLE_QUEUE];
@@ -219,6 +219,36 @@ bool UpdateBattleQueue(BattleQueueEntryType *type, void **data)
 	}
 	
 	return false;
+}
+
+int GetCurrentTimeInQueue(bool player)
+{
+	for(int i = 0; i < queue.count; ++i)
+	{
+		BattleQueueEntry *entry = queue.entries[i];
+		switch(entry->type)
+		{
+			case ACTOR:
+			{
+				BattleActor *actor = (BattleActor*) entry->data;
+				if(BattleActor_IsPlayer(actor) == player)
+				{
+					return entry->currentTime;
+				}
+				break;
+			}
+			case SKILL:
+			{
+				SkillInstance *instance = (SkillInstance*) entry->data;
+				if(BattleActor_IsPlayer(SkillInstanceGetAttacker(instance)) == player)
+				{
+					return entry->currentTime;
+				}
+				break;				
+			}
+		}
+	}
+	return 0;
 }
 
 void ResetBattleQueue(void)

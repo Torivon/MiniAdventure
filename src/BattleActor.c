@@ -8,6 +8,7 @@ typedef struct BattleActor
 	int speed;
 	int health;
 	int maxHealth;
+	int currentTime;
 } BattleActor;
 
 BattleActor player = {0};
@@ -21,6 +22,11 @@ int BattleActor_GetSpeed(BattleActor *actor)
 bool BattleActor_IsPlayer(BattleActor *actor)
 {
 	return actor->isPlayer;
+}
+
+void BattleActor_SetCurrentTime(BattleActor *actor, int currentTime)
+{
+	actor->currentTime = currentTime;
 }
 
 BattleActor *InitBattleActor(bool isPlayer, int level, int speed, int maxHealth)

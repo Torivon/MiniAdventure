@@ -83,6 +83,7 @@ void InitializeProgressBar(ProgressBar *progressBar, Window *window)
 		void **dataPointer = layer_get_data(progressBar->layer);
 		*dataPointer = progressBar;
 		layer_set_update_proc(progressBar->layer, ProgressBarUpdateProc);
+		progressBar->initialized = true;
 	}
 	
 	Layer *windowLayer = window_get_root_layer(window);
@@ -121,4 +122,12 @@ void HideProgressBar(ProgressBar *progressBar)
 		return;
 	
 	layer_set_hidden(progressBar->layer, true);
+}
+
+void MarkProgressBarDirty(ProgressBar *progressBar)
+{
+	if(!progressBar || !progressBar->initialized)
+		return;
+
+	layer_mark_dirty(progressBar->layer);
 }

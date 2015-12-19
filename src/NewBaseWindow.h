@@ -13,3 +13,5 @@ void SetUseSlaveMenu(bool enable);
 bool GetUseSlaveMenu(void);
 void SetHideMenuOnSelect(bool enable);
 bool GetHideMenuOnSelect(void);
+void HideBatteryLevel(void);
+void ShowBatteryLevel(void);
