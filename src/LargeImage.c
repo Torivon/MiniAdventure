@@ -9,7 +9,7 @@ static TextBox *okTextBox = NULL;
 bool largeImageForceBacklight = false;
 
 #define OK_FRAME_WIDTH 25
-#define OK_FRAME_HEIGHT 20
+#define OK_FRAME_HEIGHT 22
 #define DIALOG_TEXT_X_OFFSET 2
 #define DIALOG_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
