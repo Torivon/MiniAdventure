@@ -13,6 +13,7 @@ typedef enum
 	STATE_DIALOG,
 	STATE_MENU,
 	STATE_OPTIONS,
+	STATE_LARGE_IMAGE,
 } GlobalState;
 
 void PushGlobalState(GlobalState state, 

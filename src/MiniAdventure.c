@@ -26,6 +26,11 @@ bool HasFocus(void)
 	return hasFocus;
 }
 
+Window *GetBaseWindow(void)
+{
+	return baseWindow;
+}
+
 // Called once per minute
 void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {

@@ -9,6 +9,12 @@
     "resources": {
         "media": [
             {
+                "file": "images/RepositoryCode.png",
+                "name": "IMAGE_REPOSITORY_CODE",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
                 "file": "images/zombie.png",
                 "name": "IMAGE_ZOMBIE",
                 "type": "bitmap"

@@ -62,6 +62,11 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 		PopGlobalState();
 		return;
 	}
+	if(GetCurrentGlobalState() == STATE_LARGE_IMAGE)
+	{
+		PopGlobalState();
+		return;
+	}
 	if(IsMenuUsable(GetMainMenu()))
 	{
 		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
