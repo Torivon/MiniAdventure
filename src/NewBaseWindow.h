@@ -3,6 +3,7 @@
 typedef struct Menu Menu;
 
 void UpdateNewClock(void);
+void UpdateBatteryLevel(int current);
 
 Window * InitializeNewBaseWindow(void);
 bool UsingNewWindow(void);

@@ -70,5 +70,8 @@ enum
 
 #define COMPILE_OLD_UILAYERS 0
 
+typedef struct Window Window;
+
 void ResetGame(void);
 bool HasFocus(void);
+Window *GetBaseWindow(void);

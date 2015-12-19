@@ -4,6 +4,7 @@
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "GlobalState.h"
+#include "LargeImage.h"
 #include "Logging.h"
 #include "MainImage.h"
 #include "MiniAdventure.h"
@@ -25,7 +26,8 @@ enum
 	TITLE_BATTLE_TEST,
 	TITLE_SLIDESHOW,
 	TITLE_OPTIONS,
-	TITLE_CREDITS
+	TITLE_CREDITS,
+	TITLE_REPO,
 };
 
 static int gameToLaunch = TITLE_STORY_NONE;
@@ -60,6 +62,11 @@ void ChooseCredits(void)
 	gameToLaunch = TITLE_CREDITS;
 }
 
+void ChooseRepo(void)
+{
+	gameToLaunch = TITLE_REPO;
+}
+
 MenuCellDescription titleScreenMenuList[] = 
 {
 #if INCLUDE_DUNGEON_CRAWL
@@ -76,6 +83,7 @@ MenuCellDescription titleScreenMenuList[] =
 #endif
 	{.name = "Options", .description = "Options", .callback = ChooseOptions},
 	{.name = "Credits", .description = "Credits", .callback = ChooseCredits},
+	{.name = "Repository", .description = "QR code to Github", .callback = ChooseRepo}
 };
 
 static void TitleScreenAppear(void *data)
@@ -124,6 +132,10 @@ static void TitleScreenAppear(void *data)
 		{
 			TriggerDialog("Programming and art by Jonathan Panttaja, with help from Belphemur and BlackLamb");
 			break;
+		}
+		case TITLE_REPO:
+		{
+			TriggerLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
 		}
 		default:
 		{
