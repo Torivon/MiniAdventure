@@ -31,6 +31,11 @@ Window *GetBaseWindow(void)
 	return baseWindow;
 }
 
+void battery_state_handler(BatteryChargeState charge)
+{
+	UpdateBatteryLevel(charge.charge_percent);
+}
+
 // Called once per minute
 void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
@@ -93,6 +98,7 @@ void handle_init() {
 #endif
 	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 	app_focus_service_subscribe(focus_handler);
+	battery_state_service_subscribe(battery_state_handler);
 }
 
 void handle_deinit() 
@@ -103,6 +109,7 @@ void handle_deinit()
 #endif
 	tick_timer_service_unsubscribe();
 	app_focus_service_unsubscribe();
+	battery_state_service_unsubscribe();
 #if ALLOW_WORKER_APP && ALLOW_WORKER_APP_LISTENING
 	app_worker_message_unsubscribe();
 #endif

@@ -9,6 +9,7 @@
 #include "NewBaseWindow.h"
 #include "NewBattle.h"
 #include "NewMenu.h"
+#include "ProgressBar.h"
 #include "Logging.h"
 #include "Utils.h"
 
@@ -18,6 +19,16 @@ static Menu *mainMenu = NULL;
 static Menu *slaveMenu = NULL;
 static bool useSlaveMenu = false;
 static bool hideMenuOnSelect = true;
+
+static ProgressBar *batteryBar = NULL;
+static int currentBatteryLevel = 0;
+static int maxBatteryLevel = 100;
+#if defined(PBL_ROUND)
+static GRect batteryFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 50}};
+#else
+static GRect batteryFrame = {.origin = {.x = 20, .y = 61}, .size = {.w = 16, .h = 50}};
+#endif
+
 Menu *GetMainMenu(void)
 {
 	return mainMenu;
@@ -51,6 +62,11 @@ bool GetHideMenuOnSelect(void)
 bool UsingNewWindow(void)
 {
 	return usingNewWindow;
+}
+
+void UpdateBatteryLevel(int current)
+{
+	currentBatteryLevel = current;
 }
 
 // ******** CLICK **********//
@@ -159,6 +175,8 @@ void BaseWindowAppear(Window *window)
 	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
+	InitializeProgressBar(batteryBar, window);
+	UpdateBatteryLevel(battery_state_service_peek().charge_percent);
 	InitializeNewMenuLayer(GetMainMenu(), window);
 	InitializeNewMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
@@ -173,6 +191,7 @@ void BaseWindowDisappear(Window *window)
 	RemoveMainImageLayer();
 	RemoveDescriptionLayer();
 	RemoveDialogLayer();
+	RemoveProgressBar(batteryBar);
 }
 
 void BaseWindowUnload(Window *window)
@@ -184,6 +203,7 @@ void BaseWindowUnload(Window *window)
 	CleanupMenu(mainMenu);
 	CleanupMenu(slaveMenu);
 	FreeDialogLayer();
+	FreeProgressBar(batteryBar);
 }
 
 void SetWindowHandlers(Window *window)
@@ -213,6 +233,7 @@ Window * InitializeNewBaseWindow(void)
 							   4,
 							   true,
 							   true);
+	batteryBar = CreateProgressBar(&currentBatteryLevel, &maxBatteryLevel, FILL_UP, batteryFrame, GColorBrightGreen, -1);
 	window_set_click_config_provider(window, MenuClickConfigProvider);
 	return window;		
 }
