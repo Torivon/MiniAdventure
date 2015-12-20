@@ -33,7 +33,7 @@ Window *GetBaseWindow(void)
 
 void battery_state_handler(BatteryChargeState charge)
 {
-	UpdateBatteryLevel(charge.charge_percent);
+	UpdateBatteryLevel(charge);
 }
 
 // Called once per minute

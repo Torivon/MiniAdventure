@@ -113,12 +113,18 @@ void ShowProgressBar(ProgressBar *progressBar)
 	if(!progressBar || !progressBar->initialized)
 		return;
 	
+	if(!layer_get_hidden(progressBar->layer))
+		return;
+	
 	layer_set_hidden(progressBar->layer, false);
 }
 
 void HideProgressBar(ProgressBar *progressBar)
 {
 	if(!progressBar || !progressBar->initialized)
+		return;
+	
+	if(layer_get_hidden(progressBar->layer))
 		return;
 	
 	layer_set_hidden(progressBar->layer, true);

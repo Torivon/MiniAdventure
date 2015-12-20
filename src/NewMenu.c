@@ -121,7 +121,7 @@ void RegisterMenuCellList(Menu *menu, MenuCellDescription *list, uint16_t count)
 	{
 		menu_layer_reload_data(menu->newMenuLayer);
 		MenuIndex index = {.section = 0, .row = 0};
-		menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignTop, false);
+		menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignCenter, false);
 	}
 	if(menu->mainMenu)
 		ShowMenuArrow();

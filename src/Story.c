@@ -130,7 +130,7 @@ const char *GetAdjacentLocationName(uint16_t index)
 			return NULL;
 		
 		if(index == 0)
-			return "Previous";
+			return "Previous"; //TODO: Make these actually list the floor numbers
 		else if(index == 1)
 			return "Next";
 		else

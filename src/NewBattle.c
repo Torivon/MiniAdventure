@@ -261,6 +261,7 @@ void NewBattleInit(void)
 
 	// Force the main menu to the front
 	InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
+	InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
 	
 	RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
 
@@ -339,6 +340,7 @@ void UpdateNewBattle(void *unused)
 				BattleActor *actor = (BattleActor*)data;
 				if(BattleActor_IsPlayer(actor))
 				{
+					SetDescription("Your turn");
 					gPlayerTurn = true;
 					ReloadMenu(GetMainMenu());
 				}
@@ -357,12 +359,10 @@ void UpdateNewBattle(void *unused)
 void BattleScreenPush(void *data)
 {
 	NewBattleInit();
-	HideBatteryLevel();
 }
 
 void BattleScreenPop(void *data)
 {
-	ShowBatteryLevel();
 	RemoveProgressBar(playerHealthBar);
 	RemoveProgressBar(playerTimeBar);
 	RemoveProgressBar(monsterHealthBar);
