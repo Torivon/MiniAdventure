@@ -3,7 +3,7 @@
 typedef struct Menu Menu;
 
 void UpdateNewClock(void);
-void UpdateBatteryLevel(int current);
+void UpdateBatteryLevel(BatteryChargeState chargeState);
 
 Window * InitializeNewBaseWindow(void);
 bool UsingNewWindow(void);
@@ -13,3 +13,5 @@ void SetUseSlaveMenu(bool enable);
 bool GetUseSlaveMenu(void);
 void SetHideMenuOnSelect(bool enable);
 bool GetHideMenuOnSelect(void);
+void HideBatteryLevel(void);
+void ShowBatteryLevel(void);

@@ -24,9 +24,9 @@ static ProgressBar *batteryBar = NULL;
 static int currentBatteryLevel = 0;
 static int maxBatteryLevel = 100;
 #if defined(PBL_ROUND)
-static GRect batteryFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 50}};
+static GRect batteryFrame = {.origin = {.x = 122, .y = 134}, .size = {.w = 10, .h = 30}};
 #else
-static GRect batteryFrame = {.origin = {.x = 20, .y = 61}, .size = {.w = 16, .h = 50}};
+static GRect batteryFrame = {.origin = {.x = 20, .y = 61}, .size = {.w = 16, .h = 36}};
 #endif
 
 Menu *GetMainMenu(void)
@@ -64,9 +64,20 @@ bool UsingNewWindow(void)
 	return usingNewWindow;
 }
 
-void UpdateBatteryLevel(int current)
+void UpdateBatteryLevel(BatteryChargeState chargeState)
 {
-	currentBatteryLevel = current;
+	currentBatteryLevel = chargeState.charge_percent;
+	MarkProgressBarDirty(batteryBar);
+}
+
+void HideBatteryLevel(void)
+{
+	HideProgressBar(batteryBar);
+}
+
+void ShowBatteryLevel(void)
+{
+	ShowProgressBar(batteryBar);
 }
 
 // ******** CLICK **********//
@@ -88,7 +99,7 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
 		if(hideMenuOnSelect)
 		{
-			HideMenu(GetMainMenu()); //TODO: When implementing the options menu, I won't want this behavior, but I should be able to push a new click handler.
+			HideMenu(GetMainMenu());
 			if(IsMenuUsable(GetSlaveMenu()))
 				HideMenu(GetSlaveMenu());
 		}
@@ -110,10 +121,11 @@ static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
 	if(IsMenuUsable(GetMainMenu()))
 	{
-		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), true, MenuRowAlignCenter, true);
+		MenuRowAlign align = MenuRowAlignCenter;
+		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), true, align, true);
 		if(IsMenuUsable(GetSlaveMenu()))
 		{
-			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), true, MenuRowAlignCenter, true);
+			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), true, align, true);
 		}
 	}
 }
@@ -122,10 +134,11 @@ static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 {
 	if(IsMenuUsable(GetMainMenu()))
 	{
-		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), false, MenuRowAlignCenter, true);
+		MenuRowAlign align = MenuRowAlignCenter;
+		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), false, align, true);
 		if(IsMenuUsable(GetSlaveMenu()))
 		{
-			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), false, MenuRowAlignCenter, true);
+			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), false, align, true);
 		}
 	}
 }
@@ -176,7 +189,7 @@ void BaseWindowAppear(Window *window)
 	InitializeMainImageLayer(window);
 	InitializeNewClockLayer(window);
 	InitializeProgressBar(batteryBar, window);
-	UpdateBatteryLevel(battery_state_service_peek().charge_percent);
+	UpdateBatteryLevel(battery_state_service_peek());
 	InitializeNewMenuLayer(GetMainMenu(), window);
 	InitializeNewMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
@@ -219,17 +232,17 @@ Window * InitializeNewBaseWindow(void)
 	usingNewWindow = true;
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
-	slaveMenu = CreateMenuLayer(10,
-								50,
-								100,
+	slaveMenu = CreateMenuLayer(15,
+								48,
 								80,
+								84,
 								4,
 								false,
 								false);
-	mainMenu = CreateMenuLayer(110,
-							   50,
-							   80,
-							   80,
+	mainMenu = CreateMenuLayer(95,
+							   48,
+							   75,
+							   84,
 							   4,
 							   true,
 							   true);

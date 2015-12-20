@@ -99,3 +99,8 @@ void FreeSkillInstance(SkillInstance *instance)
 {
 	instance->active = false;
 }
+
+BattleActor *SkillInstanceGetAttacker(SkillInstance *instance)
+{
+	return instance->attacker;
+}

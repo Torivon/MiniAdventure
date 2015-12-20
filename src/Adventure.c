@@ -11,10 +11,21 @@
 #include "NewMenu.h"
 #include "NewBaseWindow.h"
 #include "Persistence.h"
+#include "ProgressBar.h"
 #include "OptionsMenu.h"
 #include "Story.h"
 #include "Utils.h"
 #include "WorkerControl.h"
+
+#if defined(PBL_ROUND)
+static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}};
+#else
+static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}};
+#endif
+
+static ProgressBar *locationProgress;
+static int currentProgress = 0;
+static int maxProgress = 1;
 
 bool gUpdateAdventure = false;
 
@@ -79,6 +90,21 @@ static void AdventureMenuSelectCallback(int row)
 	}	
 }
 
+void UpdateLocationProgress(void)
+{
+	if(IsCurrentLocationFixed())
+	{
+		HideProgressBar(locationProgress);
+	}
+	else
+	{
+		ShowProgressBar(locationProgress);
+		currentProgress = GetCurrentDuration();
+		maxProgress = GetCurrentLocationLength();
+		MarkProgressBarDirty(locationProgress);
+	}	
+}
+
 void RefreshAdventure(void)
 {
 	if(!gUpdateAdventure)
@@ -89,6 +115,7 @@ void RefreshAdventure(void)
 	LoadLocationImage();
 	ReloadMenu(GetMainMenu());
 	SetDescription(GetCurrentLocationName()); //Add floor back in somehow
+	UpdateLocationProgress();
 }
 
 void LoadLocationImage(void)
@@ -158,12 +185,13 @@ void UpdateAdventure(void *data)
 	}
 	
 	returnVal = UpdateCurrentLocation();
-
+	
 	switch(returnVal)
 	{
 		case LOCATIONUPDATE_COMPUTERANDOM:
 			ComputeRandomEvent();
 			LoadLocationImage();
+			UpdateLocationProgress();
 			break;
 		case LOCATIONUPDATE_DONOTHING:
 			break;
@@ -179,7 +207,14 @@ void UpdateAdventure(void *data)
 void AdventureScreenPush(void *data)
 {
 	CurrentStoryStateNeedsSaving();
-	InitializeGameData();	
+	InitializeGameData();
+	locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, locationProgressFrame, GColorYellow, -1);
+	InitializeProgressBar(locationProgress, GetBaseWindow());
+	UpdateLocationProgress();
+
+	// Force the main menu to the front
+	InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
+	InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
 }
 
 void AdventureScreenAppear(void *data)
@@ -203,6 +238,8 @@ void AdventureScreenPop(void *data)
 {
 	SavePersistedData();
 	ClearCurrentStory();
+	RemoveProgressBar(locationProgress);
+	FreeProgressBar(locationProgress);
 }
 
 void TriggerAdventureScreen(void)

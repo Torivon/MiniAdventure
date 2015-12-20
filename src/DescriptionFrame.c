@@ -14,7 +14,7 @@ static TextBox *descriptionTextBox = NULL;
 #if defined(PBL_RECT)
 static GRect descriptionFrame = {.origin = {.x = 144 / 2 - DESC_FRAME_WIDTH / 2, .y = 0}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-#define VERTICAL_OFFSET 10
+#define VERTICAL_OFFSET 11
 static GRect descriptionFrame = {.origin = {.x = 180 / 2 - DESC_FRAME_WIDTH / 2, .y = VERTICAL_OFFSET}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
 #endif
 
