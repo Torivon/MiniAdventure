@@ -20,50 +20,50 @@ static GRect newClockFrame = {.origin = {.x = 180 / 2 - CLOCK_FRAME_WIDTH / 2, .
 
 char *UpdateClockText(void)
 {
-	static char timeText[] = "00:00"; // Needs to be static because it's used by the system later.
-	char *time_format;
-
-	if (clock_is_24h_style()) 
-	{
-		time_format = "%R";
-	}
-	else 
-	{
-		time_format = "%I:%M";
-	}
-
-	time_t now = time(NULL);
-	struct tm *current_time = localtime(&now);
-	
-	strftime(timeText, sizeof(timeText), time_format, current_time);
-	return timeText;
+    static char timeText[] = "00:00"; // Needs to be static because it's used by the system later.
+    char *time_format;
+    
+    if (clock_is_24h_style())
+    {
+        time_format = "%R";
+    }
+    else
+    {
+        time_format = "%I:%M";
+    }
+    
+    time_t now = time(NULL);
+    struct tm *current_time = localtime(&now);
+    
+    strftime(timeText, sizeof(timeText), time_format, current_time);
+    return timeText;
 }
 
 void UpdateNewClock(void)
 {
-	if(!TextBoxInitialized(clockTextBox) || !UsingNewWindow())
-		return;
-	
-	TextBoxSetText(clockTextBox, UpdateClockText());
+    if(!TextBoxInitialized(clockTextBox) || !UsingNewWindow())
+        return;
+    
+    TextBoxSetText(clockTextBox, UpdateClockText());
 }
 
 void RemoveNewClockLayer(void)
 {
-	RemoveTextBox(clockTextBox);
+    RemoveTextBox(clockTextBox);
 }
 
 void InitializeNewClockLayer(Window *window)
 {
-	if(!clockTextBox)
-	{
-		clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), newClockFrame);
-	}
-	
-	InitializeTextBox(window, clockTextBox, UpdateClockText());
+    if(!clockTextBox)
+    {
+        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), newClockFrame);
+    }
+    
+    InitializeTextBox(window, clockTextBox, UpdateClockText());
 }
 
 void FreeClockLayer(void)
 {
-	FreeTextBox(clockTextBox);
-	clockTextBox = NULL;
+    FreeTextBox(clockTextBox);
+    clockTextBox = NULL;
 }
