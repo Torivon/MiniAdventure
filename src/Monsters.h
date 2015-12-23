@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Character.h"
+#include "CombatantClass.h"
+#include "Skills.h"
 
 typedef struct MonsterDef
 {
@@ -18,6 +20,8 @@ typedef struct MonsterDef
 	int goldScale : 5;
 	bool preventRun : 1;
 	int speed;
+  CombatantClass combatantClass;
+  SkillList skillList;
 } MonsterDef;
 
 int GetMostRecentMonster(void);
@@ -25,3 +29,5 @@ int GetMostRecentMonster(void);
 int GetMonsterDefense(int defenseLevel);
 int ScaleMonsterHealth(MonsterDef *monster, int baseHealth);
 int GetMonsterPowerDivisor(int powerLevel);
+CombatantClass *Monster_GetCombatantClass(MonsterDef *monster);
+SkillList *Monster_GetSkillList(MonsterDef *monster);

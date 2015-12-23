@@ -100,20 +100,6 @@ BattleActor *GetMonsterActor(void)
 	return gBattleState.monster;
 }
 
-void PlayerPushFastAttack(void)
-{
-	SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetPlayerActor(), GetMonsterActor());
-	BattleQueuePush(SKILL, newInstance);
-	gPlayerTurn = false;
-}
-
-void PlayerPushSlowAttack(void)
-{
-	SkillInstance *newInstance = CreateSkillInstance(GetSlowAttack(), GetPlayerActor(), GetMonsterActor());
-	BattleQueuePush(SKILL, newInstance);
-	gPlayerTurn = false;
-}
-
 static uint16_t BattleScreenCount(void)
 {
 	DEBUG_LOG("BattleScreenCount");
@@ -121,7 +107,7 @@ static uint16_t BattleScreenCount(void)
 		return 0;
 	
 	DEBUG_LOG("Returning good value");
-	return 2;
+	return BattleActor_GetSkillList(gBattleState.player)->count;
 }
 
 static const char *BattleScreenNameCallback(int row)
@@ -129,20 +115,9 @@ static const char *BattleScreenNameCallback(int row)
 	if(!gPlayerTurn)
 		return NULL;
 
-	switch(row)
-	{
-		case 0:
-		{
-			return "Fast Attack";
-			break;
-		}
-		case 1:
-		{
-			return "Slow Attack";
-			break;
-		}
-	}
-	return "";
+	SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
+	Skill *skill = GetSkillByID(entry->id);
+	return GetSkillName(skill);
 }
 
 static const char *BattleScreenDescriptionCallback(int row)
@@ -150,20 +125,11 @@ static const char *BattleScreenDescriptionCallback(int row)
 	if(!gPlayerTurn)
 		return NULL;
 
-	switch(row)
-	{
-		case 0:
-		{
-			return "Quick stab";
-			break;
-		}
-		case 1:
-		{
-			return "Heavy slash";
-			break;
-		}
-	}
-	return "";
+	SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
+	if(entry->cooldown > 0)
+	  return "On cooldown";
+	Skill *skill = GetSkillByID(entry->id);
+	return GetSkillName(skill);
 }
 
 static void BattleScreenSelectCallback(int row)
@@ -171,19 +137,13 @@ static void BattleScreenSelectCallback(int row)
 	if(!gPlayerTurn)
 		return;
 
-	switch(row)
-	{
-		case 0:
-		{
-			PlayerPushFastAttack();
-			break;
-		}
-		case 1:
-		{
-			PlayerPushSlowAttack();
-			break;
-		}
-	}
+	SkillList *skillList = BattleActor_GetSkillList(gBattleState.player);
+	SkillListEntry *entry = &skillList->entries[row];
+	if(entry->cooldown > 0)
+	  return;
+	SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[row], GetPlayerActor(), GetMonsterActor());
+	BattleQueuePush(SKILL, newInstance);
+	gPlayerTurn = false;
 }
 
 const char  *UpdateNewMonsterHealthText(void)
@@ -242,9 +202,9 @@ void NewBattleInit(void)
 		currentMonster = GetRandomMonster();
 		gBattleState.currentMonsterHealth = NewComputeMonsterHealth(GetCurrentBaseLevel());
 	}
-	CharacterData *character = GetCharacter();
-	gBattleState.player = InitBattleActor(true, character->level, character->speed, character->stats.maxHealth);
-	gBattleState.monster = InitBattleActor(false, GetCurrentBaseLevel(), currentMonster->speed, gBattleState.currentMonsterHealth);
+	Character *character = GetNewCharacter();
+	gBattleState.player = InitBattleActor(true, CharacterGetCombatantClass(character), CharacterGetSkillList(character), CharacterGetLevel(character));
+	gBattleState.monster = InitBattleActor(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel());
 	
 	BattleQueuePush(ACTOR, GetPlayerActor());
 	BattleQueuePush(ACTOR, GetMonsterActor());
@@ -338,6 +298,7 @@ void UpdateNewBattle(void *unused)
 			case ACTOR:
 			{
 				BattleActor *actor = (BattleActor*)data;
+				UpdateSkillCooldowns(BattleActor_GetSkillList(actor));
 				if(BattleActor_IsPlayer(actor))
 				{
 					SetDescription("Your turn");
@@ -347,8 +308,9 @@ void UpdateNewBattle(void *unused)
 				else
 				{
 					// Fake monster AI
-					SkillInstance *newInstance = CreateSkillInstance(GetFastAttack(), GetMonsterActor(), GetPlayerActor());
-					BattleQueuePush(SKILL, newInstance);
+				  SkillList *skillList = BattleActor_GetSkillList(gBattleState.monster);
+				  SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[0], GetMonsterActor(), GetPlayerActor());
+				  BattleQueuePush(SKILL, newInstance);
 				}
 				break;
 			}

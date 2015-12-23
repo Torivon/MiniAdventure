@@ -2,10 +2,56 @@
 
 #include "Adventure.h"
 #include "Character.h"
+#include "CharacterClass.h"
 #include "Logging.h"
 #include "Utils.h"
 
 CharacterData characterData;
+
+typedef struct Character
+{
+  CharacterClass *class;
+  SkillList skillList;
+  int level;
+} Character;
+
+Character character;
+
+void UpdateSkillList(Character *character)
+{
+  SkillList *classSkillList = GetSkillList(character->class);
+  if(character->skillList.count < classSkillList->count)
+    {
+      int index = character->skillList.count;
+      while(classSkillList->entries[index].level <= character->level && character->skillList.count <= classSkillList->count)
+	{
+	  character->skillList.entries[index] = classSkillList->entries[index];
+	  character->skillList.count++;
+	  index = character->skillList.count;
+	}
+    }
+}
+
+SkillList *CharacterGetSkillList(Character *character)
+{
+  UpdateSkillList(character);
+  return &character->skillList;
+}
+
+CombatantClass *CharacterGetCombatantClass(Character *character)
+{
+  return GetCombatantClass(character->class);
+}
+
+int CharacterGetLevel(Character *character)
+{
+  return character->level;
+}
+
+Character *GetNewCharacter(void)
+{
+  return &character;
+}
 
 void AddStatPointToSpend(void)
 {
@@ -78,6 +124,9 @@ void InitializeCharacter(void)
 	characterData.stats.magicDefense = 1;
 	characterData.statPointsToSpend = 0;
 	characterData.speed = 10;
+
+	character.class = GetPaladinClass();
+	character.level = 1;
 }
 
 // Returns true on levelup

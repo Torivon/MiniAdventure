@@ -1,11 +1,15 @@
 #include <pebble.h>
 #include "BattleActor.h"
+#include "CombatantClass.h"
+#include "Skills.h"
 
 typedef struct BattleActor
 {
 	bool isPlayer;
+  CombatantClass *combatantClass;
+  SkillList *skillList;
 	int level;
-	int speed;
+  int speed;
 	int health;
 	int maxHealth;
 	int currentTime;
@@ -29,13 +33,25 @@ void BattleActor_SetCurrentTime(BattleActor *actor, int currentTime)
 	actor->currentTime = currentTime;
 }
 
-BattleActor *InitBattleActor(bool isPlayer, int level, int speed, int maxHealth)
+SkillList *BattleActor_GetSkillList(BattleActor *actor)
+{
+  return actor->skillList;
+}
+
+CombatantClass *BattleActor_GetCombatantClass(BattleActor *actor)
+{
+  return actor->combatantClass;
+}
+
+BattleActor *InitBattleActor(bool isPlayer, CombatantClass *combatantClass, SkillList *skillList, int level)
 {
 	BattleActor *returnValue = isPlayer ? &player : &monster;
 	returnValue->isPlayer = isPlayer;
+	returnValue->combatantClass = combatantClass;
+	returnValue->skillList = skillList;
 	returnValue->level = level;
-	returnValue->speed = speed;
-	returnValue->maxHealth = returnValue->health = maxHealth;
+	returnValue->speed = CombatantClass_GetSpeed(combatantClass, level);
+	returnValue->maxHealth = returnValue->health = CombatantClass_GetHealth(combatantClass, level);
 	return returnValue;
 }
 

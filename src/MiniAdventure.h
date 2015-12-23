@@ -61,6 +61,7 @@ enum
 
 #define TIME_TO_ACT 100
 #define MAX_BATTLE_QUEUE 10
+#define MAX_SKILLS_IN_LIST 15
 	
 #define ALLOW_WORKER_APP 0
 #define ALLOW_WORKER_APP_MESSAGES 0

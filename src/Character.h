@@ -1,5 +1,16 @@
 #pragma once
 
+typedef struct Character Character;
+typedef struct CharacterClass CharacterClass;
+typedef struct CombatantClass CombatantClass;
+typedef struct SkillList SkillList;
+
+SkillList *CharacterGetSkillList(Character *character);
+CombatantClass *CharacterGetCombatantClass(Character *character);
+int CharacterGetLevel(Character *character);
+Character *GetNewCharacter(void);
+
+
 typedef struct
 {
 	int maxHealth;
@@ -21,6 +32,8 @@ typedef struct
 	int statPointsToSpend;
 	int speed;
 } CharacterData;
+
+
 
 int ComputePlayerHealth(int level);
 void AddStatPointToSpend(void);

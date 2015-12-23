@@ -48,3 +48,14 @@ int GetMonsterPowerDivisor(int powerLevel)
 		
 	return 10;
 }
+
+
+CombatantClass *Monster_GetCombatantClass(MonsterDef *monster)
+{
+  return &monster->combatantClass;
+}
+
+SkillList *Monster_GetSkillList(MonsterDef *monster)
+{
+  return &monster->skillList;
+}

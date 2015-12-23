@@ -60,6 +60,9 @@ static MonsterDef monsters[] =
 		.allowPhysicalAttack = true,
 		.goldScale = 1,
 		.speed = 20,
+		.combatantClass = {.strengthRank = RANK_F, .magicRank = RANK_F, .defenseRank = RANK_F, .magicDefenseRank = RANK_F, .speedRank =\
+				   RANK_S, .healthRank = RANK_C},
+		.skillList = {.entries = {{.id = SKILLID_FAST_ATTACK, .level = 1}}, .count = 1},
 	},
 
 	{

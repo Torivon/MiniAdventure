@@ -10,11 +10,13 @@ typedef struct Skill
 	uint16_t speed;
 	uint16_t damageType;
 	uint16_t potency;
+        int cooldown;
+  bool counterAttack;
 } Skill;
 
 typedef struct SkillInstance
 {
-	Skill *skill;
+	SkillListEntry *entry;
 	BattleActor *attacker;
 	BattleActor *defender;
 	bool active;
@@ -30,6 +32,7 @@ char *GetSkillName(Skill *skill)
 	return skill->name;
 }
 
+
 static Skill fastAttack = 
 {
 	.name = "Fast Attack", 
@@ -38,22 +41,44 @@ static Skill fastAttack =
 	.potency = 1
 };
 
-Skill *GetFastAttack(void)
-{
-	return &fastAttack;
-}
-
 static Skill slowAttack = 
 {
 	.name = "Slow Attack", 
 	.speed = 20, 
 	.damageType = PHYSICAL | SLASHING, 
-	.potency = 10
+	.potency = 10,
+	.cooldown = 4
 };
 
-Skill *GetSlowAttack(void)
+static Skill counter = 
 {
-	return &slowAttack;
+	.name = "Counter", 
+	.speed = 100, 
+	.damageType = PHYSICAL | SLASHING, 
+	.potency = 10,
+	.cooldown = 2,
+	.counterAttack = true,
+};
+
+Skill *GetSkillByID(SkillID id)
+{
+  switch(id)
+  {
+  case SKILLID_FAST_ATTACK:
+    {
+      return &fastAttack;
+    }
+  case SKILLID_SLOW_ATTACK:
+    {
+      return &slowAttack;
+    }
+  case SKILLID_COUNTER:
+    {
+      return &counter;
+    }
+  }
+
+  return NULL;
 }
 
 uint16_t GetSkillSpeed(Skill *skill)
@@ -61,7 +86,12 @@ uint16_t GetSkillSpeed(Skill *skill)
 	return skill->speed;
 }
 
-SkillInstance *CreateSkillInstance(Skill *skill, BattleActor *attacker, BattleActor *defender)
+int GetSkillCooldown(Skill *skill)
+{
+  return skill->cooldown;
+}
+
+SkillInstance *CreateSkillInstance(SkillListEntry *entry, BattleActor *attacker, BattleActor *defender)
 {
 	for(int i = 0; i < MAX_BATTLE_QUEUE; ++i)
 	{
@@ -69,7 +99,7 @@ SkillInstance *CreateSkillInstance(Skill *skill, BattleActor *attacker, BattleAc
 		{
 			SkillInstance *newInstance = &instances[i];
 			newInstance->active = true;
-			newInstance->skill = skill;
+			newInstance->entry = entry;
 			newInstance->attacker = attacker;
 			newInstance->defender = defender;
 			return newInstance;			
@@ -81,16 +111,19 @@ SkillInstance *CreateSkillInstance(Skill *skill, BattleActor *attacker, BattleAc
 
 Skill *GetSkillFromInstance(SkillInstance *instance)
 {
-	return instance->skill;
+	Skill *skill = GetSkillByID(instance->entry->id);
+	return skill;
 }
 
 const char *ExecuteSkill(SkillInstance *instance)
 {
 	static char description[30];
 	DEBUG_VERBOSE_LOG("ExecuteSkill");
-	DealDamage(instance->skill->potency, instance->defender);
-	snprintf(description, sizeof(description), "%s takes %d damage", BattleActor_IsPlayer(instance->defender) ? "Player" : "Monster", instance->skill->potency);
+	Skill *skill = GetSkillByID(instance->entry->id);
+	DealDamage(skill->potency, instance->defender);
+	snprintf(description, sizeof(description), "%s takes %d damage", BattleActor_IsPlayer(instance->defender) ? "Player" : "Monster", skill->potency);
 	DEBUG_VERBOSE_LOG("Setting description: %s", description);
+	instance->entry->cooldown = GetSkillCooldown(skill);
 	FreeSkillInstance(instance);
 	return description;
 }
@@ -103,4 +136,13 @@ void FreeSkillInstance(SkillInstance *instance)
 BattleActor *SkillInstanceGetAttacker(SkillInstance *instance)
 {
 	return instance->attacker;
+}
+
+void UpdateSkillCooldowns(SkillList *skillList)
+{
+  for(int i = 0; i < skillList->count; ++i)
+    {
+      if(skillList->entries[i].cooldown > 0)
+	skillList->entries[i].cooldown--;
+    }
 }
