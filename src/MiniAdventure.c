@@ -21,7 +21,7 @@ Window *baseWindow = NULL;
 
 static bool hasFocus = true;
 
-bool HasFocus(void)
+int HasFocus(void)
 {
 	return hasFocus;
 }

@@ -1,7 +1,8 @@
+#include "../src/MiniAdventure.h"
+#ifdef BUILD_WORKER_FILES
 #include <pebble_worker.h>
 
 #include "../src/Events.h"
-#include "../src/MiniAdventure.h"
 #include "../src/Utils.h"
 #include "../src/WorkerControl.h"
 #include "Worker_Persistence.h"
@@ -151,4 +152,12 @@ int main(void) {
 	worker_event_loop();
 	deinit();
 }
+#else
+
+int main(void)
+{
+    worker_event_loop();
+}
+
+#endif
 #endif
