@@ -126,7 +126,7 @@ void InitializeCharacter(void)
     characterData.speed = 10;
     
     character.class = GetPaladinClass();
-    character.level = 1;
+    character.level = 2;
 }
 
 // Returns true on levelup

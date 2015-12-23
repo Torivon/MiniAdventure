@@ -13,10 +13,21 @@ typedef struct BattleActor
     int health;
     int maxHealth;
     int currentTime;
+    SkillInstance *counter;
 } BattleActor;
 
 BattleActor player = {0};
 BattleActor monster = {0};
+
+SkillInstance *BattleActor_GetCounter(BattleActor *actor)
+{
+    return actor->counter;
+}
+
+void BattleActor_SetCounter(BattleActor *actor, SkillInstance *counter)
+{
+    actor->counter = counter;
+}
 
 int BattleActor_GetSpeed(BattleActor *actor)
 {
@@ -26,6 +37,11 @@ int BattleActor_GetSpeed(BattleActor *actor)
 bool BattleActor_IsPlayer(BattleActor *actor)
 {
     return actor->isPlayer;
+}
+
+int BattleActor_GetLevel(BattleActor *actor)
+{
+    return actor->level;
 }
 
 void BattleActor_SetCurrentTime(BattleActor *actor, int currentTime)
