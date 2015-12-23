@@ -16,27 +16,27 @@ typedef void (*ResponseCallback)(void); // This needs to take some arguments inc
 #define PIERCING BIT_FIELD(6)
 
 typedef struct Skill Skill;
-	
+
 typedef struct SkillInstance SkillInstance;
 
 typedef enum
 {
-  SKILLID_FAST_ATTACK,
-  SKILLID_SLOW_ATTACK,
-  SKILLID_COUNTER,
+    SKILLID_FAST_ATTACK,
+    SKILLID_SLOW_ATTACK,
+    SKILLID_COUNTER,
 } SkillID;
 
 typedef struct SkillListEntry
 {
-  SkillID id;
-  int level;
-  int cooldown;
+    SkillID id;
+    int level;
+    int cooldown;
 } SkillListEntry;
 
 typedef struct SkillList
 {
-  SkillListEntry entries[MAX_SKILLS_IN_LIST];
-  int count;
+    SkillListEntry entries[MAX_SKILLS_IN_LIST];
+    int count;
 } SkillList;
 
 Skill *GetSkillByID(SkillID id);

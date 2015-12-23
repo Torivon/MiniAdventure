@@ -3,7 +3,7 @@
 typedef struct BattleActor BattleActor;
 typedef struct CombatantClass CombatantClass;
 typedef struct SkillList SkillList;
-	
+
 int BattleActor_GetSpeed(BattleActor *actor);
 bool BattleActor_IsPlayer(BattleActor *actor);
 void BattleActor_SetCurrentTime(BattleActor *actor, int currentTime);

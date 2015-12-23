@@ -13,24 +13,24 @@ Character *GetNewCharacter(void);
 
 typedef struct
 {
-	int maxHealth;
-	int currentHealth;
-	int strength;
-	int magic;
-	int defense;
-	int magicDefense;
+    int maxHealth;
+    int currentHealth;
+    int strength;
+    int magic;
+    int defense;
+    int magicDefense;
 } Stats;
 
-typedef struct 
+typedef struct
 {
-	int xp;
-	int xpForNextLevel;
-	int level;
-	int gold;
-	int escapes;
-	Stats stats;
-	int statPointsToSpend;
-	int speed;
+    int xp;
+    int xpForNextLevel;
+    int level;
+    int gold;
+    int escapes;
+    Stats stats;
+    int statPointsToSpend;
+    int speed;
 } CharacterData;
 
 

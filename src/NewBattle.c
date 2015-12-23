@@ -17,15 +17,15 @@
 
 typedef struct NewBattleState
 {
-	uint16_t currentMonsterHealth;
-	BattleActor *player;
-	BattleActor *monster;
-	int playerCurrentHealth;
-	int playerMaxHealth;
-	int monsterCurrentHealth;
-	int monsterMaxHealth;
-	int playerTime;
-	int monsterTime;
+    uint16_t currentMonsterHealth;
+    BattleActor *player;
+    BattleActor *monster;
+    int playerCurrentHealth;
+    int playerMaxHealth;
+    int monsterCurrentHealth;
+    int monsterMaxHealth;
+    int playerTime;
+    int monsterTime;
 } NewBattleState;
 
 #if defined(PBL_ROUND)
@@ -60,16 +60,16 @@ static int battleSaveTickDelay = 0;
 
 void SaveBattleState(void)
 {
-	if(battleSaveTickDelay <= 0)
-	{
-		SavePersistedData();
-		battleSaveTickDelay = BATTLE_SAVE_TICK_DELAY;
-	}
+    if(battleSaveTickDelay <= 0)
+    {
+        SavePersistedData();
+        battleSaveTickDelay = BATTLE_SAVE_TICK_DELAY;
+    }
 }
 
 int GetCurrentMonsterHealth(void)
 {
-	return gBattleState.currentMonsterHealth;
+    return gBattleState.currentMonsterHealth;
 }
 
 bool gUpdateNewBattle = false;
@@ -79,92 +79,92 @@ const char *gEffectDescription = NULL;
 
 void CloseNewBattleWindow(void)
 {
-	INFO_LOG("Ending battle.");
-	battleCleanExit = true;
-	ResetBattleQueue();
-	PopGlobalState();
+    INFO_LOG("Ending battle.");
+    battleCleanExit = true;
+    ResetBattleQueue();
+    PopGlobalState();
 }
 
 bool ClosingWhileInBattle(void)
 {
-	return !battleCleanExit;
+    return !battleCleanExit;
 }
 
 BattleActor *GetPlayerActor(void)
 {
-	return gBattleState.player;
+    return gBattleState.player;
 }
 
 BattleActor *GetMonsterActor(void)
 {
-	return gBattleState.monster;
+    return gBattleState.monster;
 }
 
 static uint16_t BattleScreenCount(void)
 {
-	DEBUG_LOG("BattleScreenCount");
-	if(!gPlayerTurn)
-		return 0;
-	
-	DEBUG_LOG("Returning good value");
-	return BattleActor_GetSkillList(gBattleState.player)->count;
+    DEBUG_LOG("BattleScreenCount");
+    if(!gPlayerTurn)
+        return 0;
+    
+    DEBUG_LOG("Returning good value");
+    return BattleActor_GetSkillList(gBattleState.player)->count;
 }
 
 static const char *BattleScreenNameCallback(int row)
 {
-	if(!gPlayerTurn)
-		return NULL;
-
-	SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
-	Skill *skill = GetSkillByID(entry->id);
-	return GetSkillName(skill);
+    if(!gPlayerTurn)
+        return NULL;
+    
+    SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
+    Skill *skill = GetSkillByID(entry->id);
+    return GetSkillName(skill);
 }
 
 static const char *BattleScreenDescriptionCallback(int row)
 {
-	if(!gPlayerTurn)
-		return NULL;
-
-	SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
-	if(entry->cooldown > 0)
-	  return "On cooldown";
-	Skill *skill = GetSkillByID(entry->id);
-	return GetSkillName(skill);
+    if(!gPlayerTurn)
+        return NULL;
+    
+    SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
+    if(entry->cooldown > 0)
+        return "On cooldown";
+    Skill *skill = GetSkillByID(entry->id);
+    return GetSkillName(skill);
 }
 
 static void BattleScreenSelectCallback(int row)
 {
-	if(!gPlayerTurn)
-		return;
-
-	SkillList *skillList = BattleActor_GetSkillList(gBattleState.player);
-	SkillListEntry *entry = &skillList->entries[row];
-	if(entry->cooldown > 0)
-	  return;
-	SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[row], GetPlayerActor(), GetMonsterActor());
-	BattleQueuePush(SKILL, newInstance);
-	gPlayerTurn = false;
+    if(!gPlayerTurn)
+        return;
+    
+    SkillList *skillList = BattleActor_GetSkillList(gBattleState.player);
+    SkillListEntry *entry = &skillList->entries[row];
+    if(entry->cooldown > 0)
+        return;
+    SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[row], GetPlayerActor(), GetMonsterActor());
+    BattleQueuePush(SKILL, newInstance);
+    gPlayerTurn = false;
 }
 
 const char  *UpdateNewMonsterHealthText(void)
 {
-	static char monsterHealthText[] = "00000"; // Needs to be static because it's used by the system later.
-
-	IntToString(monsterHealthText, 5, BattleActor_GetHealth(GetMonsterActor()));
-	return monsterHealthText;
+    static char monsterHealthText[] = "00000"; // Needs to be static because it's used by the system later.
+    
+    IntToString(monsterHealthText, 5, BattleActor_GetHealth(GetMonsterActor()));
+    return monsterHealthText;
 }
 
 void BattleScreenAppear(void *data)
 {
-	SetDescription(currentMonster->name);
-	RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
-	ReloadMenu(GetMainMenu());
+    SetDescription(currentMonster->name);
+    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+    ReloadMenu(GetMainMenu());
 }
 
 int NewComputeMonsterHealth(int level)
 {
-	int baseHealth = 20 + ((level-1)*(level)/2) + ((level-1)*(level)*(level+1)/(6*2));
-	return ScaleMonsterHealth(currentMonster, baseHealth);
+    int baseHealth = 20 + ((level-1)*(level)/2) + ((level-1)*(level)*(level+1)/(6*2));
+    return ScaleMonsterHealth(currentMonster, baseHealth);
 }
 
 static bool forcedBattle = false;
@@ -172,171 +172,171 @@ static int forcedBattleMonsterType = -1;
 static int forcedBattleMonsterHealth = 0;
 void ResumeBattle(int currentMonster, int currentMonsterHealth)
 {
-	if(currentMonster >= 0 && currentMonsterHealth > 0)
-	{
-		forcedBattle = true;
-		forcedBattleMonsterType = currentMonster;
-		forcedBattleMonsterHealth = currentMonsterHealth;
-	}
+    if(currentMonster >= 0 && currentMonsterHealth > 0)
+    {
+        forcedBattle = true;
+        forcedBattleMonsterType = currentMonster;
+        forcedBattleMonsterHealth = currentMonsterHealth;
+    }
 }
 
 bool IsBattleForced(void)
 {
-	return forcedBattle;
+    return forcedBattle;
 }
 
 void NewBattleInit(void)
 {
-	currentMonster = NULL;
-
-	if(forcedBattle)
-	{
-		DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
-		currentMonster = GetFixedMonster(forcedBattleMonsterType);
-		gBattleState.currentMonsterHealth = forcedBattleMonsterHealth;	
-		forcedBattle = false;
-	}
-
-	if(!currentMonster)
-	{
-		currentMonster = GetRandomMonster();
-		gBattleState.currentMonsterHealth = NewComputeMonsterHealth(GetCurrentBaseLevel());
-	}
-	Character *character = GetNewCharacter();
-	gBattleState.player = InitBattleActor(true, CharacterGetCombatantClass(character), CharacterGetSkillList(character), CharacterGetLevel(character));
-	gBattleState.monster = InitBattleActor(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel());
-	
-	BattleQueuePush(ACTOR, GetPlayerActor());
-	BattleQueuePush(ACTOR, GetMonsterActor());
-
-	playerHealthBar = CreateProgressBar(&gBattleState.playerCurrentHealth, &gBattleState.playerMaxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
-	monsterHealthBar = CreateProgressBar(&gBattleState.monsterCurrentHealth, &gBattleState.monsterMaxHealth, FILL_UP, monsterHealthFrame, GColorFolly, -1);
-	playerTimeBar = CreateProgressBar(&gBattleState.playerTime, &maxTimeCount, FILL_UP, playerTimeFrame, GColorVeryLightBlue, -1);
-	monsterTimeBar = CreateProgressBar(&gBattleState.monsterTime, &maxTimeCount, FILL_UP, monsterTimeFrame, GColorRichBrilliantLavender, -1);
-
-	InitializeProgressBar(playerHealthBar, GetBaseWindow());
-	InitializeProgressBar(playerTimeBar, GetBaseWindow());
-	InitializeProgressBar(monsterHealthBar, GetBaseWindow());
-	InitializeProgressBar(monsterTimeBar, GetBaseWindow());
-
-	// Force the main menu to the front
-	InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
-	InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
-	
-	RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
-
-	SetForegroundImage(currentMonster->imageId);
+    currentMonster = NULL;
+    
+    if(forcedBattle)
+    {
+        DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
+        currentMonster = GetFixedMonster(forcedBattleMonsterType);
+        gBattleState.currentMonsterHealth = forcedBattleMonsterHealth;
+        forcedBattle = false;
+    }
+    
+    if(!currentMonster)
+    {
+        currentMonster = GetRandomMonster();
+        gBattleState.currentMonsterHealth = NewComputeMonsterHealth(GetCurrentBaseLevel());
+    }
+    Character *character = GetNewCharacter();
+    gBattleState.player = InitBattleActor(true, CharacterGetCombatantClass(character), CharacterGetSkillList(character), CharacterGetLevel(character));
+    gBattleState.monster = InitBattleActor(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel());
+    
+    BattleQueuePush(ACTOR, GetPlayerActor());
+    BattleQueuePush(ACTOR, GetMonsterActor());
+    
+    playerHealthBar = CreateProgressBar(&gBattleState.playerCurrentHealth, &gBattleState.playerMaxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
+    monsterHealthBar = CreateProgressBar(&gBattleState.monsterCurrentHealth, &gBattleState.monsterMaxHealth, FILL_UP, monsterHealthFrame, GColorFolly, -1);
+    playerTimeBar = CreateProgressBar(&gBattleState.playerTime, &maxTimeCount, FILL_UP, playerTimeFrame, GColorVeryLightBlue, -1);
+    monsterTimeBar = CreateProgressBar(&gBattleState.monsterTime, &maxTimeCount, FILL_UP, monsterTimeFrame, GColorRichBrilliantLavender, -1);
+    
+    InitializeProgressBar(playerHealthBar, GetBaseWindow());
+    InitializeProgressBar(playerTimeBar, GetBaseWindow());
+    InitializeProgressBar(monsterHealthBar, GetBaseWindow());
+    InitializeProgressBar(monsterTimeBar, GetBaseWindow());
+    
+    // Force the main menu to the front
+    InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
+    InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
+    
+    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+    
+    SetForegroundImage(currentMonster->imageId);
 #if defined(PBL_COLOR)
-	SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
+    SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
 #endif
-	SetMainImageVisibility(true, true, true);
-	battleCleanExit = false;
+    SetMainImageVisibility(true, true, true);
+    battleCleanExit = false;
 }
 
 void UpdateProgressBars(void)
 {
-	gBattleState.playerCurrentHealth = BattleActor_GetHealth(GetPlayerActor());
-	gBattleState.playerMaxHealth = BattleActor_GetMaxHealth(GetPlayerActor());
-	gBattleState.monsterCurrentHealth = BattleActor_GetHealth(GetMonsterActor());
-	gBattleState.monsterMaxHealth = BattleActor_GetMaxHealth(GetMonsterActor());
-	
-	gBattleState.playerTime = GetCurrentTimeInQueue(true);
-	gBattleState.monsterTime = GetCurrentTimeInQueue(false);
+    gBattleState.playerCurrentHealth = BattleActor_GetHealth(GetPlayerActor());
+    gBattleState.playerMaxHealth = BattleActor_GetMaxHealth(GetPlayerActor());
+    gBattleState.monsterCurrentHealth = BattleActor_GetHealth(GetMonsterActor());
+    gBattleState.monsterMaxHealth = BattleActor_GetMaxHealth(GetMonsterActor());
+    
+    gBattleState.playerTime = GetCurrentTimeInQueue(true);
+    gBattleState.monsterTime = GetCurrentTimeInQueue(false);
 }
 
 void UpdateNewBattle(void *unused)
 {
-	bool entryRemoved = false;
-	void *data = NULL;
-	BattleQueueEntryType type = ACTOR;
-
-	if(battleSaveTickDelay > 0)
-	{
-		--battleSaveTickDelay;
-	}
-	
-	if(gSkillDelay > 0)
-	{
-		--gSkillDelay;
-		if(gSkillDelay == 0)
-			SetDescription(currentMonster->name);
-		return;
-	}
-	
-	if(gPlayerTurn)
-		return;
-	
-	if(BattleActor_GetHealth(gBattleState.player) <= 0 || BattleActor_GetHealth(gBattleState.monster) <= 0)
-	{
-		CloseNewBattleWindow();
-		return;
-	}
-	
-	
-	entryRemoved = UpdateBattleQueue(&type, &data);
-	
-	UpdateProgressBars();
-	MarkProgressBarDirty(playerTimeBar);
-	MarkProgressBarDirty(monsterTimeBar);
-
-	if(entryRemoved)
-	{
-		switch(type)
-		{
-			case SKILL:
-			{
-				SkillInstance *instance = (SkillInstance*)data;
-				gEffectDescription = ExecuteSkill(instance);
-				UpdateProgressBars();
-				MarkProgressBarDirty(playerHealthBar);
-				MarkProgressBarDirty(monsterHealthBar);
-				SetDescription(gEffectDescription);
-				BattleQueuePush(ACTOR, SkillInstanceGetAttacker(instance));
-				gSkillDelay = SKILL_DELAY;
-				break;
-			}
-			case ACTOR:
-			{
-				BattleActor *actor = (BattleActor*)data;
-				UpdateSkillCooldowns(BattleActor_GetSkillList(actor));
-				if(BattleActor_IsPlayer(actor))
-				{
-					SetDescription("Your turn");
-					gPlayerTurn = true;
-					ReloadMenu(GetMainMenu());
-				}
-				else
-				{
-					// Fake monster AI
-				  SkillList *skillList = BattleActor_GetSkillList(gBattleState.monster);
-				  SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[0], GetMonsterActor(), GetPlayerActor());
-				  BattleQueuePush(SKILL, newInstance);
-				}
-				break;
-			}
-		}
-	}
+    bool entryRemoved = false;
+    void *data = NULL;
+    BattleQueueEntryType type = ACTOR;
+    
+    if(battleSaveTickDelay > 0)
+    {
+        --battleSaveTickDelay;
+    }
+    
+    if(gSkillDelay > 0)
+    {
+        --gSkillDelay;
+        if(gSkillDelay == 0)
+            SetDescription(currentMonster->name);
+        return;
+    }
+    
+    if(gPlayerTurn)
+        return;
+    
+    if(BattleActor_GetHealth(gBattleState.player) <= 0 || BattleActor_GetHealth(gBattleState.monster) <= 0)
+    {
+        CloseNewBattleWindow();
+        return;
+    }
+    
+    
+    entryRemoved = UpdateBattleQueue(&type, &data);
+    
+    UpdateProgressBars();
+    MarkProgressBarDirty(playerTimeBar);
+    MarkProgressBarDirty(monsterTimeBar);
+    
+    if(entryRemoved)
+    {
+        switch(type)
+        {
+            case SKILL:
+            {
+                SkillInstance *instance = (SkillInstance*)data;
+                gEffectDescription = ExecuteSkill(instance);
+                UpdateProgressBars();
+                MarkProgressBarDirty(playerHealthBar);
+                MarkProgressBarDirty(monsterHealthBar);
+                SetDescription(gEffectDescription);
+                BattleQueuePush(ACTOR, SkillInstanceGetAttacker(instance));
+                gSkillDelay = SKILL_DELAY;
+                break;
+            }
+            case ACTOR:
+            {
+                BattleActor *actor = (BattleActor*)data;
+                UpdateSkillCooldowns(BattleActor_GetSkillList(actor));
+                if(BattleActor_IsPlayer(actor))
+                {
+                    SetDescription("Your turn");
+                    gPlayerTurn = true;
+                    ReloadMenu(GetMainMenu());
+                }
+                else
+                {
+                    // Fake monster AI
+                    SkillList *skillList = BattleActor_GetSkillList(gBattleState.monster);
+                    SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[0], GetMonsterActor(), GetPlayerActor());
+                    BattleQueuePush(SKILL, newInstance);
+                }
+                break;
+            }
+        }
+    }
 }
 
 void BattleScreenPush(void *data)
 {
-	NewBattleInit();
+    NewBattleInit();
 }
 
 void BattleScreenPop(void *data)
 {
-	RemoveProgressBar(playerHealthBar);
-	RemoveProgressBar(playerTimeBar);
-	RemoveProgressBar(monsterHealthBar);
-	RemoveProgressBar(monsterTimeBar);
-	FreeProgressBar(playerHealthBar);
-	FreeProgressBar(playerTimeBar);
-	FreeProgressBar(monsterHealthBar);
-	FreeProgressBar(monsterTimeBar);
+    RemoveProgressBar(playerHealthBar);
+    RemoveProgressBar(playerTimeBar);
+    RemoveProgressBar(monsterHealthBar);
+    RemoveProgressBar(monsterTimeBar);
+    FreeProgressBar(playerHealthBar);
+    FreeProgressBar(playerTimeBar);
+    FreeProgressBar(monsterHealthBar);
+    FreeProgressBar(monsterTimeBar);
 }
 
 void TriggerBattleScreen(void)
 {
-	if(CurrentLocationAllowsCombat())
-		PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
+    if(CurrentLocationAllowsCombat())
+        PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
 }

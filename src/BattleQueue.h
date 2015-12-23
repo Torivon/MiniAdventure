@@ -2,10 +2,10 @@
 
 typedef struct BattleActor BattleActor;
 
-typedef enum 
+typedef enum
 {
-	ACTOR = 0,
-	SKILL,
+    ACTOR = 0,
+    SKILL,
 } BattleQueueEntryType;
 
 bool UpdateBattleQueue(BattleQueueEntryType *type, void **data);

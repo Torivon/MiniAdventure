@@ -6,34 +6,34 @@
 
 typedef struct CharacterClass
 {
-  CombatantClass combatantClass;
-  SkillList skillList;
+    CombatantClass combatantClass;
+    SkillList skillList;
 } CharacterClass;
 
-CharacterClass paladinClass = 
+CharacterClass paladinClass =
 {
-  .combatantClass = {.strengthRank = RANK_B, .magicRank = RANK_C, .defenseRank = RANK_A, .magicDefenseRank = RANK_B, .speedRank = RANK_C, .healthRank = RANK_A},
-  .skillList = {.entries = {{.id = SKILLID_FAST_ATTACK, .level = 1}, {.id = SKILLID_SLOW_ATTACK, .level = 1}, {.id = SKILLID_COUNTER, .level = 2}}, .count = 3},
+    .combatantClass = {.strengthRank = RANK_B, .magicRank = RANK_C, .defenseRank = RANK_A, .magicDefenseRank = RANK_B, .speedRank = RANK_C, .healthRank = RANK_A},
+    .skillList = {.entries = {{.id = SKILLID_FAST_ATTACK, .level = 1}, {.id = SKILLID_SLOW_ATTACK, .level = 1}, {.id = SKILLID_COUNTER, .level = 2}}, .count = 3},
 };
 
 CharacterClass *GetPaladinClass(void)
 {
-  return &paladinClass;
+    return &paladinClass;
 }
 
 CombatantClass *GetCombatantClass(CharacterClass *class)
 {
-  if(!class)
-    return NULL;
-
-  return &class->combatantClass;
+    if(!class)
+        return NULL;
+    
+    return &class->combatantClass;
 }
 
 SkillList *GetSkillList(CharacterClass *class)
 {
-  if(!class)
-    return NULL;
-  
-  return &class->skillList;
+    if(!class)
+        return NULL;
+    
+    return &class->skillList;
 }
 
