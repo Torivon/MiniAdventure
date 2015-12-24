@@ -11,7 +11,7 @@ void BattleActor_SetCurrentTime(BattleActor *actor, int currentTime);
 SkillInstance *BattleActor_GetCounter(BattleActor *actor);
 void BattleActor_SetCounter(BattleActor *actor, SkillInstance *counter);
 
-BattleActor *InitBattleActor(bool isPlayer, CombatantClass *combatantClass, SkillList *skillList, int level);
+BattleActor *BattleActor_Init(bool isPlayer, CombatantClass *combatantClass, SkillList *skillList, int level, int startingHealth);
 void DealDamage(int potency, BattleActor *defender);
 
 int BattleActor_GetHealth(BattleActor *actor);

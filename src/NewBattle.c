@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "BattleActor.h"
 #include "Character.h"
+#include "Clock.h"
 #include "DescriptionFrame.h"
 #include "GlobalState.h"
 #include "Logging.h"
@@ -29,15 +30,15 @@ typedef struct NewBattleState
 } NewBattleState;
 
 #if defined(PBL_ROUND)
-static GRect playerHealthFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 50}};
-static GRect playerTimeFrame = {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 50}};
-static GRect monsterHealthFrame = {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 50}};
-static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 50}};
+static GRect playerHealthFrame = {.origin = {.x = 50, .y = 90}, .size = {.w = 16, .h = 40}};
+static GRect playerTimeFrame = {.origin = {.x = 67, .y = 90}, .size = {.w = 8, .h = 40}};
+static GRect monsterHealthFrame = {.origin = {.x = 50, .y = 48}, .size = {.w = 16, .h = 40}};
+static GRect monsterTimeFrame = {.origin = {.x = 67, .y = 48}, .size = {.w = 8, .h = 40}};
 #else
-static GRect playerHealthFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 50}};
-static GRect playerTimeFrame = {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 50}};
-static GRect monsterHealthFrame = {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 50}};
-static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 50}};
+static GRect playerHealthFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 40}};
+static GRect playerTimeFrame = {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 40}};
+static GRect monsterHealthFrame = {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 40}};
+static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 40}};
 #endif
 
 
@@ -83,6 +84,8 @@ void CloseNewBattleWindow(void)
     battleCleanExit = true;
     ResetBattleQueue();
     PopGlobalState();
+    Character_SetHealth(BattleActor_GetHealth(GetPlayerActor()));
+    ShowDateLayer();
 }
 
 bool ClosingWhileInBattle(void)
@@ -202,22 +205,23 @@ void NewBattleInit(void)
         currentMonster = GetRandomMonster();
         gBattleState.currentMonsterHealth = NewComputeMonsterHealth(GetCurrentBaseLevel());
     }
-    Character *character = GetNewCharacter();
-    gBattleState.player = InitBattleActor(true, CharacterGetCombatantClass(character), CharacterGetSkillList(character), CharacterGetLevel(character));
-    gBattleState.monster = InitBattleActor(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel());
+    gBattleState.player = BattleActor_Init(true, Character_GetCombatantClass(), Character_GetSkillList(), Character_GetLevel(), Character_GetHealth());
+    gBattleState.monster = BattleActor_Init(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel(), 0);
     
     BattleQueuePush(ACTOR, GetPlayerActor());
     BattleQueuePush(ACTOR, GetMonsterActor());
     
     playerHealthBar = CreateProgressBar(&gBattleState.playerCurrentHealth, &gBattleState.playerMaxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
-    monsterHealthBar = CreateProgressBar(&gBattleState.monsterCurrentHealth, &gBattleState.monsterMaxHealth, FILL_UP, monsterHealthFrame, GColorFolly, -1);
+    monsterHealthBar = CreateProgressBar(&gBattleState.monsterCurrentHealth, &gBattleState.monsterMaxHealth, FILL_DOWN, monsterHealthFrame, GColorFolly, -1);
     playerTimeBar = CreateProgressBar(&gBattleState.playerTime, &maxTimeCount, FILL_UP, playerTimeFrame, GColorVeryLightBlue, -1);
-    monsterTimeBar = CreateProgressBar(&gBattleState.monsterTime, &maxTimeCount, FILL_UP, monsterTimeFrame, GColorRichBrilliantLavender, -1);
+    monsterTimeBar = CreateProgressBar(&gBattleState.monsterTime, &maxTimeCount, FILL_DOWN, monsterTimeFrame, GColorRichBrilliantLavender, -1);
     
     InitializeProgressBar(playerHealthBar, GetBaseWindow());
     InitializeProgressBar(playerTimeBar, GetBaseWindow());
     InitializeProgressBar(monsterHealthBar, GetBaseWindow());
     InitializeProgressBar(monsterTimeBar, GetBaseWindow());
+    
+    HideDateLayer();
     
     // Force the main menu to the front
     InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());

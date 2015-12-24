@@ -10,42 +10,64 @@ CharacterData characterData;
 
 typedef struct Character
 {
+    CharacterClassType classType;
     CharacterClass *class;
     SkillList skillList;
     int level;
+    int currentHealth;
 } Character;
 
 Character character;
 
-void UpdateSkillList(Character *character)
+CharacterClass *Character_GetClass(void)
 {
-    SkillList *classSkillList = GetSkillList(character->class);
-    if(character->skillList.count < classSkillList->count)
+    return CharacterClass_GetClassByType(character.classType);
+}
+
+void Character_SetClass(int type)
+{
+    character.classType = type;
+}
+
+int Character_GetHealth(void)
+{
+    return character.currentHealth;
+}
+
+void Character_SetHealth(int health)
+{
+    character.currentHealth = health;
+}
+
+void Character_UpdateSkillList(void)
+{
+    SkillList *classSkillList = GetSkillList(Character_GetClass());
+    if(character.skillList.count < classSkillList->count)
     {
-        int index = character->skillList.count;
-        while(classSkillList->entries[index].level <= character->level && character->skillList.count <= classSkillList->count)
+        int index = character.skillList.count;
+        while(classSkillList->entries[index].level <= character.level && character.skillList.count <= classSkillList->count)
         {
-            character->skillList.entries[index] = classSkillList->entries[index];
-            character->skillList.count++;
-            index = character->skillList.count;
+            character.skillList.entries[index] = classSkillList->entries[index];
+            character.skillList.count++;
+            index = character.skillList.count;
         }
     }
 }
 
-SkillList *CharacterGetSkillList(Character *character)
+SkillList *Character_GetSkillList(void)
 {
-    UpdateSkillList(character);
-    return &character->skillList;
+    Character_UpdateSkillList();
+    return &character.skillList;
 }
 
-CombatantClass *CharacterGetCombatantClass(Character *character)
+CombatantClass *Character_GetCombatantClass(void)
 {
-    return GetCombatantClass(character->class);
+    return GetCombatantClass(Character_GetClass());
 }
 
-int CharacterGetLevel(Character *character)
+int Character_GetLevel(void)
 {
-    return character->level;
+    return character.level;
 }
 
 Character *GetNewCharacter(void)
@@ -125,7 +147,7 @@ void InitializeCharacter(void)
     characterData.statPointsToSpend = 0;
     characterData.speed = 10;
     
-    character.class = GetPaladinClass();
+    character.class = CharacterClass_GetClassByType(CLASS_PALADIN);
     character.level = 2;
 }
 

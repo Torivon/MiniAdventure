@@ -149,6 +149,9 @@ static int ComputeSkillPotency(SkillInstance *instance)
         defensePower = 1;
     
     int potency = skill->potency * attackPower / defensePower;
+    
+    if(potency <= 0)
+        potency = 1;
 
     // TODO: Should also deal with damage types and resistances
     return potency;
