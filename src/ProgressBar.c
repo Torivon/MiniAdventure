@@ -54,6 +54,10 @@ void ProgressBarUpdateProc(struct Layer *layer, GContext *ctx)
 		{
 			innerFrame.origin.y += innerFrame.size.h - newHeight;
 		}
+        if(newHeight < 0)
+            newHeight = 0;
+        if(newHeight >= innerFrame.size.h)
+            newHeight = innerFrame.size.h;
 		innerFrame.size.h = newHeight;
 	}
 	
@@ -64,6 +68,10 @@ void ProgressBarUpdateProc(struct Layer *layer, GContext *ctx)
 		{
 			innerFrame.origin.x += innerFrame.size.w - newWidth;
 		}
+        if(newWidth < 0)
+            newWidth = 0;
+        if(newWidth >= innerFrame.size.w)
+            newWidth = innerFrame.size.w;
 		innerFrame.size.w = newWidth;
 	}
 
