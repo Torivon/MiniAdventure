@@ -2,6 +2,7 @@
 
 #include "Adventure.h"
 #include "Character.h"
+#include "DialogFrame.h"
 #include "DungeonCrawl.h"
 #include "Location.h"
 #include "LocationInternal.h"
@@ -227,13 +228,20 @@ Story dungeonCrawlStory =
 	.initializeStory = InitializeDungeonCrawl,
 };
 
+static DialogData desc =
+{
+    .text = "Ready for a 20 floor dungeon crawl?",
+    .allowCancel = true
+};
+
 void LaunchDungeonCrawl(void)
 {
 	dungeonCrawlStory.numberOfLocations = sizeof(locationList)/sizeof(Location);
 	dungeonCrawlStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&dungeonCrawlStory, &dungeonCrawlStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	TriggerAdventureScreen();
+    QueueDialog(&desc);
+	QueueAdventureScreen();
 }
 
 #endif

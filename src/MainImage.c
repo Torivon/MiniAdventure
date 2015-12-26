@@ -35,7 +35,12 @@ void InitializeMainImageLayer(Window *window)
 	if(!mainImageInitialized)
 	{
 		GRect screen_bounds = layer_get_bounds(window_get_root_layer(window));
-		mainImagePosition.origin.x = screen_bounds.size.w / 2 - mainImagePosition.size.w / 2;
+//		mainImagePosition.origin.x = screen_bounds.size.w / 2 - mainImagePosition.size.w / 2;
+#if defined(PBL_RECT)
+        mainImagePosition.origin.x = screen_bounds.size.w - mainImagePosition.size.w;
+#elif defined(PBL_ROUND)
+        mainImagePosition.origin.x = screen_bounds.size.w - mainImagePosition.size.w - 20;
+#endif
 		mainImagePosition.origin.y = screen_bounds.size.h / 2 - mainImagePosition.size.h / 2;
 		mainImageTopLayer = layer_create(mainImagePosition);
 		

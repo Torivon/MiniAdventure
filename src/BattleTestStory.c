@@ -60,7 +60,7 @@ static MonsterDef monsters[] =
         .allowPhysicalAttack = true,
         .goldScale = 1,
         .speed = 20,
-        .combatantClass = {.strengthRank = RANK_F, .magicRank = RANK_F, .defenseRank = RANK_F, .magicDefenseRank = RANK_F, .speedRank =\
+        .combatantClass = {.strengthRank = RANK_C, .magicRank = RANK_F, .defenseRank = RANK_F, .magicDefenseRank = RANK_F, .speedRank =\
             RANK_S, .healthRank = RANK_C},
         .skillList = {.entries = {{.id = SKILLID_FAST_ATTACK, .level = 1}}, .count = 1},
     },
@@ -199,7 +199,7 @@ void LaunchBattleTestStory(void)
     battleTestStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
     RegisterStory(&battleTestStory, &battleTestStoryState);
     DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-    TriggerAdventureScreen();
+    QueueAdventureScreen();
 }
 
 #endif

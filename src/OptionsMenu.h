@@ -12,3 +12,4 @@ void ShowOptionsMenu(void);
 
 bool OptionsMenuIsVisible(void);
 void TriggerOptionScreen(void);
+void QueueOptionsScreen(void);

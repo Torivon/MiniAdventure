@@ -1,9 +1,15 @@
 #pragma once
 
+#define BUILD_CLOUDPEBBLE_WORKER_APP 0
+
+#if BUILD_CLOUDPEBBLE_WORKER_APP
+#define BUILD_WORKER_FILES
+#endif
+
 // Game tuning 
 #define STAT_POINTS_PER_LEVEL 2
 #define XP_FOR_NEXT_LEVEL 5 * level
-#define SKILL_DELAY 5
+#define SKILL_DELAY 3
 
 // Feature tuning
 #define PAD_WITH_SPACES 1
@@ -67,12 +73,10 @@ enum
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0
 
-#define USE_MENULAYER_PROTOTYPE 1
-
 #define COMPILE_OLD_UILAYERS 0
 
 typedef struct Window Window;
 
 void ResetGame(void);
-bool HasFocus(void);
+int HasFocus(void);
 Window *GetBaseWindow(void);

@@ -14,6 +14,16 @@ typedef void (*ResponseCallback)(void); // This needs to take some arguments inc
 #define LIGHTNING BIT_FIELD(4)
 #define SLASHING BIT_FIELD(5)
 #define PIERCING BIT_FIELD(6)
+#define BLUDGEONING BIT_FIELD(7)
+
+typedef enum
+{
+    SKILL_TYPE_BASIC_ATTACK,
+    SKILL_TYPE_BASIC_HEAL,
+    SKILL_TYPE_COUNTER,
+    SKILL_TYPE_BUFF,
+    SKILL_TYPE_DEBUFF,
+} SkillType;
 
 typedef struct Skill Skill;
 
@@ -23,7 +33,7 @@ typedef enum
 {
     SKILLID_FAST_ATTACK,
     SKILLID_SLOW_ATTACK,
-    SKILLID_COUNTER,
+    SKILLID_SHIELD_BASH,
 } SkillID;
 
 typedef struct SkillListEntry
@@ -42,9 +52,8 @@ typedef struct SkillList
 Skill *GetSkillByID(SkillID id);
 
 char *GetSkillName(Skill *skill);
+char *GetSkillDescription(Skill *skill);
 uint16_t GetSkillSpeed(Skill *skill);
-Skill *GetFastAttack(void);
-Skill *GetSlowAttack(void);
 
 Skill *GetSkillFromInstance(SkillInstance *instance);
 

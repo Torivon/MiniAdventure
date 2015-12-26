@@ -21,7 +21,7 @@ Window *baseWindow = NULL;
 
 static bool hasFocus = true;
 
-bool HasFocus(void)
+int HasFocus(void)
 {
 	return hasFocus;
 }
@@ -69,7 +69,7 @@ void focus_handler(bool in_focus) {
 void handle_init() {
 	
 	INFO_LOG("Starting MiniAdventure");
-	
+    GlobalState_Initialize();
 #if ALLOW_WORKER_APP
 	if(WorkerIsRunning())
 	{
@@ -88,14 +88,10 @@ void handle_init() {
 	
 	// Just here so that the health and level fields are always filled in.
 	InitializeCharacter();
-#if USE_MENULAYER_PROTOTYPE	
 	baseWindow = InitializeNewBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	RegisterTitleScreen();
-#else
-	ShowTitleMenu();
-#endif
 	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 	app_focus_service_subscribe(focus_handler);
 	battery_state_service_subscribe(battery_state_handler);
@@ -115,6 +111,7 @@ void handle_deinit()
 #endif
 	if(baseWindow)
 		window_destroy(baseWindow);
+    GlobalState_Free();
 }
 
 // The main event/run loop for our app

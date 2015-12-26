@@ -148,7 +148,11 @@ void RegisterMenuCellCallbacks(Menu *menu, MenuCountCallback countCallback, Menu
 	if(menu->mainMenu)
 	{
 		if(menu->menuCountCallback() > 0)
+        {
+            MenuIndex index = {.section = 0, .row = 0};
+            menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignCenter, false);
 			ShowMenuArrow();
+        }
 		else
 			HideMenuArrow();
 	}

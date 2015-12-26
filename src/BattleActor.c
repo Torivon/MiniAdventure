@@ -13,10 +13,21 @@ typedef struct BattleActor
     int health;
     int maxHealth;
     int currentTime;
+    SkillInstance *counter;
 } BattleActor;
 
 BattleActor player = {0};
 BattleActor monster = {0};
+
+SkillInstance *BattleActor_GetCounter(BattleActor *actor)
+{
+    return actor->counter;
+}
+
+void BattleActor_SetCounter(BattleActor *actor, SkillInstance *counter)
+{
+    actor->counter = counter;
+}
 
 int BattleActor_GetSpeed(BattleActor *actor)
 {
@@ -26,6 +37,11 @@ int BattleActor_GetSpeed(BattleActor *actor)
 bool BattleActor_IsPlayer(BattleActor *actor)
 {
     return actor->isPlayer;
+}
+
+int BattleActor_GetLevel(BattleActor *actor)
+{
+    return actor->level;
 }
 
 void BattleActor_SetCurrentTime(BattleActor *actor, int currentTime)
@@ -43,7 +59,7 @@ CombatantClass *BattleActor_GetCombatantClass(BattleActor *actor)
     return actor->combatantClass;
 }
 
-BattleActor *InitBattleActor(bool isPlayer, CombatantClass *combatantClass, SkillList *skillList, int level)
+BattleActor *BattleActor_Init(bool isPlayer, CombatantClass *combatantClass, SkillList *skillList, int level, int startingHealth)
 {
     BattleActor *returnValue = isPlayer ? &player : &monster;
     returnValue->isPlayer = isPlayer;
@@ -51,7 +67,11 @@ BattleActor *InitBattleActor(bool isPlayer, CombatantClass *combatantClass, Skil
     returnValue->skillList = skillList;
     returnValue->level = level;
     returnValue->speed = CombatantClass_GetSpeed(combatantClass, level);
-    returnValue->maxHealth = returnValue->health = CombatantClass_GetHealth(combatantClass, level);
+    returnValue->maxHealth = CombatantClass_GetHealth(combatantClass, level);
+    if(startingHealth <= 0)
+        returnValue->health = returnValue->maxHealth;
+    else
+        returnValue->health = startingHealth;
     return returnValue;
 }
 

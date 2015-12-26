@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "GlobalState.h"
 #include "Logging.h"
+#include "Queue.h"
 
 typedef struct GlobalStateInstance
 {
@@ -17,9 +18,36 @@ typedef struct GlobalStateInstance
 #define MAX_GLOBAL_STATES 20
 
 static GlobalStateInstance globalStateInstances[MAX_GLOBAL_STATES];
+static Queue *globalQueue = NULL;
 static int globalStateInstanceCount = 0;
 
-void PushGlobalState(GlobalState state, 
+void QueueGlobalState(GlobalState state,
+                      TimeUnits triggerUnits,
+                      GlobalStateChangeCallback updateCallback,
+                      GlobalStateChangeCallback pushCallback,
+                      GlobalStateChangeCallback appearCallback,
+                      GlobalStateChangeCallback disappearCallback,
+                      GlobalStateChangeCallback popCallback,
+                      void *data)
+{
+    if(Queue_IsFull(globalQueue))
+        return;
+    
+    GlobalStateInstance *newInstance = calloc(sizeof(GlobalStateInstance), 1);
+    
+    newInstance->state = state;
+    newInstance->triggerUnits = triggerUnits;
+    newInstance->updateCallback = updateCallback;
+    newInstance->pushCallback = pushCallback;
+    newInstance->appearCallback = appearCallback;
+    newInstance->disappearCallback = disappearCallback;
+    newInstance->popCallback = popCallback;
+    newInstance->data = data;
+    
+    Queue_Push(globalQueue, newInstance);
+}
+
+static void PushGlobalState_internal(GlobalState state,
 					 TimeUnits triggerUnits, 
 					 GlobalStateChangeCallback updateCallback, 
 					 GlobalStateChangeCallback pushCallback, 
@@ -28,17 +56,6 @@ void PushGlobalState(GlobalState state,
 					 GlobalStateChangeCallback popCallback,
 					 void *data)
 {
-	DEBUG_LOG("Push global state: %d", state);
-	if(globalStateInstanceCount == MAX_GLOBAL_STATES)
-		return;
-
-	if(globalStateInstanceCount > 0)
-	{
-		GlobalStateInstance *oldInstance = &globalStateInstances[globalStateInstanceCount - 1];
-		if(oldInstance->disappearCallback)
-			oldInstance->disappearCallback(oldInstance->data);
-	}
-	
 	GlobalStateInstance *instance = &globalStateInstances[globalStateInstanceCount];
 	globalStateInstanceCount++;
 	
@@ -57,6 +74,53 @@ void PushGlobalState(GlobalState state,
 		instance->appearCallback(instance->data);
 }
 
+void GlobalState_ClearQueue(void)
+{
+    while(!Queue_IsEmpty(globalQueue))
+    {
+        GlobalStateInstance *instance = Queue_Pop(globalQueue);
+        free(instance);
+    }
+}
+
+static void PopAppear(void *data)
+{
+    PopGlobalState();
+    PopGlobalState();
+}
+
+void GlobalState_QueueStatePop(void)
+{
+    QueueGlobalState(STATE_STATE_POP, 0, NULL, PopAppear, NULL, NULL, NULL, NULL);
+}
+
+void PushGlobalState(GlobalState state,
+                                     TimeUnits triggerUnits,
+                                     GlobalStateChangeCallback updateCallback,
+                                     GlobalStateChangeCallback pushCallback,
+                                     GlobalStateChangeCallback appearCallback,
+                                     GlobalStateChangeCallback disappearCallback, 
+                                     GlobalStateChangeCallback popCallback,
+                                     void *data)
+{
+    DEBUG_LOG("Push global state: %d", state);
+    if(globalStateInstanceCount == MAX_GLOBAL_STATES)
+        return;
+    
+    // Pushing a new instance clears the queue
+    
+    GlobalState_ClearQueue();
+    
+    if(globalStateInstanceCount > 0)
+    {
+        GlobalStateInstance *oldInstance = &globalStateInstances[globalStateInstanceCount - 1];
+        if(oldInstance->disappearCallback)
+            oldInstance->disappearCallback(oldInstance->data);
+    }
+    
+    PushGlobalState_internal(state, triggerUnits, updateCallback, pushCallback, appearCallback, disappearCallback, popCallback, data);
+}
+
 void UpdateGlobalState(TimeUnits units_changed)
 {
 	if(globalStateInstanceCount <= 0)
@@ -69,7 +133,6 @@ void UpdateGlobalState(TimeUnits units_changed)
 	{
 		instance->updateCallback(instance->data);
 	}
-	
 }
 
 void PopGlobalState(void)
@@ -89,6 +152,24 @@ void PopGlobalState(void)
 	
 	globalStateInstanceCount--;
 
+    if(!Queue_IsEmpty(globalQueue))
+    {
+        GlobalStateInstance *queuedInstance = Queue_Pop(globalQueue);
+        if(queuedInstance)
+        {
+            PushGlobalState_internal(queuedInstance->state,
+                            queuedInstance->triggerUnits,
+                            queuedInstance->updateCallback,
+                            queuedInstance->pushCallback,
+                            queuedInstance->appearCallback,
+                            queuedInstance->disappearCallback,
+                            queuedInstance->popCallback,
+                            queuedInstance->data);
+            free(queuedInstance);
+            return;
+        }
+    }
+    
 	if(globalStateInstanceCount == 0)
 	{
 		window_stack_pop(true);
@@ -116,4 +197,26 @@ void PopAllGlobalStates(void)
 	{
 		PopGlobalState();
 	}
+}
+
+void GlobalState_Initialize(void)
+{
+    if(!globalQueue)
+    {
+        globalQueue = Queue_Create(MAX_GLOBAL_STATES);
+    }
+}
+
+void GlobalState_Free(void)
+{
+    if(globalQueue)
+    {
+        while(!Queue_IsEmpty(globalQueue))
+        {
+            GlobalStateInstance *instance = Queue_Pop(globalQueue);
+            free(instance);
+        }
+        Queue_Free(globalQueue);
+        globalQueue = NULL;
+    }
 }

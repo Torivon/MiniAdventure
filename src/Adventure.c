@@ -18,7 +18,7 @@
 #include "WorkerControl.h"
 
 #if defined(PBL_ROUND)
-static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}};
+static GRect locationProgressFrame = {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}};
 #else
 static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}};
 #endif
@@ -245,4 +245,9 @@ void AdventureScreenPop(void *data)
 void TriggerAdventureScreen(void)
 {
     PushGlobalState(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
+}
+
+void QueueAdventureScreen(void)
+{
+    QueueGlobalState(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
 }

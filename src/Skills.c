@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "BattleActor.h"
+#include "CombatantClass.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
 #include "Skills.h"
@@ -7,11 +8,12 @@
 typedef struct Skill
 {
     char *name;
+    char *description;
+    SkillType type;
     uint16_t speed;
     uint16_t damageType;
     uint16_t potency;
     int cooldown;
-    bool counterAttack;
 } Skill;
 
 typedef struct SkillInstance
@@ -32,10 +34,19 @@ char *GetSkillName(Skill *skill)
     return skill->name;
 }
 
+char *GetSkillDescription(Skill *skill)
+{
+    if(!skill)
+        return NULL;
+    
+    return skill->description;
+}
 
 static Skill fastAttack =
 {
     .name = "Fast Attack",
+    .description = "Quick stab",
+    .type = SKILL_TYPE_BASIC_ATTACK,
     .speed = 100,
     .damageType = PHYSICAL | PIERCING,
     .potency = 1
@@ -44,20 +55,23 @@ static Skill fastAttack =
 static Skill slowAttack =
 {
     .name = "Slow Attack",
+    .description = "Heavy slash",
+    .type = SKILL_TYPE_BASIC_ATTACK,
     .speed = 20,
     .damageType = PHYSICAL | SLASHING,
-    .potency = 10,
+    .potency = 5,
     .cooldown = 4
 };
 
-static Skill counter =
+static Skill shieldBash =
 {
-    .name = "Counter",
+    .name = "Shield Bash",
+    .description = "Bash enemy as they attack",
+    .type = SKILL_TYPE_COUNTER,
     .speed = 100,
-    .damageType = PHYSICAL | SLASHING,
+    .damageType = PHYSICAL | BLUDGEONING,
     .potency = 10,
     .cooldown = 2,
-    .counterAttack = true,
 };
 
 Skill *GetSkillByID(SkillID id)
@@ -72,9 +86,9 @@ Skill *GetSkillByID(SkillID id)
         {
             return &slowAttack;
         }
-        case SKILLID_COUNTER:
+        case SKILLID_SHIELD_BASH:
         {
-            return &counter;
+            return &shieldBash;
         }
     }
     
@@ -115,16 +129,79 @@ Skill *GetSkillFromInstance(SkillInstance *instance)
     return skill;
 }
 
+static int ComputeSkillPotency(SkillInstance *instance)
+{
+    Skill *skill = GetSkillFromInstance(instance);
+    int attackPower = 1;
+    int defensePower = 1;
+    if(skill->damageType & PHYSICAL)
+    {
+        attackPower = CombatantClass_GetStrength(BattleActor_GetCombatantClass(instance->attacker), BattleActor_GetLevel(instance->attacker));
+        defensePower = CombatantClass_GetDefense(BattleActor_GetCombatantClass(instance->defender), BattleActor_GetLevel(instance->defender));
+    }
+    else if(skill->damageType & MAGIC)
+    {
+        attackPower = CombatantClass_GetMagic(BattleActor_GetCombatantClass(instance->attacker), BattleActor_GetLevel(instance->attacker));
+        defensePower = CombatantClass_GetMagicDefense(BattleActor_GetCombatantClass(instance->defender), BattleActor_GetLevel(instance->defender));
+    }
+    
+    if(defensePower == 0)
+        defensePower = 1;
+    
+    int potency = skill->potency * attackPower / defensePower;
+    
+    if(potency <= 0)
+        potency = 1;
+
+    // TODO: Should also deal with damage types and resistances
+    return potency;
+}
+
 const char *ExecuteSkill(SkillInstance *instance)
 {
     static char description[30];
     DEBUG_VERBOSE_LOG("ExecuteSkill");
     Skill *skill = GetSkillByID(instance->entry->id);
-    DealDamage(skill->potency, instance->defender);
-    snprintf(description, sizeof(description), "%s takes %d damage", BattleActor_IsPlayer(instance->defender) ? "Player" : "Monster", skill->potency);
+    switch(skill->type)
+    {
+        case SKILL_TYPE_BASIC_ATTACK:
+        {
+            SkillInstance *counterInstance = BattleActor_GetCounter(instance->defender);
+            if(counterInstance)
+            {
+                //TODO: Add an attack type to counters, so that we can differentiate between counters to magic attacks and counters to physical attacks
+                int potency = ComputeSkillPotency(counterInstance);
+                DealDamage(potency, counterInstance->defender);
+                snprintf(description, sizeof(description), "%s counters for %d damage", BattleActor_IsPlayer(counterInstance->attacker) ? "Player" : "Monster", potency);
+
+                BattleActor_SetCounter(instance->defender, NULL);
+                FreeSkillInstance(instance);
+                FreeSkillInstance(counterInstance);
+            }
+            else
+            {
+                int potency = ComputeSkillPotency(instance);
+                DealDamage(potency, instance->defender);
+                snprintf(description, sizeof(description), "%s takes %d damage", BattleActor_IsPlayer(instance->defender) ? "Player" : "Monster", potency);
+                FreeSkillInstance(instance);
+            }
+            break;
+        }
+        case SKILL_TYPE_COUNTER:
+        {
+            BattleActor_SetCounter(instance->attacker, instance);
+            snprintf(description, sizeof(description), "%s prepares %s", BattleActor_IsPlayer(instance->attacker) ? "Player" : "Monster", GetSkillName(GetSkillFromInstance(instance)));
+            break;
+        }
+        default:
+        {
+            snprintf(description, sizeof(description), "Unhandled skill: %s", GetSkillName(GetSkillFromInstance(instance)));
+            FreeSkillInstance(instance);
+            break;
+        }
+    }
     DEBUG_VERBOSE_LOG("Setting description: %s", description);
     instance->entry->cooldown = GetSkillCooldown(skill);
-    FreeSkillInstance(instance);
     return description;
 }
 

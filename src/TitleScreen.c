@@ -18,53 +18,58 @@
 
 #include "NewMenu.h"
 
-enum 
-{
-	TITLE_STORY_NONE = 0,
-	TITLE_DUNGEON_CRAWL,
-	TITLE_DRAGON_QUEST,
-	TITLE_BATTLE_TEST,
-	TITLE_SLIDESHOW,
-	TITLE_OPTIONS,
-	TITLE_CREDITS,
-	TITLE_REPO,
-};
-
-static int gameToLaunch = TITLE_STORY_NONE;
-
 void ChooseDungeonCrawl(void)
 {
-	gameToLaunch = TITLE_DUNGEON_CRAWL;
+    LaunchDungeonCrawl();
 }
 
 void ChooseDragonQuest(void)
 {
-	gameToLaunch = TITLE_DRAGON_QUEST;
+    LaunchDragonQuest();
 }
 
 void ChooseBattleTest(void)
 {
-	gameToLaunch = TITLE_BATTLE_TEST;
+    LaunchBattleTestStory();
 }
 
 void ChooseSlideshow(void)
 {
-	gameToLaunch = TITLE_SLIDESHOW;
+    LaunchSlideshow();
 }
 
 void ChooseOptions(void)
 {
-	gameToLaunch = TITLE_OPTIONS;
+    QueueOptionsScreen();
 }
+
+static DialogData credits[] =
+{
+    {
+        .text = "Programming and art by Jonathan Panttaja",
+        .allowCancel = false
+    },
+    {
+        .text = "Additional Contributors: Belphemur and BlackLamb",
+        .allowCancel = false
+    },
+    {
+        .text = "Code located at https://Github.com/Torivon/MiniAdventure",
+        .allowCancel = false
+    },
+};
 
 void ChooseCredits(void)
 {
-	gameToLaunch = TITLE_CREDITS;
+    
+    QueueDialog(&credits[0]);
+    QueueDialog(&credits[1]);
+    QueueDialog(&credits[2]);
 }
 
 void ChooseRepo(void)
 {
-	gameToLaunch = TITLE_REPO;
+    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
 }
 
 MenuCellDescription titleScreenMenuList[] = 
@@ -92,57 +97,6 @@ static void TitleScreenAppear(void *data)
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
-		
-	switch(gameToLaunch)
-	{
-		case TITLE_DUNGEON_CRAWL:
-		{
-#if INCLUDE_DUNGEON_CRAWL
-			LaunchDungeonCrawl();
-#endif
-			break;
-		}
-		case TITLE_DRAGON_QUEST:
-		{
-#if INCLUDE_DRAGON_QUEST
-			LaunchDragonQuest();
-#endif
-			break;
-		}
-		case TITLE_BATTLE_TEST:
-		{
-#if INCLUDE_BATTLE_TEST_STORY
-			LaunchBattleTestStory();
-#endif
-			break;
-		}
-		case TITLE_SLIDESHOW:
-		{
-#if INCLUDE_SLIDESHOW
-			LaunchSlideshow();
-#endif
-			break;
-		}
-		case TITLE_OPTIONS:
-		{
-			TriggerOptionScreen();
-			break;
-		}
-		case TITLE_CREDITS:
-		{
-			TriggerDialog("Programming and art by Jonathan Panttaja, with help from Belphemur and BlackLamb");
-			break;
-		}
-		case TITLE_REPO:
-		{
-			TriggerLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
-		}
-		default:
-		{
-			break;
-		}
-	}
-	gameToLaunch = TITLE_STORY_NONE;
 }
 
 static void TitleScreenPop(void *data)
@@ -151,8 +105,32 @@ static void TitleScreenPop(void *data)
 	SetDescription("");
 }
 
+DialogData introText[] =
+{
+    {
+        .text = "MiniAdventure:\n Welcome to MiniAdventure. Press select to continue.",
+        .allowCancel = true
+    },
+    {
+        .text = "Use the select button to open the main menu.",
+        .allowCancel = true
+    },
+    {
+        .text = "Use the up and down buttons to make your selections inside menus.",
+        .allowCancel = true
+    },
+    {
+        .text = "The back button will exit games in progress.",
+        .allowCancel = true
+    },
+};
+
 void RegisterTitleScreen(void)
 {
 	INFO_LOG("RegisterTitleScreen");
-	PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    TriggerDialog(&introText[0]);
+    QueueDialog(&introText[1]);
+    QueueDialog(&introText[2]);
+    QueueDialog(&introText[3]);
 }

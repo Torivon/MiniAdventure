@@ -1,3 +1,5 @@
+#include "MiniAdventure.h"
+#ifdef BUILD_WORKER_FILES
 #include <pebble_worker.h>
 
 #include "../src/Persistence.h"
@@ -42,4 +44,5 @@ bool LoadWorkerData(void)
 	SetClosedInBattle(persist_read_bool(PERSISTED_IN_COMBAT));
 	return true;
 }
+#endif
 #endif

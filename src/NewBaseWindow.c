@@ -143,6 +143,12 @@ static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 	}
 }
 
+static DialogData exitPrompt =
+{
+    .text = "Are you sure you want to exit the game?",
+    .allowCancel = true
+};
+
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
 	switch(GetCurrentGlobalState())
@@ -163,6 +169,25 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 			SaveBattleState();
 			break;
 		}
+        case STATE_ADVENTURE:
+        {
+            TriggerDialog(&exitPrompt);
+            GlobalState_QueueStatePop();
+            break;
+        }
+        case STATE_DIALOG:
+        {
+            if(Dialog_AllowCancel())
+            {
+                GlobalState_ClearQueue();
+                PopGlobalState();
+            }
+            else
+            {
+                PopGlobalState();
+            }
+            break;
+        }
 		default:
 		{
 			PopGlobalState();
