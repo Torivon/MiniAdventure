@@ -233,7 +233,7 @@ void LaunchDungeonCrawl(void)
 	dungeonCrawlStory.numberOfMonsters = sizeof(monsters)/sizeof(MonsterDef);
 	RegisterStory(&dungeonCrawlStory, &dungeonCrawlStoryState);
 	DEBUG_LOG("Initialized locationList size = %d", sizeof(locationList));
-	TriggerAdventureScreen();
+	QueueAdventureScreen();
 }
 
 #endif

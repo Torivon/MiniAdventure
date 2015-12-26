@@ -5,3 +5,4 @@ void RemoveLargeImageLayer(void);
 void CleanupLargeImageLayer(void);
 void InitializeLargeImageLayer(Window *window);
 void TriggerLargeImage(int resourceId, bool forceBacklight);
+void QueueLargeImage(int resourceId, bool forceBacklight);

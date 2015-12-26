@@ -69,7 +69,7 @@ void focus_handler(bool in_focus) {
 void handle_init() {
 	
 	INFO_LOG("Starting MiniAdventure");
-	
+    GlobalState_Initialize();
 #if ALLOW_WORKER_APP
 	if(WorkerIsRunning())
 	{
@@ -115,6 +115,7 @@ void handle_deinit()
 #endif
 	if(baseWindow)
 		window_destroy(baseWindow);
+    GlobalState_Free();
 }
 
 // The main event/run loop for our app

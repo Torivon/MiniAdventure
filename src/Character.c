@@ -45,7 +45,7 @@ void Character_UpdateSkillList(void)
     if(character.skillList.count < classSkillList->count)
     {
         int index = character.skillList.count;
-        while(classSkillList->entries[index].level <= character.level && character.skillList.count <= classSkillList->count)
+        while(character.skillList.count < classSkillList->count && classSkillList->entries[index].level <= character.level)
         {
             character.skillList.entries[index] = classSkillList->entries[index];
             character.skillList.count++;

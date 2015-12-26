@@ -9,3 +9,4 @@ void ShowDialogLayer(void);
 void HideDialogLayer(void);
 
 void TriggerDialog(const char *text);
+void QueueDialog(const char *text);

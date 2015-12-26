@@ -187,3 +187,8 @@ void TriggerOptionScreen(void)
 {
 	PushGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
 }
+
+void QueueOptionsScreen(void)
+{
+    QueueGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+}

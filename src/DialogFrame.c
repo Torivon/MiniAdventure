@@ -84,6 +84,7 @@ void HideDialogLayer(void)
 
 void DialogAppear(void *data)
 {
+    SetDialog((const char*)data);
 	ShowDialogLayer();
 }
 
@@ -94,6 +95,10 @@ void DialogDisappear(void *data)
 
 void TriggerDialog(const char *text)
 {
-	SetDialog(text);
-	PushGlobalState(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, NULL);
+	PushGlobalState(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, (char *)text);
+}
+
+void QueueDialog(const char *text)
+{
+    QueueGlobalState(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, (char *)text);
 }
