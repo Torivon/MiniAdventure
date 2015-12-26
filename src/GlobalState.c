@@ -74,6 +74,26 @@ static void PushGlobalState_internal(GlobalState state,
 		instance->appearCallback(instance->data);
 }
 
+void GlobalState_ClearQueue(void)
+{
+    while(!Queue_IsEmpty(globalQueue))
+    {
+        GlobalStateInstance *instance = Queue_Pop(globalQueue);
+        free(instance);
+    }
+}
+
+static void PopAppear(void *data)
+{
+    PopGlobalState();
+    PopGlobalState();
+}
+
+void GlobalState_QueueStatePop(void)
+{
+    QueueGlobalState(STATE_STATE_POP, 0, NULL, PopAppear, NULL, NULL, NULL, NULL);
+}
+
 void PushGlobalState(GlobalState state,
                                      TimeUnits triggerUnits,
                                      GlobalStateChangeCallback updateCallback,
@@ -89,11 +109,7 @@ void PushGlobalState(GlobalState state,
     
     // Pushing a new instance clears the queue
     
-    while(!Queue_IsEmpty(globalQueue))
-    {
-        GlobalStateInstance *instance = Queue_Pop(globalQueue);
-        free(instance);
-    }
+    GlobalState_ClearQueue();
     
     if(globalStateInstanceCount > 0)
     {

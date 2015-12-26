@@ -73,8 +73,6 @@ enum
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0
 
-#define USE_MENULAYER_PROTOTYPE 1
-
 #define COMPILE_OLD_UILAYERS 0
 
 typedef struct Window Window;

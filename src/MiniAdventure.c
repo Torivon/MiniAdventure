@@ -88,14 +88,10 @@ void handle_init() {
 	
 	// Just here so that the health and level fields are always filled in.
 	InitializeCharacter();
-#if USE_MENULAYER_PROTOTYPE	
 	baseWindow = InitializeNewBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	RegisterTitleScreen();
-#else
-	ShowTitleMenu();
-#endif
 	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 	app_focus_service_subscribe(focus_handler);
 	battery_state_service_subscribe(battery_state_handler);

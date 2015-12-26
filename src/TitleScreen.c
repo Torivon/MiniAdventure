@@ -43,13 +43,28 @@ void ChooseOptions(void)
     QueueOptionsScreen();
 }
 
+static DialogData credits[] =
+{
+    {
+        .text = "Programming and art by Jonathan Panttaja",
+        .allowCancel = false
+    },
+    {
+        .text = "Additional Contributors: Belphemur and BlackLamb",
+        .allowCancel = false
+    },
+    {
+        .text = "Code located at https://Github.com/Torivon/MiniAdventure",
+        .allowCancel = false
+    },
+};
+
 void ChooseCredits(void)
 {
-    QueueDialog("Programming and art by Jonathan Panttaja");
-    QueueDialog("Assistance with new SDK versions provided by Belphemur and BlackLamb");
-    QueueDialog("Code located at https://Github.com/Torivon/MiniAdventure");
-    QueueDialog("Page 4");
-    QueueDialog("Page 5");
+    
+    QueueDialog(&credits[0]);
+    QueueDialog(&credits[1]);
+    QueueDialog(&credits[2]);
 }
 
 void ChooseRepo(void)
@@ -90,8 +105,32 @@ static void TitleScreenPop(void *data)
 	SetDescription("");
 }
 
+DialogData introText[] =
+{
+    {
+        .text = "MiniAdventure:\n Welcome to MiniAdventure. Press select to continue.",
+        .allowCancel = true
+    },
+    {
+        .text = "Use the select button to open the main menu.",
+        .allowCancel = true
+    },
+    {
+        .text = "Use the up and down buttons to make your selections inside menus.",
+        .allowCancel = true
+    },
+    {
+        .text = "The back button will exit games in progress.",
+        .allowCancel = true
+    },
+};
+
 void RegisterTitleScreen(void)
 {
 	INFO_LOG("RegisterTitleScreen");
-	PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    TriggerDialog(&introText[0]);
+    QueueDialog(&introText[1]);
+    QueueDialog(&introText[2]);
+    QueueDialog(&introText[3]);
 }

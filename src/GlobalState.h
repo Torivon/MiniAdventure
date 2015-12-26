@@ -14,9 +14,12 @@ typedef enum
 	STATE_MENU,
 	STATE_OPTIONS,
 	STATE_LARGE_IMAGE,
+    STATE_STATE_POP,
 } GlobalState;
 
 typedef void(*GlobalStateQueueFunction)(void);
+
+void GlobalState_QueueStatePop(void);
 
 // Pushes a new state immediately. Should be used when opening a menu or
 // Switching game modes
@@ -40,7 +43,7 @@ void QueueGlobalState(GlobalState state,
                       GlobalStateChangeCallback popCallback,
                       void *data);
 
-void ClearGlobalStateQueue(void);
+void GlobalState_ClearQueue(void);
 
 void UpdateGlobalState(TimeUnits units_changed);
 void PopGlobalState(void);
