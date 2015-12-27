@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                  "file": "text/Credits.dat",
+                  "name": "CREDITS_DATA",
+                  "type": "raw"
+            },
+            {
                 "file": "images/RepositoryCode.png",
                 "name": "IMAGE_REPOSITORY_CODE",
                 "targetPlatforms": null,

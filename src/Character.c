@@ -3,6 +3,7 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "CharacterClass.h"
+#include "CombatantClass.h"
 #include "Logging.h"
 #include "Utils.h"
 
@@ -11,7 +12,6 @@ CharacterData characterData;
 typedef struct Character
 {
     CharacterClassType classType;
-    CharacterClass *class;
     SkillList skillList;
     int level;
     int currentHealth;
@@ -147,8 +147,10 @@ void InitializeCharacter(void)
     characterData.statPointsToSpend = 0;
     characterData.speed = 10;
     
-    character.class = CharacterClass_GetClassByType(CLASS_PALADIN);
+    character.classType = CLASS_PALADIN;
     character.level = 2;
+    Character_UpdateSkillList();
+    character.currentHealth = CombatantClass_GetHealth(GetCombatantClass(Character_GetClass()), character.level);
 }
 
 // Returns true on levelup
