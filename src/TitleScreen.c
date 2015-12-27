@@ -1,6 +1,7 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "Credits.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "GlobalState.h"
@@ -43,6 +44,23 @@ void ChooseOptions(void)
     QueueOptionsScreen();
 }
 
+static void LoadText(int resourceId, int index)
+{
+    ResHandle creditsData = resource_get_handle(RESOURCE_ID_CREDITS_DATA);
+    uint8_t buffer[256] = "";
+    uint8_t int_bytes[2] = {0};
+    resource_load_byte_range(creditsData, 0, int_bytes, 2);
+    int count = (int_bytes[1] << 8) + int_bytes[0];
+    int location_index = 2 + (index) * 4;
+    int location = 0;
+    resource_load_byte_range(creditsData, location_index, int_bytes, 2);
+    location = (int_bytes[1] << 8) + int_bytes[0];
+    resource_load_byte_range(creditsData, location_index + 2, int_bytes, 2);
+    int size = (int_bytes[1] << 8) + int_bytes[0];
+    resource_load_byte_range(creditsData, location, buffer, size);
+    DEBUG_LOG("Text: %s", (char*)buffer);
+}
+
 static DialogData credits[] =
 {
     {
@@ -61,7 +79,9 @@ static DialogData credits[] =
 
 void ChooseCredits(void)
 {
-    
+    LoadText(RESOURCE_ID_CREDITS_DATA, CREDITS_PAGE_1);
+    LoadText(RESOURCE_ID_CREDITS_DATA, CREDITS_PAGE_2);
+    LoadText(RESOURCE_ID_CREDITS_DATA, CREDITS_PAGE_3);
     QueueDialog(&credits[0]);
     QueueDialog(&credits[1]);
     QueueDialog(&credits[2]);
