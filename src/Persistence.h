@@ -1,6 +1,6 @@
 #pragma once
 
-#define CURRENT_DATA_VERSION 8
+#define CURRENT_DATA_VERSION 9
 
 #define NUMBER_OF_PERSISTED_GAMES 2
 
