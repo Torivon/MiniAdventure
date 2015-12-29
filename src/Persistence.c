@@ -39,7 +39,6 @@ void ClearPersistedGameData(int gameNumber)
 	
 bool SavePersistedData(void)
 {
-	CharacterData *characterData;
 	StoryState *currentStoryState;
 	const Story *currentStory;
 	
@@ -49,9 +48,11 @@ bool SavePersistedData(void)
 		ClearPersistedData();
 	}
 	
-	if(sizeof(CharacterData) > PERSIST_DATA_MAX_LENGTH )
+	int characterSize = Character_GetDataSize();
+	
+	if(characterSize > PERSIST_DATA_MAX_LENGTH )
 	{
-		ERROR_LOG("CharacterData is too big to save (%d).", sizeof(CharacterData));
+		ERROR_LOG("CharacterData is too big to save (%d).", characterSize);
 		return false;
 	}
 
@@ -90,8 +91,7 @@ bool SavePersistedData(void)
 		persist_write_bool(PERSISTED_GAME_IS_DATA_SAVED + offset, true);
 		persist_write_int(PERSISTED_GAME_CURRENT_DATA_VERSION + offset, currentStory->gameDataVersion);
 
-		characterData = GetCharacter();
-		persist_write_data(PERSISTED_GAME_CHARACTER_DATA + offset, characterData, sizeof(CharacterData));
+		Character_WritePersistedData(PERSISTED_GAME_CHARACTER_DATA + offset);
 		persist_write_data(PERSISTED_GAME_STORY_DATA + offset, &currentStoryState->persistedStoryState, sizeof(PersistedStoryState));
 
 		persist_write_bool(PERSISTED_GAME_IN_COMBAT + offset, ClosingWhileInBattle());
@@ -108,7 +108,6 @@ bool SavePersistedData(void)
 
 bool LoadPersistedData(void)
 {
-	CharacterData *characterData;
 	StoryState *currentStoryState;
 	const Story *currentStory;
 	bool useWorkerApp = false;
@@ -157,8 +156,7 @@ bool LoadPersistedData(void)
 		}
 		
 		INFO_LOG("Loading persisted data.");
-		characterData = GetCharacter();
-		persist_read_data(PERSISTED_GAME_CHARACTER_DATA + offset, characterData, sizeof(CharacterData));
+		Character_ReadPersistedData(PERSISTED_GAME_CHARACTER_DATA + offset);
 		persist_read_data(PERSISTED_GAME_STORY_DATA + offset, &currentStoryState->persistedStoryState, sizeof(PersistedStoryState));
 		
 		if(persist_read_bool(PERSISTED_GAME_IN_COMBAT + offset))
@@ -168,7 +166,7 @@ bool LoadPersistedData(void)
 			INFO_LOG("Resuming battle in progress.");
 			ResumeBattle(currentMonster, currentMonsterHealth);
 		}
-		if(characterData->level == 0)
+		if(Character_GetLevel() == 0)
 		{
 			// Something bad happened to the data, possible due to a watch crash
 			ERROR_LOG("Persisted data was broken somehow, clearing");

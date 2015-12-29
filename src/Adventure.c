@@ -54,7 +54,7 @@ void ResetGame(void)
 #if ENABLE_SHOPS
     ResetStatPointsPurchased();
 #endif
-    InitializeCharacter();
+    Character_Initialize();
 #if ENABLE_ITEMS
     ClearInventory();
 #endif

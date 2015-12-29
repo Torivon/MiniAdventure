@@ -9,15 +9,9 @@
     "resources": {
         "media": [
             {
-                  "file": "text/Credits.dat",
-                  "name": "CREDITS_DATA",
-                  "type": "raw"
-            },
-            {
-                "file": "images/RepositoryCode.png",
-                "name": "IMAGE_REPOSITORY_CODE",
-                "targetPlatforms": null,
-                "type": "bitmap"
+                "file": "data/Credits.dat",
+                "name": "CREDITS_DATA",
+                "type": "raw"
             },
             {
                 "file": "images/zombie.png",
@@ -168,6 +162,12 @@
             {
                 "file": "images/Road1.png",
                 "name": "IMAGE_ROAD1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/RepositoryCode.png",
+                "name": "IMAGE_REPOSITORY_CODE",
+                "targetPlatforms": null,
                 "type": "bitmap"
             },
             {

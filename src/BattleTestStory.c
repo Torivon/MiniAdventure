@@ -181,7 +181,7 @@ void InitializeBattleTest(void)
     battleTestStoryState.persistedStoryState.currentLocationDuration = 0;
     battleTestStoryState.persistedStoryState.currentPathDestination = 0;
     battleTestStoryState.persistedStoryState.mostRecentMonster = 0;
-    InitializeCharacter();
+    Character_Initialize();
 }
 
 Story battleTestStory = 
