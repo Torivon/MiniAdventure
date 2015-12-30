@@ -87,7 +87,7 @@ void handle_init() {
 	DEBUG_LOG("First handle second");
 	
 	// Just here so that the health and level fields are always filled in.
-	InitializeCharacter();
+	Character_Initialize();
 	baseWindow = InitializeNewBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);

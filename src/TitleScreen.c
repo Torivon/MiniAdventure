@@ -50,7 +50,7 @@ static void LoadText(int resourceId, int index)
     uint8_t buffer[256] = "";
     uint8_t int_bytes[2] = {0};
     resource_load_byte_range(creditsData, 0, int_bytes, 2);
-    int count = (int_bytes[1] << 8) + int_bytes[0];
+//    int count = (int_bytes[1] << 8) + int_bytes[0];
     int location_index = 2 + (index) * 4;
     int location = 0;
     resource_load_byte_range(creditsData, location_index, int_bytes, 2);
