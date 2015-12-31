@@ -42,11 +42,17 @@ int ResourceStory_GetCurrentLocationBackgroundImageId(void);
 const char *ResourceStory_GetCurrentLocationName(void);
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void);
 void ResourceStory_MoveToLocation(uint16_t index);
+const char *ResourceStory_GetAdjacentLocationName(uint16_t index);
 
-void ResourceStory_Load(int resourceId);
+void ResourceStory_LoadAll(void);
 void ResourceStory_LogCurrent(void);
-void ResourceStory_FreeCurrent(void);
+void ResourceStory_FreeAll(void);
+void ResourceStory_SetCurrentStory(uint16_t index);
+void ResourceStory_ClearCurrentStory(void);
 
 ResourceLocation *ResourceLocation_Load(uint16_t index);
 void ResourceLocation_Log(ResourceLocation *location);
 void ResourceLocation_Free(ResourceLocation *location);
+
+const char *ResourceStory_GetNameByIndex(uint16_t index);
+const char *ResourceStory_GetDescriptionByIndex(uint16_t index);

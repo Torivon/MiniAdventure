@@ -68,13 +68,12 @@ static uint16_t AdventureMenuCount(void)
 
 static const char *AdventureMenuNameCallback(int row)
 {
-    return "Location";
+    return ResourceStory_GetAdjacentLocationName(row);
 }
 
 static void AdventureMenuSelectCallback(int row)
 {
-    ResourceStory_MoveToLocation(row);
-    LoadLocationImage();
+    newLocation = row;
 }
 
 void UpdateLocationProgress(void)
@@ -211,7 +210,8 @@ void AdventureScreenAppear(void *data)
     RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
     if(newLocation > -1)
     {
-        TravelToAdjacentLocationByIndex(newLocation);
+        ResourceStory_MoveToLocation(newLocation);
+        LoadLocationImage();
     }
     newLocation = -1;
     RefreshAdventure();
@@ -226,7 +226,7 @@ void AdventureScreenPop(void *data)
 {
     SavePersistedData();
     ClearCurrentStory();
-    ResourceStory_FreeCurrent();
+    ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
 }

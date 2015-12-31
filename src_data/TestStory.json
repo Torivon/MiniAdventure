@@ -9,7 +9,7 @@
             "id": "arena",
             "name": "Arena",
             "adjacent_locations": ["rat_room"],
-            "background_images": ["images/dungeondeadend.png"]
+            "background_images": ["images/dungeonstraight.png"]
         },
         {
             "id": "rat_room",
