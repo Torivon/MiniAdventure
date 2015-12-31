@@ -36,6 +36,10 @@ def pack_location(location):
     binarydata += pack_integer(len(location["background_images_index"]))
     for image in location["background_images_index"]:
         binarydata += pack_integer(image)
+    if location.has_key("length"):
+        binarydata += pack_integer(int(location["length"]))
+    else:
+        binarydata += pack_integer(0)
 
     return binarydata
 

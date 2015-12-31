@@ -14,7 +14,6 @@
 #include "ProgressBar.h"
 #include "OptionsMenu.h"
 #include "ResourceStory.h"
-#include "Story.h"
 #include "Utils.h"
 #include "WorkerControl.h"
 
@@ -58,11 +57,14 @@ void ResetGame(void)
     Character_Initialize();
     ResourceStory_InitializeCurrent();
     
-    SavePersistedData();
+//    SavePersistedData();
 }
 
 static uint16_t AdventureMenuCount(void)
 {
+    if(ResourceStory_CurrentLocationIsPath())
+        return 0;
+    
     return ResourceStory_GetCurrentAdjacentLocations();
 }
 
@@ -78,16 +80,16 @@ static void AdventureMenuSelectCallback(int row)
 
 void UpdateLocationProgress(void)
 {
-    if(IsCurrentLocationFixed())
+    if(ResourceStory_CurrentLocationIsPath())
     {
-        HideProgressBar(locationProgress);
+        ShowProgressBar(locationProgress);
+        currentProgress = ResourceStory_GetTimeOnPath();
+        maxProgress = ResourceStory_GetCurrentLocationLength();
+        MarkProgressBarDirty(locationProgress);
     }
     else
     {
-        ShowProgressBar(locationProgress);
-        currentProgress = GetCurrentDuration();
-        maxProgress = GetCurrentLocationLength();
-        MarkProgressBarDirty(locationProgress);
+        HideProgressBar(locationProgress);
     }
 }
 
@@ -96,7 +98,6 @@ void RefreshAdventure(void)
     if(!gUpdateAdventure)
         return;
     
-    DEBUG_VERBOSE_LOG("Refreshing adventure window. %s", GetCurrentLocationName());
     updateDelay = 1;
     LoadLocationImage();
     ReloadMenu(GetMainMenu());
@@ -131,7 +132,7 @@ bool ComputeRandomEvent(void)
     int result = Random(100) + 1;
     int i = 0;
     int acc = 0;
-    int chanceOfEvent = GetCurrentLocationEncounterChance();
+    int chanceOfEvent = 0; //GetCurrentLocationEncounterChance();
     
     if(result > chanceOfEvent)
         return false;
@@ -156,7 +157,7 @@ bool ComputeRandomEvent(void)
 
 void UpdateAdventure(void *data)
 {
-    LocationUpdateReturnType returnVal;
+    ResourceStoryUpdateReturnType returnVal;
     
     if(IsBattleForced())
     {
@@ -170,19 +171,19 @@ void UpdateAdventure(void *data)
         --updateDelay;
         return;
     }
-    
-    returnVal = UpdateCurrentLocation();
+
+    returnVal = ResourceStory_UpdateCurrentLocation();
     
     switch(returnVal)
     {
-        case LOCATIONUPDATE_COMPUTERANDOM:
-            ComputeRandomEvent();
+        case STORYUPDATE_COMPUTERANDOM:
+            //ComputeRandomEvent();
             LoadLocationImage();
             UpdateLocationProgress();
             break;
-        case LOCATIONUPDATE_DONOTHING:
+        case STORYUPDATE_DONOTHING:
             break;
-        case LOCATIONUPDATE_FULLREFRESH:
+        case STORYUPDATE_FULLREFRESH:
             if(GetVibration())
                 vibes_short_pulse();
             
@@ -193,7 +194,7 @@ void UpdateAdventure(void *data)
 
 void AdventureScreenPush(void *data)
 {
-    CurrentStoryStateNeedsSaving();
+//    CurrentStoryStateNeedsSaving();
     InitializeGameData();
     locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, locationProgressFrame, GColorYellow, -1);
     InitializeProgressBar(locationProgress, GetBaseWindow());
@@ -224,8 +225,7 @@ void AdventureScreenDisappear(void *data)
 
 void AdventureScreenPop(void *data)
 {
-    SavePersistedData();
-    ClearCurrentStory();
+//    SavePersistedData();
     ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);

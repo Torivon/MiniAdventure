@@ -1,0 +1,46 @@
+{
+    "id": "56",
+    "version": "1",
+    "name": "Wander Test",
+    "description": "A test of path traveling",
+    "start_location": "village1",
+    "locations": [
+        {
+            "id": "village2",
+            "name": "Haven",
+            "adjacent_locations": ["road1", "house2"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "village1",
+            "name": "Midgar",
+            "adjacent_locations": ["road1", "house1", "house3"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "house1",
+            "name": "Bob's House",
+            "adjacent_locations": ["village1"],
+            "background_images": ["images/VillageInterior.png"]
+        },
+        {
+            "id": "house2",
+            "name": "Fred's House",
+            "adjacent_locations": ["village2"],
+            "background_images": ["images/VillageInterior.png"]
+        },
+        {
+            "id": "house3",
+            "name": "Jon's House",
+            "adjacent_locations": ["village1"],
+            "background_images": ["images/VillageInterior.png"]
+        },
+        {
+            "id": "road1",
+            "name": "Poplar Avenue",
+            "adjacent_locations": ["village1", "village2"],
+            "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
+            "length": 1
+        }
+    ]
+}

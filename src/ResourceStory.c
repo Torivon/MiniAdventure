@@ -10,6 +10,38 @@
 #include "ResourceStory.h"
 #include "StoryList.h"
 
+typedef struct ResourceLocation
+{
+    char name[MAX_STORY_NAME_LENGTH];
+    uint16_t adjacentLocationCount;
+    uint16_t adjacentLocations[MAX_ADJACENT_LOCATIONS];
+    uint16_t backgroundImageCount;
+    uint16_t backgroundImages[MAX_BACKGROUND_IMAGES];
+    uint16_t length;
+} ResourceLocation;
+
+typedef struct ResourceStory
+{
+    uint16_t id;
+    uint16_t version;
+    char name[MAX_STORY_NAME_LENGTH];
+    char description[MAX_STORY_DESC_LENGTH];
+    uint16_t start_location;
+} ResourceStory;
+
+typedef struct PersistedResourceStoryState
+{
+    uint16_t currentLocationIndex;
+    uint16_t timeOnPath;
+    uint16_t destinationIndex;
+} PersistedResourceStoryState;
+
+typedef struct ResourceStoryState
+{
+    bool needsSaving;
+    PersistedResourceStoryState persistedResourceStoryState;
+} ResourceStoryState;
+
 static int16_t currentResourceStoryIndex = -1;
 static ResourceStoryState currentResourceStoryState = {0};
 static ResourceLocation *currentLocation = NULL;
@@ -33,6 +65,54 @@ static ResHandle ResourceStory_GetCurrentResHandle(void)
     return resource_get_handle(GetStoryResourceIdByIndex(currentResourceStoryIndex));
 }
 
+static ResourceLocation *ResourceLocation_Load(uint16_t index)
+{
+    ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
+    ResourceLocation *newLocation = calloc(sizeof(ResourceLocation), 1);
+    DEBUG_VERBOSE_LOG("Logical index: %d", index);
+    
+    int start_index = ResourceLoad_GetByteIndexFromLogicalIndex(index);
+    int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
+    DEBUG_VERBOSE_LOG("Location start index: %d", read_index);
+    int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
+    ResourceLoadString(currentStoryData, &read_index, newLocation->name, string_length);
+    newLocation->adjacentLocationCount = ResourceLoad16BitInt(currentStoryData, &read_index);
+    for(int i = 0; i < newLocation->adjacentLocationCount; ++i)
+    {
+        newLocation->adjacentLocations[i] = ResourceLoad16BitInt(currentStoryData, &read_index);
+    }
+    newLocation->backgroundImageCount = ResourceLoad16BitInt(currentStoryData, &read_index);
+    for(int i = 0; i < newLocation->backgroundImageCount; ++i)
+    {
+        newLocation->backgroundImages[i] = autoImageMap[ResourceLoad16BitInt(currentStoryData, &read_index)];
+    }
+    
+    newLocation->length = ResourceLoad16BitInt(currentStoryData, &read_index);
+    
+    return newLocation;
+}
+
+static void ResourceLocation_Free(ResourceLocation *location)
+{
+    if(location)
+    {
+        free(location);
+    }
+}
+
+static void ResourceLocation_Log(ResourceLocation *location)
+{
+    DEBUG_LOG("ResourceLocation: %s", location->name);
+    for(int i = 0; i < location->adjacentLocationCount; ++i)
+    {
+        DEBUG_LOG("Adjacent Location: %d", location->adjacentLocations[i]);
+    }
+    for(int i = 0; i < location->backgroundImageCount; ++i)
+    {
+        DEBUG_LOG("Background: %d", location->backgroundImages[i]);
+    }
+}
+
 static void ResourceLocation_LoadAdjacentLocations(void)
 {
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
@@ -44,6 +124,7 @@ static void ResourceLocation_LoadAdjacentLocations(void)
 void ResourceStory_InitializeCurrent(void)
 {
     currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = ResourceStory_GetCurrentStory()->start_location;
+    currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
     
     if(currentLocation)
         ResourceLocation_Free(currentLocation);
@@ -59,6 +140,37 @@ uint16_t ResourceStory_GetCurrentLocationIndex(void)
     return currentResourceStoryState.persistedResourceStoryState.currentLocationIndex;
 }
 
+bool ResourceStory_IncrementTimeOnPath(void)
+{
+    currentResourceStoryState.persistedResourceStoryState.timeOnPath++;
+    return currentResourceStoryState.persistedResourceStoryState.timeOnPath >= currentLocation->length;
+}
+
+uint16_t ResourceStory_GetTimeOnPath(void)
+{
+    return currentResourceStoryState.persistedResourceStoryState.timeOnPath;
+}
+
+uint16_t ResourceStory_GetCurrentLocationLength(void)
+{
+    if(currentLocation)
+    {
+        return currentLocation->length;
+    }
+    
+    return 0;
+}
+
+bool ResourceStory_CurrentLocationIsPath(void)
+{
+    if(currentLocation)
+    {
+        return currentLocation->length > 0;
+    }
+    
+    return false;
+}
+
 const char *ResourceStory_GetCurrentLocationName(void)
 {
     if(currentLocation)
@@ -69,6 +181,25 @@ const char *ResourceStory_GetCurrentLocationName(void)
     {
         return "None";
     }
+}
+
+ResourceStoryUpdateReturnType ResourceStory_UpdateCurrentLocation(void)
+{
+    if(ResourceStory_CurrentLocationIsPath())
+    {
+        bool pathEnded = ResourceStory_IncrementTimeOnPath();
+        if(pathEnded)
+        {
+            ResourceStory_MoveToLocation(currentResourceStoryState.persistedResourceStoryState.destinationIndex);
+            return STORYUPDATE_FULLREFRESH;
+        }
+        else
+        {
+            return STORYUPDATE_COMPUTERANDOM;
+        }
+    }
+
+    return STORYUPDATE_DONOTHING;
 }
 
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void)
@@ -107,11 +238,26 @@ void ResourceStory_MoveToLocation(uint16_t index)
     {
         ResourceLocation *newLocation = adjacentLocations[index];
         adjacentLocations[index] = NULL;
+
+        uint16_t globalIndex = currentLocation->adjacentLocations[index];
+        uint16_t oldIndex = currentResourceStoryState.persistedResourceStoryState.currentLocationIndex;
+        
         ResourceLocation_FreeAdjacentLocations();
         ResourceLocation_Free(currentLocation);
+
         currentLocation = newLocation;
         ResourceLocation_LoadAdjacentLocations();
-        currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = currentLocation->adjacentLocations[index];
+        currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = globalIndex;
+        currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
+
+        if(ResourceStory_CurrentLocationIsPath())
+        {
+            DEBUG_VERBOSE_LOG("current: %d, adjacent[0]: %d, adjacent[1]: %d", oldIndex, currentLocation->adjacentLocations[0], currentLocation->adjacentLocations[1]);
+            if(currentLocation->adjacentLocations[0] == oldIndex)
+                currentResourceStoryState.persistedResourceStoryState.destinationIndex = 1;
+            else
+                currentResourceStoryState.persistedResourceStoryState.destinationIndex = 0;
+        }
     }
 }
 
@@ -182,57 +328,12 @@ void ResourceStory_LogCurrent(void)
     DEBUG_LOG("ResourceStory: %s, %s, %d, %d, %d", currentResourceStory->name, currentResourceStory->description, currentResourceStory->id, currentResourceStory->version, currentResourceStory->start_location);
 }
 
-void ResourceLocation_Free(ResourceLocation *location)
-{
-    if(location)
-    {
-        free(location);
-    }
-}
-
-ResourceLocation *ResourceLocation_Load(uint16_t index)
-{
-    ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
-    ResourceLocation *newLocation = calloc(sizeof(ResourceLocation), 1);
-    DEBUG_VERBOSE_LOG("Logical index: %d", index);
-    
-    int start_index = ResourceLoad_GetByteIndexFromLogicalIndex(index);
-    int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
-    DEBUG_VERBOSE_LOG("Location start index: %d", read_index);
-    int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, newLocation->name, string_length);
-    newLocation->adjacentLocationCount = ResourceLoad16BitInt(currentStoryData, &read_index);
-    for(int i = 0; i < newLocation->adjacentLocationCount; ++i)
-    {
-        newLocation->adjacentLocations[i] = ResourceLoad16BitInt(currentStoryData, &read_index);
-    }
-    newLocation->backgroundImageCount = ResourceLoad16BitInt(currentStoryData, &read_index);
-    for(int i = 0; i < newLocation->backgroundImageCount; ++i)
-    {
-        newLocation->backgroundImages[i] = autoImageMap[ResourceLoad16BitInt(currentStoryData, &read_index)];
-    }
-    return newLocation;
-}
-
-void ResourceLocation_Log(ResourceLocation *location)
-{
-    DEBUG_LOG("ResourceLocation: %s", location->name);
-    for(int i = 0; i < location->adjacentLocationCount; ++i)
-    {
-        DEBUG_LOG("Adjacent Location: %d", location->adjacentLocations[i]);
-    }
-    for(int i = 0; i < location->backgroundImageCount; ++i)
-    {
-        DEBUG_LOG("Background: %d", location->backgroundImages[i]);
-    }
-}
-
 int ResourceStory_GetCurrentLocationBackgroundImageId(void)
 {
-    //TODO: Add randomness
     if(currentLocation && currentLocation->backgroundImageCount)
     {
-        return currentLocation->backgroundImages[0];
+        uint16_t index = Random(currentLocation->backgroundImageCount);
+        return currentLocation->backgroundImages[index];
     }
     else
     {

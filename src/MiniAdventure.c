@@ -71,16 +71,6 @@ void focus_handler(bool in_focus) {
 void handle_init() {
 	
     ResourceStory_LoadAll();
-    for(int i = 0; i < GetStoryCount(); ++i)
-    {
-        ResourceStory_SetCurrentStory(i);
-        ResourceStory_LogCurrent();
-        ResourceStory_InitializeCurrent();
-        ResourceLocation *location = ResourceLocation_Load(ResourceStory_GetCurrentLocationIndex());
-        ResourceLocation_Log(location);
-        ResourceLocation_Free(location);
-        ResourceStory_ClearCurrentStory();
-    }
 
     INFO_LOG("Starting MiniAdventure");
     GlobalState_Initialize();
