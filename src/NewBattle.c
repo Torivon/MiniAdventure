@@ -164,12 +164,6 @@ void BattleScreenAppear(void *data)
     ReloadMenu(GetMainMenu());
 }
 
-int NewComputeMonsterHealth(int level)
-{
-    int baseHealth = 20 + ((level-1)*(level)/2) + ((level-1)*(level)*(level+1)/(6*2));
-    return ScaleMonsterHealth(currentMonster, baseHealth);
-}
-
 static bool forcedBattle = false;
 static int forcedBattleMonsterType = -1;
 static int forcedBattleMonsterHealth = 0;
@@ -203,7 +197,6 @@ void NewBattleInit(void)
     if(!currentMonster)
     {
         currentMonster = GetRandomMonster();
-        gBattleState.currentMonsterHealth = NewComputeMonsterHealth(GetCurrentBaseLevel());
     }
     gBattleState.player = BattleActor_Init(true, Character_GetCombatantClass(), Character_GetSkillList(), Character_GetLevel(), Character_GetHealth());
     gBattleState.monster = BattleActor_Init(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel(), 0);

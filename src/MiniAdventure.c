@@ -8,8 +8,10 @@
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
+#include "ResourceStory.h"
 #include "Slideshow.h"
 #include "Story.h"
+#include "StoryList.h"
 #include "TitleScreen.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -68,7 +70,14 @@ void focus_handler(bool in_focus) {
 
 void handle_init() {
 	
-	INFO_LOG("Starting MiniAdventure");
+    for(int i = 0; i < GetStoryCount(); ++i)
+    {
+        ResourceStory_Load(GetStoryResourceIdByIndex(i));
+        ResourceStory_LogCurrent();
+        ResourceStory_FreeCurrent();
+    }
+
+    INFO_LOG("Starting MiniAdventure");
     GlobalState_Initialize();
 #if ALLOW_WORKER_APP
 	if(WorkerIsRunning())
@@ -97,7 +106,7 @@ void handle_init() {
 	battery_state_service_subscribe(battery_state_handler);
 }
 
-void handle_deinit() 
+void handle_deinit()
 {
 	INFO_LOG("Cleaning up on exit.");
 #if ALLOW_WORKER_APP		

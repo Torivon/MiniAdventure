@@ -215,13 +215,3 @@ uint8_t GetLocationNumberOfFloors(Location *location)
 	
 	return location->dungeonclass->numberOfFloors;
 }
-
-bool LocationAllowsShop(Location *location, bool dungeonFixed)
-{
-	FixedClass *fixedclass = GetLocationFixedClass(location, dungeonFixed);
-	
-	if(!fixedclass)
-		return false;
-	
-	return fixedclass->allowShop;
-}

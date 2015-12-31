@@ -404,6 +404,11 @@
                 "file": "images/Beach.png",
                 "name": "IMAGE_BEACH",
                 "type": "bitmap"
+            },
+            {
+                "file": "data/AutoTestStory.dat",
+                "name": "STORY_DATA_AUTOTESTSTORY",
+                "type": "raw"
             }
         ]
     },

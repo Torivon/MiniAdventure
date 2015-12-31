@@ -46,5 +46,3 @@ void RunArrivalFunction(Location *location);
 
 uint8_t GetLocationNumberOfFloors(Location *location);
 
-bool LocationAllowsShop(Location *location, bool dungeonFixed);
-

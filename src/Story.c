@@ -163,11 +163,6 @@ bool IsCurrentLocationFixed(void)
 	return GetLocationType(GetCurrentLocation()) == LOCATIONTYPE_FIXED;
 }
 
-bool CurrentLocationAllowsShop(void)
-{
-	return LocationAllowsShop(GetCurrentLocation(), currentStoryState->persistedStoryState.dungeonFixed);
-}
-
 bool CurrentLocationAllowsCombat(void)
 {
 	Location *location = GetCurrentLocation();
