@@ -74,6 +74,10 @@ void handle_init() {
     {
         ResourceStory_Load(GetStoryResourceIdByIndex(i));
         ResourceStory_LogCurrent();
+        ResourceStory_InitializeCurrent();
+        ResourceLocation *location = ResourceLocation_Load(ResourceStory_GetCurrentLocationIndex());
+        ResourceLocation_Log(location);
+        ResourceLocation_Free(location);
         ResourceStory_FreeCurrent();
     }
 

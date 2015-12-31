@@ -13,6 +13,7 @@
 #include "Persistence.h"
 #include "ProgressBar.h"
 #include "OptionsMenu.h"
+#include "ResourceStory.h"
 #include "Story.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -44,50 +45,36 @@ void LoadLocationImage(void);
 
 void InitializeGameData(void)
 {
-    if(!LoadPersistedData())
-        ResetGame();
+    // TODO:
+    ResetGame();
+    
+/*    if(!LoadPersistedData())
+        ResetGame();*/
 }
 
 void ResetGame(void)
 {
     INFO_LOG("Resetting game.");
-#if ENABLE_SHOPS
-    ResetStatPointsPurchased();
-#endif
     Character_Initialize();
-#if ENABLE_ITEMS
-    ClearInventory();
-#endif
-    InitializeCurrentStory();
+    ResourceStory_InitializeCurrent();
     
     SavePersistedData();
 }
 
 static uint16_t AdventureMenuCount(void)
 {
-    if(IsCurrentLocationPath())
-        return 0;
-    
-    DEBUG_LOG("AdjacentLocationCount %d", GetCurrentLocationAdjacentLocations());
-    return GetCurrentLocationAdjacentLocations();
+    return ResourceStory_GetCurrentAdjacentLocations();
 }
 
 static const char *AdventureMenuNameCallback(int row)
 {
-    if(IsCurrentLocationPath())
-        return NULL;
-    
-    DEBUG_LOG("AdjacentLocationName %s", GetAdjacentLocationName(row));
-    return GetAdjacentLocationName(row);
+    return "Location";
 }
 
 static void AdventureMenuSelectCallback(int row)
 {
-    DEBUG_LOG("Trying to follow path");
-    if(!IsCurrentLocationPath())
-    {
-        newLocation = row;
-    }
+    ResourceStory_MoveToLocation(row);
+    LoadLocationImage();
 }
 
 void UpdateLocationProgress(void)
@@ -114,13 +101,14 @@ void RefreshAdventure(void)
     updateDelay = 1;
     LoadLocationImage();
     ReloadMenu(GetMainMenu());
-    SetDescription(GetCurrentLocationName()); //Add floor back in somehow
+    SetDescription(ResourceStory_GetCurrentLocationName()); //Add floor back in somehow
     UpdateLocationProgress();
 }
 
 void LoadLocationImage(void)
 {
-    adventureImageId = GetCurrentBackgroundImage();
+    adventureImageId = ResourceStory_GetCurrentLocationBackgroundImageId();
+    DEBUG_VERBOSE_LOG("Loading image: %d", adventureImageId);
     SetBackgroundImage(adventureImageId);
     SetMainImageVisibility(true, false, true);
 }
@@ -238,6 +226,7 @@ void AdventureScreenPop(void *data)
 {
     SavePersistedData();
     ClearCurrentStory();
+    ResourceStory_FreeCurrent();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
 }

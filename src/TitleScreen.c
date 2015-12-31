@@ -2,6 +2,7 @@
 
 #include "Adventure.h"
 #include "Credits.h"
+#include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "GlobalState.h"
@@ -12,12 +13,20 @@
 #include "OptionsMenu.h"
 #include "NewBaseWindow.h"
 #include "Slideshow.h"
+#include "StoryList.h"
+#include "ResourceStory.h"
 
 #include "DungeonCrawl.h"
 #include "DragonQuest.h"
 #include "BattleTestStory.h"
 
 #include "NewMenu.h"
+
+void LaunchResourceStory(uint16_t index)
+{
+    ResourceStory_Load(GetStoryResourceIdByIndex(index));
+    QueueAdventureScreen();
+}
 
 void ChooseDungeonCrawl(void)
 {
@@ -42,6 +51,11 @@ void ChooseSlideshow(void)
 void ChooseOptions(void)
 {
     QueueOptionsScreen();
+}
+
+void ChooseRepo(void)
+{
+    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
 }
 
 static void LoadText(int resourceId, int index)
@@ -87,33 +101,65 @@ void ChooseCredits(void)
     QueueDialog(&credits[2]);
 }
 
-void ChooseRepo(void)
+static uint16_t TitleScreenCount(void)
 {
-    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
+    uint16_t storyCount = GetStoryCount();
+    return storyCount + 3;
 }
 
-MenuCellDescription titleScreenMenuList[] = 
+static const char *TitleScreenNameCallback(int row)
 {
-#if INCLUDE_DUNGEON_CRAWL
-	{.name = "Dungeon", .description = "Simple dungeon delve", .callback = ChooseDungeonCrawl},
-#endif
-#if INCLUDE_DRAGON_QUEST
-	{.name = "Dragon Quest", .description = "Extended adventure", .callback = ChooseDragonQuest},
-#endif
-#if INCLUDE_BATTLE_TEST_STORY
-	{.name = "Battle Test", .description = "Battle arena", .callback = ChooseBattleTest},
-#endif
-#if INCLUDE_SLIDESHOW
-	{.name = "Slideshow", .description = "Slideshow of all art", .callback = ChooseSlideshow},
-#endif
-	{.name = "Options", .description = "Options", .callback = ChooseOptions},
-	{.name = "Credits", .description = "Credits", .callback = ChooseCredits},
-	{.name = "Repository", .description = "QR code to Github", .callback = ChooseRepo}
-};
+    int storyCount = GetStoryCount();
+    if(row < storyCount)
+        return "Story";
+    else
+    {
+        if(row == storyCount)
+            return "Options";
+        else if(row == storyCount + 1)
+            return "Credits";
+        else if(row == storyCount + 2)
+            return "Repository";
+    }
+    return "None";
+}
+
+static const char *TitleScreenDescriptionCallback(int row)
+{
+    int storyCount = GetStoryCount();
+    if(row < storyCount)
+        return "Story";
+    else
+    {
+        if(row == storyCount)
+            return "Options";
+        else if(row == storyCount + 1)
+            return "Credits";
+        else if(row == storyCount + 2)
+            return "Repository";
+    }
+    return "None";
+}
+
+static void TitleScreenSelectCallback(int row)
+{
+    int storyCount = GetStoryCount();
+    if(row < storyCount)
+        LaunchResourceStory(row);
+    else
+    {
+        if(row == storyCount)
+            ChooseOptions();
+        else if(row == storyCount + 1)
+            ChooseCredits();
+        else if(row == storyCount + 2)
+            ChooseRepo();
+    }
+}
 
 static void TitleScreenAppear(void *data)
 {
-	RegisterMenuCellList(GetMainMenu(), titleScreenMenuList, sizeof(titleScreenMenuList)/sizeof(*titleScreenMenuList));
+    RegisterMenuCellCallbacks(GetMainMenu(), TitleScreenCount, TitleScreenNameCallback, TitleScreenDescriptionCallback, TitleScreenSelectCallback);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
