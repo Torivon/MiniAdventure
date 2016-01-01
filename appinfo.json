@@ -416,8 +416,8 @@
                 "type": "raw"
             },
             {
-                "file": "data/AutoTestStory.dat",
-                "name": "STORY_DATA_AUTOTESTSTORY",
+                "file": "data/AutoBattleArena.dat",
+                "name": "STORY_DATA_AUTOBATTLEARENA",
                 "type": "raw"
             }
         ]

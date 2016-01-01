@@ -1,0 +1,73 @@
+{
+    "id": 12,
+    "version": 2,
+    "name": "Battle Arena",
+    "description": "Train against monsters",
+    "start_location": "arena",
+    "locations": [
+        {
+            "id": "arena",
+            "name": "Arena",
+            "adjacent_locations": ["rat_room"],
+            "background_images": ["images/dungeonstraight.png"]
+        },
+        {
+            "id": "rat_room",
+            "name": "Rat Room",
+            "adjacent_locations": ["arena"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["rat"]
+        }
+    ],
+    "skills": [
+        {
+            "id": "fastattack",
+            "name": "Fast Attack",
+            "description": "Lightning quick strike",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 1
+        },
+        {
+            "id": "slowattack",
+            "name": "Slow Attack",
+            "description": "Heavy Slash",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["physical", "slashing"],
+            "potency": 5,
+            "cooldown": 4
+        },
+        {
+            "id": "shieldbash",
+            "name": "Shield Bash",
+            "description": "Counter with a shield",
+            "type": "counter",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10,
+            "cooldown": 2
+        }
+    ],
+    "monsters": [
+        {
+            "id": "rat",
+            "name": "Rat",
+            "combatantclass": {
+                "strength": "c",
+                "magic": "f",
+                "defense": "f",
+                "magic_defense": "f",
+                "speed": "s",
+                "health": "c"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        }
+    ]
+}

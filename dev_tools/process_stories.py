@@ -11,18 +11,35 @@ g_size_constants["MAX_STORY_DESC_LENGTH"] = 256
 g_size_constants["MAX_ADJACENT_LOCATIONS"] = 10
 g_size_constants["MAX_BACKGROUND_IMAGES"] = 10
 
+g_skill_types = {}
+g_skill_types["attack"] = 0
+g_skill_types["heal"] = 1
+g_skill_types["counter"] = 2
+g_skill_types["buff"] = 3
+g_skill_types["debuff"] = 4
+
+g_damage_types = {}
+g_damage_types["physical"] = 1 << 0
+g_damage_types["magic"] = 1 << 1
+g_damage_types["fire"] = 1 << 2
+g_damage_types["ice"] = 1 << 3
+g_damage_types["lightning"] = 1 << 4
+g_damage_types["slashing"] = 1 << 5
+g_damage_types["piercing"] = 1 << 6
+g_damage_types["bludgeoning"] = 1 << 7
+
 def pack_integer(i):
     '''
     Write out an integer into a packed binary file
     '''
-    return struct.pack('h', i)
+    return struct.pack('<h', i)
 
 def pack_string(s):
     '''
     Write out a string into a packed binary file
     '''
     binarydata = struct.pack('h', len(s))
-    binarydata += s
+    binarydata += str(s) #struct.pack('s', str(s))
     return binarydata
 
 def pack_location(location):
@@ -51,6 +68,18 @@ def pack_location(location):
 
     return binarydata
 
+def pack_skill(skill):
+    '''
+    Write out all information needed for a skill into a packed binary file
+    '''
+    binarydata = pack_string(skill["name"])
+    binarydata += pack_string(skill["description"])
+    binarydata += pack_integer(skill["type_value"])
+    binarydata += pack_integer(skill["speed"])
+    binarydata += pack_integer(skill["damage_type_value"])
+    binarydata += pack_integer(skill["potency"])
+    return binarydata
+
 def pack_story(story):
     '''
     Write out the main information for a story into a packed binary file
@@ -67,12 +96,19 @@ def get_total_objects(story):
     Given a story, how many distinct objects will it have?
     This includes locations, monsters, classes, skills, and possibly more
     '''
-    return 1 + len(story["locations"])
+    count = 1 #main object
+    count += len(story["locations"])
+    if story.has_key("skills"):
+        count += len(story["skills"])
+    return count
 
 def write_story(story, datafile):
     '''
     Take a story and write all of its parts into datafile
     '''
+    #processing data objects assigns them an index in the file. They must be
+    # written to the file in the same order they were processed.
+
     next_write_location = 0
 
     # we always write count first, though it is not clear it is necessary
@@ -88,6 +124,17 @@ def write_story(story, datafile):
     datafile.write(struct.pack('h', len(binarydata)))
     next_write_location += len(binarydata)
     
+    if story.has_key("skills"):
+        # This loop walks all skills. For each one, we add the packed data to binarydata
+        # and write out the skill and size directly to the file.
+        for index in range(len(story["skills"])):
+            skill = story["skills"][index]
+            skill_binary = pack_skill(skill)
+            datafile.write(struct.pack('h', next_write_location))
+            datafile.write(struct.pack('h', len(skill_binary)))
+            next_write_location += len(skill_binary)
+            binarydata += skill_binary
+
     # This loop walks all locations. For each one, we add the packed data to binarydata
     # and write out the location and size directly to the file.
     for index in range(len(story["locations"])):
@@ -100,6 +147,51 @@ def write_story(story, datafile):
     
     # Now that all the index and size data has been written, write out the accumulated data
     datafile.write(binarydata)
+
+def process_skills(story, skill_map, data_index):
+    if not story.has_key("skills"):
+        return data_index
+   
+    for index in range(len(story["skills"])):
+        skill = story["skills"][index]
+        skill_map[skill["id"]] = data_index
+        data_index += 1
+
+        skill["type_value"] = g_skill_types[skill["type"]]
+        skill["damage_type_value"] = 0
+        for damage_type in skill["damage_types"]:
+            skill["damage_type_value"] = skill["damage_type_value"] | g_damage_types[damage_type]
+
+    return data_index
+
+def process_monsters(story, monster_map, skill_map, imagelist, data_index):
+    return data_index
+
+def process_locations(story, monster_map, imagelist, data_index):
+    if not story.has_key("locations"):
+        return data_index
+
+    location_map = {}
+    for index in range(len(story["locations"])):
+        location = story["locations"][index]
+        location_map[location["id"]] = data_index
+        data_index += 1
+        location["background_images_index"] = []
+        for background_image in location["background_images"]:
+            if imagelist.count(background_image) == 0:
+                imagelist.append(background_image)
+            location["background_images_index"].append(imagelist.index(background_image))
+
+
+    story["start_location_index"] = location_map[story["start_location"]]
+    for index in range(len(story["locations"])):
+        location = story["locations"][index]
+        location["adjacent_locations_index"] = []
+        for adjacent in location["adjacent_locations"]:
+            location["adjacent_locations_index"].append(location_map[adjacent])
+
+    return data_index
+
 
 def process_dungeons(story):
     '''
@@ -160,28 +252,22 @@ def process_story(story, imagelist):
     index of that object. In addition, we generate a map for image resource references.
     '''
     
+    # This just unrolls the dungeon definitions into the appropriate
+    # number of locations. Actual writing to the file happens when
+    # we process the rest of the locations.
     process_dungeons(story)
-    
-    location_map = {}
+
+    #processing data objects assigns them an index in the file. They must be
+    # written to the file in the same order they were processed.
     data_index = 1 # 0 is reserved for the main story struct
-    for index in range(len(story["locations"])):
-        location = story["locations"][index]
-        location_map[location["id"]] = data_index
-        data_index += 1
-        location["background_images_index"] = []
-        for background_image in location["background_images"]:
-            if imagelist.count(background_image) == 0:
-                imagelist.append(background_image)
-            location["background_images_index"].append(imagelist.index(background_image))
 
-
-    story["start_location_index"] = location_map[story["start_location"]]
-    for index in range(len(story["locations"])):
-        location = story["locations"][index]
-        location["adjacent_locations_index"] = []
-        for adjacent in location["adjacent_locations"]:
-            location["adjacent_locations_index"].append(location_map[adjacent])
-
+    skill_map = {}
+    data_index = process_skills(story, skill_map, data_index)
+    
+    monster_map = {}
+    data_index = process_monsters(story, monster_map, skill_map, imagelist, data_index)
+    
+    data_index = process_locations(story, monster_map, imagelist, data_index)
 
 appinfo = {}
 data_objects = []
