@@ -406,11 +406,6 @@
                 "type": "bitmap"
             },
             {
-                "file": "data/AutoTestStory.dat",
-                "name": "STORY_DATA_AUTOTESTSTORY",
-                "type": "raw"
-            },
-            {
                 "file": "data/AutoWanderTest.dat",
                 "name": "STORY_DATA_AUTOWANDERTEST",
                 "type": "raw"
@@ -418,6 +413,11 @@
             {
                 "file": "data/AutoDungeonTest.dat",
                 "name": "STORY_DATA_AUTODUNGEONTEST",
+                "type": "raw"
+            },
+            {
+                "file": "data/AutoTestStory.dat",
+                "name": "STORY_DATA_AUTOTESTSTORY",
                 "type": "raw"
             }
         ]

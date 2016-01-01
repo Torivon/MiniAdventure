@@ -21,7 +21,7 @@ void ClearStoryPersistedData(uint16_t storyId)
         int i;
         for(i = offset; i < maxKey; ++i)
         {
-            persist_delete(i + offset);
+            persist_delete(i);
         }
     }
 }
@@ -111,7 +111,7 @@ bool LoadGlobalPersistedData(void)
         bool found = false;
         for(int j = 0; j < newcount; ++j)
         {
-            if(j == i)
+            if(newbuffer[j] == oldbuffer[i])
             {
                 found = true;
                 break;
