@@ -40,6 +40,14 @@ def pack_location(location):
         binarydata += pack_integer(int(location["length"]))
     else:
         binarydata += pack_integer(0)
+    if location.has_key("base_level"):
+        binarydata += pack_integer(int(location["base_level"]))
+    else:
+        binarydata += pack_integer(0)
+    if location.has_key("encounter_chance"):
+        binarydata += pack_integer(int(location["encounter_chance"]))
+    else:
+        binarydata += pack_integer(0)
 
     return binarydata
 
@@ -93,12 +101,67 @@ def write_story(story, datafile):
     # Now that all the index and size data has been written, write out the accumulated data
     datafile.write(binarydata)
 
+def process_dungeons(story):
+    '''
+    This takes a dungeon definition and unrolls it into the proper set of
+    locations. These are then added to the location list to be handled in the 
+    next step
+    '''
+
+    if not story.has_key("dungeons"):
+        return
+
+    for dungeonindex in range(len(story["dungeons"])):
+        dungeon = story["dungeons"][dungeonindex]
+        idlist = []
+        namelist = []
+        floors = int(dungeon["floors"])
+        for floor in range(floors):
+            if floor == 0:
+                idsuffix = "_start"
+            elif floor == floors - 1:
+                idsuffix = "_end"
+            else:
+                idsuffix = "_" + str(floor + 1)
+            idlist.append(dungeon["id"] + idsuffix)
+            namelist.append(dungeon["name"] + " Floor " + str(floor + 1))
+            if floor < floors - 1:
+                idlist.append(dungeon["id"] + idsuffix + "_end")
+                namelist.append(dungeon["name"] + " Floor " + str(floor + 1) + " End")
+        
+        for index in range(len(idlist)):
+            location = {}
+            location["id"] = idlist[index]
+            location["name"] = namelist[index]
+            location["adjacent_locations"] = []
+            if index == 0:
+                location["adjacent_locations"].append(dungeon["adjacent_locations"][0])
+            else:
+                location["adjacent_locations"].append(idlist[index - 1])
+
+            if index == len(idlist) - 1:
+                location["adjacent_locations"].append(dungeon["adjacent_locations"][1])
+            else:
+                location["adjacent_locations"].append(idlist[index + 1])
+
+            if index % 2 == 0:
+                location["background_images"] = list(dungeon["background_images"])
+                location["length"] = dungeon["length"]
+            else:
+                location["background_images"] = list(dungeon["fixed_background_image"])
+                location["length"] = 0
+
+            story["locations"].append(location)
+
 def process_story(story, imagelist):
     '''
     Here we prepare the story for being written to a packed binary file.
     We have to turn each reference to an object into what will become the 
     index of that object. In addition, we generate a map for image resource references.
     '''
+    
+    process_dungeons(story)
+    
     location_map = {}
     data_index = 1 # 0 is reserved for the main story struct
     for index in range(len(story["locations"])):

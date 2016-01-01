@@ -414,6 +414,11 @@
                 "file": "data/AutoWanderTest.dat",
                 "name": "STORY_DATA_AUTOWANDERTEST",
                 "type": "raw"
+            },
+            {
+                "file": "data/AutoDungeonTest.dat",
+                "name": "STORY_DATA_AUTODUNGEONTEST",
+                "type": "raw"
             }
         ]
     },
