@@ -28,6 +28,15 @@ g_damage_types["slashing"] = 1 << 5
 g_damage_types["piercing"] = 1 << 6
 g_damage_types["bludgeoning"] = 1 << 7
 
+g_combatant_ranks = {}
+g_combatant_ranks["rankf"] = 0
+g_combatant_ranks["ranke"] = 1
+g_combatant_ranks["rankd"] = 2
+g_combatant_ranks["rankc"] = 3
+g_combatant_ranks["rankb"] = 4
+g_combatant_ranks["ranka"] = 5
+g_combatant_ranks["ranks"] = 6
+
 def pack_integer(i):
     '''
     Write out an integer into a packed binary file
@@ -65,7 +74,12 @@ def pack_location(location):
         binarydata += pack_integer(int(location["encounter_chance"]))
     else:
         binarydata += pack_integer(0)
-
+    if location.has_key("monsters_index"):
+        binarydata += pack_integer(len(location["monsters_index"]))
+        for monster in location["monsters_index"]:
+            binarydata += pack_integer(monster)
+    else:
+        binarydata += pack_integer(0)
     return binarydata
 
 def pack_skill(skill):
@@ -78,6 +92,21 @@ def pack_skill(skill):
     binarydata += pack_integer(skill["speed"])
     binarydata += pack_integer(skill["damage_type_value"])
     binarydata += pack_integer(skill["potency"])
+    return binarydata
+
+def pack_monster(monster):
+    '''
+    Write out all information needed for a monster into a packed binary file
+    '''
+    binarydata = pack_string(monster["name"])
+    binarydata += pack_integer(monster["image_index"])
+    for k, v in monster["combatantclass_values"].items():
+        binarydata += pack_integer(v)
+    binarydata += pack_integer(len(monster["skill_list"]))
+    for index in range(len(monster["skill_list"])):
+        skill = monster["skill_list"][index]
+        binarydata += pack_integer(skill["index"])
+        binarydata += pack_integer(skill["min_level"])
     return binarydata
 
 def pack_story(story):
@@ -100,6 +129,8 @@ def get_total_objects(story):
     count += len(story["locations"])
     if story.has_key("skills"):
         count += len(story["skills"])
+    if story.has_key("monsters"):
+        count += len(story["monsters"])
     return count
 
 def write_story(story, datafile):
@@ -135,6 +166,17 @@ def write_story(story, datafile):
             next_write_location += len(skill_binary)
             binarydata += skill_binary
 
+    if story.has_key("monsters"):
+        # This loop walks all skills. For each one, we add the packed data to binarydata
+        # and write out the skill and size directly to the file.
+        for index in range(len(story["monsters"])):
+            monster = story["monsters"][index]
+            monster_binary = pack_monster(monster)
+            datafile.write(struct.pack('h', next_write_location))
+            datafile.write(struct.pack('h', len(monster_binary)))
+            next_write_location += len(monster_binary)
+            binarydata += monster_binary
+
     # This loop walks all locations. For each one, we add the packed data to binarydata
     # and write out the location and size directly to the file.
     for index in range(len(story["locations"])):
@@ -165,6 +207,24 @@ def process_skills(story, skill_map, data_index):
     return data_index
 
 def process_monsters(story, monster_map, skill_map, imagelist, data_index):
+    if not story.has_key("monsters"):
+        return data_index
+    
+    for index in range(len(story["monsters"])):
+        monster = story["monsters"][index]
+        monster_map[monster["id"]] = data_index
+        data_index += 1
+        if imagelist.count(monster["image"]) == 0:
+            imagelist.append(monster["image"])
+        monster["image_index"] = imagelist.index(monster["image"])
+        monster["combatantclass_values"] = {}
+        for k, v in monster["combatantclass"].items():
+            monster["combatantclass_values"][k] = g_combatant_ranks[v]
+
+        for skill_index in range(len(monster["skill_list"])):
+            skill = monster["skill_list"][skill_index]
+            skill["index"] = skill_map[skill["id"]]
+
     return data_index
 
 def process_locations(story, monster_map, imagelist, data_index):
@@ -181,7 +241,10 @@ def process_locations(story, monster_map, imagelist, data_index):
             if imagelist.count(background_image) == 0:
                 imagelist.append(background_image)
             location["background_images_index"].append(imagelist.index(background_image))
-
+        if location.has_key("monsters"):
+            location["monsters_index"] = []
+            for monster in location["monsters"]:
+                location["monsters_index"].append(monster_map[monster])
 
     story["start_location_index"] = location_map[story["start_location"]]
     for index in range(len(story["locations"])):
@@ -350,5 +413,24 @@ with open("src/AutoStoryList.h", 'w') as storylist_file:
 
 # Write out size constants in a header file so they match at both process time and load time
 with open("src/AutoSizeConstants.h", 'w') as constants_file:
-        for k, v in g_size_constants.items():
-            constants_file.write("#define " + k + " " + str(v) + "\n")
+    for k, v in g_size_constants.items():
+        constants_file.write("#define " + k + " " + str(v) + "\n")
+
+with open("src/AutoSkillConstants.h", 'w') as skill_file:
+    skill_file.write("#pragma once\n\n")
+    for k, v in g_skill_types.items():
+        skill_file.write("#define SKILL_TYPE_" + k.upper() + " " + str(v) + "\n")
+
+    skill_file.write("\n")
+
+    for k, v in g_damage_types.items():
+        skill_file.write("#define DAMAGE_TYPE_" + k.upper() + " " + str(v) + "\n")
+
+    skill_file.write("\n")
+
+with open("src/AutoCombatantConstants.h", 'w') as skill_file:
+    skill_file.write("#pragma once\n\n")
+    for k, v in g_combatant_ranks.items():
+        skill_file.write("#define COMBATANT_RANK_" + k.upper() + " " + str(v) + "\n")
+
+    skill_file.write("\n")

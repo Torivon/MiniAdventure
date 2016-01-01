@@ -1,6 +1,6 @@
 {
     "id": 12,
-    "version": 2,
+    "version": 3,
     "name": "Battle Arena",
     "description": "Train against monsters",
     "start_location": "arena",
@@ -54,13 +54,14 @@
         {
             "id": "rat",
             "name": "Rat",
+            "image": "images/rat.png",
             "combatantclass": {
-                "strength": "c",
-                "magic": "f",
-                "defense": "f",
-                "magic_defense": "f",
-                "speed": "s",
-                "health": "c"
+                "strength": "rankc",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "ranks",
+                "health": "rankc"
             },
             "skill_list": [
                 {
