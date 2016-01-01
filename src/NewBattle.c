@@ -63,7 +63,7 @@ void SaveBattleState(void)
 {
     if(battleSaveTickDelay <= 0)
     {
-        SavePersistedData();
+        //SavePersistedData();
         battleSaveTickDelay = BATTLE_SAVE_TICK_DELAY;
     }
 }

@@ -1,6 +1,6 @@
 {
     "id": "56",
-    "version": "1",
+    "version": "2",
     "name": "Wander Test",
     "description": "A test of path traveling",
     "start_location": "village1",
@@ -40,7 +40,7 @@
             "name": "Poplar Avenue",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
-            "length": 1
+            "length": "5"
         }
     ]
 }

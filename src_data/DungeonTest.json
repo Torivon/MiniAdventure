@@ -1,6 +1,6 @@
 {
     "id": "37",
-    "version": "1",
+    "version": "2",
     "name": "Dungeon Test",
     "description": "A test of a dungeon",
     "start_location": "outside",
@@ -25,7 +25,7 @@
             "adjacent_locations": ["outside", "end"],
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
-            "length": "1",
+            "length": "2",
             "floors": "5"            
         }
     ]

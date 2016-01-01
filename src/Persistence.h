@@ -1,8 +1,8 @@
 #pragma once
 
-#define CURRENT_DATA_VERSION 9
+#define CURRENT_DATA_VERSION 10
 
-#define NUMBER_OF_PERSISTED_GAMES 2
+#define PERSISTED_DATA_GAP 1000
 
 enum
 {
@@ -13,30 +13,29 @@ enum
 	PERSISTED_WORKER_APP,
 	PERSISTED_WORKER_CAN_LAUNCH,
 	PERSISTED_CURRENT_GAME,
+    PERSISTED_STORY_LIST_SIZE,
+    PERSISTED_STORY_LIST,
+    PERSISTED_TUTORIAL_SEEN,
 	PERSISTED_GLOBAL_DATA_COUNT,
 };
 
 enum
 {
-	PERSISTED_GAME_IS_DATA_SAVED = 0,
-	PERSISTED_GAME_CURRENT_DATA_VERSION,
-	PERSISTED_GAME_CHARACTER_DATA,
-	PERSISTED_GAME_STORY_DATA,
-	PERSISTED_GAME_ITEM_DATA,
-	PERSISTED_GAME_STAT_POINTS_PURCHASED,
+	PERSISTED_STORY_IS_DATA_SAVED = 0,
+	PERSISTED_STORY_CURRENT_DATA_VERSION,
+    PERSISTED_STORY_MAX_KEY_USED,
+	PERSISTED_STORY_CHARACTER_DATA,
+	PERSISTED_STORY_STORY_DATA,
 	
-	PERSISTED_GAME_IN_COMBAT,
-	PERSISTED_GAME_MONSTER_TYPE,
-	PERSISTED_GAME_MONSTER_HEALTH,
+	PERSISTED_STORY_IN_COMBAT,
+	PERSISTED_STORY_MONSTER_TYPE,
+	PERSISTED_STORY_MONSTER_HEALTH,
 	
 	// This needs to always be last
-	PERSISTED_GAME_DATA_COUNT
+	PERSISTED_STORY_DATA_COUNT
 };
 
-#define PERSISTED_DATA_COUNT PERSISTED_GLOBAL_DATA_COUNT + NUMBER_OF_PERSISTED_GAMES * PERSISTED_GAME_DATA_COUNT
-#define MAX_PERSISTED_KEY PERSISTED_DATA_COUNT - 1
-
-inline bool IsPersistedDataCurrent(void)
+inline bool IsGlobalPersistedDataCurrent(void)
 {
 	bool dataSaved = persist_read_bool(PERSISTED_IS_DATA_SAVED);
 	int savedVersion;
@@ -48,23 +47,26 @@ inline bool IsPersistedDataCurrent(void)
 	return savedVersion == CURRENT_DATA_VERSION;
 }
 
-inline int ComputeGamePersistedDataOffset(int storyNumber)
+inline int ComputeStoryPersistedDataOffset(uint16_t storyId)
 {
-	return PERSISTED_GLOBAL_DATA_COUNT + storyNumber * PERSISTED_GAME_DATA_COUNT;
+	return PERSISTED_DATA_GAP * storyId;
 }
 	
-inline bool IsPersistedGameDataCurrent(int storyNumber, int storyDataVersion)
+inline bool IsStoryPersistedDataCurrent(uint16_t storyId, uint16_t storyDataVersion)
 {
-	int offset = ComputeGamePersistedDataOffset(storyNumber);
-	bool dataSaved = persist_read_bool(PERSISTED_GAME_IS_DATA_SAVED + offset);
+	int offset = ComputeStoryPersistedDataOffset(storyId);
+	bool dataSaved = persist_read_bool(offset + PERSISTED_STORY_IS_DATA_SAVED);
 	int savedVersion;
 	if(!dataSaved)
 		return true;
 	
-	savedVersion = persist_read_int(PERSISTED_GAME_CURRENT_DATA_VERSION + offset);
+	savedVersion = persist_read_int(offset + PERSISTED_STORY_CURRENT_DATA_VERSION);
 	
 	return savedVersion == storyDataVersion;
 }
 
-bool SavePersistedData(void);
-bool LoadPersistedData(void);
+bool SaveGlobalPersistedData(void);
+bool LoadGlobalPersistedData(void);
+
+bool SaveStoryPersistedData(void);
+bool LoadStoryPersistedData(void);

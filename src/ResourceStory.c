@@ -18,6 +18,8 @@ typedef struct ResourceLocation
     uint16_t backgroundImageCount;
     uint16_t backgroundImages[MAX_BACKGROUND_IMAGES];
     uint16_t length;
+    uint16_t baseLevel;
+    uint16_t encounterChance;
 } ResourceLocation;
 
 typedef struct ResourceStory
@@ -88,6 +90,8 @@ static ResourceLocation *ResourceLocation_Load(uint16_t index)
     }
     
     newLocation->length = ResourceLoad16BitInt(currentStoryData, &read_index);
+    newLocation->baseLevel = ResourceLoad16BitInt(currentStoryData, &read_index);
+    newLocation->encounterChance = ResourceLoad16BitInt(currentStoryData, &read_index);
     
     return newLocation;
 }
@@ -125,14 +129,8 @@ void ResourceStory_InitializeCurrent(void)
 {
     currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = ResourceStory_GetCurrentStory()->start_location;
     currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
-    
-    if(currentLocation)
-        ResourceLocation_Free(currentLocation);
-    
-    DEBUG_VERBOSE_LOG("New location logical index: %d", currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
-    currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
-    ResourceLocation_LoadAdjacentLocations();
-    ResourceLocation_Log(currentLocation);
+
+    ResourceStory_UpdateStoryWithPersistedState();
 }
 
 uint16_t ResourceStory_GetCurrentLocationIndex(void)
@@ -278,10 +276,8 @@ static ResourceStory *ResourceStory_Load(int resourceId)
  
     // The story is always written out first, so its location is just after count
     int start_index = 0;
-    int count = ResourceLoad16BitInt(currentStoryData, &start_index);
-    DEBUG_VERBOSE_LOG("Count: %d", count);
+    ResourceLoad16BitInt(currentStoryData, &start_index); // starting with count
     int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
-    DEBUG_VERBOSE_LOG("Index for story: %d", read_index);
     currentResourceStory->id = ResourceLoad16BitInt(currentStoryData, &read_index);
     currentResourceStory->version = ResourceLoad16BitInt(currentStoryData, &read_index);
     int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
@@ -324,8 +320,10 @@ void ResourceStory_ClearCurrentStory(void)
 
 void ResourceStory_LogCurrent(void)
 {
+#if DEBUG_LOGGING
     ResourceStory *currentResourceStory = ResourceStory_GetCurrentStory();
     DEBUG_LOG("ResourceStory: %s, %s, %d, %d, %d", currentResourceStory->name, currentResourceStory->description, currentResourceStory->id, currentResourceStory->version, currentResourceStory->start_location);
+#endif
 }
 
 int ResourceStory_GetCurrentLocationBackgroundImageId(void)
@@ -359,3 +357,41 @@ const char *ResourceStory_GetDescriptionByIndex(uint16_t index)
     return story->description;
 }
 
+void ResourceStory_GetStoryList(uint16_t *count, uint16_t **buffer)
+{
+    *count = GetStoryCount();
+    *buffer = calloc(sizeof(uint16_t), *count);
+    
+    for(int i = 0; i < *count; ++i)
+    {
+        (*buffer)[i] = resourceStoryList[i]->id;
+    }
+}
+
+uint16_t ResourceStory_GetCurrentStoryId(void)
+{
+    return ResourceStory_GetCurrentStory()->id;
+}
+
+uint16_t ResourceStory_GetCurrentStoryVersion(void)
+{
+    return ResourceStory_GetCurrentStory()->version;
+}
+
+void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer)
+{
+    DEBUG_VERBOSE_LOG("Persisted story: %d, %d, %d", currentResourceStoryState.persistedResourceStoryState.currentLocationIndex, currentResourceStoryState.persistedResourceStoryState.destinationIndex, currentResourceStoryState.persistedResourceStoryState.timeOnPath);
+    *count = sizeof(currentResourceStoryState.persistedResourceStoryState);
+    *buffer = (uint8_t*)(&currentResourceStoryState.persistedResourceStoryState);
+}
+
+void ResourceStory_UpdateStoryWithPersistedState(void)
+{
+    if(currentLocation)
+        ResourceLocation_Free(currentLocation);
+    
+    DEBUG_VERBOSE_LOG("New location logical index: %d", currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
+    currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
+    ResourceLocation_LoadAdjacentLocations();
+    ResourceLocation_Log(currentLocation);
+}

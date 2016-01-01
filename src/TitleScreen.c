@@ -22,6 +22,18 @@
 
 #include "NewMenu.h"
 
+static bool tutorialSeen = false;
+
+void SetTutorialSeen(bool enable)
+{
+    tutorialSeen = enable;
+}
+
+bool GetTutorialSeen(void)
+{
+    return tutorialSeen;
+}
+
 void LaunchResourceStory(uint16_t index)
 {
     ResourceStory_SetCurrentStory(index);
@@ -175,8 +187,12 @@ void RegisterTitleScreen(void)
 {
 	INFO_LOG("RegisterTitleScreen");
     PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
-    TriggerDialog(&introText[0]);
-    QueueDialog(&introText[1]);
-    QueueDialog(&introText[2]);
-    QueueDialog(&introText[3]);
+    if(!GetTutorialSeen())
+    {
+        TriggerDialog(&introText[0]);
+        QueueDialog(&introText[1]);
+        QueueDialog(&introText[2]);
+        QueueDialog(&introText[3]);
+        SetTutorialSeen(true);
+    }
 }

@@ -44,11 +44,8 @@ void LoadLocationImage(void);
 
 void InitializeGameData(void)
 {
-    // TODO:
-    ResetGame();
-    
-/*    if(!LoadPersistedData())
-        ResetGame();*/
+    if(!LoadStoryPersistedData())
+        ResetGame();
 }
 
 void ResetGame(void)
@@ -57,7 +54,7 @@ void ResetGame(void)
     Character_Initialize();
     ResourceStory_InitializeCurrent();
     
-//    SavePersistedData();
+    SaveStoryPersistedData();
 }
 
 static uint16_t AdventureMenuCount(void)
@@ -194,7 +191,6 @@ void UpdateAdventure(void *data)
 
 void AdventureScreenPush(void *data)
 {
-//    CurrentStoryStateNeedsSaving();
     InitializeGameData();
     locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, locationProgressFrame, GColorYellow, -1);
     InitializeProgressBar(locationProgress, GetBaseWindow());
@@ -225,7 +221,7 @@ void AdventureScreenDisappear(void *data)
 
 void AdventureScreenPop(void *data)
 {
-//    SavePersistedData();
+    SaveStoryPersistedData();
     ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);

@@ -74,6 +74,7 @@ void handle_init() {
 
     INFO_LOG("Starting MiniAdventure");
     GlobalState_Initialize();
+    LoadGlobalPersistedData();
 #if ALLOW_WORKER_APP
 	if(WorkerIsRunning())
 	{
@@ -104,6 +105,7 @@ void handle_init() {
 void handle_deinit()
 {
 	INFO_LOG("Cleaning up on exit.");
+    SaveGlobalPersistedData();
 #if ALLOW_WORKER_APP		
 	AppDying(ClosingWhileInBattle());
 #endif
