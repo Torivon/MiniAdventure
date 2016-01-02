@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include "Location.h"
 	
 typedef struct MonsterDef MonsterDef;
@@ -80,3 +80,5 @@ StoryState *GetCurrentStoryState(void);
 
 LocationUpdateReturnType UpdateCurrentLocation(void);
 void TravelToAdjacentLocationByIndex(int index);
+
+#endif

@@ -7,13 +7,12 @@
 #include "Logging.h"
 #include "NewBattle.h"
 #include "MainImage.h"
-#include "Monsters.h"
 #include "NewBaseWindow.h"
 #include "NewMenu.h"
 #include "Persistence.h"
 #include "ProgressBar.h"
+#include "ResourceStory.h"
 #include "Skills.h"
-#include "Story.h"
 #include "BattleQueue.h"
 
 typedef struct NewBattleState
@@ -53,7 +52,6 @@ static int maxTimeCount = 100;
 static bool battleCleanExit = true;
 
 static NewBattleState gBattleState = {0};
-static MonsterDef *currentMonster = NULL;
 
 // in seconds
 #define BATTLE_SAVE_TICK_DELAY 60
@@ -159,9 +157,14 @@ const char  *UpdateNewMonsterHealthText(void)
 
 void BattleScreenAppear(void *data)
 {
-    SetDescription(currentMonster->name);
+    SetDescription(ResourceMonster_GetCurrentName());
     RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
     ReloadMenu(GetMainMenu());
+    SetForegroundImage(ResourceStory_GetCurrentMonsterImage());
+#if defined(PBL_COLOR)
+    SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
+#endif
+    SetMainImageVisibility(true, true, true);
 }
 
 static bool forcedBattle = false;
@@ -184,22 +187,22 @@ bool IsBattleForced(void)
 
 void NewBattleInit(void)
 {
-    currentMonster = NULL;
+    ResourceMonster_UnloadCurrent();
     
     if(forcedBattle)
     {
         DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
-        currentMonster = GetFixedMonster(forcedBattleMonsterType);
+        ResourceMonster_LoadCurrent(forcedBattleMonsterType);
         gBattleState.currentMonsterHealth = forcedBattleMonsterHealth;
         forcedBattle = false;
     }
     
-    if(!currentMonster)
+    if(!ResourceMonster_Loaded())
     {
-        currentMonster = GetRandomMonster();
+        ResourceMonster_LoadCurrent(ResourceStory_GetCurrentLocationMonster());
     }
     gBattleState.player = BattleActor_Init(true, Character_GetCombatantClass(), Character_GetSkillList(), Character_GetLevel(), Character_GetHealth());
-    gBattleState.monster = BattleActor_Init(false, Monster_GetCombatantClass(currentMonster), Monster_GetSkillList(currentMonster), GetCurrentBaseLevel(), 0);
+    gBattleState.monster = BattleActor_Init(false, ResourceStory_GetCurrentMonsterCombatantClass(), ResourceStory_GetCurrentMonsterSkillList(), ResourceStory_GetCurrentLocationBaseLevel(), 0);
     
     BattleQueuePush(ACTOR, GetPlayerActor());
     BattleQueuePush(ACTOR, GetMonsterActor());
@@ -222,11 +225,7 @@ void NewBattleInit(void)
     
     RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
     
-    SetForegroundImage(currentMonster->imageId);
-#if defined(PBL_COLOR)
-    SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
-#endif
-    SetMainImageVisibility(true, true, true);
+    DEBUG_VERBOSE_LOG("Finished battle init");
     battleCleanExit = false;
 }
 
@@ -243,6 +242,7 @@ void UpdateProgressBars(void)
 
 void UpdateNewBattle(void *unused)
 {
+    DEBUG_VERBOSE_LOG("UpdateNewBattle");
     bool entryRemoved = false;
     void *data = NULL;
     BattleQueueEntryType type = ACTOR;
@@ -256,7 +256,7 @@ void UpdateNewBattle(void *unused)
     {
         --gSkillDelay;
         if(gSkillDelay == 0)
-            SetDescription(currentMonster->name);
+            SetDescription(ResourceMonster_GetCurrentName());
         return;
     }
     
@@ -330,10 +330,11 @@ void BattleScreenPop(void *data)
     FreeProgressBar(playerTimeBar);
     FreeProgressBar(monsterHealthBar);
     FreeProgressBar(monsterTimeBar);
+    ResourceMonster_UnloadCurrent();
 }
 
 void TriggerBattleScreen(void)
 {
-    if(CurrentLocationAllowsCombat())
+    if(ResourceStory_CurrentLocationHasMonster())
         PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateNewBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
 }

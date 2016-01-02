@@ -29,7 +29,7 @@ int CombatantClass_GetMagicDefense(CombatantClass *combatant, int level)
 
 int CombatantClass_GetSpeed(CombatantClass *combatant, int level)
 {
-    return combatant->speedRank * 5;
+    return (combatant->speedRank + 1) * 5;
 }
 
 int CombatantClass_GetHealth(CombatantClass *combatant, int level)

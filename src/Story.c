@@ -1,5 +1,8 @@
 #include "pebble.h"
 
+
+#if 0
+
 #include "Utils.h"
 #include "Location.h"
 #include "Logging.h"
@@ -355,3 +358,5 @@ void TravelToAdjacentLocationByIndex(int index)
 		currentStoryState->persistedStoryState.currentLocationDuration = 0;
 	}
 }
+
+#endif

@@ -1,5 +1,5 @@
 #pragma once
-	
+#if 0
 #include "Location.h"
 
 typedef struct PathClass
@@ -52,3 +52,5 @@ typedef struct Location
 		DungeonClass *dungeonclass;
 	};
 } Location;
+
+#endif

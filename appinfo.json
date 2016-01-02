@@ -425,7 +425,6 @@
     "sdkVersion": "3",
     "shortName": "MiniAdventure",
     "targetPlatforms": [
-        "aplite",
         "basalt",
         "chalk"
     ],

@@ -2,7 +2,8 @@
 
 #include "AutoSizeConstants.h"
 
-typedef struct MonsterDef MonsterDef;
+typedef struct Skill Skill;
+typedef struct SkillList SkillList;
 
 typedef void (*StoryInitializeFunction)(void);
 
@@ -24,10 +25,11 @@ bool ResourceStory_CurrentLocationIsPath(void);
 ResourceStoryUpdateReturnType ResourceStory_UpdateCurrentLocation(void);
 const char *ResourceStory_GetCurrentLocationName(void);
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void);
-void ResourceStory_MoveToLocation(uint16_t index);
+ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index);
 const char *ResourceStory_GetAdjacentLocationName(uint16_t index);
 uint16_t ResourceStory_GetCurrentLocationLength(void);
 bool ResourceStory_CurrentLocationIsPath(void);
+uint16_t ResourceStory_GetCurrentLocationBaseLevel(void);
 
 void ResourceStory_LoadAll(void);
 void ResourceStory_LogCurrent(void);
@@ -43,3 +45,15 @@ uint16_t ResourceStory_GetCurrentStoryId(void);
 uint16_t ResourceStory_GetCurrentStoryVersion(void);
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer);
 void ResourceStory_UpdateStoryWithPersistedState(void);
+
+bool ResourceStory_CurrentLocationHasMonster(void);
+int ResourceStory_GetCurrentLocationMonster(void);
+SkillList *ResourceStory_GetCurrentMonsterSkillList(void);
+CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void);
+
+char *ResourceMonster_GetCurrentName(void);
+void ResourceMonster_UnloadCurrent(void);
+void ResourceMonster_LoadCurrent(uint16_t index);
+bool ResourceMonster_Loaded(void);
+int ResourceStory_GetCurrentMonsterImage(void);
+Skill *ResourceStory_GetSkillByID(int index);

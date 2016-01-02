@@ -10,6 +10,7 @@ g_size_constants["MAX_STORY_NAME_LENGTH"] = 256
 g_size_constants["MAX_STORY_DESC_LENGTH"] = 256
 g_size_constants["MAX_ADJACENT_LOCATIONS"] = 10
 g_size_constants["MAX_BACKGROUND_IMAGES"] = 10
+g_size_constants["MAX_MONSTERS"] = 10
 
 g_skill_types = {}
 g_skill_types["attack"] = 0
@@ -36,6 +37,8 @@ g_combatant_ranks["rankc"] = 3
 g_combatant_ranks["rankb"] = 4
 g_combatant_ranks["ranka"] = 5
 g_combatant_ranks["ranks"] = 6
+
+g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
 def pack_integer(i):
     '''
@@ -100,8 +103,8 @@ def pack_monster(monster):
     '''
     binarydata = pack_string(monster["name"])
     binarydata += pack_integer(monster["image_index"])
-    for k, v in monster["combatantclass_values"].items():
-        binarydata += pack_integer(v)
+    for stat in monster["combatantclass_values"]:
+        binarydata += pack_integer(stat)
     binarydata += pack_integer(len(monster["skill_list"]))
     for index in range(len(monster["skill_list"])):
         skill = monster["skill_list"][index]
@@ -217,9 +220,9 @@ def process_monsters(story, monster_map, skill_map, imagelist, data_index):
         if imagelist.count(monster["image"]) == 0:
             imagelist.append(monster["image"])
         monster["image_index"] = imagelist.index(monster["image"])
-        monster["combatantclass_values"] = {}
-        for k, v in monster["combatantclass"].items():
-            monster["combatantclass_values"][k] = g_combatant_ranks[v]
+        monster["combatantclass_values"] = []
+        for stat_name in g_combatant_stats:
+            monster["combatantclass_values"].append(g_combatant_ranks[monster["combatantclass"][stat_name]])
 
         for skill_index in range(len(monster["skill_list"])):
             skill = monster["skill_list"][skill_index]

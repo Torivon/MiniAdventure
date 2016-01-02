@@ -1,5 +1,5 @@
 #include "pebble.h"
-
+#if 0
 #include "Logging.h"
 #include "Monsters.h"
 #include "Utils.h"
@@ -13,3 +13,4 @@ SkillList *Monster_GetSkillList(MonsterDef *monster)
 {
     return &monster->skillList;
 }
+#endif

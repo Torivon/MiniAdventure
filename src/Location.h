@@ -1,5 +1,6 @@
 #pragma once
-	
+
+#if 0
 typedef enum 
 {
 	LOCATIONTYPE_FIXED = 0,
@@ -46,3 +47,4 @@ void RunArrivalFunction(Location *location);
 
 uint8_t GetLocationNumberOfFloors(Location *location);
 
+#endif

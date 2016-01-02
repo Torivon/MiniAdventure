@@ -205,13 +205,14 @@ void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
     RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+    ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
-        ResourceStory_MoveToLocation(newLocation);
-        LoadLocationImage();
+        returnVal = ResourceStory_MoveToLocation(newLocation);
     }
     newLocation = -1;
-    RefreshAdventure();
+    if(returnVal == STORYUPDATE_FULLREFRESH)
+        RefreshAdventure();
 }
 
 void AdventureScreenDisappear(void *data)

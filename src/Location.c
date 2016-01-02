@@ -1,5 +1,5 @@
 #include "pebble.h"
-
+#if 0
 #include "LocationInternal.h"
 #include "Location.h"
 #include "Logging.h"
@@ -215,3 +215,5 @@ uint8_t GetLocationNumberOfFloors(Location *location)
 	
 	return location->dungeonclass->numberOfFloors;
 }
+
+#endif
