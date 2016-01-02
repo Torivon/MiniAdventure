@@ -68,6 +68,18 @@ static ResourceLocation *ResourceLocation_Load(uint16_t index)
     return newLocation;
 }
 
+uint16_t ResourceStory_GetCurrentLocationEncounterChance(void)
+{
+    if(currentLocation)
+    {
+        return currentLocation->encounterChance;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 uint16_t ResourceStory_GetCurrentLocationBaseLevel(void)
 {
     if(currentLocation)

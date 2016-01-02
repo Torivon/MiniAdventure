@@ -30,6 +30,7 @@ const char *ResourceStory_GetAdjacentLocationName(uint16_t index);
 uint16_t ResourceStory_GetCurrentLocationLength(void);
 bool ResourceStory_CurrentLocationIsPath(void);
 uint16_t ResourceStory_GetCurrentLocationBaseLevel(void);
+uint16_t ResourceStory_GetCurrentLocationEncounterChance(void);
 
 void ResourceStory_LoadAll(void);
 void ResourceStory_LogCurrent(void);

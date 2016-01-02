@@ -129,7 +129,7 @@ bool ComputeRandomEvent(void)
     int result = Random(100) + 1;
     int i = 0;
     int acc = 0;
-    int chanceOfEvent = 0; //GetCurrentLocationEncounterChance();
+    int chanceOfEvent = ResourceStory_GetCurrentLocationEncounterChance();
     
     if(result > chanceOfEvent)
         return false;
@@ -174,18 +174,25 @@ void UpdateAdventure(void *data)
     switch(returnVal)
     {
         case STORYUPDATE_COMPUTERANDOM:
-            //ComputeRandomEvent();
+        {
+            if(ComputeRandomEvent())
+                break;
             LoadLocationImage();
             UpdateLocationProgress();
             break;
+        }
         case STORYUPDATE_DONOTHING:
+        {
             break;
+        }
         case STORYUPDATE_FULLREFRESH:
+        {
             if(GetVibration())
                 vibes_short_pulse();
             
             RefreshAdventure();
             break;
+        }
     }
 }
 
@@ -204,6 +211,7 @@ void AdventureScreenPush(void *data)
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
+    UpdateLocationProgress();
     RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
@@ -218,6 +226,7 @@ void AdventureScreenAppear(void *data)
 void AdventureScreenDisappear(void *data)
 {
     gUpdateAdventure = false;
+    HideProgressBar(locationProgress);
 }
 
 void AdventureScreenPop(void *data)

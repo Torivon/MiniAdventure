@@ -1,6 +1,6 @@
 {
     "id": "56",
-    "version": "2",
+    "version": 3,
     "name": "Wander Test",
     "description": "A test of path traveling",
     "start_location": "village1",
@@ -40,7 +40,62 @@
             "name": "Poplar Avenue",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
-            "length": "5"
+            "length": "5",
+            "base_level": 2,
+            "encounter_chance": 25,
+            "monsters": ["rat"]
+        }
+    ],
+    "skills": [
+        {
+            "id": "fastattack",
+            "name": "Fast Attack",
+            "description": "Lightning quick strike",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 1
+        },
+        {
+            "id": "slowattack",
+            "name": "Slow Attack",
+            "description": "Heavy Slash",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["physical", "slashing"],
+            "potency": 5,
+            "cooldown": 4
+        },
+        {
+            "id": "shieldbash",
+            "name": "Shield Bash",
+            "description": "Counter with a shield",
+            "type": "counter",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10,
+            "cooldown": 2
+        }
+    ],
+    "monsters": [
+        {
+            "id": "rat",
+            "name": "Rat",
+            "image": "images/rat.png",
+            "combatantclass": {
+                "strength": "rankc",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "ranks",
+                "health": "rankc"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
         }
     ]
 }
