@@ -10,7 +10,6 @@
 #include "Persistence.h"
 #include "ResourceStory.h"
 #include "Slideshow.h"
-#include "Story.h"
 #include "StoryList.h"
 #include "TitleScreen.h"
 #include "Utils.h"

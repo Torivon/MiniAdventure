@@ -1,5 +1,6 @@
 #include "pebble.h"
 
+#if INCLUDE_DRAGON_QUEST
 #include "Adventure.h"
 #include "Character.h"
 #include "DragonQuest.h"
@@ -11,7 +12,6 @@
 #include "NewBattle.h"
 #include "Story.h"
 	
-#if INCLUDE_DRAGON_QUEST	
 
 enum
 {

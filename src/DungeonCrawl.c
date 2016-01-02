@@ -1,5 +1,6 @@
 #include "pebble.h"
 
+#if INCLUDE_DUNGEON_CRAWL
 #include "Adventure.h"
 #include "Character.h"
 #include "DialogFrame.h"
@@ -12,7 +13,6 @@
 #include "NewBattle.h"
 #include "Story.h"
 	
-#if INCLUDE_DUNGEON_CRAWL
 
 enum
 {

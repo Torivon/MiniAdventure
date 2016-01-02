@@ -3,7 +3,6 @@
 #include "Character.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "Monsters.h"
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
