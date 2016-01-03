@@ -331,7 +331,9 @@ def process_dungeons(story):
                 if dungeon.has_key("monster_scaling") and dungeon.has_key("monsters"):
                     location["monsters"] = []
                     for monster_index in range(len(dungeon["monsters"])):
-                        if monster_index <= floor / dungeon["monster_scaling"]:
+                        if dungeon["monster_scaling"] == 0:
+                            location["monsters"].append(dungeon["monsters"][monster_index])
+                        elif monster_index <= floor / dungeon["monster_scaling"]:
                             location["monsters"].append(dungeon["monsters"][monster_index])
             else:
                 location["background_images"] = list(dungeon["fixed_background_image"])
@@ -375,6 +377,7 @@ with open("appinfo.json") as appinfo_file:
 # adding them to the appinfo, and storing a list of images used.
 with open("src_data/stories.txt") as stories:
     for line in stories.readlines():
+        print "Processing story in " + line.strip()
         story_filename = "src_data/" + line.strip()
         story_datafile = "Auto" + os.path.splitext(line.strip())[0]+'.dat'
         with open(story_filename) as story_file:
