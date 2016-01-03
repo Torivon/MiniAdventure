@@ -9,7 +9,6 @@
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "ResourceStory.h"
-#include "Slideshow.h"
 #include "StoryList.h"
 #include "TitleScreen.h"
 #include "Utils.h"

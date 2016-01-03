@@ -12,7 +12,6 @@
 #include "MiniAdventure.h"
 #include "OptionsMenu.h"
 #include "NewBaseWindow.h"
-#include "Slideshow.h"
 #include "StoryList.h"
 #include "ResourceStory.h"
 
