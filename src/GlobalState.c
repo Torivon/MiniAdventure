@@ -126,7 +126,7 @@ void UpdateGlobalState(TimeUnits units_changed)
 		return;
 	
 	GlobalStateInstance *instance = &globalStateInstances[globalStateInstanceCount - 1];
-	
+
 	if(instance->updateCallback && (units_changed & instance->triggerUnits))
 	{
 		instance->updateCallback(instance->data);

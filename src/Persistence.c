@@ -198,6 +198,7 @@ bool LoadStoryPersistedData(void)
         return false;
     }
     
+    INFO_LOG("Loading story persisted data.");
     uint16_t count;
     uint8_t *buffer;
     ResourceStory_GetPersistedData(&count, &buffer);

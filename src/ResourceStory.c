@@ -79,18 +79,20 @@ static void ResourceLocation_Free(ResourceLocation *location)
     }
 }
 
+#if DEBUGLOGGING > 1
 static void ResourceLocation_Log(ResourceLocation *location)
 {
-    DEBUG_LOG("ResourceLocation: %s", location->name);
+    DEBUG_VERBOSE_LOG("ResourceLocation: %s", location->name);
     for(int i = 0; i < location->adjacentLocationCount; ++i)
     {
-        DEBUG_LOG("Adjacent Location: %d", location->adjacentLocations[i]);
+        DEBUG_VERBOSE_LOG("Adjacent Location: %d", location->adjacentLocations[i]);
     }
     for(int i = 0; i < location->backgroundImageCount; ++i)
     {
-        DEBUG_LOG("Background: %d", location->backgroundImages[i]);
+        DEBUG_VERBOSE_LOG("Background: %d", location->backgroundImages[i]);
     }
 }
+#endif
 
 static void ResourceLocation_LoadAdjacentLocations(void)
 {
@@ -444,10 +446,10 @@ static ResourceStory *ResourceStory_Load(int resourceId)
     return currentResourceStory;
 }
 
-#if DEBUG_LOGGING
+#if DEBUG_LOGGING > 1
 static void ResourceStory_Log(ResourceStory *story)
 {
-    DEBUG_LOG("ResourceStory: %s, %s, %d, %d, %d", story->name, story->description, story->id, story->version, story->start_location);
+    DEBUG_VERBOSE_LOG("ResourceStory: %s, %s, %d, %d, %d", story->name, story->description, story->id, story->version, story->start_location);
 }
 #endif
 
@@ -461,7 +463,7 @@ void ResourceStory_LoadAll(void)
     for(int i = 0; i < GetStoryCount(); ++i)
     {
         resourceStoryList[i] = ResourceStory_Load(GetStoryResourceIdByIndex(i));
-#if DEBUG_LOGGING
+#if DEBUG_LOGGING > 1
         ResourceStory_Log(resourceStoryList[i]);
 #endif
     }
@@ -543,5 +545,7 @@ void ResourceStory_UpdateStoryWithPersistedState(void)
     
     currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
     ResourceLocation_LoadAdjacentLocations();
+#if DEBUG_LOGGING > 1
     ResourceLocation_Log(currentLocation);
+#endif
 }

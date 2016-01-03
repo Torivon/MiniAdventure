@@ -3,7 +3,7 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "DescriptionFrame.h"
-#include "Events.h"
+#include "DialogFrame.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -105,7 +105,6 @@ void RefreshAdventure(void)
 void LoadLocationImage(void)
 {
     adventureImageId = ResourceStory_GetCurrentLocationBackgroundImageId();
-    DEBUG_VERBOSE_LOG("Loading image: %d", adventureImageId);
     SetBackgroundImage(adventureImageId);
     SetMainImageVisibility(true, false, true);
 }
@@ -127,28 +126,16 @@ RandomTableEntry entries[] =
 bool ComputeRandomEvent(void)
 {
     int result = Random(100) + 1;
-    int i = 0;
-    int acc = 0;
     int chanceOfEvent = ResourceStory_GetCurrentLocationEncounterChance();
     
     if(result > chanceOfEvent)
         return false;
     
-    result = Random(100) + 1;
+    if(GetVibration())
+        vibes_short_pulse();
     
-    do
-    {
-        acc += entries[i].weight;
-        if(acc >= result)
-        {
-            if(GetVibration())
-                vibes_short_pulse();
-            if(entries[i].windowFunction)
-                entries[i].windowFunction();
-            break;
-        }
-        ++i;
-    } while (i < 4);
+    TriggerBattleScreen();
+    
     return true;
 }
 
@@ -206,6 +193,9 @@ void AdventureScreenPush(void *data)
     // Force the main menu to the front
     InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
+    
+    // Force dialog layer to the top
+    InitializeDialogLayer(GetBaseWindow());
 }
 
 void AdventureScreenAppear(void *data)
