@@ -6,11 +6,12 @@ import os
 STORY_DATA_STRING = "STORY_DATA_"
 
 g_size_constants = {}
-g_size_constants["MAX_STORY_NAME_LENGTH"] = 256
-g_size_constants["MAX_STORY_DESC_LENGTH"] = 256
+g_size_constants["MAX_STORY_NAME_LENGTH"] = 32
+g_size_constants["MAX_STORY_DESC_LENGTH"] = 64
 g_size_constants["MAX_ADJACENT_LOCATIONS"] = 10
 g_size_constants["MAX_BACKGROUND_IMAGES"] = 10
 g_size_constants["MAX_MONSTERS"] = 10
+g_size_constants["MAX_SKILLS_IN_LIST"] = 15
 
 g_skill_types = {}
 g_skill_types["attack"] = 0
@@ -46,25 +47,30 @@ def pack_integer(i):
     '''
     return struct.pack('<h', i)
 
-def pack_string(s):
+def pack_string(s, max_length):
     '''
     Write out a string into a packed binary file
     '''
-    binarydata = struct.pack('h', len(s))
-    binarydata += str(s) #struct.pack('s', str(s))
+    binarydata = struct.pack(str(max_length) + 's', str(s))
     return binarydata
 
 def pack_location(location):
     '''
     Write out all information needed for a location into a packed binary file
     '''
-    binarydata = pack_string(location["name"])
+    binarydata = pack_string(location["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_integer(len(location["adjacent_locations_index"]))
-    for adjacent in location["adjacent_locations_index"]:
-        binarydata += pack_integer(adjacent)
+    for index in range(g_size_constants["MAX_ADJACENT_LOCATIONS"]):
+        if index < len(location["adjacent_locations_index"]):
+            binarydata += pack_integer(location["adjacent_locations_index"][index])
+        else:
+            binarydata += pack_integer(0)
     binarydata += pack_integer(len(location["background_images_index"]))
-    for image in location["background_images_index"]:
-        binarydata += pack_integer(image)
+    for index in range(g_size_constants["MAX_BACKGROUND_IMAGES"]):
+        if index < len(location["background_images_index"]):
+            binarydata += pack_integer(location["background_images_index"][index])
+        else:
+            binarydata += pack_integer(0)
     if location.has_key("length"):
         binarydata += pack_integer(int(location["length"]))
     else:
@@ -79,37 +85,49 @@ def pack_location(location):
         binarydata += pack_integer(0)
     if location.has_key("monsters_index"):
         binarydata += pack_integer(len(location["monsters_index"]))
-        for monster in location["monsters_index"]:
-            binarydata += pack_integer(monster)
+        for index in range(g_size_constants["MAX_BACKGROUND_IMAGES"]):
+            if index < len(location["monsters_index"]):
+                binarydata += pack_integer(location["monsters_index"][index])
+            else:
+                binarydata += pack_integer(0)
     else:
         binarydata += pack_integer(0)
+        for index in range(g_size_constants["MAX_BACKGROUND_IMAGES"]):
+            binarydata += pack_integer(0)
     return binarydata
 
 def pack_skill(skill):
     '''
     Write out all information needed for a skill into a packed binary file
     '''
-    binarydata = pack_string(skill["name"])
-    binarydata += pack_string(skill["description"])
+    binarydata = pack_string(skill["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string(skill["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(skill["type_value"])
     binarydata += pack_integer(skill["speed"])
     binarydata += pack_integer(skill["damage_type_value"])
     binarydata += pack_integer(skill["potency"])
+    binarydata += pack_integer(skill["cooldown"])
     return binarydata
 
 def pack_monster(monster):
     '''
     Write out all information needed for a monster into a packed binary file
     '''
-    binarydata = pack_string(monster["name"])
+    binarydata = pack_string(monster["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_integer(monster["image_index"])
     for stat in monster["combatantclass_values"]:
         binarydata += pack_integer(stat)
     binarydata += pack_integer(len(monster["skill_list"]))
-    for index in range(len(monster["skill_list"])):
-        skill = monster["skill_list"][index]
-        binarydata += pack_integer(skill["index"])
-        binarydata += pack_integer(skill["min_level"])
+    for index in range(g_size_constants["MAX_SKILLS_IN_LIST"]):
+        if index < len(monster["skill_list"]):
+            skill = monster["skill_list"][index]
+            binarydata += pack_integer(skill["index"])
+            binarydata += pack_integer(skill["min_level"])
+            binarydata += pack_integer(0)
+        else:
+            binarydata += pack_integer(0)
+            binarydata += pack_integer(0)
+            binarydata += pack_integer(0)
     return binarydata
 
 def pack_story(story):
@@ -118,8 +136,8 @@ def pack_story(story):
     '''
     binarydata = pack_integer(int(story["id"]))
     binarydata += pack_integer(int(story["version"]))
-    binarydata += pack_string(story["name"])
-    binarydata += pack_string(story["description"])
+    binarydata += pack_string(story["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string(story["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(int(story["start_location_index"]))
     return binarydata
 
@@ -147,15 +165,15 @@ def write_story(story, datafile):
 
     # we always write count first, though it is not clear it is necessary
     count = get_total_objects(story)
-    datafile.write(struct.pack('h', count))
+    datafile.write(pack_integer(count))
     # For each object in the file, we store two 16 bit (2 byte) integers, start index and size.
     # With an additional number for count, this gives us the location to start writing actual object data.
     next_write_location = (1 + 2 * count) * 2
     
     # Here, we generate the binary data for the main story object, and write out its size
     binarydata = pack_story(story)
-    datafile.write(struct.pack('h', next_write_location))
-    datafile.write(struct.pack('h', len(binarydata)))
+    datafile.write(pack_integer(next_write_location))
+    datafile.write(pack_integer(len(binarydata)))
     next_write_location += len(binarydata)
     
     if story.has_key("skills"):
@@ -164,8 +182,8 @@ def write_story(story, datafile):
         for index in range(len(story["skills"])):
             skill = story["skills"][index]
             skill_binary = pack_skill(skill)
-            datafile.write(struct.pack('h', next_write_location))
-            datafile.write(struct.pack('h', len(skill_binary)))
+            datafile.write(pack_integer(next_write_location))
+            datafile.write(pack_integer(len(skill_binary)))
             next_write_location += len(skill_binary)
             binarydata += skill_binary
 
@@ -175,8 +193,8 @@ def write_story(story, datafile):
         for index in range(len(story["monsters"])):
             monster = story["monsters"][index]
             monster_binary = pack_monster(monster)
-            datafile.write(struct.pack('h', next_write_location))
-            datafile.write(struct.pack('h', len(monster_binary)))
+            datafile.write(pack_integer(next_write_location))
+            datafile.write(pack_integer(len(monster_binary)))
             next_write_location += len(monster_binary)
             binarydata += monster_binary
 
@@ -185,8 +203,8 @@ def write_story(story, datafile):
     for index in range(len(story["locations"])):
         location = story["locations"][index]
         location_binary = pack_location(location)
-        datafile.write(struct.pack('h', next_write_location))
-        datafile.write(struct.pack('h', len(location_binary)))
+        datafile.write(pack_integer(next_write_location))
+        datafile.write(pack_integer(len(location_binary)))
         next_write_location += len(location_binary)
         binarydata += location_binary
     

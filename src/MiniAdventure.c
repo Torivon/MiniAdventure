@@ -40,7 +40,6 @@ void battery_state_handler(BatteryChargeState charge)
 // Called once per minute
 void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
-	DEBUG_LOG("Main App tick");
 	if(!hasFocus)
 		return;
 	

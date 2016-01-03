@@ -29,25 +29,31 @@ void ClearGlobalPersistedData(void)
 {
 	if(persist_exists(PERSISTED_IS_DATA_SAVED))
 	{
-        uint16_t oldcount = 0;
-        uint16_t *oldbuffer = NULL;
-        oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
-        oldbuffer = calloc(sizeof(uint16_t), oldcount);
-        persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount);
-        
-        for(int i = 0; i < oldcount; ++i)
+        INFO_LOG("Clearing global persisted data");
+        if(persist_exists(PERSISTED_STORY_LIST_SIZE) && persist_exists(PERSISTED_STORY_LIST))
         {
-            INFO_LOG("Deleting data for missing story: %d", oldbuffer[i]);
-            ClearStoryPersistedData(oldbuffer[i]);
+            uint16_t oldcount = 0;
+            uint16_t *oldbuffer = NULL;
+            oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
+            oldbuffer = calloc(sizeof(uint16_t), oldcount);
+            persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount);
+            
+            for(int i = 0; i < oldcount; ++i)
+            {
+                INFO_LOG("Deleting data for missing story: %d", oldbuffer[i]);
+                ClearStoryPersistedData(oldbuffer[i]);
+            }
+            free(oldbuffer);
         }
-        free(oldbuffer);
-        
-		int maxKey = persist_read_int(PERSISTED_MAX_KEY_USED);
-		int i;
-		for(i = 0; i <= maxKey; ++i)
-		{
-			persist_delete(i);
-		}
+        if(persist_exists(PERSISTED_MAX_KEY_USED))
+        {
+            int maxKey = persist_read_int(PERSISTED_MAX_KEY_USED);
+            int i;
+            for(i = 0; i <= maxKey; ++i)
+            {
+                persist_delete(i);
+            }
+        }
 	}
 }
 
@@ -83,6 +89,7 @@ bool LoadGlobalPersistedData(void)
 {
     bool useWorkerApp = false;
     
+    INFO_LOG("Loading global persisted data.");
     if(!persist_exists(PERSISTED_IS_DATA_SAVED) || !persist_read_bool(PERSISTED_IS_DATA_SAVED))
     {
         INFO_LOG("No saved data to load.");
@@ -167,6 +174,7 @@ bool SaveStoryPersistedData(void)
     uint8_t *buffer;
     ResourceStory_GetPersistedData(&count, &buffer);
     persist_write_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
+    Character_WritePersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
     
     return true;
 }
@@ -196,6 +204,7 @@ bool LoadStoryPersistedData(void)
     persist_read_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
     
     ResourceStory_UpdateStoryWithPersistedState();
-    
+    Character_ReadPersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
+   
     return true;
 }

@@ -54,7 +54,8 @@
             "type": "attack",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
-            "potency": 1
+            "potency": 1,
+            "cooldown": 0
         },
         {
             "id": "slowattack",

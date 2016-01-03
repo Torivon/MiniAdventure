@@ -16,10 +16,6 @@
 #include "StoryList.h"
 #include "ResourceStory.h"
 
-#include "DungeonCrawl.h"
-#include "DragonQuest.h"
-#include "BattleTestStory.h"
-
 #include "NewMenu.h"
 
 static bool tutorialSeen = false;
@@ -38,26 +34,6 @@ void LaunchResourceStory(uint16_t index)
 {
     ResourceStory_SetCurrentStory(index);
     QueueAdventureScreen();
-}
-
-void ChooseDungeonCrawl(void)
-{
-    LaunchDungeonCrawl();
-}
-
-void ChooseDragonQuest(void)
-{
-    LaunchDragonQuest();
-}
-
-void ChooseBattleTest(void)
-{
-    LaunchBattleTestStory();
-}
-
-void ChooseSlideshow(void)
-{
-    LaunchSlideshow();
 }
 
 void ChooseOptions(void)

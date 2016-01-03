@@ -33,38 +33,17 @@ typedef struct ResourceLocation
 static ResourceLocation *currentLocation = NULL;
 static ResourceLocation *adjacentLocations[MAX_ADJACENT_LOCATIONS] = {0};
 
-static ResourceLocation *ResourceLocation_Load(uint16_t index)
+static ResourceLocation *ResourceLocation_Load(uint16_t logical_index)
 {
     ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
     ResourceLocation *newLocation = calloc(sizeof(ResourceLocation), 1);
-    DEBUG_VERBOSE_LOG("Logical index: %d", index);
+    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)newLocation, sizeof(ResourceLocation), "ResourceLocation");
     
-    int start_index = ResourceLoad_GetByteIndexFromLogicalIndex(index);
-    int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
-    DEBUG_VERBOSE_LOG("Location start index: %d", read_index);
-    int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, newLocation->name, string_length);
-    newLocation->adjacentLocationCount = ResourceLoad16BitInt(currentStoryData, &read_index);
-    for(int i = 0; i < newLocation->adjacentLocationCount; ++i)
-    {
-        newLocation->adjacentLocations[i] = ResourceLoad16BitInt(currentStoryData, &read_index);
-    }
-    newLocation->backgroundImageCount = ResourceLoad16BitInt(currentStoryData, &read_index);
     for(int i = 0; i < newLocation->backgroundImageCount; ++i)
     {
-        newLocation->backgroundImages[i] = autoImageMap[ResourceLoad16BitInt(currentStoryData, &read_index)];
+        newLocation->backgroundImages[i] = autoImageMap[newLocation->backgroundImages[i]];
     }
     
-    newLocation->length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    newLocation->baseLevel = ResourceLoad16BitInt(currentStoryData, &read_index);
-    newLocation->encounterChance = ResourceLoad16BitInt(currentStoryData, &read_index);
-    
-    newLocation->monsterCount = ResourceLoad16BitInt(currentStoryData, &read_index);
-    for(int i = 0; i < newLocation->monsterCount; ++i)
-    {
-        newLocation->monsters[i] = ResourceLoad16BitInt(currentStoryData, &read_index);
-    }
-
     return newLocation;
 }
 
@@ -174,35 +153,16 @@ bool ResourceStory_CurrentLocationIsPath(void)
     return false;
 }
 /********************* RESOURCE SKILL ******************************/
-typedef struct ResourceSkill
-{
-    char *name;
-    char *description;
-    uint16_t skillType;
-    uint16_t speed;
-    uint16_t damageType;
-    uint16_t potency;
-} ResourceSkill;
-
 void ResourceSkill_Free(Skill *skill)
 {
     free(skill);
 }
 
-Skill *ResourceSkill_Load(uint16_t index)
+Skill *ResourceSkill_Load(uint16_t logical_index)
 {
     ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
     Skill *newSkill = calloc(sizeof(Skill), 1);
-    int start_index = ResourceLoad_GetByteIndexFromLogicalIndex(index);
-    int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
-    int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, newSkill->name, string_length);
-    string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, newSkill->description, string_length);
-    newSkill->type = ResourceLoad16BitInt(currentStoryData, &read_index);
-    newSkill->speed = ResourceLoad16BitInt(currentStoryData, &read_index);
-    newSkill->damageType = ResourceLoad16BitInt(currentStoryData, &read_index);
-    newSkill->potency = ResourceLoad16BitInt(currentStoryData, &read_index);
+    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)newSkill, sizeof(Skill), "Skill");
     return newSkill;
 }
 
@@ -210,14 +170,19 @@ Skill *ResourceSkill_Load(uint16_t index)
 
 typedef struct ResourceMonster
 {
-    bool loaded;
     char name[MAX_STORY_NAME_LENGTH];
     uint16_t image;
     CombatantClass combatantClass;
     SkillList skillList;
 } ResourceMonster;
 
-ResourceMonster currentMonster = {0};
+typedef struct MonsterWrapper
+{
+    bool loaded;
+    ResourceMonster monster;
+} MonsterWrapper;
+
+MonsterWrapper currentMonster = {0};
 Skill *loadedSkills[MAX_SKILLS_IN_LIST];
 
 void ResourceMonster_UnloadCurrent(void)
@@ -226,44 +191,29 @@ void ResourceMonster_UnloadCurrent(void)
         return;
     
     currentMonster.loaded = false;
-    for(int i = 0; i < currentMonster.skillList.count; ++i)
+    for(int i = 0; i < currentMonster.monster.skillList.count; ++i)
     {
         ResourceSkill_Free(loadedSkills[i]);
         loadedSkills[i] = NULL;
     }
 }
 
-void ResourceMonster_LoadCurrent(uint16_t index)
+void ResourceMonster_LoadCurrent(uint16_t logical_index)
 {
     ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
-    int start_index = ResourceLoad_GetByteIndexFromLogicalIndex(index);
-    int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
+    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(currentMonster.monster)), sizeof(ResourceMonster), "ResourceMonster");
 
-    int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, currentMonster.name, string_length);
-    currentMonster.image = autoImageMap[ResourceLoad16BitInt(currentStoryData, &read_index)];
-    currentMonster.combatantClass.strengthRank = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentMonster.combatantClass.magicRank = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentMonster.combatantClass.defenseRank = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentMonster.combatantClass.magicDefenseRank = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentMonster.combatantClass.speedRank = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentMonster.combatantClass.healthRank = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentMonster.skillList.count = ResourceLoad16BitInt(currentStoryData, &read_index);
-    for(int i = 0; i < currentMonster.skillList.count; ++i)
+    currentMonster.monster.image = autoImageMap[currentMonster.monster.image];
+    for(int i = 0; i < currentMonster.monster.skillList.count; ++i)
     {
-        currentMonster.skillList.entries[i].id = ResourceLoad16BitInt(currentStoryData, &read_index);
-        currentMonster.skillList.entries[i].level = ResourceLoad16BitInt(currentStoryData, &read_index);
-        currentMonster.skillList.entries[i].cooldown = 0;
-        
-        loadedSkills[i] = ResourceSkill_Load(currentMonster.skillList.entries[i].id);
-        currentMonster.skillList.entries[i].id = i;
+        loadedSkills[i] = ResourceSkill_Load(currentMonster.monster.skillList.entries[i].id);
+        currentMonster.monster.skillList.entries[i].id = i;
     }
     currentMonster.loaded = true;
 }
 
 Skill *ResourceStory_GetSkillByID(int index)
 {
-    DEBUG_VERBOSE_LOG("Getting skill with index %d", index);
     return loadedSkills[index];
 }
 
@@ -271,7 +221,7 @@ char *ResourceMonster_GetCurrentName(void)
 {
     if(currentMonster.loaded)
     {
-        return currentMonster.name;
+        return currentMonster.monster.name;
     }
     else
     {
@@ -305,7 +255,7 @@ int ResourceStory_GetCurrentLocationMonster(void)
 SkillList *ResourceStory_GetCurrentMonsterSkillList(void)
 {
     if(currentMonster.loaded)
-        return &currentMonster.skillList;
+        return &currentMonster.monster.skillList;
     else
         return NULL;
 }
@@ -313,7 +263,7 @@ SkillList *ResourceStory_GetCurrentMonsterSkillList(void)
 CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void)
 {
     if(currentMonster.loaded)
-        return &currentMonster.combatantClass;
+        return &currentMonster.monster.combatantClass;
     else
         return NULL;
 }
@@ -322,8 +272,7 @@ int ResourceStory_GetCurrentMonsterImage(void)
 {
     if(currentMonster.loaded)
     {
-        DEBUG_VERBOSE_LOG("Requesting monster image: %d", currentMonster.image);
-        return currentMonster.image;
+        return currentMonster.monster.image;
     }
     else
     {
@@ -460,7 +409,6 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
 
         if(ResourceStory_CurrentLocationIsPath())
         {
-            DEBUG_VERBOSE_LOG("current: %d, adjacent[0]: %d, adjacent[1]: %d", oldIndex, currentLocation->adjacentLocations[0], currentLocation->adjacentLocations[1]);
             if(currentLocation->adjacentLocations[0] == oldIndex)
                 currentResourceStoryState.persistedResourceStoryState.destinationIndex = 1;
             else
@@ -491,23 +439,17 @@ void ResourceStory_FreeAll(void)
 static ResourceStory *ResourceStory_Load(int resourceId)
 {
     ResHandle currentStoryData = resource_get_handle(resourceId);
-    
     ResourceStory *currentResourceStory = calloc(sizeof(ResourceStory), 1);
- 
-    // The story is always written out first, so its location is just after count
-    int start_index = 0;
-    ResourceLoad16BitInt(currentStoryData, &start_index); // starting with count
-    int read_index = ResourceLoad16BitInt(currentStoryData, &start_index);
-    currentResourceStory->id = ResourceLoad16BitInt(currentStoryData, &read_index);
-    currentResourceStory->version = ResourceLoad16BitInt(currentStoryData, &read_index);
-    int string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, currentResourceStory->name, string_length);
-    string_length = ResourceLoad16BitInt(currentStoryData, &read_index);
-    ResourceLoadString(currentStoryData, &read_index, currentResourceStory->description, string_length);
-    currentResourceStory->start_location = ResourceLoad16BitInt(currentStoryData, &read_index);
-    
+    ResourceLoadStruct(currentStoryData, 0, (uint8_t*)currentResourceStory, sizeof(ResourceStory), "ResourceStory");
     return currentResourceStory;
 }
+
+#if DEBUG_LOGGING
+static void ResourceStory_Log(ResourceStory *story)
+{
+    DEBUG_LOG("ResourceStory: %s, %s, %d, %d, %d", story->name, story->description, story->id, story->version, story->start_location);
+}
+#endif
 
 void ResourceStory_LoadAll(void)
 {
@@ -519,6 +461,9 @@ void ResourceStory_LoadAll(void)
     for(int i = 0; i < GetStoryCount(); ++i)
     {
         resourceStoryList[i] = ResourceStory_Load(GetStoryResourceIdByIndex(i));
+#if DEBUG_LOGGING
+        ResourceStory_Log(resourceStoryList[i]);
+#endif
     }
 }
 
@@ -587,7 +532,6 @@ uint16_t ResourceStory_GetCurrentStoryVersion(void)
 
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer)
 {
-    DEBUG_VERBOSE_LOG("Persisted story: %d, %d, %d", currentResourceStoryState.persistedResourceStoryState.currentLocationIndex, currentResourceStoryState.persistedResourceStoryState.destinationIndex, currentResourceStoryState.persistedResourceStoryState.timeOnPath);
     *count = sizeof(currentResourceStoryState.persistedResourceStoryState);
     *buffer = (uint8_t*)(&currentResourceStoryState.persistedResourceStoryState);
 }
@@ -597,7 +541,6 @@ void ResourceStory_UpdateStoryWithPersistedState(void)
     if(currentLocation)
         ResourceLocation_Free(currentLocation);
     
-    DEBUG_VERBOSE_LOG("New location logical index: %d", currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
     currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
     ResourceLocation_LoadAdjacentLocations();
     ResourceLocation_Log(currentLocation);

@@ -35,7 +35,7 @@ enum
 // Logging
 #define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
 #define ERROR_LOGGING 1 // ERROR_LOG should be used for actual incorrect operation.
-#define WARNING_LOGGING 1 // WARNING_LOG should be used strange edge cases that are not expected
+#define WARNING_LOGGING 0 // WARNING_LOG should be used strange edge cases that are not expected
 #define INFO_LOGGING 1 // INFO_LOG should be used to log game flow.
 #define PROFILE_LOGGING 0 // PROFILE_LOGGING shows up as DEBUG_VERBOSE_LOG, but should be used for timing
 
@@ -60,8 +60,7 @@ enum
 
 #define TIME_TO_ACT 100
 #define MAX_BATTLE_QUEUE 10
-#define MAX_SKILLS_IN_LIST 15
-	
+
 #define ALLOW_WORKER_APP 0
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0

@@ -242,7 +242,6 @@ void UpdateProgressBars(void)
 
 void UpdateNewBattle(void *unused)
 {
-    DEBUG_VERBOSE_LOG("UpdateNewBattle");
     bool entryRemoved = false;
     void *data = NULL;
     BattleQueueEntryType type = ACTOR;
