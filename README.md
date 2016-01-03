@@ -1,4 +1,4 @@
-MiniAdventure
+#MiniAdventure
 ===========
 
 This is an extension of MiniDungeon (https://github.com/Torivon/MiniDungeon). It started from the same core engine to support a broader game. 
@@ -6,12 +6,12 @@ This is an extension of MiniDungeon (https://github.com/Torivon/MiniDungeon). It
 The game is broken up into stories. From the title screen you can choose which story to explore. At the moment, each story has its own locations, monsters and monster skills. They currently share character classes and skills, although I plan to put that information in data files as well.
 
 
-Story files
+##Story files
 ===========
 
 A story file is a json file which describese all of the attributes of the story. Adding a new story simply involves creating the appropriate json file and including it in the list in stories.txt. The wscript file has been modified to automatically process the stories and include them in the build.
 
-Main Story Object
+###Main Story Object
 ===========
 * "id": <integer> # This needs to be unique across all stories included. It is used to index persisted storage.
 * "version": <integer> # Should be updated whenever the story fundamentally changes. This is used to invalidate existing persisted storage.
@@ -23,7 +23,7 @@ Main Story Object
 * "skills": <list> <skill> # A list of the skills available to monsters int the story
 * "monsters": <list> <monster> # A list of monsters available to the locations in the story
 
-Location
+###Location
 ===========
 * "id": <string> # unique identifier for the location. During processing, these are turned into indexes directly into the processed file.
 * "name": <string>
@@ -34,7 +34,7 @@ Location
 * "encounter_chance": <integer> # Determines the likelihood in any given minute of encountering a monster.
 * "base_level": <integer> # Determines the level of monsters encountered in the location
 
-Dungeon
+###Dungeon
 ===========
 
 A dungeon will be unrolled into a series of locations. These locations alternate between paths with length > 0, and fixed locations with length == 0. The properties of the dungeon become the properties of the locations as appropriate.
@@ -51,7 +51,7 @@ A dungeon will be unrolled into a series of locations. These locations alternate
 * "monsters": <list> <string> # The ids of the monsters to be seen in the dungeon. These will only show up on the floors with length > 0, and not on the fixed locations.
 * "monster_scaling": <integer> # The number of floors between adding a new monster to the mix. If this is 0, all monsters are available on all floors.
 
-Skill
+###Skill
 ===========
 
 * "id": <string> # unique identifier for the skill
@@ -76,7 +76,7 @@ Skill
 * "potency": <integer> # How strong the skill is.
 * "cooldown": <integer> # How many combat rounds must pass before the skill is ready to be used again
 
-Monster
+###Monster
 ===========
 
 * "id": <string> # unique identifier for the monster. This should be included in the monsters list of locations and dungeons.
