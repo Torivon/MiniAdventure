@@ -404,12 +404,33 @@
                 "file": "images/Beach.png",
                 "name": "IMAGE_BEACH",
                 "type": "bitmap"
+            },
+            {
+                "file": "data/AutoWanderTest.dat",
+                "name": "STORY_DATA_AUTOWANDERTEST",
+                "type": "raw"
+            },
+            {
+                "file": "data/AutoBattleArena.dat",
+                "name": "STORY_DATA_AUTOBATTLEARENA",
+                "type": "raw"
+            },
+            {
+                "file": "data/AutoDungeonCrawl.dat",
+                "name": "STORY_DATA_AUTODUNGEONCRAWL",
+                "type": "raw"
+            },
+            {
+                "file": "data/AutoDragonQuest.dat",
+                "name": "STORY_DATA_AUTODRAGONQUEST",
+                "type": "raw"
             }
         ]
     },
     "sdkVersion": "3",
     "shortName": "MiniAdventure",
     "targetPlatforms": [
+        "aplite",
         "basalt",
         "chalk"
     ],

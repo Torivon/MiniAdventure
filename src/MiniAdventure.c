@@ -8,8 +8,8 @@
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
-#include "Slideshow.h"
-#include "Story.h"
+#include "ResourceStory.h"
+#include "StoryList.h"
 #include "TitleScreen.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -39,7 +39,6 @@ void battery_state_handler(BatteryChargeState charge)
 // Called once per minute
 void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
-	DEBUG_LOG("Main App tick");
 	if(!hasFocus)
 		return;
 	
@@ -68,8 +67,11 @@ void focus_handler(bool in_focus) {
 
 void handle_init() {
 	
-	INFO_LOG("Starting MiniAdventure");
+    ResourceStory_LoadAll();
+
+    INFO_LOG("Starting MiniAdventure");
     GlobalState_Initialize();
+    LoadGlobalPersistedData();
 #if ALLOW_WORKER_APP
 	if(WorkerIsRunning())
 	{
@@ -97,9 +99,10 @@ void handle_init() {
 	battery_state_service_subscribe(battery_state_handler);
 }
 
-void handle_deinit() 
+void handle_deinit()
 {
 	INFO_LOG("Cleaning up on exit.");
+    SaveGlobalPersistedData();
 #if ALLOW_WORKER_APP		
 	AppDying(ClosingWhileInBattle());
 #endif
@@ -112,6 +115,7 @@ void handle_deinit()
 	if(baseWindow)
 		window_destroy(baseWindow);
     GlobalState_Free();
+    ResourceStory_FreeAll();
 }
 
 // The main event/run loop for our app

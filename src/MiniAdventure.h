@@ -19,9 +19,9 @@
 #define PUBLISH 1
 	
 // Stories to include
-#define INCLUDE_DUNGEON_CRAWL 1
-#define INCLUDE_DRAGON_QUEST 1
-#define INCLUDE_BATTLE_TEST_STORY 1
+#define INCLUDE_DUNGEON_CRAWL 0
+#define INCLUDE_DRAGON_QUEST 0
+#define INCLUDE_BATTLE_TEST_STORY 0
 
 #define INCLUDE_SLIDESHOW 0
 
@@ -34,10 +34,9 @@ enum
 
 // Logging
 #define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
-#define ERROR_LOGGING 1 // ERROR_LOG should be used for actual incorrect operation.
-#define WARNING_LOGGING 1 // WARNING_LOG should be used strange edge cases that are not expected
-#define INFO_LOGGING 1 // INFO_LOG should be used to log game flow.
-#define PROFILE_LOGGING 0 // PROFILE_LOGGING shows up as DEBUG_VERBOSE_LOG, but should be used for timing
+#define ERROR_LOGGING 0 // ERROR_LOG should be used for actual incorrect operation.
+#define WARNING_LOGGING 0 // WARNING_LOG should be used strange edge cases that are not expected
+#define INFO_LOGGING 0 // INFO_LOG should be used to log game flow.
 
 // Features to turn off to make space
 #define BOUNDS_CHECKING 1
@@ -60,8 +59,7 @@ enum
 
 #define TIME_TO_ACT 100
 #define MAX_BATTLE_QUEUE 10
-#define MAX_SKILLS_IN_LIST 15
-	
+
 #define ALLOW_WORKER_APP 0
 #define ALLOW_WORKER_APP_MESSAGES 0
 #define ALLOW_WORKER_APP_LISTENING 0

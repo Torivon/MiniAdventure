@@ -2,6 +2,7 @@
 
 #include "Adventure.h"
 #include "Credits.h"
+#include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "GlobalState.h"
@@ -11,32 +12,27 @@
 #include "MiniAdventure.h"
 #include "OptionsMenu.h"
 #include "NewBaseWindow.h"
-#include "Slideshow.h"
-
-#include "DungeonCrawl.h"
-#include "DragonQuest.h"
-#include "BattleTestStory.h"
+#include "StoryList.h"
+#include "ResourceStory.h"
 
 #include "NewMenu.h"
 
-void ChooseDungeonCrawl(void)
+static bool tutorialSeen = false;
+
+void SetTutorialSeen(bool enable)
 {
-    LaunchDungeonCrawl();
+    tutorialSeen = enable;
 }
 
-void ChooseDragonQuest(void)
+bool GetTutorialSeen(void)
 {
-    LaunchDragonQuest();
+    return tutorialSeen;
 }
 
-void ChooseBattleTest(void)
+void LaunchResourceStory(uint16_t index)
 {
-    LaunchBattleTestStory();
-}
-
-void ChooseSlideshow(void)
-{
-    LaunchSlideshow();
+    ResourceStory_SetCurrentStory(index);
+    QueueAdventureScreen();
 }
 
 void ChooseOptions(void)
@@ -44,21 +40,9 @@ void ChooseOptions(void)
     QueueOptionsScreen();
 }
 
-static void LoadText(int resourceId, int index)
+void ChooseRepo(void)
 {
-    ResHandle creditsData = resource_get_handle(RESOURCE_ID_CREDITS_DATA);
-    uint8_t buffer[256] = "";
-    uint8_t int_bytes[2] = {0};
-    resource_load_byte_range(creditsData, 0, int_bytes, 2);
-//    int count = (int_bytes[1] << 8) + int_bytes[0];
-    int location_index = 2 + (index) * 4;
-    int location = 0;
-    resource_load_byte_range(creditsData, location_index, int_bytes, 2);
-    location = (int_bytes[1] << 8) + int_bytes[0];
-    resource_load_byte_range(creditsData, location_index + 2, int_bytes, 2);
-    int size = (int_bytes[1] << 8) + int_bytes[0];
-    resource_load_byte_range(creditsData, location, buffer, size);
-    DEBUG_LOG("Text: %s", (char*)buffer);
+    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
 }
 
 static DialogData credits[] =
@@ -79,41 +63,70 @@ static DialogData credits[] =
 
 void ChooseCredits(void)
 {
-    LoadText(RESOURCE_ID_CREDITS_DATA, CREDITS_PAGE_1);
-    LoadText(RESOURCE_ID_CREDITS_DATA, CREDITS_PAGE_2);
-    LoadText(RESOURCE_ID_CREDITS_DATA, CREDITS_PAGE_3);
     QueueDialog(&credits[0]);
     QueueDialog(&credits[1]);
     QueueDialog(&credits[2]);
 }
 
-void ChooseRepo(void)
+static uint16_t TitleScreenCount(void)
 {
-    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
+    uint16_t storyCount = GetStoryCount();
+    return storyCount + 3;
 }
 
-MenuCellDescription titleScreenMenuList[] = 
+static const char *TitleScreenNameCallback(int row)
 {
-#if INCLUDE_DUNGEON_CRAWL
-	{.name = "Dungeon", .description = "Simple dungeon delve", .callback = ChooseDungeonCrawl},
-#endif
-#if INCLUDE_DRAGON_QUEST
-	{.name = "Dragon Quest", .description = "Extended adventure", .callback = ChooseDragonQuest},
-#endif
-#if INCLUDE_BATTLE_TEST_STORY
-	{.name = "Battle Test", .description = "Battle arena", .callback = ChooseBattleTest},
-#endif
-#if INCLUDE_SLIDESHOW
-	{.name = "Slideshow", .description = "Slideshow of all art", .callback = ChooseSlideshow},
-#endif
-	{.name = "Options", .description = "Options", .callback = ChooseOptions},
-	{.name = "Credits", .description = "Credits", .callback = ChooseCredits},
-	{.name = "Repository", .description = "QR code to Github", .callback = ChooseRepo}
-};
+    int storyCount = GetStoryCount();
+    if(row < storyCount)
+        return ResourceStory_GetNameByIndex(row);
+    else
+    {
+        if(row == storyCount)
+            return "Options";
+        else if(row == storyCount + 1)
+            return "Credits";
+        else if(row == storyCount + 2)
+            return "Repository";
+    }
+    return "None";
+}
+
+static const char *TitleScreenDescriptionCallback(int row)
+{
+    int storyCount = GetStoryCount();
+    if(row < storyCount)
+        return ResourceStory_GetDescriptionByIndex(row);
+    else
+    {
+        if(row == storyCount)
+            return "Options";
+        else if(row == storyCount + 1)
+            return "Credits";
+        else if(row == storyCount + 2)
+            return "Repository";
+    }
+    return "None";
+}
+
+static void TitleScreenSelectCallback(int row)
+{
+    int storyCount = GetStoryCount();
+    if(row < storyCount)
+        LaunchResourceStory(row);
+    else
+    {
+        if(row == storyCount)
+            ChooseOptions();
+        else if(row == storyCount + 1)
+            ChooseCredits();
+        else if(row == storyCount + 2)
+            ChooseRepo();
+    }
+}
 
 static void TitleScreenAppear(void *data)
 {
-	RegisterMenuCellList(GetMainMenu(), titleScreenMenuList, sizeof(titleScreenMenuList)/sizeof(*titleScreenMenuList));
+    RegisterMenuCellCallbacks(GetMainMenu(), TitleScreenCount, TitleScreenNameCallback, TitleScreenDescriptionCallback, TitleScreenSelectCallback);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
@@ -149,8 +162,12 @@ void RegisterTitleScreen(void)
 {
 	INFO_LOG("RegisterTitleScreen");
     PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
-    TriggerDialog(&introText[0]);
-    QueueDialog(&introText[1]);
-    QueueDialog(&introText[2]);
-    QueueDialog(&introText[3]);
+    if(!GetTutorialSeen())
+    {
+        TriggerDialog(&introText[0]);
+        QueueDialog(&introText[1]);
+        QueueDialog(&introText[2]);
+        QueueDialog(&introText[3]);
+        SetTutorialSeen(true);
+    }
 }

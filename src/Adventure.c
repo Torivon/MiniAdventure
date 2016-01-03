@@ -3,7 +3,7 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "DescriptionFrame.h"
-#include "Events.h"
+#include "DialogFrame.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -13,7 +13,7 @@
 #include "Persistence.h"
 #include "ProgressBar.h"
 #include "OptionsMenu.h"
-#include "Story.h"
+#include "ResourceStory.h"
 #include "Utils.h"
 #include "WorkerControl.h"
 
@@ -44,64 +44,49 @@ void LoadLocationImage(void);
 
 void InitializeGameData(void)
 {
-    if(!LoadPersistedData())
+    if(!LoadStoryPersistedData())
         ResetGame();
 }
 
 void ResetGame(void)
 {
     INFO_LOG("Resetting game.");
-#if ENABLE_SHOPS
-    ResetStatPointsPurchased();
-#endif
     Character_Initialize();
-#if ENABLE_ITEMS
-    ClearInventory();
-#endif
-    InitializeCurrentStory();
+    ResourceStory_InitializeCurrent();
     
-    SavePersistedData();
+    SaveStoryPersistedData();
 }
 
 static uint16_t AdventureMenuCount(void)
 {
-    if(IsCurrentLocationPath())
+    if(ResourceStory_CurrentLocationIsPath())
         return 0;
     
-    DEBUG_LOG("AdjacentLocationCount %d", GetCurrentLocationAdjacentLocations());
-    return GetCurrentLocationAdjacentLocations();
+    return ResourceStory_GetCurrentAdjacentLocations();
 }
 
 static const char *AdventureMenuNameCallback(int row)
 {
-    if(IsCurrentLocationPath())
-        return NULL;
-    
-    DEBUG_LOG("AdjacentLocationName %s", GetAdjacentLocationName(row));
-    return GetAdjacentLocationName(row);
+    return ResourceStory_GetAdjacentLocationName(row);
 }
 
 static void AdventureMenuSelectCallback(int row)
 {
-    DEBUG_LOG("Trying to follow path");
-    if(!IsCurrentLocationPath())
-    {
-        newLocation = row;
-    }
+    newLocation = row;
 }
 
 void UpdateLocationProgress(void)
 {
-    if(IsCurrentLocationFixed())
+    if(ResourceStory_CurrentLocationIsPath())
     {
-        HideProgressBar(locationProgress);
+        ShowProgressBar(locationProgress);
+        currentProgress = ResourceStory_GetTimeOnPath();
+        maxProgress = ResourceStory_GetCurrentLocationLength();
+        MarkProgressBarDirty(locationProgress);
     }
     else
     {
-        ShowProgressBar(locationProgress);
-        currentProgress = GetCurrentDuration();
-        maxProgress = GetCurrentLocationLength();
-        MarkProgressBarDirty(locationProgress);
+        HideProgressBar(locationProgress);
     }
 }
 
@@ -110,17 +95,16 @@ void RefreshAdventure(void)
     if(!gUpdateAdventure)
         return;
     
-    DEBUG_VERBOSE_LOG("Refreshing adventure window. %s", GetCurrentLocationName());
     updateDelay = 1;
     LoadLocationImage();
     ReloadMenu(GetMainMenu());
-    SetDescription(GetCurrentLocationName()); //Add floor back in somehow
+    SetDescription(ResourceStory_GetCurrentLocationName()); //Add floor back in somehow
     UpdateLocationProgress();
 }
 
 void LoadLocationImage(void)
 {
-    adventureImageId = GetCurrentBackgroundImage();
+    adventureImageId = ResourceStory_GetCurrentLocationBackgroundImageId();
     SetBackgroundImage(adventureImageId);
     SetMainImageVisibility(true, false, true);
 }
@@ -142,34 +126,22 @@ RandomTableEntry entries[] =
 bool ComputeRandomEvent(void)
 {
     int result = Random(100) + 1;
-    int i = 0;
-    int acc = 0;
-    int chanceOfEvent = GetCurrentLocationEncounterChance();
+    int chanceOfEvent = ResourceStory_GetCurrentLocationEncounterChance();
     
     if(result > chanceOfEvent)
         return false;
     
-    result = Random(100) + 1;
+    if(GetVibration())
+        vibes_short_pulse();
     
-    do
-    {
-        acc += entries[i].weight;
-        if(acc >= result)
-        {
-            if(GetVibration())
-                vibes_short_pulse();
-            if(entries[i].windowFunction)
-                entries[i].windowFunction();
-            break;
-        }
-        ++i;
-    } while (i < 4);
+    TriggerBattleScreen();
+    
     return true;
 }
 
 void UpdateAdventure(void *data)
 {
-    LocationUpdateReturnType returnVal;
+    ResourceStoryUpdateReturnType returnVal;
     
     if(IsBattleForced())
     {
@@ -183,30 +155,36 @@ void UpdateAdventure(void *data)
         --updateDelay;
         return;
     }
-    
-    returnVal = UpdateCurrentLocation();
+
+    returnVal = ResourceStory_UpdateCurrentLocation();
     
     switch(returnVal)
     {
-        case LOCATIONUPDATE_COMPUTERANDOM:
-            ComputeRandomEvent();
+        case STORYUPDATE_COMPUTERANDOM:
+        {
+            if(ComputeRandomEvent())
+                break;
             LoadLocationImage();
             UpdateLocationProgress();
             break;
-        case LOCATIONUPDATE_DONOTHING:
+        }
+        case STORYUPDATE_DONOTHING:
+        {
             break;
-        case LOCATIONUPDATE_FULLREFRESH:
+        }
+        case STORYUPDATE_FULLREFRESH:
+        {
             if(GetVibration())
                 vibes_short_pulse();
             
             RefreshAdventure();
             break;
+        }
     }
 }
 
 void AdventureScreenPush(void *data)
 {
-    CurrentStoryStateNeedsSaving();
     InitializeGameData();
     locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, locationProgressFrame, GColorYellow, -1);
     InitializeProgressBar(locationProgress, GetBaseWindow());
@@ -215,29 +193,36 @@ void AdventureScreenPush(void *data)
     // Force the main menu to the front
     InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
+    
+    // Force dialog layer to the top
+    InitializeDialogLayer(GetBaseWindow());
 }
 
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
+    UpdateLocationProgress();
     RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+    ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
-        TravelToAdjacentLocationByIndex(newLocation);
+        returnVal = ResourceStory_MoveToLocation(newLocation);
     }
     newLocation = -1;
-    RefreshAdventure();
+    if(returnVal == STORYUPDATE_FULLREFRESH)
+        RefreshAdventure();
 }
 
 void AdventureScreenDisappear(void *data)
 {
     gUpdateAdventure = false;
+    HideProgressBar(locationProgress);
 }
 
 void AdventureScreenPop(void *data)
 {
-    SavePersistedData();
-    ClearCurrentStory();
+    SaveStoryPersistedData();
+    ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
 }

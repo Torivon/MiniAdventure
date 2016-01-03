@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "BattleActor.h"
 #include "CombatantClass.h"
+#include "Logging.h"
 #include "Skills.h"
 
 typedef struct BattleActor
@@ -61,6 +62,7 @@ CombatantClass *BattleActor_GetCombatantClass(BattleActor *actor)
 
 BattleActor *BattleActor_Init(bool isPlayer, CombatantClass *combatantClass, SkillList *skillList, int level, int startingHealth)
 {
+    DEBUG_VERBOSE_LOG("BattleActor_Init: %s", isPlayer ? "player" : "monster");
     BattleActor *returnValue = isPlayer ? &player : &monster;
     returnValue->isPlayer = isPlayer;
     returnValue->combatantClass = combatantClass;

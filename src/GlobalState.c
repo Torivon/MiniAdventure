@@ -69,7 +69,6 @@ static void PushGlobalState_internal(GlobalState state,
 	instance->data = data;
 	if(instance->pushCallback)
 		instance->pushCallback(instance->data);
-	DEBUG_LOG("appearcallback for %d", instance->state);
 	if(instance->appearCallback)
 		instance->appearCallback(instance->data);
 }
@@ -127,8 +126,7 @@ void UpdateGlobalState(TimeUnits units_changed)
 		return;
 	
 	GlobalStateInstance *instance = &globalStateInstances[globalStateInstanceCount - 1];
-	DEBUG_LOG("update global state: %d", instance->state);
-	
+
 	if(instance->updateCallback && (units_changed & instance->triggerUnits))
 	{
 		instance->updateCallback(instance->data);
@@ -177,7 +175,6 @@ void PopGlobalState(void)
 	}
 	
 	GlobalStateInstance *newInstance = &globalStateInstances[globalStateInstanceCount - 1];
-	DEBUG_LOG("reveal global state: %d", newInstance->state);
 	
 	if(newInstance->appearCallback)
 		newInstance->appearCallback(newInstance->data);
@@ -201,6 +198,7 @@ void PopAllGlobalStates(void)
 
 void GlobalState_Initialize(void)
 {
+    INFO_LOG("Initializing global state");
     if(!globalQueue)
     {
         globalQueue = Queue_Create(MAX_GLOBAL_STATES);
