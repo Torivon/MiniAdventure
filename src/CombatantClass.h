@@ -13,12 +13,12 @@ typedef enum
 
 typedef struct CombatantClass
 {
-    CombatantRank strengthRank;
-    CombatantRank magicRank;
-    CombatantRank defenseRank;
-    CombatantRank magicDefenseRank;
-    CombatantRank speedRank;
-    CombatantRank healthRank;
+    uint16_t strengthRank;
+    uint16_t magicRank;
+    uint16_t defenseRank;
+    uint16_t magicDefenseRank;
+    uint16_t speedRank;
+    uint16_t healthRank;
 } CombatantClass;
 
 int CombatantClass_GetStrength(CombatantClass *combatant, int level);

@@ -1,6 +1,7 @@
 #pragma once
 #include "Utils.h"
 #include "MiniAdventure.h"
+#include "AutoSizeConstants.h"
 
 typedef struct BattleActor BattleActor;
 
@@ -25,7 +26,16 @@ typedef enum
     SKILL_TYPE_DEBUFF,
 } SkillType;
 
-typedef struct Skill Skill;
+typedef struct Skill
+{
+    char name[MAX_STORY_NAME_LENGTH];
+    char description[MAX_STORY_DESC_LENGTH];
+    uint16_t type;
+    uint16_t speed;
+    uint16_t damageType;
+    uint16_t potency;
+    uint16_t cooldown;
+} Skill;
 
 typedef struct SkillInstance SkillInstance;
 
@@ -38,15 +48,15 @@ typedef enum
 
 typedef struct SkillListEntry
 {
-    SkillID id;
-    int level;
-    int cooldown;
+    uint16_t id;
+    uint16_t level;
+    uint16_t cooldown;
 } SkillListEntry;
 
 typedef struct SkillList
 {
+    uint16_t count;
     SkillListEntry entries[MAX_SKILLS_IN_LIST];
-    int count;
 } SkillList;
 
 Skill *GetSkillByID(SkillID id);

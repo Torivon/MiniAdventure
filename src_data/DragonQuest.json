@@ -1,0 +1,315 @@
+{
+    "id": 31,
+    "version": 1,
+    "name": "Dragon Quest",
+    "description": "A small adventure",
+    "start_location": "village1",
+    "locations": [
+        {
+            "id": "village1",
+            "name": "Village 1",
+            "adjacent_locations": ["house1"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "house1",
+            "name": "Village 1 House",
+            "adjacent_locations": ["village1", "cellar"],
+            "background_images": ["images/VillageInterior.png"]
+        },
+        {
+            "id": "cellar",
+            "name": "Cellar",
+            "adjacent_locations": ["house1", "cave1"],
+            "background_images": ["images/newfloor.png"]
+        },
+        {
+            "id": "cave1",
+            "name": "Cave",
+            "adjacent_locations": ["cellar", "forestcave1"],
+            "background_images": ["images/Cave1.png", "images/Cave2.png", "images/Cave3.png"],
+            "length": 2
+        },
+        {
+            "id": "forestcave1",
+            "name": "Forest Cave",
+            "adjacent_locations": ["cave1", "forest1"],
+            "background_images": ["images/ForestCave.png"]
+        },
+        {
+            "id": "forest1",
+            "name": "Forest",
+            "adjacent_locations": ["forestcave1", "ruinedvillage1"],
+            "background_images": ["images/Forest1.png", "images/Forest2.png", "images/Forest3.png"],
+            "length": 2
+        },
+        {
+            "id": "ruinedvillage1",
+            "name": "Ruined Village",
+            "adjacent_locations": ["road1", "forest1"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "road1",
+            "name": "Road",
+            "adjacent_locations": ["ruinedvillage1", "village2"],
+            "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
+            "length": 2
+        },
+        {
+            "id": "village2",
+            "name": "Village 2",
+            "adjacent_locations": ["house2", "road1", "forest2", "road2"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "house2",
+            "name": "Village 2 House",
+            "adjacent_locations": ["village2"],
+            "background_images": ["images/VillageInterior.png"]
+        },
+        {
+            "id": "forest2",
+            "name": "Forest",
+            "adjacent_locations": ["village2", "waterfallbase"],
+            "background_images": ["images/Forest1.png", "images/Forest2.png", "images/Forest3.png"],
+            "length": 2
+        },
+        {
+            "id": "waterfallbase",
+            "name": "Waterfall Base",
+            "adjacent_locations": ["forest2", "waterfallcave_start"],
+            "background_images": ["images/WaterfallBase.png"]
+        },
+        {
+            "id": "waterfalltop",
+            "name": "Waterfall Base",
+            "adjacent_locations": ["waterfallcave_end", "waterfallbase"],
+            "background_images": ["images/WaterfallTop.png"]
+        },
+        {
+            "id": "road2",
+            "name": "Road",
+            "adjacent_locations": ["village2", "village3"],
+            "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
+            "length": 2
+        },
+        {
+            "id": "village3",
+            "name": "Village 3",
+            "adjacent_locations": ["road2", "desert1", "boat1"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "desert1",
+            "name": "Desert",
+            "adjacent_locations": ["village3", "oasis"],
+            "background_images": ["images/Desert1.png", "images/Desert2.png", "images/Desert3.png"],
+            "length": 2
+        },
+        {
+            "id": "oasis",
+            "name": "Oasis",
+            "adjacent_locations": ["desert1", "desert2"],
+            "background_images": ["images/Oasis.png"]
+        },
+        {
+            "id": "desert2",
+            "name": "Desert",
+            "adjacent_locations": ["oasis", "pyramid_exterior"],
+            "background_images": ["images/Desert1.png", "images/Desert2.png", "images/Desert3.png"],
+            "length": 2
+        },
+        {
+            "id": "pyramid_exterior",
+            "name": "Pyramid",
+            "adjacent_locations": ["desert2", "pyramid_interior_start"],
+            "background_images": ["images/PyramidExterior.png"]
+        },
+        {
+            "id": "sarcophagus",
+            "name": "Sarcophagus",
+            "adjacent_locations": ["pyramid_interior_end"],
+            "background_images": ["images/Sarcophagus.png"]
+        },
+        {
+            "id": "boat1",
+            "name": "Boat",
+            "adjacent_locations": ["village3", "boatfixed"],
+            "background_images": ["images/Boat.png"],
+            "length": 2
+        },
+        {
+            "id": "boatfixed",
+            "name": "Boat",
+            "adjacent_locations": ["boat1", "boat2"],
+            "background_images": ["images/Boat.png"]
+        },
+        {
+            "id": "boat2",
+            "name": "Boat",
+            "adjacent_locations": ["boatfixed", "village4"],
+            "background_images": ["images/Boat.png"],
+            "length": 2
+        },
+        {
+            "id": "village4",
+            "name": "Village 4",
+            "adjacent_locations": ["boat2", "mountain1", "road3", "boat3"],
+            "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "mountain1",
+            "name": "Mountain Path",
+            "adjacent_locations": ["village4", "tomb_entrance1"],
+            "background_images": ["images/MountainExterior1.png", "images/MountainExterior2.png", "images/MountainExterior3.png"],
+            "length": 2
+        },
+        {
+            "id": "tomb_entrance1",
+            "name": "Tomb Entrance",
+            "adjacent_locations": ["mountain1", "tomb_interior1_start"],
+            "background_images": ["images/TombEntrance.png"]
+        },
+        {
+            "id": "treasure_room1",
+            "name": "Treasure Room",
+            "adjacent_locations": ["tomb_interior1_end"],
+            "background_images": ["images/TreasureRoom.png"]
+        },
+        {
+            "id": "road3",
+            "name": "Road",
+            "adjacent_locations": ["village4", "cave_entrance1"],
+            "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
+            "length": 2
+        },
+        {
+            "id": "cave_entrance1",
+            "name": "Cave South",
+            "adjacent_locations": ["road3", "cave2"],
+            "background_images": ["images/ForestCave.png"]
+        },
+        {
+            "id": "cave2",
+            "name": "Cave",
+            "adjacent_locations": ["cave_entrance1", "cave_entrance2"],
+            "background_images": ["images/Cave1.png", "images/Cave2.png", "images/Cave3.png"],
+            "length": 2
+        },
+        {
+            "id": "cave_entrance2",
+            "name": "Cave North",
+            "adjacent_locations": ["cave2", "road4"],
+            "background_images": ["images/ForestCave.png"]
+        },
+        {
+            "id": "road4",
+            "name": "Road",
+            "adjacent_locations": ["cave_entrance2", "tomb_entrance2"],
+            "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
+            "length": 2
+        },
+        {
+            "id": "tomb_entrance2",
+            "name": "Tomb Entrance",
+            "adjacent_locations": ["road4", "tomb_interior2_start"],
+            "background_images": ["images/TombEntrance.png"]
+        },
+        {
+            "id": "treasure_room2",
+            "name": "Treasure Room",
+            "adjacent_locations": ["tomb_interior2_end"],
+            "background_images": ["images/TreasureRoom.png"]
+        },
+        {
+            "id": "boat3",
+            "name": "Boat",
+            "adjacent_locations": ["village4", "beach"],
+            "background_images": ["images/Boat.png"],
+            "length": 2
+        },
+        {
+            "id": "beach",
+            "name": "Beach",
+            "adjacent_locations": ["boat3", "mountain2"],
+            "background_images": ["images/Beach.png"]
+        },
+        {
+            "id": "mountain2",
+            "name": "Mountain Path",
+            "adjacent_locations": ["beach", "cave_entrance3"],
+            "background_images": ["images/MountainExterior1.png", "images/MountainExterior2.png", "images/MountainExterior3.png"],
+            "length": 2
+        },
+        {
+            "id": "cave_entrance3",
+            "name": "Dragon Cave Entrance",
+            "adjacent_locations": ["mountain2", "dragon_cave_start"],
+            "background_images": ["images/ForestCave.png"]
+        },
+        {
+            "id": "dragon_room",
+            "name": "Dragon's Room",
+            "adjacent_locations": ["dragon_cave_end"],
+            "background_images": ["images/TreasureRoom.png"]
+        }
+    ],
+    "dungeons": [
+        {
+            "id": "waterfallcave",
+            "name": "Waterfall Cave",
+            "adjacent_locations": ["waterfallbase", "waterfalltop"],
+            "background_images": ["images/Cave1.png", "images/Cave2.png", "images/Cave3.png"],
+            "fixed_background_image": ["images/CaveFixed.png"],
+            "length": 2,
+            "floors": 3,
+            "base_level": 1,
+            "level_rate": 1
+        },
+        {
+            "id": "pyramid_interior",
+            "name": "Pyramid",
+            "adjacent_locations": ["pyramid_exterior", "sarcophagus"],
+            "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
+            "fixed_background_image": ["images/newfloor.png"],
+            "length": 2,
+            "floors": 3,
+            "base_level": 1,
+            "level_rate": 1
+        },
+        {
+            "id": "tomb_interior1",
+            "name": "Tomb",
+            "adjacent_locations": ["tomb_entrance1", "treasure_room1"],
+            "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
+            "fixed_background_image": ["images/newfloor.png"],
+            "length": 2,
+            "floors": 3,
+            "base_level": 1,
+            "level_rate": 1
+        },
+        {
+            "id": "tomb_interior2",
+            "name": "Tomb",
+            "adjacent_locations": ["tomb_entrance2", "treasure_room2"],
+            "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
+            "fixed_background_image": ["images/newfloor.png"],
+            "length": 2,
+            "floors": 3,
+            "base_level": 1,
+            "level_rate": 1
+        },
+        {
+            "id": "dragon_cave",
+            "name": "Dragon Cave",
+            "adjacent_locations": ["cave_entrance3", "dragon_room"],
+            "background_images": ["images/Cave1.png", "images/Cave2.png", "images/Cave3.png"],
+            "fixed_background_image": ["images/CaveFixed.png"],
+            "length": 2,
+            "floors": 3,
+            "base_level": 1,
+            "level_rate": 1
+        }
+    ]
+}

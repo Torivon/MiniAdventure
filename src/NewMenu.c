@@ -151,6 +151,7 @@ void RegisterMenuCellCallbacks(Menu *menu, MenuCountCallback countCallback, Menu
         {
             MenuIndex index = {.section = 0, .row = 0};
             menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignCenter, false);
+            menu_layer_reload_data(menu->newMenuLayer);
 			ShowMenuArrow();
         }
 		else

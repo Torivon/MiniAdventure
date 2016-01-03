@@ -3,18 +3,8 @@
 #include "CombatantClass.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
+#include "ResourceStory.h"
 #include "Skills.h"
-
-typedef struct Skill
-{
-    char *name;
-    char *description;
-    SkillType type;
-    uint16_t speed;
-    uint16_t damageType;
-    uint16_t potency;
-    int cooldown;
-} Skill;
 
 typedef struct SkillInstance
 {
@@ -161,7 +151,12 @@ const char *ExecuteSkill(SkillInstance *instance)
 {
     static char description[30];
     DEBUG_VERBOSE_LOG("ExecuteSkill");
-    Skill *skill = GetSkillByID(instance->entry->id);
+    Skill *skill = NULL;
+    if(BattleActor_IsPlayer(instance->attacker))
+        skill = GetSkillByID(instance->entry->id);
+    else
+        skill = ResourceStory_GetSkillByID(instance->entry->id);
+    
     switch(skill->type)
     {
         case SKILL_TYPE_BASIC_ATTACK:

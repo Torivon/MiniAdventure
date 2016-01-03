@@ -4,7 +4,7 @@
 #
 # Feel free to customize this to your needs.
 #
-
+import subprocess
 import os.path
 try:
     from sh import CommandNotFound, jshint, cat, ErrorReturnCode_2
@@ -41,6 +41,10 @@ def build(ctx):
 
     build_worker = os.path.exists('worker_src')
     binaries = []
+
+    returnVal = subprocess.call(["python", "dev_tools/process_stories.py"])
+    if returnVal != 0:
+        ctx.fatal("\nFailed to process story files\n")
 
     for p in ctx.env.TARGET_PLATFORMS:
         ctx.set_env(ctx.all_envs[p])

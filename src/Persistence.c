@@ -3,177 +3,209 @@
 #include "Character.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "Monsters.h"
 #include "NewBattle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
-#include "Story.h"
+#include "TitleScreen.h"
 #include "WorkerControl.h"
+#include "ResourceStory.h"
 
-void ClearPersistedData(void)
+void ClearStoryPersistedData(uint16_t storyId)
+{
+    int offset = ComputeStoryPersistedDataOffset(storyId);
+    if(persist_exists(PERSISTED_STORY_IS_DATA_SAVED + offset))
+    {
+        DEBUG_LOG("Clearing game persisted data.");
+        int maxKey = persist_read_int(PERSISTED_STORY_MAX_KEY_USED + offset);
+        int i;
+        for(i = offset; i < maxKey; ++i)
+        {
+            persist_delete(i);
+        }
+    }
+}
+
+void ClearGlobalPersistedData(void)
 {
 	if(persist_exists(PERSISTED_IS_DATA_SAVED))
 	{
-		int maxKey = persist_read_int(PERSISTED_MAX_KEY_USED);
-		int i;
-		for(i = 0; i <= maxKey; ++i)
-		{
-			persist_delete(i);
-		}
+        INFO_LOG("Clearing global persisted data");
+        if(persist_exists(PERSISTED_STORY_LIST_SIZE) && persist_exists(PERSISTED_STORY_LIST))
+        {
+            uint16_t oldcount = 0;
+            uint16_t *oldbuffer = NULL;
+            oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
+            oldbuffer = calloc(sizeof(uint16_t), oldcount);
+            persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount);
+            
+            for(int i = 0; i < oldcount; ++i)
+            {
+                INFO_LOG("Deleting data for missing story: %d", oldbuffer[i]);
+                ClearStoryPersistedData(oldbuffer[i]);
+            }
+            free(oldbuffer);
+        }
+        if(persist_exists(PERSISTED_MAX_KEY_USED))
+        {
+            int maxKey = persist_read_int(PERSISTED_MAX_KEY_USED);
+            int i;
+            for(i = 0; i <= maxKey; ++i)
+            {
+                persist_delete(i);
+            }
+        }
 	}
 }
-	
-void ClearPersistedGameData(int gameNumber)
+
+bool SaveGlobalPersistedData(void)
 {
-	int offset = ComputeGamePersistedDataOffset(gameNumber);
-	if(persist_exists(PERSISTED_GAME_IS_DATA_SAVED + offset))
-	{
-		DEBUG_LOG("Clearing game persisted data.");
-		int i;
-		for(i = 0; i < PERSISTED_GAME_DATA_COUNT; ++i)
-		{
-			persist_delete(i + offset);
-		}
-	}
-}
-	
-bool SavePersistedData(void)
-{
-	StoryState *currentStoryState;
-	const Story *currentStory;
-	
-	if(!IsPersistedDataCurrent())
-	{
-		WARNING_LOG("Persisted data does not match current version, clearing.");
-		ClearPersistedData();
-	}
-	
-	int characterSize = Character_GetDataSize();
-	
-	if(characterSize > PERSIST_DATA_MAX_LENGTH )
-	{
-		ERROR_LOG("CharacterData is too big to save (%d).", characterSize);
-		return false;
-	}
+    if(!IsGlobalPersistedDataCurrent())
+    {
+        WARNING_LOG("Persisted data does not match current version, clearing.");
+        ClearGlobalPersistedData();
+    }
 
-	if(sizeof(PersistedStoryState) > PERSIST_DATA_MAX_LENGTH )
-	{
-		ERROR_LOG("PersistedStoryState is too big to save (%d).", sizeof(PersistedStoryState));
-		return false;
-	}
-
-	ProfileLogStart("SavePersistedData");
-	INFO_LOG("Saving global persisted data.");
-	DEBUG_VERBOSE_LOG("Saving meta data");
-	persist_write_bool(PERSISTED_IS_DATA_SAVED, true);
-	persist_write_int(PERSISTED_CURRENT_DATA_VERSION, CURRENT_DATA_VERSION);
-	persist_write_int(PERSISTED_MAX_KEY_USED, MAX_PERSISTED_KEY);
-	persist_write_bool(PERSISTED_VIBRATION, GetVibration());
-	persist_write_bool(PERSISTED_WORKER_APP, GetWorkerApp());
-	persist_write_bool(PERSISTED_WORKER_CAN_LAUNCH, GetWorkerCanLaunch());
-	
-	currentStoryState = GetCurrentStoryState();
-	currentStory = GetCurrentStory();
-	if(currentStoryState && currentStory && currentStoryState->needsSaving)
-	{
-		int offset = ComputeGamePersistedDataOffset(currentStory->gameNumber);
-		
-		persist_write_int(PERSISTED_CURRENT_GAME, currentStory->gameNumber);
-		
-		if(!IsPersistedGameDataCurrent(currentStory->gameNumber, currentStory->gameDataVersion))
-		{
-			WARNING_LOG("Game's persisted data does not match current version, clearing.");
-			ClearPersistedGameData(currentStory->gameNumber);
-		}
-		
-		INFO_LOG("Saving story persisted data.");
-		
-		persist_write_bool(PERSISTED_GAME_IS_DATA_SAVED + offset, true);
-		persist_write_int(PERSISTED_GAME_CURRENT_DATA_VERSION + offset, currentStory->gameDataVersion);
-
-		Character_WritePersistedData(PERSISTED_GAME_CHARACTER_DATA + offset);
-		persist_write_data(PERSISTED_GAME_STORY_DATA + offset, &currentStoryState->persistedStoryState, sizeof(PersistedStoryState));
-
-		persist_write_bool(PERSISTED_GAME_IN_COMBAT + offset, ClosingWhileInBattle());
-		persist_write_int(PERSISTED_GAME_MONSTER_TYPE + offset, currentStoryState->persistedStoryState.mostRecentMonster);
-		persist_write_int(PERSISTED_GAME_MONSTER_HEALTH + offset, GetCurrentMonsterHealth());
-		currentStoryState->needsSaving = false;
-	}
-
-	INFO_LOG("Done saving persisted data.");
-	ProfileLogStop("SavePersistedData");
-	
-	return true;
+    INFO_LOG("Saving global persisted data.");
+    persist_write_bool(PERSISTED_IS_DATA_SAVED, true);
+    persist_write_int(PERSISTED_CURRENT_DATA_VERSION, CURRENT_DATA_VERSION);
+    persist_write_int(PERSISTED_MAX_KEY_USED, PERSISTED_GLOBAL_DATA_COUNT);
+    persist_write_bool(PERSISTED_VIBRATION, GetVibration());
+    persist_write_bool(PERSISTED_WORKER_APP, GetWorkerApp());
+    persist_write_bool(PERSISTED_WORKER_CAN_LAUNCH, GetWorkerCanLaunch());
+    
+    uint16_t count = 0;
+    uint16_t *buffer = NULL;
+    ResourceStory_GetStoryList(&count, &buffer);
+    persist_write_int(PERSISTED_STORY_LIST_SIZE, count);
+    persist_write_data(PERSISTED_STORY_LIST, buffer, count * sizeof(uint16_t));
+    free(buffer);
+    
+    persist_write_bool(PERSISTED_TUTORIAL_SEEN, GetTutorialSeen());
+    
+    return true;
 }
 
-bool LoadPersistedData(void)
+bool LoadGlobalPersistedData(void)
 {
-	StoryState *currentStoryState;
-	const Story *currentStory;
-	bool useWorkerApp = false;
+    bool useWorkerApp = false;
+    
+    INFO_LOG("Loading global persisted data.");
+    if(!persist_exists(PERSISTED_IS_DATA_SAVED) || !persist_read_bool(PERSISTED_IS_DATA_SAVED))
+    {
+        INFO_LOG("No saved data to load.");
+        return false;
+    }
+    
+    if(!IsGlobalPersistedDataCurrent())
+    {
+        WARNING_LOG("Persisted data does not match current version, clearing.");
+        ClearGlobalPersistedData();
+        return false;
+    }
+    
+    uint16_t newcount = 0;
+    uint16_t *newbuffer = NULL;
+    uint16_t oldcount = 0;
+    uint16_t *oldbuffer = NULL;
+    ResourceStory_GetStoryList(&newcount, &newbuffer);
+    oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
+    oldbuffer = calloc(sizeof(uint16_t), oldcount);
+    persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount * sizeof(uint16_t));
 
-	if(!persist_exists(PERSISTED_IS_DATA_SAVED) || !persist_read_bool(PERSISTED_IS_DATA_SAVED))
-	{
-		INFO_LOG("No saved data to load.");
-		return false;
-	}
-		
-	if(!IsPersistedDataCurrent())
-	{
-		WARNING_LOG("Persisted data does not match current version, clearing.");
-		ClearPersistedData();
-		return false;
-	}
+    for(int i = 0; i < oldcount; ++i)
+    {
+        bool found = false;
+        for(int j = 0; j < newcount; ++j)
+        {
+            if(newbuffer[j] == oldbuffer[i])
+            {
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+        {
+            INFO_LOG("Deleting data for missing story: %d", oldbuffer[i]);
+            ClearStoryPersistedData(oldbuffer[i]);
+        }
+    }
+    
+    free(oldbuffer);
+    free(newbuffer);
+    
+    INFO_LOG("Loading global persisted data.");
+    SetVibration(persist_read_bool(PERSISTED_VIBRATION));
+    useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
+    if(useWorkerApp)
+    {
+        AttemptToLaunchWorkerApp();
+    }
+    else
+    {
+        // If the user has launched the worker app outside of MiniDungeon,
+        // they want it on.
+        if(WorkerIsRunning())
+            SetWorkerApp(true);
+    }
+    SetWorkerCanLaunch(persist_read_bool(PERSISTED_WORKER_CAN_LAUNCH));
+    
+    SetTutorialSeen(persist_read_bool(PERSISTED_TUTORIAL_SEEN));
+    
+    return true;
+}
 
-	INFO_LOG("Loading global persisted data.");
-	SetVibration(persist_read_bool(PERSISTED_VIBRATION));
-	useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
-	if(useWorkerApp)
-	{
-		AttemptToLaunchWorkerApp();
-	}
-	else
-	{
-		// If the user has launched the worker app outside of MiniDungeon,
-		// they want it on.
-		if(WorkerIsRunning())
-			SetWorkerApp(true);
-	}
-	SetWorkerCanLaunch(persist_read_bool(PERSISTED_WORKER_CAN_LAUNCH));
+bool SaveStoryPersistedData(void)
+{
+    uint16_t storyId = ResourceStory_GetCurrentStoryId();
+    uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
+    int offset = ComputeStoryPersistedDataOffset(storyId);
 
-	currentStoryState = GetCurrentStoryState();
-	currentStory = GetCurrentStory();
-	
-	if(currentStoryState && currentStory)
-	{
-		int offset = ComputeGamePersistedDataOffset(currentStory->gameNumber);
-		
-		if(!IsPersistedGameDataCurrent(currentStory->gameNumber, currentStory->gameDataVersion))
-		{
-			WARNING_LOG("Game's persisted data does not match current version, clearing.");
-			ClearPersistedGameData(currentStory->gameNumber);
-			return false;
-		}
-		
-		INFO_LOG("Loading persisted data.");
-		Character_ReadPersistedData(PERSISTED_GAME_CHARACTER_DATA + offset);
-		persist_read_data(PERSISTED_GAME_STORY_DATA + offset, &currentStoryState->persistedStoryState, sizeof(PersistedStoryState));
-		
-		if(persist_read_bool(PERSISTED_GAME_IN_COMBAT + offset))
-		{
-			int currentMonster = persist_read_int(PERSISTED_GAME_MONSTER_TYPE + offset);
-			int currentMonsterHealth = persist_read_int(PERSISTED_GAME_MONSTER_HEALTH + offset);
-			INFO_LOG("Resuming battle in progress.");
-			ResumeBattle(currentMonster, currentMonsterHealth);
-		}
-		if(Character_GetLevel() == 0)
-		{
-			// Something bad happened to the data, possible due to a watch crash
-			ERROR_LOG("Persisted data was broken somehow, clearing");
-			ClearPersistedGameData(currentStory->gameNumber);
-			return false;
-		}
-	}
-	
-	return true;
+    if(!IsStoryPersistedDataCurrent(storyId, storyVersion))
+    {
+        WARNING_LOG("Persisted data does not match current version, clearing.");
+        ClearStoryPersistedData(storyId);
+    }
+    
+    INFO_LOG("Saving story persisted data.");
+    persist_write_bool(offset + PERSISTED_STORY_IS_DATA_SAVED, true);
+    persist_write_int(offset + PERSISTED_STORY_CURRENT_DATA_VERSION, storyVersion);
+    persist_write_int(offset + PERSISTED_STORY_MAX_KEY_USED, offset + PERSISTED_STORY_DATA_COUNT);
+    uint16_t count;
+    uint8_t *buffer;
+    ResourceStory_GetPersistedData(&count, &buffer);
+    persist_write_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
+    Character_WritePersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
+    
+    return true;
+}
+
+bool LoadStoryPersistedData(void)
+{
+    uint16_t storyId = ResourceStory_GetCurrentStoryId();
+    uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
+    int offset = ComputeStoryPersistedDataOffset(storyId);
+    
+    if(!persist_exists(offset + PERSISTED_STORY_IS_DATA_SAVED) || !persist_read_bool(offset + PERSISTED_STORY_IS_DATA_SAVED))
+    {
+        INFO_LOG("No saved data to load.");
+        return false;
+    }
+    
+    if(!IsStoryPersistedDataCurrent(storyId, storyVersion))
+    {
+        WARNING_LOG("Persisted data does not match current version, clearing.");
+        ClearStoryPersistedData(storyId);
+        return false;
+    }
+    
+    INFO_LOG("Loading story persisted data.");
+    uint16_t count;
+    uint8_t *buffer;
+    ResourceStory_GetPersistedData(&count, &buffer);
+    persist_read_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
+    
+    ResourceStory_UpdateStoryWithPersistedState();
+    Character_ReadPersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
+   
+    return true;
 }

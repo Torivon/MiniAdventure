@@ -95,6 +95,7 @@ static void Bubble(uint16_t start, bool up)
 {
     uint16_t index = start;
     int direction = up ? -1 : 1;
+    DEBUG_VERBOSE_LOG("Bubbling");
     while(BubbleLoopCondition(index, up))
     {
         if(BattleQueueCompare(GetTicksToAct(queue.entries[index], NULL), GetTicksToAct(queue.entries[index + direction], NULL), up))
@@ -107,6 +108,7 @@ static void Bubble(uint16_t start, bool up)
             return;
         }
     }
+    DEBUG_VERBOSE_LOG("Done Bubbling");
 }
 
 static BattleQueueEntry *GetNextInactiveEntry(void)
