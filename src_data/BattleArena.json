@@ -16,7 +16,8 @@
             "name": "Rat Room",
             "adjacent_locations": ["arena"],
             "background_images": ["images/dungeondeadend.png"],
-            "monsters": ["rat"]
+            "monsters": ["rat"],
+            "base_level": 1
         }
     ],
     "skills": [

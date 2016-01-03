@@ -323,6 +323,10 @@ def process_dungeons(story):
             if index % 2 == 0:
                 location["background_images"] = list(dungeon["background_images"])
                 location["length"] = dungeon["length"]
+                if dungeon.has_key("encounter_chance"):
+                    location["encounter_chance"] = dungeon["encounter_chance"]
+                if dungeon.has_key("base_level"):
+                    location["base_level"] = dungeon["base_level"] + (index / 2) / dungeon["level_rate"]
             else:
                 location["background_images"] = list(dungeon["fixed_background_image"])
                 location["length"] = 0

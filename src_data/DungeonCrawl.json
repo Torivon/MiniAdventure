@@ -1,0 +1,209 @@
+{
+    "id": 567,
+    "version": 1,
+    "name": "Dungeon Crawl",
+    "description": "20 floor dungeon",
+    "start_location": "entrance",
+    "locations": [
+        {
+            "id": "entrance",
+            "name": "Dungeon Entrance",
+            "adjacent_locations": ["dungeon_start"],
+            "background_images": ["images/newfloor.png"]
+        },
+        {
+            "id": "dragon_room",
+            "name": "Dragon's Room",
+            "adjacent_locations": ["treasure"],
+            "background_images": ["images/dungeonstraight.png"],
+            "monsters": ["dragon"]
+        },
+        {
+            "id": "treasure",
+            "name": "Treasure Room",
+            "adjacent_locations": [],
+            "background_images": ["images/dungeondeadend.png"]
+        }        
+    ],
+    "dungeons": [
+        {
+            "id": "dungeon",
+            "name": "Dungeon",
+            "adjacent_locations": ["entrance", "treasure"],
+            "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
+            "fixed_background_image": ["images/newfloor.png"],
+            "length": 30,
+            "floors": 20,
+            "base_level": 1,
+            "level_rate": 1,
+            "encounter_chance": 20            
+        }
+    ],
+    "skills": [
+        {
+            "id": "fastattack",
+            "name": "Fast Attack",
+            "description": "Lightning quick strike",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 1,
+            "cooldown": 0
+        },
+        {
+            "id": "slowattack",
+            "name": "Slow Attack",
+            "description": "Heavy Slash",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["physical", "slashing"],
+            "potency": 5,
+            "cooldown": 4
+        },
+        {
+            "id": "shieldbash",
+            "name": "Shield Bash",
+            "description": "Counter with a shield",
+            "type": "counter",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10,
+            "cooldown": 2
+        }
+    ],
+    "monsters": [
+        {
+            "id": "rat",
+            "name": "Rat",
+            "image": "images/rat.png",
+            "combatantclass": {
+                "strength": "rankc",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "ranks",
+                "health": "rankc"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "goblin",
+            "name": "Goblin",
+            "image": "images/goblin.png",
+            "combatantclass": {
+                "strength": "ranka",
+                "magic": "rankf",
+                "defense": "rankc",
+                "magic_defense": "rankc",
+                "speed": "rankc",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "wizard",
+            "name": "Wizard",
+            "image": "images/wizard.png",
+            "combatantclass": {
+                "strength": "rankf",
+                "magic": "ranks",
+                "defense": "rankd",
+                "magic_defense": "ranks",
+                "speed": "rankb",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "zombie",
+            "name": "Zombie",
+            "image": "images/zombie.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "rankf",
+                "health": "ranka"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "turtle",
+            "name": "Turtle",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankf",
+                "defense": "ranks",
+                "magic_defense": "rankd",
+                "speed": "ranke",
+                "health": "ranka"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "lich",
+            "name": "Lich",
+            "image": "images/lich.png",
+            "combatantclass": {
+                "strength": "rankf",
+                "magic": "ranka",
+                "defense": "rankc",
+                "magic_defense": "rankb",
+                "speed": "rankd",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "dragon",
+            "name": "Dragon",
+            "image": "images/dragon.png",
+            "combatantclass": {
+                "strength": "ranka",
+                "magic": "rankb",
+                "defense": "ranka",
+                "magic_defense": "rankb",
+                "speed": "rankb",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        }
+    ]
+}

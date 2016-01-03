@@ -1,3 +1,5 @@
 BattleArena.json
+DungeonCrawl.json
+DragonQuest.json
 WanderTest.json
 DungeonTest.json
