@@ -321,12 +321,18 @@ def process_dungeons(story):
                 location["adjacent_locations"].append(idlist[index + 1])
 
             if index % 2 == 0:
+                floor = index / 2
                 location["background_images"] = list(dungeon["background_images"])
                 location["length"] = dungeon["length"]
                 if dungeon.has_key("encounter_chance"):
                     location["encounter_chance"] = dungeon["encounter_chance"]
                 if dungeon.has_key("base_level"):
-                    location["base_level"] = dungeon["base_level"] + (index / 2) / dungeon["level_rate"]
+                    location["base_level"] = dungeon["base_level"] + floor / dungeon["level_rate"]
+                if dungeon.has_key("monster_scaling") and dungeon.has_key("monsters"):
+                    location["monsters"] = []
+                    for monster_index in range(len(dungeon["monsters"])):
+                        if monster_index <= floor / dungeon["monster_scaling"]:
+                            location["monsters"].append(dungeon["monsters"][monster_index])
             else:
                 location["background_images"] = list(dungeon["fixed_background_image"])
                 location["length"] = 0

@@ -1,6 +1,6 @@
 {
     "id": 567,
-    "version": 1,
+    "version": 2,
     "name": "Dungeon Crawl",
     "description": "20 floor dungeon",
     "start_location": "entrance",
@@ -33,10 +33,12 @@
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
             "length": 30,
-            "floors": 20,
+            "floors": 19,
             "base_level": 1,
             "level_rate": 1,
-            "encounter_chance": 20            
+            "encounter_chance": 20,
+            "monsters": ["rat", "goblin", "wizard", "zombie", "turtle", "lich"],
+            "monster_scaling": 2       
         }
     ],
     "skills": [
