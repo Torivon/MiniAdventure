@@ -77,14 +77,14 @@ void ShowBatteryLevel(void)
 
 static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(GetCurrentGlobalState() == STATE_DIALOG)
+	if(GlobalState_GetCurrent() == STATE_DIALOG)
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 		return;
 	}
-	if(GetCurrentGlobalState() == STATE_LARGE_IMAGE)
+	if(GlobalState_GetCurrent() == STATE_LARGE_IMAGE)
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 		return;
 	}
 	if(IsMenuUsable(GetMainMenu()))
@@ -144,7 +144,7 @@ static DialogData exitPrompt =
 
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	switch(GetCurrentGlobalState())
+	switch(GlobalState_GetCurrent())
 	{
 		case STATE_MENU:
 		{
@@ -173,17 +173,17 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
             if(Dialog_AllowCancel())
             {
                 GlobalState_ClearQueue();
-                PopGlobalState();
+                GlobalState_Pop();
             }
             else
             {
-                PopGlobalState();
+                GlobalState_Pop();
             }
             break;
         }
 		default:
 		{
-			PopGlobalState();
+			GlobalState_Pop();
 			break;
 		}
 	}

@@ -160,7 +160,7 @@ DialogData introText[] =
 void RegisterTitleScreen(void)
 {
 	INFO_LOG("RegisterTitleScreen");
-    PushGlobalState(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
     if(!GetTutorialSeen())
     {
         TriggerDialog(&introText[0]);

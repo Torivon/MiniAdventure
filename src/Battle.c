@@ -96,7 +96,7 @@ void CloseBattleWindow(void)
 {
     INFO_LOG("Ending battle.");
     battleCleanExit = true;
-    PopGlobalState();
+    GlobalState_Pop();
     Character_SetHealth(gBattleState.player.actor.currentHealth);
     Character_SetCooldowns(gBattleState.player.actor.skillCooldowns);
     ShowDateLayer();
@@ -155,6 +155,7 @@ void BattleScreenAppear(void *data)
     {
         gPlayerTurn = false;
         gPlayerActed = false;
+        gBattleState.player.actor.currentTime = 0;
     }
     SetDescription(ResourceMonster_GetCurrentName());
     RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
@@ -168,7 +169,6 @@ void BattleScreenAppear(void *data)
 
 static bool forcedBattle = false;
 static int forcedBattleMonsterType = -1;
-static int forcedBattleMonsterHealth = 0;
 void ResumeBattle(int currentMonster)
 {
     forcedBattle = true;
@@ -295,13 +295,8 @@ void UpdateBattle(void *unused)
         return;
     }
     
-    UpdateActorCurrentTime(&gBattleState.player);
-    UpdateActorCurrentTime(&gBattleState.monster);
-    
-    MarkProgressBarDirty(playerTimeBar);
-    MarkProgressBarDirty(monsterTimeBar);
-    
     bool playerAhead = gBattleState.player.actor.currentTime >= gBattleState.monster.actor.currentTime;
+    bool actionPerformed = false;
     
     if(playerAhead)
     {
@@ -319,8 +314,8 @@ void UpdateBattle(void *unused)
                 gPlayerTurn = true;
                 gPlayerActed = false;
                 ReloadMenu(GetMainMenu());
-                gBattleState.player.actor.currentTime = 0;
-           }
+            }
+            actionPerformed = true;
         }
     }
     else
@@ -339,7 +334,17 @@ void UpdateBattle(void *unused)
                 gBattleState.monster.actor.skillQueued = true;
                 gBattleState.monster.actor.currentTime = 0;
             }
+            actionPerformed = true;
         }
+    }
+
+    if(!actionPerformed)
+    {
+        UpdateActorCurrentTime(&gBattleState.player);
+        UpdateActorCurrentTime(&gBattleState.monster);
+
+        MarkProgressBarDirty(playerTimeBar);
+        MarkProgressBarDirty(monsterTimeBar);
     }
 }
 
@@ -364,5 +369,5 @@ void BattleScreenPop(void *data)
 void TriggerBattleScreen(void)
 {
     if(ResourceStory_CurrentLocationHasMonster())
-        PushGlobalState(STATE_BATTLE, SECOND_UNIT, UpdateBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
+        GlobalState_Push(STATE_BATTLE, SECOND_UNIT, UpdateBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
 }

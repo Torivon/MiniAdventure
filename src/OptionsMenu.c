@@ -74,7 +74,7 @@ bool GetWorkerCanLaunch(void)
 
 bool OptionsMenuIsVisible(void)
 {
-	return GetCurrentGlobalState() == STATE_OPTIONS;
+	return GlobalState_GetCurrent() == STATE_OPTIONS;
 }
 
 void DrawOptionsMenu(void)
@@ -172,7 +172,7 @@ void OptionScreenAppear(void *data)
 	}
 	else
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 	}
 	
 }
@@ -185,10 +185,10 @@ void OptionScreenPop(void *data)
 
 void TriggerOptionScreen(void)
 {
-	PushGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+	GlobalState_Push(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
 }
 
 void QueueOptionsScreen(void)
 {
-    QueueGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+    GlobalState_Queue(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
 }

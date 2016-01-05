@@ -237,7 +237,7 @@ static void HideAnimationStopped(struct Animation *animation, bool finished, voi
 	{
 		menu->menuVisible = false;
 		if(menu->mainMenu)
-			PopGlobalState();
+			GlobalState_Pop();
 	}
 	
 	menu->menuHideAnimation = NULL;	
@@ -443,5 +443,5 @@ void ReloadMenu(Menu *menu)
 
 void TriggerMenu(Menu *menu)
 {
-	PushGlobalState(STATE_MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);
+	GlobalState_Push(STATE_MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);
 }

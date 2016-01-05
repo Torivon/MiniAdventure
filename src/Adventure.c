@@ -220,5 +220,5 @@ void AdventureScreenPop(void *data)
 
 void QueueAdventureScreen(void)
 {
-    QueueGlobalState(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
+    GlobalState_Queue(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
 }

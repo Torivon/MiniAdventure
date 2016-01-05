@@ -40,7 +40,7 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 	if(!hasFocus)
 		return;
 	
-	UpdateGlobalState(units_changed);
+	GlobalState_Update(units_changed);
 		
 	if(units_changed & MINUTE_UNIT)
 	{
@@ -102,13 +102,8 @@ void handle_deinit()
     SaveGlobalPersistedData();
     
     // This should only happen on a hard exit
-    if(ResourceStory_InStory())
-        AdventureScreenPop(NULL);
-    
-    if(ClosingWhileInBattle())
-    {
-        BattleScreenPop(NULL);
-    }
+    // This pops all states off the stack cleaning them all up.
+    GlobalState_Free();
 
 #if ALLOW_WORKER_APP
 	AppDying(ClosingWhileInBattle());
@@ -121,7 +116,6 @@ void handle_deinit()
 #endif
 	if(baseWindow)
 		window_destroy(baseWindow);
-    GlobalState_Free();
     ResourceBattler_UnloadPlayer();
     ResourceMonster_UnloadCurrent();
     ResourceStory_FreeAll();

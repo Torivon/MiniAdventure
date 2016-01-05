@@ -117,12 +117,12 @@ void TriggerLargeImage(int resourceId, bool forceBacklight)
 {
 	largeImageResourceId = resourceId;
 	largeImageForceBacklight = forceBacklight;
-	PushGlobalState(STATE_LARGE_IMAGE, 0, NULL, LargeImagePush, NULL, NULL, LargeImagePop, NULL);
+	GlobalState_Push(STATE_LARGE_IMAGE, 0, NULL, LargeImagePush, NULL, NULL, LargeImagePop, NULL);
 }
 
 void QueueLargeImage(int resourceId, bool forceBacklight)
 {
     largeImageResourceId = resourceId;
     largeImageForceBacklight = forceBacklight;
-    QueueGlobalState(STATE_LARGE_IMAGE, 0, NULL, LargeImagePush, NULL, NULL, LargeImagePop, NULL);
+    GlobalState_Queue(STATE_LARGE_IMAGE, 0, NULL, LargeImagePush, NULL, NULL, LargeImagePop, NULL);
 }

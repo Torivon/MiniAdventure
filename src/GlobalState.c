@@ -1,7 +1,8 @@
 #include <pebble.h>
 #include "GlobalState.h"
 #include "Logging.h"
-#include "Queue.h"
+
+typedef struct GlobalStateInstance GlobalStateInstance;
 
 typedef struct GlobalStateInstance
 {
@@ -13,15 +14,20 @@ typedef struct GlobalStateInstance
 	GlobalStateChangeCallback disappearCallback;
 	GlobalStateChangeCallback popCallback;
 	void *data;
+    GlobalStateInstance *prev;
+    GlobalStateInstance *next;
 } GlobalStateInstance;
 
-#define MAX_GLOBAL_STATES 20
+static GlobalStateInstance *stackTop = NULL;
+static GlobalStateInstance *queueFront = NULL;
+static GlobalStateInstance *queueBack = NULL;
 
-static GlobalStateInstance globalStateInstances[MAX_GLOBAL_STATES];
-static Queue *globalQueue = NULL;
-static int globalStateInstanceCount = 0;
+//static GlobalStateInstance globalStateInstances[MAX_GLOBAL_STATES];
+//static Queue *globalQueue = NULL;
 
-void QueueGlobalState(GlobalState state,
+//static int globalStateInstanceCount = 0;
+
+void GlobalState_Queue(GlobalState state,
                       TimeUnits triggerUnits,
                       GlobalStateChangeCallback updateCallback,
                       GlobalStateChangeCallback pushCallback,
@@ -30,8 +36,110 @@ void QueueGlobalState(GlobalState state,
                       GlobalStateChangeCallback popCallback,
                       void *data)
 {
-    if(Queue_IsFull(globalQueue))
-        return;
+    GlobalStateInstance *newInstance = calloc(sizeof(GlobalStateInstance), 1);
+    
+    newInstance->state = state;
+    newInstance->triggerUnits = triggerUnits;
+    newInstance->updateCallback = updateCallback;
+    newInstance->pushCallback = pushCallback;
+    newInstance->appearCallback = appearCallback;
+    newInstance->disappearCallback = disappearCallback;
+    newInstance->popCallback = popCallback;
+    newInstance->data = data;
+    newInstance->next = NULL;
+    newInstance->prev = NULL;
+    
+    if(queueBack == NULL)
+    {
+        queueFront = queueBack = newInstance;
+    }
+    else
+    {
+        queueBack->next = newInstance;
+        newInstance->prev = queueBack;
+        queueBack = newInstance;
+    }
+}
+
+static void GlobalState_PushInternal(GlobalStateInstance *newInstance)
+{
+    newInstance->next = NULL;
+    newInstance->prev = NULL;
+    
+    if(stackTop == NULL)
+    {
+        stackTop = newInstance;
+    }
+    else
+    {
+        stackTop->next = newInstance;
+        newInstance->prev = stackTop;
+        stackTop = newInstance;
+    }
+    
+	if(newInstance->pushCallback)
+		newInstance->pushCallback(newInstance->data);
+	if(newInstance->appearCallback)
+		newInstance->appearCallback(newInstance->data);
+}
+
+GlobalStateInstance *GlobalState_PopQueue(void)
+{
+    if(!queueBack)
+        return NULL;
+    
+    GlobalStateInstance *instance = queueFront;
+    queueFront = instance->next;
+    if(queueFront)
+    {
+        queueFront->prev = NULL;
+    }
+    else
+    {
+        queueBack = NULL;
+    }
+    return instance;
+}
+
+void GlobalState_ClearQueue(void)
+{
+    while(queueBack)
+    {
+        GlobalStateInstance *instance = GlobalState_PopQueue();
+        free(instance);
+    }
+}
+
+static void PopAppear(void *data)
+{
+    GlobalState_Pop();
+    GlobalState_Pop();
+}
+
+void GlobalState_QueueStatePop(void)
+{
+    GlobalState_Queue(STATE_STATE_POP, 0, NULL, PopAppear, NULL, NULL, NULL, NULL);
+}
+
+void GlobalState_Push(GlobalState state,
+                                     TimeUnits triggerUnits,
+                                     GlobalStateChangeCallback updateCallback,
+                                     GlobalStateChangeCallback pushCallback,
+                                     GlobalStateChangeCallback appearCallback,
+                                     GlobalStateChangeCallback disappearCallback, 
+                                     GlobalStateChangeCallback popCallback,
+                                     void *data)
+{
+    DEBUG_LOG("Push global state: %d", state);
+    // Pushing a new instance clears the queue
+    
+    GlobalState_ClearQueue();
+    
+    if(stackTop)
+    {
+        if(stackTop->disappearCallback)
+            stackTop->disappearCallback(stackTop->data);
+    }
     
     GlobalStateInstance *newInstance = calloc(sizeof(GlobalStateInstance), 1);
     
@@ -43,104 +151,28 @@ void QueueGlobalState(GlobalState state,
     newInstance->disappearCallback = disappearCallback;
     newInstance->popCallback = popCallback;
     newInstance->data = data;
-    
-    Queue_Push(globalQueue, newInstance);
+
+    GlobalState_PushInternal(newInstance);
 }
 
-static void PushGlobalState_internal(GlobalState state,
-					 TimeUnits triggerUnits, 
-					 GlobalStateChangeCallback updateCallback, 
-					 GlobalStateChangeCallback pushCallback, 
-					 GlobalStateChangeCallback appearCallback, 
-					 GlobalStateChangeCallback disappearCallback, 
-					 GlobalStateChangeCallback popCallback,
-					 void *data)
+void GlobalState_Update(TimeUnits units_changed)
 {
-	GlobalStateInstance *instance = &globalStateInstances[globalStateInstanceCount];
-	globalStateInstanceCount++;
-	
-	instance->state = state;	
-	instance->triggerUnits = triggerUnits;
-	instance->updateCallback = updateCallback;
-	instance->pushCallback = pushCallback;
-	instance->appearCallback = appearCallback;
-	instance->disappearCallback = disappearCallback;
-	instance->popCallback = popCallback;
-	instance->data = data;
-	if(instance->pushCallback)
-		instance->pushCallback(instance->data);
-	if(instance->appearCallback)
-		instance->appearCallback(instance->data);
+	if(!stackTop)
+		return;
+
+	if(stackTop->updateCallback && (units_changed & stackTop->triggerUnits))
+	{
+		stackTop->updateCallback(stackTop->data);
+	}
 }
 
-void GlobalState_ClearQueue(void)
+void GlobalState_Pop(void)
 {
-    while(!Queue_IsEmpty(globalQueue))
-    {
-        GlobalStateInstance *instance = Queue_Pop(globalQueue);
-        free(instance);
-    }
-}
-
-static void PopAppear(void *data)
-{
-    PopGlobalState();
-    PopGlobalState();
-}
-
-void GlobalState_QueueStatePop(void)
-{
-    QueueGlobalState(STATE_STATE_POP, 0, NULL, PopAppear, NULL, NULL, NULL, NULL);
-}
-
-void PushGlobalState(GlobalState state,
-                                     TimeUnits triggerUnits,
-                                     GlobalStateChangeCallback updateCallback,
-                                     GlobalStateChangeCallback pushCallback,
-                                     GlobalStateChangeCallback appearCallback,
-                                     GlobalStateChangeCallback disappearCallback, 
-                                     GlobalStateChangeCallback popCallback,
-                                     void *data)
-{
-    DEBUG_LOG("Push global state: %d", state);
-    if(globalStateInstanceCount == MAX_GLOBAL_STATES)
+    if(!stackTop)
         return;
-    
-    // Pushing a new instance clears the queue
-    
-    GlobalState_ClearQueue();
-    
-    if(globalStateInstanceCount > 0)
-    {
-        GlobalStateInstance *oldInstance = &globalStateInstances[globalStateInstanceCount - 1];
-        if(oldInstance->disappearCallback)
-            oldInstance->disappearCallback(oldInstance->data);
-    }
-    
-    PushGlobalState_internal(state, triggerUnits, updateCallback, pushCallback, appearCallback, disappearCallback, popCallback, data);
-}
-
-void UpdateGlobalState(TimeUnits units_changed)
-{
-	if(globalStateInstanceCount <= 0)
-		return;
 	
-	GlobalStateInstance *instance = &globalStateInstances[globalStateInstanceCount - 1];
-
-	if(instance->updateCallback && (units_changed & instance->triggerUnits))
-	{
-		instance->updateCallback(instance->data);
-	}
-}
-
-void PopGlobalState(void)
-{
-	if(globalStateInstanceCount == 0)
-	{
-		return;
-	}
-	
-	GlobalStateInstance *oldInstance = &globalStateInstances[globalStateInstanceCount - 1];
+    GlobalStateInstance *oldInstance = stackTop;
+    
 	DEBUG_LOG("pop global state: %d", oldInstance->state);
 	if(oldInstance->disappearCallback)
 		oldInstance->disappearCallback(oldInstance->data);
@@ -148,73 +180,53 @@ void PopGlobalState(void)
 	if(oldInstance->popCallback)
 		oldInstance->popCallback(oldInstance->data);
 	
-	globalStateInstanceCount--;
-
-    if(!Queue_IsEmpty(globalQueue))
+    stackTop = oldInstance->prev;
+    if(stackTop)
+        stackTop->next = NULL;
+    
+    free(oldInstance);
+    
+    if(queueBack)
     {
-        GlobalStateInstance *queuedInstance = Queue_Pop(globalQueue);
+        GlobalStateInstance *queuedInstance = GlobalState_PopQueue();
         if(queuedInstance)
         {
-            PushGlobalState_internal(queuedInstance->state,
-                            queuedInstance->triggerUnits,
-                            queuedInstance->updateCallback,
-                            queuedInstance->pushCallback,
-                            queuedInstance->appearCallback,
-                            queuedInstance->disappearCallback,
-                            queuedInstance->popCallback,
-                            queuedInstance->data);
-            free(queuedInstance);
+            GlobalState_PushInternal(queuedInstance);
             return;
         }
     }
     
-	if(globalStateInstanceCount == 0)
+	if(!stackTop)
 	{
-		window_stack_pop(true);
+        window_stack_pop(true);
 		return;
 	}
-	
-	GlobalStateInstance *newInstance = &globalStateInstances[globalStateInstanceCount - 1];
-	
-	if(newInstance->appearCallback)
-		newInstance->appearCallback(newInstance->data);
+
+	if(stackTop->appearCallback)
+		stackTop->appearCallback(stackTop->data);
 }
 
-GlobalState GetCurrentGlobalState(void)
+GlobalState GlobalState_GetCurrent(void)
 {
-	if(globalStateInstanceCount == 0)
-		return STATE_NONE;
+    if(!stackTop)
+        return STATE_NONE;
 	
-	return globalStateInstances[globalStateInstanceCount - 1].state;
+	return stackTop->state;
 }
 
-void PopAllGlobalStates(void)
+void GlobalState_PopAll(void)
 {
-	while(globalStateInstanceCount > 0)
+	while(stackTop)
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 	}
 }
 
 void GlobalState_Initialize(void)
 {
-    INFO_LOG("Initializing global state");
-    if(!globalQueue)
-    {
-        globalQueue = Queue_Create(MAX_GLOBAL_STATES);
-    }
 }
 
 void GlobalState_Free(void)
 {
-    if(globalQueue)
-    {
-        while(!Queue_IsEmpty(globalQueue))
-        {
-            GlobalStateInstance *instance = Queue_Pop(globalQueue);
-            free(instance);
-        }
-        Queue_Free(globalQueue);
-        globalQueue = NULL;
-    }
+    GlobalState_PopAll();
 }
