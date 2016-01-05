@@ -9,20 +9,20 @@ Menu *CreateMenuLayer(int onScreenX,
 					  int innerOffset,
 					  bool offScreenRight,
 					  bool mainMenu);
-void InitializeNewMenuLayer(Menu *menu, Window *window);
+void InitializeMenuLayer(Menu *menu, Window *window);
 
 bool IsMenuVisible(Menu *menu);
 void ShowMenu(void *menu);
 void HideMenu(Menu *menu);
 void TriggerMenu(Menu *menu);
 
-void CallNewMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window);
+void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window);
 
 bool IsMenuUsable(Menu *menu);
 bool IsMenuHidden(Menu *menu);
 bool IsMenuVisible(Menu *menu);
 
-MenuLayer *GetNewMenuLayer(Menu *menu);
+MenuLayer *GetMenuLayer(Menu *menu);
 
 void CleanupMenu(Menu *menu);
 

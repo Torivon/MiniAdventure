@@ -9,13 +9,12 @@
 #include "LargeImage.h"
 #include "Logging.h"
 #include "MainImage.h"
+#include "Menu.h"
 #include "MiniAdventure.h"
 #include "OptionsMenu.h"
-#include "NewBaseWindow.h"
+#include "BaseWindow.h"
 #include "StoryList.h"
 #include "ResourceStory.h"
-
-#include "NewMenu.h"
 
 static bool tutorialSeen = false;
 

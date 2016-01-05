@@ -1,11 +1,12 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "BaseWindow.h"
 #include "Character.h"
 #include "Clock.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "NewBattle.h"
+#include "Battle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "ResourceStory.h"
@@ -14,9 +15,6 @@
 #include "Utils.h"
 #include "WorkerControl.h"
 
-#include "NewBaseWindow.h"
-#include "NewMenu.h"
-	 
 Window *baseWindow = NULL;
 
 static bool hasFocus = true;
@@ -46,7 +44,7 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 		
 	if(units_changed & MINUTE_UNIT)
 	{
-		UpdateNewClock();
+		UpdateClock();
 	}
 }
 
@@ -55,7 +53,7 @@ void focus_handler(bool in_focus) {
 	DEBUG_VERBOSE_LOG("Focus handler");
 	if(hasFocus)
 	{
-		UpdateNewClock();
+		UpdateClock();
 		SetUpdateDelay();
 		INFO_LOG("Gained focus.");
 	}
@@ -89,7 +87,7 @@ void handle_init() {
 	DEBUG_LOG("First handle second");
 	
 	// Just here so that the health and level fields are always filled in.
-	baseWindow = InitializeNewBaseWindow();
+	baseWindow = InitializeBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	RegisterTitleScreen();

@@ -1,8 +1,8 @@
 #include <pebble.h>
 
 #include "GlobalState.h"
-#include "NewBaseWindow.h"
-#include "NewMenu.h"
+#include "BaseWindow.h"
+#include "Menu.h"
 #include "OptionsMenu.h"
 #include "WorkerControl.h"
 

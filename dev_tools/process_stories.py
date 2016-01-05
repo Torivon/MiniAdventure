@@ -128,9 +128,7 @@ def pack_battler(battler):
             skill = battler["skill_list"][index]
             binarydata += pack_integer(skill["index"])
             binarydata += pack_integer(skill["min_level"])
-            binarydata += pack_integer(0)
         else:
-            binarydata += pack_integer(0)
             binarydata += pack_integer(0)
             binarydata += pack_integer(0)
     return binarydata

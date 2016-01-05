@@ -6,7 +6,7 @@
 #include "CombatantClass.h"
 #include "Utils.h"
 #include "Logging.h"
-#include "NewBattle.h"
+#include "Battle.h"
 #include "ResourceStory.h"
 #include "Skills.h"
 #include "StoryList.h"
@@ -203,6 +203,42 @@ typedef struct BattlerWrapper
 BattlerWrapper currentMonster = {0};
 
 BattlerWrapper playerClass = {0};
+
+BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void)
+{
+    return &playerClass;
+}
+
+BattlerWrapper *BattlerWrapper_GetMonsterWrapper(void)
+{
+    return &currentMonster;
+}
+
+const char *BattlerWrapper_GetName(BattlerWrapper *wrapper)
+{
+    return wrapper->battler.name;
+}
+
+Skill *BattlerWrapper_GetSkillByIndex(BattlerWrapper *wrapper, uint16_t index)
+{
+    return wrapper->loadedSkills[index];
+}
+
+uint16_t BattlerWrapper_GetUsableSkillCount(BattlerWrapper *wrapper, uint16_t level)
+{
+    int count;
+    for(count = 0; count < wrapper->battler.skillList.count; ++count)
+    {
+        if(wrapper->battler.skillList.entries[count].level > level)
+            break;
+    }
+    return count;
+}
+
+CombatantClass *BattlerWrapper_GetCombatantClass(BattlerWrapper *wrapper)
+{
+    return &wrapper->battler.combatantClass;
+}
 
 void ResourceBattler_UnloadBattler(BattlerWrapper *wrapper)
 {

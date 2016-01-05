@@ -12,6 +12,8 @@ SkillList *Character_GetSkillList(void);
 CombatantClass *Character_GetCombatantClass(void);
 int Character_GetLevel(void);
 Character *Character_GetData(void);
+void Character_SetCooldowns(uint16_t *cooldowns);
+uint16_t *Character_GetCooldowns(void);
 
 void Character_WritePersistedData(int index);
 void Character_ReadPersistedData(int index);

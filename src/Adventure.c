@@ -7,9 +7,9 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
-#include "NewBattle.h"
-#include "NewMenu.h"
-#include "NewBaseWindow.h"
+#include "Battle.h"
+#include "Menu.h"
+#include "BaseWindow.h"
 #include "Persistence.h"
 #include "ProgressBar.h"
 #include "OptionsMenu.h"
@@ -109,20 +109,6 @@ void LoadLocationImage(void)
     SetMainImageVisibility(true, false, true);
 }
 
-typedef void (*ShowWindowFunction)(void);
-
-typedef struct
-{
-    ShowWindowFunction windowFunction;
-    int weight;
-} RandomTableEntry;
-
-// These should add up to 100
-RandomTableEntry entries[] =
-{
-    {TriggerBattleScreen, 100},
-};
-
 bool ComputeRandomEvent(void)
 {
     int result = Random(100) + 1;
@@ -191,8 +177,8 @@ void AdventureScreenPush(void *data)
     UpdateLocationProgress();
     
     // Force the main menu to the front
-    InitializeNewMenuLayer(GetMainMenu(), GetBaseWindow());
-    InitializeNewMenuLayer(GetSlaveMenu(), GetBaseWindow());
+    InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
+    InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
     // Force dialog layer to the top
     InitializeDialogLayer(GetBaseWindow());
@@ -225,11 +211,6 @@ void AdventureScreenPop(void *data)
     ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
-}
-
-void TriggerAdventureScreen(void)
-{
-    PushGlobalState(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
 }
 
 void QueueAdventureScreen(void)

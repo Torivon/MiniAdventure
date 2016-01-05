@@ -3,8 +3,8 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MenuArrow.h"
-#include "NewMenu.h"
-#include "NewBaseWindow.h"
+#include "Menu.h"
+#include "BaseWindow.h"
 #include "Utils.h"
 
 #define WINDOW_ROW_HEIGHT 16
@@ -22,14 +22,14 @@ typedef struct Menu
 	bool mainMenu;
 	
 	GFont menuFont;
-	GRect newMenuOnScreenPosition;
-	GRect newMenuOffScreenPosition;
+	GRect menuOnScreenPosition;
+	GRect menuOffScreenPosition;
 	PropertyAnimation *menuShowAnimation;
 	PropertyAnimation *menuHideAnimation;
 
-	bool newMenuLayerInitialized;
-	Layer *newTopLevelMenuLayer;
-	MenuLayer *newMenuLayer;
+	bool menuLayerInitialized;
+	Layer *topLevelMenuLayer;
+	MenuLayer *menuLayer;
 
 	bool menuVisible;
 	bool menuAnimating;
@@ -80,12 +80,12 @@ const char *GetMenuDescription(Menu *menu, MenuIndex *index)
 	}
 }
 
-void CallNewMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window)
+void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window)
 {
-	if(!menu->newMenuLayerInitialized)
+	if(!menu->menuLayerInitialized)
 		return;
 	
-	MenuIndex index = menu_layer_get_selected_index(menu->newMenuLayer);
+	MenuIndex index = menu_layer_get_selected_index(menu->menuLayer);
 	
 	if(index.row < GetMenuCellCount(menu))
 	{
@@ -117,11 +117,11 @@ void RegisterMenuCellList(Menu *menu, MenuCellDescription *list, uint16_t count)
 	
 	menu->cellList = list;
 	menu->cellCount = count;
-	if(menu->newMenuLayerInitialized)
+	if(menu->menuLayerInitialized)
 	{
-		menu_layer_reload_data(menu->newMenuLayer);
+		menu_layer_reload_data(menu->menuLayer);
 		MenuIndex index = {.section = 0, .row = 0};
-		menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignCenter, false);
+		menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
 	}
 	if(menu->mainMenu)
 		ShowMenuArrow();
@@ -150,8 +150,8 @@ void RegisterMenuCellCallbacks(Menu *menu, MenuCountCallback countCallback, Menu
 		if(menu->menuCountCallback() > 0)
         {
             MenuIndex index = {.section = 0, .row = 0};
-            menu_layer_set_selected_index(menu->newMenuLayer, index, MenuRowAlignCenter, false);
-            menu_layer_reload_data(menu->newMenuLayer);
+            menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
+            menu_layer_reload_data(menu->menuLayer);
 			ShowMenuArrow();
         }
 		else
@@ -173,9 +173,9 @@ void ClearMenuCellList(Menu *menu)
 		HideMenuArrow();
 }
 
-MenuLayer *GetNewMenuLayer(Menu *menu)
+MenuLayer *GetMenuLayer(Menu *menu)
 {
-	return menu->newMenuLayer;
+	return menu->menuLayer;
 }
 
 bool IsMenuUsable(Menu *menu)
@@ -199,7 +199,7 @@ static void ShowAnimationStarted(struct Animation *animation, void *context)
 	menu->menuAnimating = true;
 	if(menu->mainMenu)
 		ActivateMenuArrow();
-	MenuIndex index = menu_layer_get_selected_index(menu->newMenuLayer);
+	MenuIndex index = menu_layer_get_selected_index(menu->menuLayer);
 	
 	if(index.row < GetMenuCellCount(menu))
 	{
@@ -251,7 +251,7 @@ void ShowMenu(void *data)
 
 	if(!menu->menuShowAnimation)
 	{
-		menu->menuShowAnimation = property_animation_create_layer_frame(menu->newTopLevelMenuLayer, NULL, &menu->newMenuOnScreenPosition);
+		menu->menuShowAnimation = property_animation_create_layer_frame(menu->topLevelMenuLayer, NULL, &menu->menuOnScreenPosition);
 		animation_set_duration((Animation*)menu->menuShowAnimation, MENU_ANIMATION_DURATION);
 		animation_set_curve((Animation*)menu->menuShowAnimation, AnimationCurveLinear);
 		AnimationHandlers showHandlers = {.started = ShowAnimationStarted, .stopped = ShowAnimationStopped};
@@ -270,7 +270,7 @@ void HideMenu(Menu *menu)
 
 	if(!menu->menuHideAnimation)
 	{
-		menu->menuHideAnimation = property_animation_create_layer_frame(menu->newTopLevelMenuLayer, NULL, &menu->newMenuOffScreenPosition);
+		menu->menuHideAnimation = property_animation_create_layer_frame(menu->topLevelMenuLayer, NULL, &menu->menuOffScreenPosition);
 		animation_set_duration((Animation*)menu->menuHideAnimation, MENU_ANIMATION_DURATION);
 		animation_set_curve((Animation*)menu->menuShowAnimation, AnimationCurveLinear);
 		AnimationHandlers hideHandlers = {.started = HideAnimationStarted, .stopped = HideAnimationStopped};
@@ -346,35 +346,35 @@ void MenuUpdateProc(struct Layer *layer, GContext *ctx)
 	DrawContentFrame(ctx, &bounds);
 }
 
-void InitializeNewMenuLayer(Menu *menu, Window *window)
+void InitializeMenuLayer(Menu *menu, Window *window)
 {
-	if(!menu->newMenuLayerInitialized)
+	if(!menu->menuLayerInitialized)
 	{
 		GRect windowBounds = layer_get_bounds(window_get_root_layer(window));
-		menu->newMenuOnScreenPosition.size.w = menu->width;
-		menu->newMenuOnScreenPosition.size.h = menu->height;
-		menu->newMenuOffScreenPosition.size = menu->newMenuOnScreenPosition.size;
-		menu->newMenuOnScreenPosition.origin.x = menu->onScreenX;
-		menu->newMenuOnScreenPosition.origin.y = menu->yPos;
-		menu->newMenuOffScreenPosition.origin.y = menu->yPos;
+		menu->menuOnScreenPosition.size.w = menu->width;
+		menu->menuOnScreenPosition.size.h = menu->height;
+		menu->menuOffScreenPosition.size = menu->menuOnScreenPosition.size;
+		menu->menuOnScreenPosition.origin.x = menu->onScreenX;
+		menu->menuOnScreenPosition.origin.y = menu->yPos;
+		menu->menuOffScreenPosition.origin.y = menu->yPos;
 		if(menu->offScreenRight)
 		{
-			menu->newMenuOffScreenPosition.origin.x = windowBounds.size.w;
+			menu->menuOffScreenPosition.origin.x = windowBounds.size.w;
 		}
 		else
 		{
-			menu->newMenuOffScreenPosition.origin.x = -menu->newMenuOffScreenPosition.size.w;
+			menu->menuOffScreenPosition.origin.x = -menu->menuOffScreenPosition.size.w;
 		}
 		menu->menuFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-		menu->newTopLevelMenuLayer = layer_create(menu->newMenuOffScreenPosition);
-		GRect menu_bounds = layer_get_bounds(menu->newTopLevelMenuLayer);
+		menu->topLevelMenuLayer = layer_create(menu->menuOffScreenPosition);
+		GRect menu_bounds = layer_get_bounds(menu->topLevelMenuLayer);
 		menu_bounds.origin.x += menu->innerOffset;
 		menu_bounds.origin.y += menu->innerOffset;
 		menu_bounds.size.w -= 2 * menu->innerOffset;
 		menu_bounds.size.h -= 2 * menu->innerOffset;
-		menu->newMenuLayer = menu_layer_create(menu_bounds);
-		layer_add_child(menu->newTopLevelMenuLayer, menu_layer_get_layer(menu->newMenuLayer));
-		menu_layer_set_callbacks(menu->newMenuLayer, menu, (MenuLayerCallbacks){
+		menu->menuLayer = menu_layer_create(menu_bounds);
+		layer_add_child(menu->topLevelMenuLayer, menu_layer_get_layer(menu->menuLayer));
+		menu_layer_set_callbacks(menu->menuLayer, menu, (MenuLayerCallbacks){
 			.get_num_sections = menu_get_num_sections_callback,
 			.get_num_rows = menu_get_num_rows_callback,
 			.draw_row = menu_draw_row_callback,
@@ -382,24 +382,24 @@ void InitializeNewMenuLayer(Menu *menu, Window *window)
 			.selection_changed = selection_changed_callback
 		});
 #if defined(PBL_COLOR)
-		menu_layer_set_normal_colors(menu->newMenuLayer, GColorBlue, GColorWhite);
-		menu_layer_set_highlight_colors(menu->newMenuLayer, GColorWhite, GColorBlue);
+		menu_layer_set_normal_colors(menu->menuLayer, GColorBlue, GColorWhite);
+		menu_layer_set_highlight_colors(menu->menuLayer, GColorWhite, GColorBlue);
 #endif
-		scroll_layer_set_shadow_hidden(menu_layer_get_scroll_layer(menu->newMenuLayer), false);
+		scroll_layer_set_shadow_hidden(menu_layer_get_scroll_layer(menu->menuLayer), false);
 
-		layer_set_update_proc(menu->newTopLevelMenuLayer, MenuUpdateProc);
-		menu->newMenuLayerInitialized = true;
+		layer_set_update_proc(menu->topLevelMenuLayer, MenuUpdateProc);
+		menu->menuLayerInitialized = true;
 	}
 	Layer *window_layer = window_get_root_layer(window);
-	layer_add_child(window_layer, menu->newTopLevelMenuLayer);
+	layer_add_child(window_layer, menu->topLevelMenuLayer);
 }
 
-void RemoveNewMenuLayer(Menu *menu, Window *window)
+void RemoveMenuLayer(Menu *menu, Window *window)
 {
-	if(!menu->newMenuLayerInitialized)
+	if(!menu->menuLayerInitialized)
 		return;
 	
-	layer_remove_from_parent(menu->newTopLevelMenuLayer);
+	layer_remove_from_parent(menu->topLevelMenuLayer);
 }
 
 void CleanupMenu(Menu *menu)
@@ -407,11 +407,11 @@ void CleanupMenu(Menu *menu)
 	if(!menu)
 		return;
 	
-	if(menu->newMenuLayerInitialized)
+	if(menu->menuLayerInitialized)
 	{
-		layer_destroy(menu->newTopLevelMenuLayer);
-		menu_layer_destroy(menu->newMenuLayer);
-		menu->newMenuLayerInitialized = false;
+		layer_destroy(menu->topLevelMenuLayer);
+		menu_layer_destroy(menu->menuLayer);
+		menu->menuLayerInitialized = false;
 		if(menu->menuShowAnimation)
 			property_animation_destroy(menu->menuShowAnimation);
 		if(menu->menuHideAnimation)
@@ -424,10 +424,10 @@ void CleanupMenu(Menu *menu)
 void ReloadMenu(Menu *menu)
 {
 	DEBUG_LOG("ReloadMenu");
-	if(menu->newMenuLayerInitialized)
+	if(menu->menuLayerInitialized)
 	{
 		DEBUG_LOG("Reloading");
-		menu_layer_reload_data(menu->newMenuLayer);
+		menu_layer_reload_data(menu->menuLayer);
 		DEBUG_LOG("%d menu cells", GetMenuCellCount(menu));
 		if(menu->mainMenu)
 		{

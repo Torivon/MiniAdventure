@@ -1,7 +1,7 @@
 #include <pebble.h>
 #include "MenuArrow.h"
 #include "MiniAdventure.h"
-#include "NewMenu.h"
+#include "Menu.h"
 
 
 //******* MENU ARROW *********//

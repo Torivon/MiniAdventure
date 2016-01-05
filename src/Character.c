@@ -2,7 +2,6 @@
 
 #include "Adventure.h"
 #include "Character.h"
-#include "CharacterClass.h"
 #include "CombatantClass.h"
 #include "Logging.h"
 #include "ResourceStory.h"
@@ -13,9 +12,23 @@ typedef struct Character
     uint16_t classType;
     int level;
     int currentHealth;
+    uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
 } Character;
 
 Character character;
+
+void Character_SetCooldowns(uint16_t *cooldowns)
+{
+    for(int i = 0; i < MAX_SKILLS_IN_LIST; ++i)
+    {
+        character.skillCooldowns[i] = cooldowns[i];
+    }
+}
+
+uint16_t *Character_GetCooldowns(void)
+{
+    return character.skillCooldowns;
+}
 
 void Character_SetClass(int type)
 {

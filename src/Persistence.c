@@ -3,7 +3,7 @@
 #include "Character.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "NewBattle.h"
+#include "Battle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "TitleScreen.h"

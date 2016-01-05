@@ -8,6 +8,7 @@
 
 typedef struct CombatantClass CombatantClass;
 typedef struct SkillList SkillList;
+typedef struct BattlerWrapper BattlerWrapper;
 
 typedef void (*ResponseCallback)(void); // This needs to take some arguments including character and enemy
 
@@ -36,7 +37,6 @@ typedef struct SkillListEntry
 {
     uint16_t id;
     uint16_t level;
-    uint16_t cooldown;
 } SkillListEntry;
 
 typedef struct SkillList
@@ -45,21 +45,23 @@ typedef struct SkillList
     SkillListEntry entries[MAX_SKILLS_IN_LIST];
 } SkillList;
 
-typedef struct NewBattleActor
+typedef struct BattleActor
 {
-    char name[MAX_STORY_NAME_LENGTH];
-    bool isPlayer;
     uint16_t level;
-    uint16_t speed;
     uint16_t currentHealth;
     uint16_t maxHealth;
     uint16_t currentTime;
-    CombatantClass combatantClass;
-    SkillList skillList;
     bool skillQueued;
     uint16_t activeSkill;
     uint16_t counterSkill;
-} NewBattleActor;
+    uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
+} BattleActor;
 
-const char *ExecuteSkill(Skill *skill, NewBattleActor *attacker, NewBattleActor *defender);
-void UpdateSkillCooldowns(SkillList *skillList);
+typedef struct BattleActorWrapper
+{
+    BattleActor actor;
+    BattlerWrapper *battlerWrapper;
+} BattleActorWrapper;
+
+const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender);
+void UpdateSkillCooldowns(uint16_t *skillCooldowns);

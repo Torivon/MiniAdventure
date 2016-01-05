@@ -4,7 +4,7 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
-#include "NewBaseWindow.h"
+#include "BaseWindow.h"
 #include "TextBox.h"
 
 static TextBox *dialogTextBox = NULL;
