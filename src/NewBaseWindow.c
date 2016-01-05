@@ -21,8 +21,8 @@ static bool useSlaveMenu = false;
 static bool hideMenuOnSelect = true;
 
 static ProgressBar *batteryBar = NULL;
-static int currentBatteryLevel = 0;
-static int maxBatteryLevel = 100;
+static uint16_t currentBatteryLevel = 0;
+static uint16_t maxBatteryLevel = 100;
 #if defined(PBL_ROUND)
 static GRect batteryFrame = {.origin = {.x = 122, .y = 134}, .size = {.w = 10, .h = 30}};
 #else

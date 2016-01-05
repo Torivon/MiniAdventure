@@ -24,8 +24,8 @@ static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w
 #endif
 
 static ProgressBar *locationProgress;
-static int currentProgress = 0;
-static int maxProgress = 1;
+static uint16_t currentProgress = 0;
+static uint16_t maxProgress = 1;
 
 bool gUpdateAdventure = false;
 
@@ -51,8 +51,8 @@ void InitializeGameData(void)
 void ResetGame(void)
 {
     INFO_LOG("Resetting game.");
-    Character_Initialize();
     ResourceStory_InitializeCurrent();
+    Character_Initialize();
     
     SaveStoryPersistedData();
 }

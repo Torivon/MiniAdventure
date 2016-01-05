@@ -5,11 +5,9 @@ typedef struct CharacterClass CharacterClass;
 typedef struct CombatantClass CombatantClass;
 typedef struct SkillList SkillList;
 
-CharacterClass *Character_GetClass(void);
 void Character_SetClass(int type);
 void Character_SetHealth(int health);
 int Character_GetHealth(void);
-void Character_UpdateSkillList(void);
 SkillList *Character_GetSkillList(void);
 CombatantClass *Character_GetCombatantClass(void);
 int Character_GetLevel(void);

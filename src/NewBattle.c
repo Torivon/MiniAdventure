@@ -14,21 +14,6 @@
 #include "ProgressBar.h"
 #include "ResourceStory.h"
 #include "Skills.h"
-#include "BattleQueue.h"
-
-typedef struct NewBattleActor
-{
-    char *name[MAX_STORY_NAME_LENGTH];
-    uint16_t level;
-    uint16_t speed;
-    uint16_t currentHealth;
-    uint16_t maxHealth;
-    uint16_t currentTime;
-    CombatantClass combatantClass;
-    SkillList skillList;
-    bool skillQueued;
-    uint16_t activeSkill;
-} NewBattleActor;
 
 typedef struct NewBattleState
 {
@@ -55,11 +40,11 @@ static ProgressBar *playerTimeBar;
 static ProgressBar *monsterHealthBar;
 static ProgressBar *monsterTimeBar;
 
-static int maxTimeCount = 100;
+static uint16_t maxTimeCount = 100;
 
 static bool battleCleanExit = true;
 
-static NewBattleState gBattleState = {0};
+static NewBattleState gBattleState;
 
 // in seconds
 #define BATTLE_SAVE_TICK_DELAY 60
@@ -74,11 +59,6 @@ void SaveBattleState(void)
     }
 }
 
-int GetCurrentMonsterHealth(void)
-{
-    return gBattleState.currentMonsterHealth;
-}
-
 bool gUpdateNewBattle = false;
 bool gPlayerTurn = false;
 bool gPlayerActed = false;
@@ -89,9 +69,8 @@ void CloseNewBattleWindow(void)
 {
     INFO_LOG("Ending battle.");
     battleCleanExit = true;
-    ResetBattleQueue();
     PopGlobalState();
-    Character_SetHealth(BattleActor_GetHealth(GetPlayerActor()));
+    Character_SetHealth(gBattleState.player.currentHealth);
     ShowDateLayer();
 }
 
@@ -107,7 +86,13 @@ static uint16_t BattleScreenCount(void)
         return 0;
     
     DEBUG_LOG("Returning good value");
-    return gBattleState.player.count;
+    int count;
+    for(count = 0; count < gBattleState.player.skillList.count; ++count)
+    {
+        if(gBattleState.player.skillList.entries[count].level > gBattleState.player.level)
+            break;
+    }
+    return count;
 }
 
 static const char *BattleScreenNameCallback(int row)
@@ -115,9 +100,9 @@ static const char *BattleScreenNameCallback(int row)
     if(!gPlayerTurn)
         return NULL;
     
-    SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
-    Skill *skill = GetSkillByID(gBattleState.player.skillList.entries[row].id);
-    return GetSkillName(skill);
+    SkillListEntry *entry = &gBattleState.player.skillList.entries[row];
+    Skill *skill = ResourceBattler_GetPlayerSkillByID(entry->id);
+    return skill->name;
 }
 
 static const char *BattleScreenDescriptionCallback(int row)
@@ -128,8 +113,8 @@ static const char *BattleScreenDescriptionCallback(int row)
     SkillListEntry *entry = &gBattleState.player.skillList.entries[row];
     if(entry->cooldown > 0)
         return "On cooldown";
-    Skill *skill = GetSkillByID(entry->id);
-    return GetSkillName(skill);
+    Skill *skill = ResourceBattler_GetPlayerSkillByID(entry->id);
+    return skill->name;
 }
 
 static void BattleScreenSelectCallback(int row)
@@ -137,9 +122,7 @@ static void BattleScreenSelectCallback(int row)
     if(!gPlayerTurn)
         return;
     
-    SkillList *skillList = gBattleState.player.skillList;
-    SkillListEntry *entry = &skillList->entries[row];
-    if(entry->cooldown > 0)
+    if(gBattleState.player.skillList.entries[row].cooldown > 0)
         return;
     gBattleState.player.skillQueued = true;
     gBattleState.player.activeSkill = row;
@@ -181,17 +164,21 @@ bool IsBattleForced(void)
     return forcedBattle;
 }
 
-static void InitializeNewBattleActor(NewBattleActor *actor, CombatantClass *combatantClass, SkillList *skillList, uint16_t level, uint16_t currentHealth)
+static void InitializeNewBattleActor(NewBattleActor *actor, bool isPlayer, const char *name, CombatantClass *combatantClass, SkillList *skillList, uint16_t level, uint16_t currentHealth)
 {
+    actor->isPlayer = isPlayer;
+    strncpy(actor->name, name, MAX_STORY_NAME_LENGTH);
     actor->combatantClass = *combatantClass;
     actor->skillList = *skillList;
     actor->level = level;
     actor->speed = CombatantClass_GetSpeed(combatantClass, level);
     actor->maxHealth = CombatantClass_GetHealth(combatantClass, level);
-    if(startingHealth <= 0)
+    actor->activeSkill = INVALID_SKILL;
+    actor->counterSkill = INVALID_SKILL;
+    if(currentHealth <= 0)
         actor->currentHealth = actor->maxHealth;
     else
-        actor->currentHealth = startingHealth;
+        actor->currentHealth = currentHealth;
 }
 
 void NewBattleInit(void)
@@ -202,7 +189,7 @@ void NewBattleInit(void)
     {
         DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
         ResourceMonster_LoadCurrent(forcedBattleMonsterType);
-        gBattleState.currentMonsterHealth = forcedBattleMonsterHealth;
+        gBattleState.monster.currentHealth = forcedBattleMonsterHealth;
         forcedBattle = false;
     }
     
@@ -210,8 +197,8 @@ void NewBattleInit(void)
     {
         ResourceMonster_LoadCurrent(ResourceStory_GetCurrentLocationMonster());
     }
-    InitializeNewBattleActor(&gBattleState.player, Character_GetCombatantClass(), Character_GetSkillList(), Character_GetLevel(), Character_GetHealth());
-    InitializeNewBattleActor(&)gBattleState.monster, ResourceStory_GetCurrentMonsterCombatantClass(), ResourceStory_GetCurrentMonsterSkillList(), ResourceStory_GetCurrentLocationBaseLevel(), 0);
+    InitializeNewBattleActor(&gBattleState.player, true, "Player", Character_GetCombatantClass(), Character_GetSkillList(), Character_GetLevel(), Character_GetHealth());
+    InitializeNewBattleActor(&gBattleState.monster, false, ResourceMonster_GetCurrentName(), ResourceStory_GetCurrentMonsterCombatantClass(), ResourceStory_GetCurrentMonsterSkillList(), ResourceStory_GetCurrentLocationBaseLevel(), 0);
     
     playerHealthBar = CreateProgressBar(&gBattleState.player.currentHealth, &gBattleState.player.maxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
     monsterHealthBar = CreateProgressBar(&gBattleState.monster.currentHealth, &gBattleState.monster.maxHealth, FILL_DOWN, monsterHealthFrame, GColorFolly, -1);
@@ -235,24 +222,21 @@ void NewBattleInit(void)
     battleCleanExit = false;
 }
 
-static void DoSkill(Skill *skill, )
+static void DoSkill(Skill *skill, NewBattleActor *attacker, NewBattleActor *defender)
 {
-    gEffectDescription = ExecuteSkill();
+    gEffectDescription = ExecuteSkill(skill, attacker, defender);
     MarkProgressBarDirty(playerHealthBar);
     MarkProgressBarDirty(monsterHealthBar);
     SetDescription(gEffectDescription);
     gSkillDelay = SKILL_DELAY;
-    actor->currentTime = 0;
+    attacker->currentTime = 0;
     MarkProgressBarDirty(playerTimeBar);
-    actor->skillQueued = false;
+    MarkProgressBarDirty(monsterTimeBar);
+    attacker->skillQueued = false;
 }
 
 void UpdateNewBattle(void *unused)
 {
-    bool entryRemoved = false;
-    void *data = NULL;
-    BattleQueueEntryType type = ACTOR;
-    
     if(battleSaveTickDelay > 0)
     {
         --battleSaveTickDelay;
@@ -269,7 +253,7 @@ void UpdateNewBattle(void *unused)
     if(gPlayerTurn)
         return;
     
-    if(BattleActor_GetHealth(gBattleState.player) <= 0 || BattleActor_GetHealth(gBattleState.monster) <= 0)
+    if(gBattleState.player.currentHealth <= 0 || gBattleState.monster.currentHealth <= 0)
     {
         CloseNewBattleWindow();
         return;
@@ -281,7 +265,7 @@ void UpdateNewBattle(void *unused)
     MarkProgressBarDirty(playerTimeBar);
     MarkProgressBarDirty(monsterTimeBar);
     
-    bool playerAhead = gBattleState.player.currentTime >= gBattleState.monster.currentTime)
+    bool playerAhead = gBattleState.player.currentTime >= gBattleState.monster.currentTime;
     
     if(playerAhead)
     {
@@ -289,7 +273,8 @@ void UpdateNewBattle(void *unused)
         {
             if(gBattleState.player.skillQueued)
             {
-                
+                Skill *skill = ResourceStory_GetLoadedSkillByID(true, gBattleState.player.skillList.entries[gBattleState.player.activeSkill].id);
+                DoSkill(skill, &gBattleState.player, &gBattleState.monster);
             }
             else
             {
@@ -307,7 +292,8 @@ void UpdateNewBattle(void *unused)
         {
             if(gBattleState.monster.skillQueued)
             {
-                
+                Skill *skill = ResourceStory_GetLoadedSkillByID(false, gBattleState.monster.skillList.entries[gBattleState.monster.activeSkill].id);
+                DoSkill(skill, &gBattleState.monster, &gBattleState.player);
             }
             else
             {
@@ -315,45 +301,6 @@ void UpdateNewBattle(void *unused)
                 gBattleState.monster.activeSkill = 0;
                 gBattleState.monster.skillQueued = true;
                 gBattleState.monster.currentTime = 0;
-            }
-        }
-    }
-    
-    if(entryRemoved)
-    {
-        switch(type)
-        {
-            case SKILL:
-            {
-                SkillInstance *instance = (SkillInstance*)data;
-                gEffectDescription = ExecuteSkill(instance);
-                UpdateProgressBars();
-                MarkProgressBarDirty(playerHealthBar);
-                MarkProgressBarDirty(monsterHealthBar);
-                SetDescription(gEffectDescription);
-                BattleQueuePush(ACTOR, SkillInstanceGetAttacker(instance));
-                gSkillDelay = SKILL_DELAY;
-                break;
-            }
-            case ACTOR:
-            {
-                BattleActor *actor = (BattleActor*)data;
-                UpdateSkillCooldowns(BattleActor_GetSkillList(actor));
-                if(BattleActor_IsPlayer(actor))
-                {
-                    SetDescription("Your turn");
-                    gPlayerTurn = true;
-                    gPlayerActed = false;
-                    ReloadMenu(GetMainMenu());
-                }
-                else
-                {
-                    // Fake monster AI
-                    SkillList *skillList = BattleActor_GetSkillList(gBattleState.monster);
-                    SkillInstance *newInstance = CreateSkillInstance(&skillList->entries[0], GetMonsterActor(), GetPlayerActor());
-                    BattleQueuePush(SKILL, newInstance);
-                }
-                break;
             }
         }
     }

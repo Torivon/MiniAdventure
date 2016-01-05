@@ -5,8 +5,6 @@
 typedef struct Skill Skill;
 typedef struct SkillList SkillList;
 
-typedef void (*StoryInitializeFunction)(void);
-
 typedef enum
 {
     STORYUPDATE_COMPUTERANDOM = 0,
@@ -51,6 +49,10 @@ bool ResourceStory_CurrentLocationHasMonster(void);
 int ResourceStory_GetCurrentLocationMonster(void);
 SkillList *ResourceStory_GetCurrentMonsterSkillList(void);
 CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void);
+CombatantClass *ResourceStory_GetCurrentPlayerCombatantClass(void);
+SkillList *ResourceStory_GetCurrentPlayerSkillList(void);
+void ResourceBattler_LoadPlayer(uint16_t classId);
+Skill *ResourceBattler_GetPlayerSkillByID(int index);
 
 char *ResourceMonster_GetCurrentName(void);
 void ResourceMonster_UnloadCurrent(void);
@@ -58,3 +60,7 @@ void ResourceMonster_LoadCurrent(uint16_t index);
 bool ResourceMonster_Loaded(void);
 int ResourceStory_GetCurrentMonsterImage(void);
 Skill *ResourceStory_GetSkillByID(int index);
+Skill *ResourceStory_GetLoadedSkillByID(bool player, int index);
+void ResourceBattler_UnloadPlayer(void);
+void ResourceMonster_UnloadCurrent(void);
+

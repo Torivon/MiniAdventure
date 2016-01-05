@@ -4,8 +4,8 @@
 
 typedef struct ProgressBar
 {
-	int *current;
-	int *max;
+	uint16_t *current;
+	uint16_t *max;
 	FillDirection fillDirection;
 	GRect frame;
 	GColor fillColor;
@@ -18,7 +18,7 @@ typedef struct ProgressBar
 
 
 
-ProgressBar *CreateProgressBar(int *current, int *max, FillDirection fillDirection, GRect frame, GColor fillColor, int iconId)
+ProgressBar *CreateProgressBar(uint16_t *current, uint16_t *max, FillDirection fillDirection, GRect frame, GColor fillColor, int iconId)
 {
 	ProgressBar *bar = calloc(sizeof(ProgressBar), 1);
 	

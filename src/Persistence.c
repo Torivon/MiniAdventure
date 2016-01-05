@@ -36,7 +36,7 @@ void ClearGlobalPersistedData(void)
             uint16_t *oldbuffer = NULL;
             oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
             oldbuffer = calloc(sizeof(uint16_t), oldcount);
-            persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount);
+            persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount * sizeof(uint16_t));
             
             for(int i = 0; i < oldcount; ++i)
             {
@@ -133,7 +133,6 @@ bool LoadGlobalPersistedData(void)
     free(oldbuffer);
     free(newbuffer);
     
-    INFO_LOG("Loading global persisted data.");
     SetVibration(persist_read_bool(PERSISTED_VIBRATION));
     useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
     if(useWorkerApp)

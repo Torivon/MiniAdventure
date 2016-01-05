@@ -12,6 +12,7 @@ g_size_constants["MAX_ADJACENT_LOCATIONS"] = 10
 g_size_constants["MAX_BACKGROUND_IMAGES"] = 10
 g_size_constants["MAX_MONSTERS"] = 10
 g_size_constants["MAX_SKILLS_IN_LIST"] = 15
+g_size_constants["MAX_CLASSES"] = 5
 
 g_skill_types = {}
 g_skill_types["attack"] = 0
@@ -109,18 +110,22 @@ def pack_skill(skill):
     binarydata += pack_integer(skill["cooldown"])
     return binarydata
 
-def pack_monster(monster):
+def pack_battler(battler):
     '''
-    Write out all information needed for a monster into a packed binary file
+    Write out all information needed for a battler into a packed binary file
     '''
-    binarydata = pack_string(monster["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
-    binarydata += pack_integer(monster["image_index"])
-    for stat in monster["combatantclass_values"]:
+    binarydata = pack_string(battler["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
+    if battler.has_key("description"):
+        binarydata += pack_string(battler["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
+    else:
+        binarydata += pack_string("", g_size_constants["MAX_STORY_DESC_LENGTH"])
+    binarydata += pack_integer(battler["image_index"])
+    for stat in battler["combatantclass_values"]:
         binarydata += pack_integer(stat)
-    binarydata += pack_integer(len(monster["skill_list"]))
+    binarydata += pack_integer(len(battler["skill_list"]))
     for index in range(g_size_constants["MAX_SKILLS_IN_LIST"]):
-        if index < len(monster["skill_list"]):
-            skill = monster["skill_list"][index]
+        if index < len(battler["skill_list"]):
+            skill = battler["skill_list"][index]
             binarydata += pack_integer(skill["index"])
             binarydata += pack_integer(skill["min_level"])
             binarydata += pack_integer(0)
@@ -139,6 +144,12 @@ def pack_story(story):
     binarydata += pack_string(story["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string(story["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(int(story["start_location_index"]))
+    binarydata += pack_integer(len(story["classes_index"]))
+    for index in range(g_size_constants["MAX_CLASSES"]):
+        if index < len(story["classes_index"]):
+            binarydata += pack_integer(story["classes_index"][index])
+        else:
+            binarydata += pack_integer(0)
     return binarydata
 
 def get_total_objects(story):
@@ -150,8 +161,8 @@ def get_total_objects(story):
     count += len(story["locations"])
     if story.has_key("skills"):
         count += len(story["skills"])
-    if story.has_key("monsters"):
-        count += len(story["monsters"])
+    if story.has_key("battlers"):
+        count += len(story["battlers"])
     return count
 
 def write_story(story, datafile):
@@ -187,16 +198,16 @@ def write_story(story, datafile):
             next_write_location += len(skill_binary)
             binarydata += skill_binary
 
-    if story.has_key("monsters"):
+    if story.has_key("battlers"):
         # This loop walks all skills. For each one, we add the packed data to binarydata
         # and write out the skill and size directly to the file.
-        for index in range(len(story["monsters"])):
-            monster = story["monsters"][index]
-            monster_binary = pack_monster(monster)
+        for index in range(len(story["battlers"])):
+            battler = story["battlers"][index]
+            battler_binary = pack_battler(battler)
             datafile.write(pack_integer(next_write_location))
-            datafile.write(pack_integer(len(monster_binary)))
-            next_write_location += len(monster_binary)
-            binarydata += monster_binary
+            datafile.write(pack_integer(len(battler_binary)))
+            next_write_location += len(battler_binary)
+            binarydata += battler_binary
 
     # This loop walks all locations. For each one, we add the packed data to binarydata
     # and write out the location and size directly to the file.
@@ -227,28 +238,28 @@ def process_skills(story, skill_map, data_index):
 
     return data_index
 
-def process_monsters(story, monster_map, skill_map, imagelist, data_index):
-    if not story.has_key("monsters"):
+def process_battlers(story, battler_map, skill_map, imagelist, data_index):
+    if not story.has_key("battlers"):
         return data_index
     
-    for index in range(len(story["monsters"])):
-        monster = story["monsters"][index]
-        monster_map[monster["id"]] = data_index
+    for index in range(len(story["battlers"])):
+        battler = story["battlers"][index]
+        battler_map[battler["id"]] = data_index
         data_index += 1
-        if imagelist.count(monster["image"]) == 0:
-            imagelist.append(monster["image"])
-        monster["image_index"] = imagelist.index(monster["image"])
-        monster["combatantclass_values"] = []
+        if imagelist.count(battler["image"]) == 0:
+            imagelist.append(battler["image"])
+        battler["image_index"] = imagelist.index(battler["image"])
+        battler["combatantclass_values"] = []
         for stat_name in g_combatant_stats:
-            monster["combatantclass_values"].append(g_combatant_ranks[monster["combatantclass"][stat_name]])
+            battler["combatantclass_values"].append(g_combatant_ranks[battler["combatantclass"][stat_name]])
 
-        for skill_index in range(len(monster["skill_list"])):
-            skill = monster["skill_list"][skill_index]
+        for skill_index in range(len(battler["skill_list"])):
+            skill = battler["skill_list"][skill_index]
             skill["index"] = skill_map[skill["id"]]
 
     return data_index
 
-def process_locations(story, monster_map, imagelist, data_index):
+def process_locations(story, battler_map, imagelist, data_index):
     if not story.has_key("locations"):
         return data_index
 
@@ -265,7 +276,7 @@ def process_locations(story, monster_map, imagelist, data_index):
         if location.has_key("monsters"):
             location["monsters_index"] = []
             for monster in location["monsters"]:
-                location["monsters_index"].append(monster_map[monster])
+                location["monsters_index"].append(battler_map[monster])
 
     story["start_location_index"] = location_map[story["start_location"]]
     for index in range(len(story["locations"])):
@@ -360,10 +371,17 @@ def process_story(story, imagelist):
     skill_map = {}
     data_index = process_skills(story, skill_map, data_index)
     
-    monster_map = {}
-    data_index = process_monsters(story, monster_map, skill_map, imagelist, data_index)
+    battler_map = {}
+    data_index = process_battlers(story, battler_map, skill_map, imagelist, data_index)
     
-    data_index = process_locations(story, monster_map, imagelist, data_index)
+    data_index = process_locations(story, battler_map, imagelist, data_index)
+
+    if story.has_key("classes"):
+        story["classes_index"] = []
+        for battler in story["classes"]:
+            story["classes_index"].append(battler_map[battler])
+    else:
+        quit("Must have at least one class.")
 
 appinfo = {}
 data_objects = []

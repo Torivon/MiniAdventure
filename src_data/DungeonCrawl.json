@@ -1,9 +1,10 @@
 {
     "id": 567,
-    "version": 2,
+    "version": 3,
     "name": "Dungeon Crawl",
     "description": "20 floor dungeon",
     "start_location": "entrance",
+    "classes": ["adventurer"],
     "locations": [
         {
             "id": "entrance",
@@ -71,9 +72,19 @@
             "damage_types": ["physical", "bludgeoning"],
             "potency": 10,
             "cooldown": 2
+        },
+        {
+            "id": "potion",
+            "name": "Potion",
+            "description": "Heal with a potion",
+            "type": "heal",
+            "speed": 100,
+            "damage_types": [],
+            "potency": 10,
+            "cooldown": 4
         }
     ],
-    "monsters": [
+    "battlers": [
         {
             "id": "rat",
             "name": "Rat",
@@ -206,6 +217,30 @@
                     "min_level": 1
                 }
             ]
+        },
+        {
+            "id": "adventurer",
+            "name": "Adventurer",
+            "description": "A basic adventurer",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankb",
+                "defense": "rankb",
+                "magic_defense": "rankb",
+                "speed": "rankb",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                },
+                {
+                    "id": "potion",
+                    "min_level": 1
+                }
+            ]          
         }
     ]
 }
