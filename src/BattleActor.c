@@ -82,6 +82,10 @@ void DealDamage(int potency, BattleActor *defender)
     if(!defender)
         return;
     defender->health -= potency;
+    if(defender->health < 0)
+        defender->health = 0;
+    if(defender->health > defender->maxHealth)
+        defender->health = defender->maxHealth;
 }
 
 int BattleActor_GetHealth(BattleActor *actor)

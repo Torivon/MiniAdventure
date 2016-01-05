@@ -89,7 +89,6 @@ void handle_init() {
 	DEBUG_LOG("First handle second");
 	
 	// Just here so that the health and level fields are always filled in.
-	Character_Initialize();
 	baseWindow = InitializeNewBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
@@ -115,6 +114,8 @@ void handle_deinit()
 	if(baseWindow)
 		window_destroy(baseWindow);
     GlobalState_Free();
+    ResourceBattler_UnloadPlayer();
+    ResourceMonster_UnloadCurrent();
     ResourceStory_FreeAll();
 }
 

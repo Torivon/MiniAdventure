@@ -1,6 +1,6 @@
 #pragma once
 
-#define CURRENT_DATA_VERSION 10
+#define CURRENT_DATA_VERSION 1
 
 #define PERSISTED_DATA_GAP 1000
 

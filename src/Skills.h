@@ -17,15 +17,6 @@ typedef void (*ResponseCallback)(void); // This needs to take some arguments inc
 #define PIERCING BIT_FIELD(6)
 #define BLUDGEONING BIT_FIELD(7)
 
-typedef enum
-{
-    SKILL_TYPE_BASIC_ATTACK,
-    SKILL_TYPE_BASIC_HEAL,
-    SKILL_TYPE_COUNTER,
-    SKILL_TYPE_BUFF,
-    SKILL_TYPE_DEBUFF,
-} SkillType;
-
 typedef struct Skill
 {
     char name[MAX_STORY_NAME_LENGTH];
@@ -59,7 +50,7 @@ typedef struct SkillList
     SkillListEntry entries[MAX_SKILLS_IN_LIST];
 } SkillList;
 
-Skill *GetSkillByID(SkillID id);
+//Skill *GetSkillByID(SkillID id);
 
 char *GetSkillName(Skill *skill);
 char *GetSkillDescription(Skill *skill);

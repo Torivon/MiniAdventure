@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Skills.h"
 
 typedef struct CharacterClass CharacterClass;
@@ -16,3 +17,4 @@ CharacterClass *GetPaladinClass(void);
 CombatantClass *GetCombatantClass(CharacterClass *class);
 SkillList *GetSkillList(CharacterClass *class);
 
+#endif

@@ -51,8 +51,8 @@ void InitializeGameData(void)
 void ResetGame(void)
 {
     INFO_LOG("Resetting game.");
-    Character_Initialize();
     ResourceStory_InitializeCurrent();
+    Character_Initialize();
     
     SaveStoryPersistedData();
 }

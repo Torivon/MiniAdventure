@@ -1,9 +1,10 @@
 {
     "id": 31,
-    "version": 1,
+    "version": 2,
     "name": "Dragon Quest",
     "description": "A small adventure",
     "start_location": "village1",
+    "classes": ["adventurer"],
     "locations": [
         {
             "id": "village1",
@@ -310,6 +311,54 @@
             "floors": 3,
             "base_level": 1,
             "level_rate": 1
+        }
+    ],
+    "skills": [
+        {
+            "id": "fastattack",
+            "name": "Fast Attack",
+            "description": "Lightning quick strike",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 1,
+            "cooldown": 0
+        },
+        {
+            "id": "potion",
+            "name": "Potion",
+            "description": "Heal with a potion",
+            "type": "heal",
+            "speed": 100,
+            "damage_types": [],
+            "potency": 10,
+            "cooldown": 4
+        }
+    ],
+    "battlers": [
+        {
+            "id": "adventurer",
+            "name": "Adventurer",
+            "description": "A basic adventurer",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankb",
+                "defense": "rankb",
+                "magic_defense": "rankb",
+                "speed": "rankb",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                },
+                {
+                    "id": "potion",
+                    "min_level": 1
+                }
+            ]
         }
     ]
 }

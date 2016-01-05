@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "AutoSkillConstants.h"
 #include "BattleActor.h"
 #include "CombatantClass.h"
 #include "Logging.h"
@@ -32,59 +33,6 @@ char *GetSkillDescription(Skill *skill)
     return skill->description;
 }
 
-static Skill fastAttack =
-{
-    .name = "Fast Attack",
-    .description = "Quick stab",
-    .type = SKILL_TYPE_BASIC_ATTACK,
-    .speed = 100,
-    .damageType = PHYSICAL | PIERCING,
-    .potency = 1
-};
-
-static Skill slowAttack =
-{
-    .name = "Slow Attack",
-    .description = "Heavy slash",
-    .type = SKILL_TYPE_BASIC_ATTACK,
-    .speed = 20,
-    .damageType = PHYSICAL | SLASHING,
-    .potency = 5,
-    .cooldown = 4
-};
-
-static Skill shieldBash =
-{
-    .name = "Shield Bash",
-    .description = "Bash enemy as they attack",
-    .type = SKILL_TYPE_COUNTER,
-    .speed = 100,
-    .damageType = PHYSICAL | BLUDGEONING,
-    .potency = 10,
-    .cooldown = 2,
-};
-
-Skill *GetSkillByID(SkillID id)
-{
-    switch(id)
-    {
-        case SKILLID_FAST_ATTACK:
-        {
-            return &fastAttack;
-        }
-        case SKILLID_SLOW_ATTACK:
-        {
-            return &slowAttack;
-        }
-        case SKILLID_SHIELD_BASH:
-        {
-            return &shieldBash;
-        }
-    }
-    
-    return NULL;
-}
-
 uint16_t GetSkillSpeed(Skill *skill)
 {
     return skill->speed;
@@ -115,7 +63,7 @@ SkillInstance *CreateSkillInstance(SkillListEntry *entry, BattleActor *attacker,
 
 Skill *GetSkillFromInstance(SkillInstance *instance)
 {
-    Skill *skill = GetSkillByID(instance->entry->id);
+    Skill *skill = ResourceStory_GetLoadedSkillByID(BattleActor_IsPlayer(instance->attacker), instance->entry->id);
     return skill;
 }
 
@@ -151,15 +99,11 @@ const char *ExecuteSkill(SkillInstance *instance)
 {
     static char description[30];
     DEBUG_VERBOSE_LOG("ExecuteSkill");
-    Skill *skill = NULL;
-    if(BattleActor_IsPlayer(instance->attacker))
-        skill = GetSkillByID(instance->entry->id);
-    else
-        skill = ResourceStory_GetSkillByID(instance->entry->id);
+    Skill *skill = GetSkillFromInstance(instance);
     
     switch(skill->type)
     {
-        case SKILL_TYPE_BASIC_ATTACK:
+        case SKILL_TYPE_ATTACK:
         {
             SkillInstance *counterInstance = BattleActor_GetCounter(instance->defender);
             if(counterInstance)
@@ -186,6 +130,14 @@ const char *ExecuteSkill(SkillInstance *instance)
         {
             BattleActor_SetCounter(instance->attacker, instance);
             snprintf(description, sizeof(description), "%s prepares %s", BattleActor_IsPlayer(instance->attacker) ? "Player" : "Monster", GetSkillName(GetSkillFromInstance(instance)));
+            break;
+        }
+        case SKILL_TYPE_HEAL:
+        {
+            int potency = ComputeSkillPotency(instance);
+            DealDamage(-potency, instance->attacker);
+            snprintf(description, sizeof(description), "%s heals %d damage", BattleActor_IsPlayer(instance->attacker) ? "Player" : "Monster", potency);
+            FreeSkillInstance(instance);
             break;
         }
         default:

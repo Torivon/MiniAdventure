@@ -117,7 +117,7 @@ static const char *BattleScreenNameCallback(int row)
         return NULL;
     
     SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
-    Skill *skill = GetSkillByID(entry->id);
+    Skill *skill = ResourceBattler_GetPlayerSkillByID(entry->id);
     return GetSkillName(skill);
 }
 
@@ -129,7 +129,7 @@ static const char *BattleScreenDescriptionCallback(int row)
     SkillListEntry *entry = &BattleActor_GetSkillList(gBattleState.player)->entries[row];
     if(entry->cooldown > 0)
         return "On cooldown";
-    Skill *skill = GetSkillByID(entry->id);
+    Skill *skill = ResourceBattler_GetPlayerSkillByID(entry->id);
     return GetSkillName(skill);
 }
 

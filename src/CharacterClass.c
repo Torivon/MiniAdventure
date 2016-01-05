@@ -1,5 +1,7 @@
 #include "pebble.h"
 
+#if 0
+
 #include "Skills.h"
 #include "CharacterClass.h"
 #include "CombatantClass.h"
@@ -55,3 +57,4 @@ SkillList *GetSkillList(CharacterClass *class)
     return &class->skillList;
 }
 
+#endif

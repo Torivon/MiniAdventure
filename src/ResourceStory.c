@@ -13,7 +13,21 @@
 
 
 /********************* PREDECLARATIONS *********************************/
+
+typedef struct ResourceStory
+{
+    uint16_t id;
+    uint16_t version;
+    char name[MAX_STORY_NAME_LENGTH];
+    char description[MAX_STORY_DESC_LENGTH];
+    uint16_t start_location;
+    uint16_t classCount;
+    uint16_t classes[MAX_CLASSES];
+} ResourceStory;
+
+
 static ResHandle ResourceStory_GetCurrentResHandle(void);
+static ResourceStory *ResourceStory_GetCurrentStory();
 
 /********************* RESOURCE LOCATION *******************************/
 typedef struct ResourceLocation
@@ -168,62 +182,102 @@ Skill *ResourceSkill_Load(uint16_t logical_index)
     return newSkill;
 }
 
-/********************* RESOURCE MONSTER ******************************/
+/********************* RESOURCE BATTLER ******************************/
 
-typedef struct ResourceMonster
+typedef struct ResourceBattler
 {
     char name[MAX_STORY_NAME_LENGTH];
+    char description[MAX_STORY_DESC_LENGTH];
     uint16_t image;
     CombatantClass combatantClass;
     SkillList skillList;
-} ResourceMonster;
+} ResourceBattler;
 
-typedef struct MonsterWrapper
+typedef struct BattlerWrapper
 {
     bool loaded;
-    ResourceMonster monster;
-} MonsterWrapper;
+    Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+    ResourceBattler battler;
+} BattlerWrapper;
 
-MonsterWrapper currentMonster = {0};
-Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+BattlerWrapper currentMonster = {0};
+
+BattlerWrapper playerClass = {0};
+
+void ResourceBattler_UnloadBattler(BattlerWrapper *wrapper)
+{
+    if(!wrapper->loaded)
+        return;
+    
+    wrapper->loaded = false;
+    for(int i = 0; i < wrapper->battler.skillList.count; ++i)
+    {
+        ResourceSkill_Free(wrapper->loadedSkills[i]);
+        wrapper->loadedSkills[i] = NULL;
+    }
+}
 
 void ResourceMonster_UnloadCurrent(void)
 {
-    if(!currentMonster.loaded)
-        return;
+    ResourceBattler_UnloadBattler(&currentMonster);
+}
+
+void ResourceBattler_UnloadPlayer(void)
+{
+    ResourceBattler_UnloadBattler(&playerClass);
+}
+
+void ResourceBattler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index)
+{
+    ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
+    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(wrapper->battler)), sizeof(ResourceBattler), "ResourceBattler");
     
-    currentMonster.loaded = false;
-    for(int i = 0; i < currentMonster.monster.skillList.count; ++i)
+    wrapper->battler.image = autoImageMap[wrapper->battler.image];
+    for(int i = 0; i < wrapper->battler.skillList.count; ++i)
     {
-        ResourceSkill_Free(loadedSkills[i]);
-        loadedSkills[i] = NULL;
+        wrapper->loadedSkills[i] = ResourceSkill_Load(wrapper->battler.skillList.entries[i].id);
+        wrapper->battler.skillList.entries[i].id = i;
     }
+    wrapper->loaded = true;
 }
 
 void ResourceMonster_LoadCurrent(uint16_t logical_index)
 {
-    ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
-    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(currentMonster.monster)), sizeof(ResourceMonster), "ResourceMonster");
+    ResourceBattler_LoadBattler(&currentMonster, logical_index);
+}
 
-    currentMonster.monster.image = autoImageMap[currentMonster.monster.image];
-    for(int i = 0; i < currentMonster.monster.skillList.count; ++i)
-    {
-        loadedSkills[i] = ResourceSkill_Load(currentMonster.monster.skillList.entries[i].id);
-        currentMonster.monster.skillList.entries[i].id = i;
-    }
-    currentMonster.loaded = true;
+void ResourceBattler_LoadPlayer(uint16_t classId)
+{
+    ResourceStory *currentStory = ResourceStory_GetCurrentStory();
+    if(!currentStory)
+        return;
+    
+    ResourceBattler_LoadBattler(&playerClass, currentStory->classes[classId]);
 }
 
 Skill *ResourceStory_GetSkillByID(int index)
 {
-    return loadedSkills[index];
+    return currentMonster.loadedSkills[index];
+}
+
+Skill *ResourceBattler_GetPlayerSkillByID(int index)
+{
+    return playerClass.loadedSkills[index];
+}
+
+Skill *ResourceStory_GetLoadedSkillByID(bool player, int index)
+{
+    if(player)
+        return ResourceBattler_GetPlayerSkillByID(index);
+    else
+        return ResourceStory_GetSkillByID(index);
 }
 
 char *ResourceMonster_GetCurrentName(void)
 {
     if(currentMonster.loaded)
     {
-        return currentMonster.monster.name;
+        return currentMonster.battler.name;
     }
     else
     {
@@ -257,7 +311,7 @@ int ResourceStory_GetCurrentLocationMonster(void)
 SkillList *ResourceStory_GetCurrentMonsterSkillList(void)
 {
     if(currentMonster.loaded)
-        return &currentMonster.monster.skillList;
+        return &currentMonster.battler.skillList;
     else
         return NULL;
 }
@@ -265,7 +319,23 @@ SkillList *ResourceStory_GetCurrentMonsterSkillList(void)
 CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void)
 {
     if(currentMonster.loaded)
-        return &currentMonster.monster.combatantClass;
+        return &currentMonster.battler.combatantClass;
+    else
+        return NULL;
+}
+
+SkillList *ResourceStory_GetCurrentPlayerSkillList(void)
+{
+    if(playerClass.loaded)
+        return &playerClass.battler.skillList;
+    else
+        return NULL;
+}
+
+CombatantClass *ResourceStory_GetCurrentPlayerCombatantClass(void)
+{
+    if(playerClass.loaded)
+        return &playerClass.battler.combatantClass;
     else
         return NULL;
 }
@@ -274,7 +344,7 @@ int ResourceStory_GetCurrentMonsterImage(void)
 {
     if(currentMonster.loaded)
     {
-        return currentMonster.monster.image;
+        return currentMonster.battler.image;
     }
     else
     {
@@ -284,15 +354,6 @@ int ResourceStory_GetCurrentMonsterImage(void)
 
 
 /********************* RESOURCE STORY *******************************/
-typedef struct ResourceStory
-{
-    uint16_t id;
-    uint16_t version;
-    char name[MAX_STORY_NAME_LENGTH];
-    char description[MAX_STORY_DESC_LENGTH];
-    uint16_t start_location;
-} ResourceStory;
-
 typedef struct PersistedResourceStoryState
 {
     uint16_t currentLocationIndex;
