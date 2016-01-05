@@ -46,6 +46,13 @@ static bool battleCleanExit = true;
 
 static BattleState gBattleState;
 
+uint16_t currentMonsterIndex = 0;
+
+uint16_t Battle_GetCurrentMonsterIndex(void)
+{
+    return currentMonsterIndex;
+}
+
 // in seconds
 #define BATTLE_SAVE_TICK_DELAY 60
 static int battleSaveTickDelay = 0;
@@ -57,6 +64,26 @@ void SaveBattleState(void)
         //SavePersistedData();
         battleSaveTickDelay = BATTLE_SAVE_TICK_DELAY;
     }
+}
+
+void Battle_WritePlayerData(int index)
+{
+    persist_write_data(index, &gBattleState.player.actor, sizeof(BattleActor));
+}
+
+void Battle_WriteMonsterData(int index)
+{
+    persist_write_data(index, &gBattleState.monster.actor, sizeof(BattleActor));
+}
+
+void Battle_ReadPlayerData(int index)
+{
+    persist_read_data(index, &gBattleState.player.actor, sizeof(BattleActor));
+}
+
+void Battle_ReadMonsterData(int index)
+{
+    persist_read_data(index, &gBattleState.monster.actor, sizeof(BattleActor));
 }
 
 bool gUpdateBattle = false;
@@ -132,7 +159,7 @@ void BattleScreenAppear(void *data)
     SetDescription(ResourceMonster_GetCurrentName());
     RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
     ReloadMenu(GetMainMenu());
-    SetForegroundImage(ResourceStory_GetCurrentMonsterImage());
+    SetForegroundImage(BattlerWrapper_GetImage(gBattleState.monster.battlerWrapper));
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
 #endif
@@ -142,14 +169,10 @@ void BattleScreenAppear(void *data)
 static bool forcedBattle = false;
 static int forcedBattleMonsterType = -1;
 static int forcedBattleMonsterHealth = 0;
-void ResumeBattle(int currentMonster, int currentMonsterHealth)
+void ResumeBattle(int currentMonster)
 {
-    if(currentMonster >= 0 && currentMonsterHealth > 0)
-    {
-        forcedBattle = true;
-        forcedBattleMonsterType = currentMonster;
-        forcedBattleMonsterHealth = currentMonsterHealth;
-    }
+    forcedBattle = true;
+    forcedBattleMonsterType = currentMonster;
 }
 
 bool IsBattleForced(void)
@@ -184,17 +207,22 @@ void BattleInit(void)
     {
         DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
         ResourceMonster_LoadCurrent(forcedBattleMonsterType);
-        gBattleState.monster.actor.currentHealth = forcedBattleMonsterHealth;
+        gBattleState.monster.battlerWrapper = BattlerWrapper_GetMonsterWrapper();
+        gBattleState.player.battlerWrapper = BattlerWrapper_GetPlayerWrapper();
+        currentMonsterIndex = forcedBattleMonsterType;
         forcedBattle = false;
     }
-    
-    if(!ResourceMonster_Loaded())
+    else
     {
-        ResourceMonster_LoadCurrent(ResourceStory_GetCurrentLocationMonster());
+        if(!ResourceMonster_Loaded())
+        {
+            currentMonsterIndex = ResourceStory_GetCurrentLocationMonster();
+            ResourceMonster_LoadCurrent(currentMonsterIndex);
+        }
+        InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
+        uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
+        InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
     }
-    InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
-    uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
-    InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
     
     playerHealthBar = CreateProgressBar(&gBattleState.player.actor.currentHealth, &gBattleState.player.actor.maxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
     monsterHealthBar = CreateProgressBar(&gBattleState.monster.actor.currentHealth, &gBattleState.monster.actor.maxHealth, FILL_DOWN, monsterHealthFrame, GColorFolly, -1);

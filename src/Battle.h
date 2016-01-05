@@ -6,12 +6,18 @@ bool ClosingWhileInBattle(void);
 int GetCurrentMonsterHealth(void);
 void SaveBattleState(void);
 
-void ResumeBattle(int currentMonster, int currentMonsterHealth);
+void ResumeBattle(int currentMonster);
 bool IsBattleForced(void);
 
 BattleActor *GetPlayerActor(void);
 BattleActor *GetMonsterActor(void);
 void TriggerBattleScreen(void);
-void ResumeBattle(int currentMonster, int currentMonsterHealth);
 bool IsBattleForced(void);
 bool ClosingWhileInBattle(void);
+void BattleScreenPop(void *data);
+
+uint16_t Battle_GetCurrentMonsterIndex(void);
+void Battle_WritePlayerData(int index);
+void Battle_WriteMonsterData(int index);
+void Battle_ReadPlayerData(int index);
+void Battle_ReadMonsterData(int index);

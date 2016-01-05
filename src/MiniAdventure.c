@@ -100,7 +100,17 @@ void handle_deinit()
 {
 	INFO_LOG("Cleaning up on exit.");
     SaveGlobalPersistedData();
-#if ALLOW_WORKER_APP		
+    
+    // This should only happen on a hard exit
+    if(ResourceStory_InStory())
+        AdventureScreenPop(NULL);
+    
+    if(ClosingWhileInBattle())
+    {
+        BattleScreenPop(NULL);
+    }
+
+#if ALLOW_WORKER_APP
 	AppDying(ClosingWhileInBattle());
 #endif
 	tick_timer_service_unsubscribe();

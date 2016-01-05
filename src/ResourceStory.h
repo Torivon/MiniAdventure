@@ -30,6 +30,7 @@ uint16_t ResourceStory_GetCurrentLocationLength(void);
 bool ResourceStory_CurrentLocationIsPath(void);
 uint16_t ResourceStory_GetCurrentLocationBaseLevel(void);
 uint16_t ResourceStory_GetCurrentLocationEncounterChance(void);
+bool ResourceStory_InStory(void);
 
 uint16_t BattlerWrapper_GetUsableSkillCount(BattlerWrapper *wrapper, uint16_t level);
 Skill *BattlerWrapper_GetSkillByIndex(BattlerWrapper *wrapper, uint16_t index);
@@ -37,6 +38,7 @@ CombatantClass *BattlerWrapper_GetCombatantClass(BattlerWrapper *wrapper);
 BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void);
 BattlerWrapper *BattlerWrapper_GetMonsterWrapper(void);
 const char *BattlerWrapper_GetName(BattlerWrapper *wrapper);
+int BattlerWrapper_GetImage(BattlerWrapper *wrapper);
 
 void ResourceStory_LoadAll(void);
 void ResourceStory_LogCurrent(void);
@@ -55,20 +57,12 @@ void ResourceStory_UpdateStoryWithPersistedState(void);
 
 bool ResourceStory_CurrentLocationHasMonster(void);
 int ResourceStory_GetCurrentLocationMonster(void);
-SkillList *ResourceStory_GetCurrentMonsterSkillList(void);
-CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void);
-CombatantClass *ResourceStory_GetCurrentPlayerCombatantClass(void);
-SkillList *ResourceStory_GetCurrentPlayerSkillList(void);
 void ResourceBattler_LoadPlayer(uint16_t classId);
-Skill *ResourceBattler_GetPlayerSkillByID(int index);
 
 char *ResourceMonster_GetCurrentName(void);
 void ResourceMonster_UnloadCurrent(void);
 void ResourceMonster_LoadCurrent(uint16_t index);
 bool ResourceMonster_Loaded(void);
-int ResourceStory_GetCurrentMonsterImage(void);
-Skill *ResourceStory_GetSkillByID(int index);
-Skill *ResourceStory_GetLoadedSkillByID(bool player, int index);
 void ResourceBattler_UnloadPlayer(void);
 void ResourceMonster_UnloadCurrent(void);
 

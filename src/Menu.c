@@ -290,12 +290,13 @@ static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) 
 {
 	Menu *menu = (Menu*)data;
-	switch (section_index) {
+	switch (section_index)
+    {
 		case 0:
-		return GetMenuCellCount(menu);
+            return GetMenuCellCount(menu);
 		default:
-		return 0;
-  }
+            return 0;
+    }
 }
 
 int16_t get_cell_height_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context)
@@ -423,12 +424,9 @@ void CleanupMenu(Menu *menu)
 
 void ReloadMenu(Menu *menu)
 {
-	DEBUG_LOG("ReloadMenu");
 	if(menu->menuLayerInitialized)
 	{
-		DEBUG_LOG("Reloading");
 		menu_layer_reload_data(menu->menuLayer);
-		DEBUG_LOG("%d menu cells", GetMenuCellCount(menu));
 		if(menu->mainMenu)
 		{
 			if(GetMenuCellCount(menu) > 0)

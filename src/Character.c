@@ -45,16 +45,6 @@ void Character_SetHealth(int health)
     character.currentHealth = health;
 }
 
-SkillList *Character_GetSkillList(void)
-{
-    return ResourceStory_GetCurrentPlayerSkillList();
-}
-
-CombatantClass *Character_GetCombatantClass(void)
-{
-    return ResourceStory_GetCurrentPlayerCombatantClass();
-}
-
 int Character_GetLevel(void)
 {
     return character.level;
@@ -87,5 +77,5 @@ void Character_Initialize(void)
     character.classType = 0; // Get the first class in the story
     ResourceBattler_LoadPlayer(character.classType);
     character.level = 2;
-    character.currentHealth = CombatantClass_GetHealth(ResourceStory_GetCurrentPlayerCombatantClass(), character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
 }

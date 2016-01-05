@@ -240,6 +240,18 @@ CombatantClass *BattlerWrapper_GetCombatantClass(BattlerWrapper *wrapper)
     return &wrapper->battler.combatantClass;
 }
 
+int BattlerWrapper_GetImage(BattlerWrapper *wrapper)
+{
+    if(wrapper->loaded)
+    {
+        return wrapper->battler.image;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
 void ResourceBattler_UnloadBattler(BattlerWrapper *wrapper)
 {
     if(!wrapper->loaded)
@@ -291,24 +303,6 @@ void ResourceBattler_LoadPlayer(uint16_t classId)
     ResourceBattler_LoadBattler(&playerClass, currentStory->classes[classId]);
 }
 
-Skill *ResourceStory_GetSkillByID(int index)
-{
-    return currentMonster.loadedSkills[index];
-}
-
-Skill *ResourceBattler_GetPlayerSkillByID(int index)
-{
-    return playerClass.loadedSkills[index];
-}
-
-Skill *ResourceStory_GetLoadedSkillByID(bool player, int index)
-{
-    if(player)
-        return ResourceBattler_GetPlayerSkillByID(index);
-    else
-        return ResourceStory_GetSkillByID(index);
-}
-
 char *ResourceMonster_GetCurrentName(void)
 {
     if(currentMonster.loaded)
@@ -343,51 +337,6 @@ int ResourceStory_GetCurrentLocationMonster(void)
         return -1;
     }
 }
-
-SkillList *ResourceStory_GetCurrentMonsterSkillList(void)
-{
-    if(currentMonster.loaded)
-        return &currentMonster.battler.skillList;
-    else
-        return NULL;
-}
-
-CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void)
-{
-    if(currentMonster.loaded)
-        return &currentMonster.battler.combatantClass;
-    else
-        return NULL;
-}
-
-SkillList *ResourceStory_GetCurrentPlayerSkillList(void)
-{
-    if(playerClass.loaded)
-        return &playerClass.battler.skillList;
-    else
-        return NULL;
-}
-
-CombatantClass *ResourceStory_GetCurrentPlayerCombatantClass(void)
-{
-    if(playerClass.loaded)
-        return &playerClass.battler.combatantClass;
-    else
-        return NULL;
-}
-
-int ResourceStory_GetCurrentMonsterImage(void)
-{
-    if(currentMonster.loaded)
-    {
-        return currentMonster.battler.image;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
 
 /********************* RESOURCE STORY *******************************/
 typedef struct PersistedResourceStoryState
@@ -606,6 +555,11 @@ const char *ResourceStory_GetDescriptionByIndex(uint16_t index)
     
     ResourceStory *story = resourceStoryList[index];
     return story->description;
+}
+
+bool ResourceStory_InStory(void)
+{
+    return currentResourceStoryIndex != -1;
 }
 
 void ResourceStory_GetStoryList(uint16_t *count, uint16_t **buffer)

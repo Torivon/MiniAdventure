@@ -8,8 +8,6 @@ typedef struct SkillList SkillList;
 void Character_SetClass(int type);
 void Character_SetHealth(int health);
 int Character_GetHealth(void);
-SkillList *Character_GetSkillList(void);
-CombatantClass *Character_GetCombatantClass(void);
 int Character_GetLevel(void);
 Character *Character_GetData(void);
 void Character_SetCooldowns(uint16_t *cooldowns);

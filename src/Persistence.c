@@ -175,6 +175,14 @@ bool SaveStoryPersistedData(void)
     persist_write_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
     Character_WritePersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
     
+    persist_write_bool(offset + PERSISTED_STORY_IN_COMBAT, ClosingWhileInBattle());
+    if(ClosingWhileInBattle())
+    {
+        persist_write_int(offset + PERSISTED_STORY_MONSTER_TYPE, Battle_GetCurrentMonsterIndex());
+        Battle_WritePlayerData(offset + PERSISTED_STORY_BATTLE_PLAYER);
+        Battle_WriteMonsterData(offset + PERSISTED_STORY_BATTLE_MONSTER);
+    }
+    
     return true;
 }
 
@@ -205,6 +213,14 @@ bool LoadStoryPersistedData(void)
     
     ResourceStory_UpdateStoryWithPersistedState();
     Character_ReadPersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
-   
+    
+    bool inCombat = persist_read_bool(offset + PERSISTED_STORY_IN_COMBAT);
+    if(inCombat)
+    {
+        Battle_ReadPlayerData(offset + PERSISTED_STORY_BATTLE_PLAYER);
+        Battle_ReadMonsterData(offset + PERSISTED_STORY_BATTLE_MONSTER);
+        ResumeBattle(persist_read_int(offset + PERSISTED_STORY_MONSTER_TYPE));
+    }
+    
     return true;
 }

@@ -197,6 +197,11 @@ void AdventureScreenAppear(void *data)
     newLocation = -1;
     if(returnVal == STORYUPDATE_FULLREFRESH)
         RefreshAdventure();
+    
+    if(IsBattleForced())
+    {
+        TriggerBattleScreen();
+    }
 }
 
 void AdventureScreenDisappear(void *data)
