@@ -56,7 +56,7 @@ void Character_UpdateSkillList(void)
 SkillList *Character_GetSkillList(void)
 {
     Character_UpdateSkillList();
-    return &character.skillList;
+    return character.skillList;
 }
 
 CombatantClass *Character_GetCombatantClass(void)
