@@ -22,6 +22,10 @@ def configure(ctx):
     ctx.load('pebble_sdk')
 
 def build(ctx):
+    returnVal = subprocess.call(["python", "dev_tools/process_stories.py"])
+    if returnVal != 0:
+        ctx.fatal("\nFailed to process story files\n")
+
     if False and hint is not None:
         try:
             hint([node.abspath() for node in ctx.path.ant_glob("src/**/*.js")], _tty_out=False) # no tty because there are none in the cloudpebble sandbox.
@@ -41,10 +45,6 @@ def build(ctx):
 
     build_worker = os.path.exists('worker_src')
     binaries = []
-
-    returnVal = subprocess.call(["python", "dev_tools/process_stories.py"])
-    if returnVal != 0:
-        ctx.fatal("\nFailed to process story files\n")
 
     for p in ctx.env.TARGET_PLATFORMS:
         ctx.set_env(ctx.all_envs[p])
