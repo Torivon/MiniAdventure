@@ -144,6 +144,14 @@ def pack_story(story, hash):
     binarydata += pack_string(story["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string(story["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(int(story["start_location_index"]))
+    if story.has_key("xp_monsters_per_level"):
+        binarydata += pack_integer(int(story["xp_monsters_per_level"]))
+    else:
+        binarydata += pack_integer(0)
+    if story.has_key("xp_difference_scale"):
+        binarydata += pack_integer(int(story["xp_difference_scale"]))
+    else:
+        binarydata += pack_integer(0)
     binarydata += pack_integer(len(story["classes_index"]))
     for index in range(g_size_constants["MAX_CLASSES"]):
         if index < len(story["classes_index"]):

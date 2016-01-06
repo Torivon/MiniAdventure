@@ -22,6 +22,8 @@ typedef struct ResourceStory
     char name[MAX_STORY_NAME_LENGTH];
     char description[MAX_STORY_DESC_LENGTH];
     uint16_t start_location;
+    uint16_t xpMonstersPerLevel;
+    uint16_t xpDifferenceScale;
     uint16_t classCount;
     uint16_t classes[MAX_CLASSES];
 } ResourceStory;
@@ -587,6 +589,16 @@ uint16_t ResourceStory_GetCurrentStoryVersion(void)
 uint16_t ResourceStory_GetCurrentStoryHash(void)
 {
     return ResourceStory_GetCurrentStory()->hash;
+}
+
+uint16_t ResourceStory_GetCurrentStoryXPMonstersPerLevel(void)
+{
+    return ResourceStory_GetCurrentStory()->xpMonstersPerLevel;
+}
+
+uint16_t ResourceStory_GetCurrentStoryXPDifferenceScale(void)
+{
+    return ResourceStory_GetCurrentStory()->xpDifferenceScale;
 }
 
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer)

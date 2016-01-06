@@ -12,6 +12,7 @@ typedef struct Character
     uint16_t classType;
     int level;
     int currentHealth;
+    uint16_t currentXP;
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
 } Character;
 
@@ -60,6 +61,25 @@ size_t Character_GetDataSize(void)
 	return sizeof(Character);
 }
 
+void Character_GrantXP(uint16_t monsterLevel)
+{
+    uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();
+    uint16_t xpDifferenceScale = ResourceStory_GetCurrentStoryXPDifferenceScale();
+    
+    if(xpMonstersPerLevel == 0)
+        return;
+    
+    // We add 1 to work around truncation issues.
+    uint16_t xpGain = (XP_TO_LEVEL_UP * (100 + (monsterLevel - character.level) * xpDifferenceScale)) / (xpMonstersPerLevel * 100) + 1;
+    
+    character.currentXP += xpGain;
+    while(character.currentXP >= XP_TO_LEVEL_UP)
+    {
+        character.level++;
+        character.currentXP -= XP_TO_LEVEL_UP;
+    }
+}
+
 void Character_ReadPersistedData(int index)
 {
 	persist_read_data(index, &character, sizeof(Character));	
@@ -76,6 +96,7 @@ void Character_Initialize(void)
     INFO_LOG("Initializing character.");
     character.classType = 0; // Get the first class in the story
     ResourceBattler_LoadPlayer(character.classType);
-    character.level = 2;
+    character.level = 1;
+    character.currentXP = 0;
     character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
 }

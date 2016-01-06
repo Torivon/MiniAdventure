@@ -39,12 +39,14 @@ static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, Battl
     if(skill->damageType & PHYSICAL)
     {
         attackPower = CombatantClass_GetStrength(BattlerWrapper_GetCombatantClass(attacker->battlerWrapper), attacker->actor.level);
-        defensePower = CombatantClass_GetDefense(BattlerWrapper_GetCombatantClass(defender->battlerWrapper), defender->actor.level);
+        if(defender)
+            defensePower = CombatantClass_GetDefense(BattlerWrapper_GetCombatantClass(defender->battlerWrapper), defender->actor.level);
     }
     else if(skill->damageType & MAGIC)
     {
         attackPower = CombatantClass_GetMagic(BattlerWrapper_GetCombatantClass(attacker->battlerWrapper), attacker->actor.level);
-        defensePower = CombatantClass_GetMagicDefense(BattlerWrapper_GetCombatantClass(defender->battlerWrapper), defender->actor.level);
+        if(defender)
+            defensePower = CombatantClass_GetMagicDefense(BattlerWrapper_GetCombatantClass(defender->battlerWrapper), defender->actor.level);
     }
     
     if(defensePower == 0)
@@ -101,13 +103,12 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
         case SKILL_TYPE_COUNTER:
         {
             attacker->actor.counterSkill = attacker->actor.activeSkill;
-            attacker->actor.activeSkill = INVALID_SKILL;
             snprintf(description, sizeof(description), "%s prepares %s", BattlerWrapper_GetName(attacker->battlerWrapper), skill->name);
             break;
         }
         case SKILL_TYPE_HEAL:
         {
-            int potency = ComputeSkillPotency(skill, attacker, defender);
+            int potency = ComputeSkillPotency(skill, attacker, NULL);
             DealDamage(-potency, &attacker->actor);
             snprintf(description, sizeof(description), "%s heals %d damage", BattlerWrapper_GetName(attacker->battlerWrapper), potency);
             break;

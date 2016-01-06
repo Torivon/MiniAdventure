@@ -99,6 +99,12 @@ void CloseBattleWindow(void)
     battleCleanExit = true;
     GlobalState_Pop();
     Character_SetHealth(gBattleState.player.actor.currentHealth);
+    if(gBattleState.player.actor.currentHealth > 0)
+    {
+        // The player won, so grant xp.
+        Character_GrantXP(gBattleState.monster.actor.level);
+    }
+    
     Character_SetCooldowns(gBattleState.player.actor.skillCooldowns);
     ShowDateLayer();
 }

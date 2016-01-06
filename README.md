@@ -16,6 +16,8 @@ A story file is a json file which describese all of the attributes of the story.
 * "name": <string>
 * "description": <string>
 * "start_location": <string> # the id of a location in the file
+* "xp_monsters_per_level": <integer> # The engine uses a simplified experience scale. xp_monsters_per_level represents the number of monsters of equal level that it takes to level up. Fighting higher level monsters will give more experience, while lower level monsters will give less. An xp_monsters_per_level of 0 means no leveling up.
+* "xp_difference_scale": <integer> # an integer percent for the bonus or penalty in experience gains per level difference. With an xp_difference_scale of 20, if you defeat a monster 3 levels higher, you will gain a 60% experience bonus. Leaving this out or setting it to 0 gives no bonus or penalty.
 * "classes": <list> <string> # the ids of all allowed classes for the story. These must be valid battler ids.
 * "locations": <list> <location> # This is a list of location objects to which the player can travel
 * "dungeons": <list> <dungeon> # A list of dungeons. At processing, each dungeon is turned into a list of locations.

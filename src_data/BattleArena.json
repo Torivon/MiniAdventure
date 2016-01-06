@@ -1,9 +1,11 @@
 {
     "id": 12,
-    "version": 6,
+    "version": 7,
     "name": "Battle Arena",
     "description": "Train against monsters",
     "start_location": "arena",
+    "xp_monsters_per_level": 2,
+    "xp_difference_scale": 100,
     "classes": ["adventurer"],
     "locations": [
         {
@@ -18,7 +20,7 @@
             "adjacent_locations": ["arena"],
             "background_images": ["images/dungeondeadend.png"],
             "monsters": ["rat"],
-            "base_level": 1
+            "base_level": 2
         }
     ],
     "skills": [
@@ -38,7 +40,7 @@
             "description": "Heal with a potion",
             "type": "heal",
             "speed": 100,
-            "damage_types": [],
+            "damage_types": ["magic"],
             "potency": 10,
             "cooldown": 4
         },
@@ -99,12 +101,20 @@
             },
             "skill_list": [
                 {
+                    "id": "shieldbash",
+                    "min_level": 1
+                },
+                {
                     "id": "fastattack",
                     "min_level": 1
                 },
                 {
                     "id": "potion",
-                    "min_level": 1
+                    "min_level": 2
+                },
+                {
+                    "id": "slowattack",
+                    "min_level": 3
                 }
             ]          
         }

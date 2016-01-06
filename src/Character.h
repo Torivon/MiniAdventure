@@ -1,5 +1,7 @@
 #pragma once
 
+#define XP_TO_LEVEL_UP 1000
+
 typedef struct Character Character;
 typedef struct CharacterClass CharacterClass;
 typedef struct CombatantClass CombatantClass;
@@ -9,6 +11,7 @@ void Character_SetClass(int type);
 void Character_SetHealth(int health);
 int Character_GetHealth(void);
 int Character_GetLevel(void);
+void Character_GrantXP(uint16_t monsterLevel);
 Character *Character_GetData(void);
 void Character_SetCooldowns(uint16_t *cooldowns);
 uint16_t *Character_GetCooldowns(void);

@@ -53,6 +53,9 @@ void ResourceStory_GetStoryList(uint16_t *count, uint16_t **buffer);
 uint16_t ResourceStory_GetCurrentStoryId(void);
 uint16_t ResourceStory_GetCurrentStoryVersion(void);
 uint16_t ResourceStory_GetCurrentStoryHash(void);
+uint16_t ResourceStory_GetCurrentStoryXPMonstersPerLevel(void);
+uint16_t ResourceStory_GetCurrentStoryXPDifferenceScale(void);
+
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer);
 void ResourceStory_UpdateStoryWithPersistedState(void);
 
