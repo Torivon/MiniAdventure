@@ -99,7 +99,7 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 	}
 	else if(IsMenuHidden(GetMainMenu()))
 	{
-		if(GetMenuCellCount(GetMainMenu()) > 0)
+		if(GetMenuTotalCellCount(GetMainMenu()) > 0)
 		{
 			TriggerMenu(GetMainMenu());
 			if(useSlaveMenu)

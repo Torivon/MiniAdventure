@@ -4,6 +4,7 @@
 #include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
+#include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -57,22 +58,100 @@ void ResetGame(void)
     SaveStoryPersistedData();
 }
 
-static uint16_t AdventureMenuCount(void)
+static uint16_t AdventureMenuSectionCount(void)
 {
-    if(ResourceStory_CurrentLocationIsPath())
-        return 0;
-    
-    return ResourceStory_GetCurrentAdjacentLocations();
+    return 2 + ExtraMenu_GetSectionCount();
 }
 
-static const char *AdventureMenuNameCallback(int row)
+static const char *AdventureMenuSectionName(uint16_t sectionIndex)
 {
-    return ResourceStory_GetAdjacentLocationName(row);
+    switch(sectionIndex)
+    {
+        case 0:
+            return "Locations";
+        case 1:
+            return "Story";
+        case 2:
+            return ExtraMenu_GetSectionName();
+    }
+    return "None";
 }
 
-static void AdventureMenuSelectCallback(int row)
+static uint16_t AdventureMenuCount(uint16_t sectionIndex)
 {
-    newLocation = row;
+    switch(sectionIndex)
+    {
+        case 0:
+        {
+            if(ResourceStory_CurrentLocationIsPath())
+                return 0;
+            
+            return ResourceStory_GetCurrentAdjacentLocations();
+            break;
+        }
+        case 1:
+        {
+            return 1;
+        }
+        case 2:
+        {
+            return ExtraMenu_GetCellCount();
+        }
+    }
+    return 0;
+}
+
+static const char *AdventureMenuNameCallback(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+            return ResourceStory_GetAdjacentLocationName(index->row);
+        case 1:
+            return "Reset";
+        case 2:
+            return ExtraMenu_GetCellName(index->row);
+    }
+    return "None";
+}
+
+static DialogData resetPrompt =
+{
+    .text = "Are you sure you want to reset the game?",
+    .allowCancel = true
+};
+
+static void ResetGamePush(void *data)
+{
+    GlobalState_Pop();
+}
+
+static void ResetGamePop(void *data)
+{
+    ResetGame();
+}
+
+static void AdventureMenuSelectCallback(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+        {
+            newLocation = index->row;
+            break;
+        }
+        case 1:
+        {
+            QueueDialog(&resetPrompt);
+            GlobalState_Queue(STATE_RESET_GAME, 0, NULL, ResetGamePush, NULL, NULL, ResetGamePop, NULL);
+            break;
+        }
+        case 2:
+        {
+            ExtraMenu_SelectAction(index->row);
+            break;
+        }
+    }
 }
 
 void UpdateLocationProgress(void)
@@ -164,6 +243,7 @@ void UpdateAdventure(void *data)
                 vibes_short_pulse();
             
             RefreshAdventure();
+            Menu_ResetSelection(GetMainMenu());
             break;
         }
     }
@@ -188,7 +268,7 @@ void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
     UpdateLocationProgress();
-    RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuSectionName, AdventureMenuSectionCount, AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {

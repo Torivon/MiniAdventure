@@ -5,6 +5,7 @@
 #include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
+#include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "LargeImage.h"
 #include "Logging.h"
@@ -67,65 +68,73 @@ void ChooseCredits(void)
     QueueDialog(&credits[2]);
 }
 
-static uint16_t TitleScreenCount(void)
+static uint16_t TitleScreenSectionCount(void)
 {
-    uint16_t storyCount = GetStoryCount();
-    return storyCount + 3;
+    return 1 + ExtraMenu_GetSectionCount();
 }
 
-static const char *TitleScreenNameCallback(int row)
+static const char *TitleScreenSectionName(uint16_t sectionIndex)
 {
-    int storyCount = GetStoryCount();
-    if(row < storyCount)
-        return ResourceStory_GetNameByIndex(row);
-    else
+    switch(sectionIndex)
     {
-        if(row == storyCount)
-            return "Options";
-        else if(row == storyCount + 1)
-            return "Credits";
-        else if(row == storyCount + 2)
-            return "Repository";
+        case 0:
+            return "Stories";
+        case 1:
+            return ExtraMenu_GetSectionName();
     }
     return "None";
 }
 
-static const char *TitleScreenDescriptionCallback(int row)
+static uint16_t TitleScreenCount(uint16_t sectionIndex)
 {
-    int storyCount = GetStoryCount();
-    if(row < storyCount)
-        return ResourceStory_GetDescriptionByIndex(row);
-    else
+    switch(sectionIndex)
     {
-        if(row == storyCount)
-            return "Options";
-        else if(row == storyCount + 1)
-            return "Credits";
-        else if(row == storyCount + 2)
-            return "Repository";
+        case 0:
+            return GetStoryCount();
+        case 1:
+            return ExtraMenu_GetCellCount();
+    }
+    return 0;
+}
+
+static const char *TitleScreenNameCallback(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+            return ResourceStory_GetNameByIndex(index->row);
+        case 1:
+            return ExtraMenu_GetCellName(index->row);
     }
     return "None";
 }
 
-static void TitleScreenSelectCallback(int row)
+static const char *TitleScreenDescriptionCallback(MenuIndex *index)
 {
-    int storyCount = GetStoryCount();
-    if(row < storyCount)
-        LaunchResourceStory(row);
-    else
+    switch(index->section)
     {
-        if(row == storyCount)
-            ChooseOptions();
-        else if(row == storyCount + 1)
-            ChooseCredits();
-        else if(row == storyCount + 2)
-            ChooseRepo();
+        case 0:
+            return ResourceStory_GetDescriptionByIndex(index->row);
+        case 1:
+            return ExtraMenu_GetCellName(index->row);
+    }
+    return "None";
+}
+
+static void TitleScreenSelectCallback(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+            return LaunchResourceStory(index->row);
+        case 1:
+            return ExtraMenu_SelectAction(index->row);
     }
 }
 
 static void TitleScreenAppear(void *data)
 {
-    RegisterMenuCellCallbacks(GetMainMenu(), TitleScreenCount, TitleScreenNameCallback, TitleScreenDescriptionCallback, TitleScreenSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), TitleScreenSectionName, TitleScreenSectionCount, TitleScreenCount, TitleScreenNameCallback, TitleScreenDescriptionCallback, TitleScreenSelectCallback);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");

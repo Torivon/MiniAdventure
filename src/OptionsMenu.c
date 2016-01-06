@@ -92,14 +92,14 @@ MenuCellDescription optionScreenMenuList[] =
 
 static bool firstLaunch = false;
 
-uint16_t OptionMenuCount(void)
+uint16_t OptionMenuCount(uint16_t sectionIndex)
 {
 	return sizeof(optionScreenMenuList)/sizeof(*optionScreenMenuList);
 }
 
-const char *OptionMainMenuNameCallback(int row)
+const char *OptionMainMenuNameCallback(MenuIndex *index)
 {
-	switch(row)
+	switch(index->row)
 	{
 		case 0:
 		{
@@ -126,14 +126,24 @@ const char *OptionMainMenuNameCallback(int row)
 	return "";
 }
 
-const char *OptionMainMenuDescriptionCallback(int row)
+const char *OptionMainMenuDescriptionCallback(MenuIndex *index)
 {
-	return optionScreenMenuList[row].description;
+	return optionScreenMenuList[index->row].description;
 }
 
-void OptionMainMenuSelectCallback(int row)
+static const char *OptionMenuSectionName(uint16_t sectionIndex)
 {
-	switch(row)
+    return "Options";
+}
+
+static uint16_t OptionMenuSectionCount(void)
+{
+    return 1;
+}
+
+void OptionMainMenuSelectCallback(MenuIndex *index)
+{
+	switch(index->row)
 	{
 		case 0:
 		{
@@ -162,8 +172,8 @@ void OptionScreenAppear(void *data)
 {
 	SetUseSlaveMenu(true);
 	SetHideMenuOnSelect(false);	
-	RegisterMenuCellCallbacks(GetMainMenu(), OptionMenuCount, OptionMainMenuNameCallback, OptionMainMenuDescriptionCallback, OptionMainMenuSelectCallback);	
-	RegisterMenuCellList(GetSlaveMenu(), optionScreenMenuList, OptionMenuCount());
+	RegisterMenuCellCallbacks(GetMainMenu(), OptionMenuSectionName, OptionMenuSectionCount, OptionMenuCount, OptionMainMenuNameCallback, OptionMainMenuDescriptionCallback, OptionMainMenuSelectCallback);
+	RegisterMenuCellList(GetSlaveMenu(), "", optionScreenMenuList, OptionMenuCount(0));
 	if(firstLaunch)
 	{
 		TriggerMenu(GetMainMenu());

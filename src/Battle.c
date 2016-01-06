@@ -6,6 +6,7 @@
 #include "Clock.h"
 #include "CombatantClass.h"
 #include "DescriptionFrame.h"
+#include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -107,46 +108,107 @@ bool ClosingWhileInBattle(void)
     return !battleCleanExit;
 }
 
-static uint16_t BattleScreenCount(void)
+static uint16_t BattleScreenSectionCount(void)
 {
-    DEBUG_LOG("BattleScreenCount");
-    if(!gPlayerTurn)
-        return 0;
-    
-    DEBUG_LOG("Returning good value");
-    return BattlerWrapper_GetUsableSkillCount(gBattleState.player.battlerWrapper, gBattleState.player.actor.level);
+    return 2;
 }
 
-static const char *BattleScreenNameCallback(int row)
+static const char *BattleScreenSectionName(uint16_t sectionIndex)
 {
-    if(!gPlayerTurn)
-        return NULL;
-    
-    Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, row);
-    return skill->name;
+    switch(sectionIndex)
+    {
+        case 0:
+            return "Skills";
+        case 1:
+            return ExtraMenu_GetSectionName();
+    }
+    return "None";
 }
 
-static const char *BattleScreenDescriptionCallback(int row)
+static uint16_t BattleScreenCount(uint16_t sectionIndex)
 {
-    if(!gPlayerTurn)
-        return NULL;
-    
-    if(gBattleState.player.actor.skillCooldowns[row] > 0)
-        return "On cooldown";
-    Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, row);
-    return skill->name;
+    switch(sectionIndex)
+    {
+        case 0:
+        {
+            DEBUG_LOG("BattleScreenCount");
+            if(!gPlayerTurn)
+                return 0;
+            
+            DEBUG_LOG("Returning good value");
+            return BattlerWrapper_GetUsableSkillCount(gBattleState.player.battlerWrapper, gBattleState.player.actor.level);
+        }
+        case 1:
+        {
+            return ExtraMenu_GetCellCount();
+        }
+    }
+    return 0;
 }
 
-static void BattleScreenSelectCallback(int row)
+static const char *BattleScreenNameCallback(MenuIndex *index)
 {
-    if(!gPlayerTurn)
-        return;
-    
-    if(gBattleState.player.actor.skillCooldowns[row] > 0)
-        return;
-    gBattleState.player.actor.skillQueued = true;
-    gBattleState.player.actor.activeSkill = row;
-    gPlayerActed = true;
+    switch(index->section)
+    {
+        case 0:
+        {
+            if(!gPlayerTurn)
+                return NULL;
+            
+            Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, index->row);
+            return skill->name;
+        }
+        case 1:
+        {
+            return ExtraMenu_GetCellName(index->row);
+        }
+    }
+    return "None";
+}
+
+static const char *BattleScreenDescriptionCallback(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+        {
+            if(!gPlayerTurn)
+                return NULL;
+            
+            if(gBattleState.player.actor.skillCooldowns[index->row] > 0)
+                return "On cooldown";
+            Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, index->row);
+            return skill->name;
+        }
+        case 1:
+        {
+            return ExtraMenu_GetCellName(index->row);
+        }
+    }
+    return "None";
+}
+
+static void BattleScreenSelectCallback(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+        {
+            if(!gPlayerTurn)
+                return;
+            
+            if(gBattleState.player.actor.skillCooldowns[index->row] > 0)
+                return;
+            gBattleState.player.actor.skillQueued = true;
+            gBattleState.player.actor.activeSkill = index->row;
+            gPlayerActed = true;
+            break;
+        }
+        case 1:
+        {
+            ExtraMenu_SelectAction(index->row);
+        }
+    }
 }
 
 void BattleScreenAppear(void *data)
@@ -158,7 +220,7 @@ void BattleScreenAppear(void *data)
         gBattleState.player.actor.currentTime = 0;
     }
     SetDescription(ResourceMonster_GetCurrentName());
-    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenSectionName, BattleScreenSectionCount, BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
     ReloadMenu(GetMainMenu());
     SetForegroundImage(BattlerWrapper_GetImage(gBattleState.monster.battlerWrapper));
 #if defined(PBL_COLOR)
@@ -240,7 +302,7 @@ void BattleInit(void)
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
-    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenSectionName, BattleScreenSectionCount, BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
     
     DEBUG_VERBOSE_LOG("Finished battle init");
     battleCleanExit = false;
@@ -310,10 +372,11 @@ void UpdateBattle(void *unused)
             else
             {
                 UpdateSkillCooldowns(gBattleState.player.actor.skillCooldowns);
-                SetDescription("Your turn");
                 gPlayerTurn = true;
                 gPlayerActed = false;
                 ReloadMenu(GetMainMenu());
+                Menu_ResetSelection(GetMainMenu());
+                SetDescription("Your turn");
             }
             actionPerformed = true;
         }
