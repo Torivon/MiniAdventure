@@ -14,7 +14,7 @@
         },
         {
             "id": "village1",
-            "name": "Midgar",
+            "name": "Asgard",
             "adjacent_locations": ["road1", "house1", "house3"],
             "background_images": ["images/VillageExterior.png"]
         },

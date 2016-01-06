@@ -18,6 +18,7 @@ typedef struct ResourceStory
 {
     uint16_t id;
     uint16_t version;
+    uint16_t hash;
     char name[MAX_STORY_NAME_LENGTH];
     char description[MAX_STORY_DESC_LENGTH];
     uint16_t start_location;
@@ -581,6 +582,11 @@ uint16_t ResourceStory_GetCurrentStoryId(void)
 uint16_t ResourceStory_GetCurrentStoryVersion(void)
 {
     return ResourceStory_GetCurrentStory()->version;
+}
+
+uint16_t ResourceStory_GetCurrentStoryHash(void)
+{
+    return ResourceStory_GetCurrentStory()->hash;
 }
 
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer)

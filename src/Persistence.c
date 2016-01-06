@@ -157,9 +157,10 @@ bool SaveStoryPersistedData(void)
 {
     uint16_t storyId = ResourceStory_GetCurrentStoryId();
     uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
+    uint16_t hash = ResourceStory_GetCurrentStoryHash();
     int offset = ComputeStoryPersistedDataOffset(storyId);
 
-    if(!IsStoryPersistedDataCurrent(storyId, storyVersion))
+    if(!IsStoryPersistedDataCurrent(storyId, storyVersion, hash))
     {
         WARNING_LOG("Persisted data does not match current version, clearing.");
         ClearStoryPersistedData(storyId);
@@ -168,6 +169,7 @@ bool SaveStoryPersistedData(void)
     INFO_LOG("Saving story persisted data.");
     persist_write_bool(offset + PERSISTED_STORY_IS_DATA_SAVED, true);
     persist_write_int(offset + PERSISTED_STORY_CURRENT_DATA_VERSION, storyVersion);
+    persist_write_int(offset + PERSISTED_STORY_HASH, hash);
     persist_write_int(offset + PERSISTED_STORY_MAX_KEY_USED, offset + PERSISTED_STORY_DATA_COUNT);
     uint16_t count;
     uint8_t *buffer;
@@ -190,6 +192,7 @@ bool LoadStoryPersistedData(void)
 {
     uint16_t storyId = ResourceStory_GetCurrentStoryId();
     uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
+    uint16_t hash = ResourceStory_GetCurrentStoryHash();
     int offset = ComputeStoryPersistedDataOffset(storyId);
     
     if(!persist_exists(offset + PERSISTED_STORY_IS_DATA_SAVED) || !persist_read_bool(offset + PERSISTED_STORY_IS_DATA_SAVED))
@@ -198,7 +201,7 @@ bool LoadStoryPersistedData(void)
         return false;
     }
     
-    if(!IsStoryPersistedDataCurrent(storyId, storyVersion))
+    if(!IsStoryPersistedDataCurrent(storyId, storyVersion, hash))
     {
         WARNING_LOG("Persisted data does not match current version, clearing.");
         ClearStoryPersistedData(storyId);

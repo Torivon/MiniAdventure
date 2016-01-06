@@ -2,6 +2,7 @@ import sys
 import struct
 import json
 import os
+import hashlib
 
 STORY_DATA_STRING = "STORY_DATA_"
 
@@ -133,12 +134,13 @@ def pack_battler(battler):
             binarydata += pack_integer(0)
     return binarydata
 
-def pack_story(story):
+def pack_story(story, hash):
     '''
     Write out the main information for a story into a packed binary file
     '''
     binarydata = pack_integer(int(story["id"]))
     binarydata += pack_integer(int(story["version"]))
+    binarydata += pack_integer(hash)
     binarydata += pack_string(story["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string(story["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(int(story["start_location_index"]))
@@ -163,7 +165,7 @@ def get_total_objects(story):
         count += len(story["battlers"])
     return count
 
-def write_story(story, datafile):
+def write_story(story, datafile, hash):
     '''
     Take a story and write all of its parts into datafile
     '''
@@ -180,7 +182,7 @@ def write_story(story, datafile):
     next_write_location = (1 + 2 * count) * 2
     
     # Here, we generate the binary data for the main story object, and write out its size
-    binarydata = pack_story(story)
+    binarydata = pack_story(story, hash)
     datafile.write(pack_integer(next_write_location))
     datafile.write(pack_integer(len(binarydata)))
     next_write_location += len(binarydata)
@@ -397,10 +399,16 @@ with open("src_data/stories.txt") as stories:
         story_filename = "src_data/" + line.strip()
         story_datafile = "Auto" + os.path.splitext(line.strip())[0]+'.dat'
         with open(story_filename) as story_file:
+            m = hashlib.md5()
+            for line in story_file.readlines():
+                m.update(line)
+            hash = struct.unpack("<h", m.digest()[-2:])
+        with open(story_filename) as story_file:
             story = json.load(story_file)
             process_story(story, imagelist)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
-                write_story(story, datafile)
+                print hash[0]
+                write_story(story, datafile, hash[0])
                 newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
                 data_objects.append(newobject)
 

@@ -267,6 +267,10 @@ void AdventureScreenPush(void *data)
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
+    if(Character_GetHealth() <= 0)
+    {
+        ResetGame();
+    }
     UpdateLocationProgress();
     RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuSectionName, AdventureMenuSectionCount, AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;

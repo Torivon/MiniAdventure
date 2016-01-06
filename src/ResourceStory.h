@@ -52,6 +52,7 @@ const char *ResourceStory_GetDescriptionByIndex(uint16_t index);
 void ResourceStory_GetStoryList(uint16_t *count, uint16_t **buffer);
 uint16_t ResourceStory_GetCurrentStoryId(void);
 uint16_t ResourceStory_GetCurrentStoryVersion(void);
+uint16_t ResourceStory_GetCurrentStoryHash(void);
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer);
 void ResourceStory_UpdateStoryWithPersistedState(void);
 
