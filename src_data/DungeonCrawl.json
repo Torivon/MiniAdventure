@@ -17,7 +17,8 @@
             "name": "Dragon's Room",
             "adjacent_locations": ["treasure"],
             "background_images": ["images/dungeonstraight.png"],
-            "monsters": ["dragon"]
+            "monsters": ["dragon"],
+            "base_level": 20
         },
         {
             "id": "treasure",
@@ -30,7 +31,7 @@
         {
             "id": "dungeon",
             "name": "Dungeon",
-            "adjacent_locations": ["entrance", "treasure"],
+            "adjacent_locations": ["entrance", "dragon_room"],
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
             "length": 30,
