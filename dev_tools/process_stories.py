@@ -87,14 +87,14 @@ def pack_location(location):
         binarydata += pack_integer(0)
     if location.has_key("monsters_index"):
         binarydata += pack_integer(len(location["monsters_index"]))
-        for index in range(g_size_constants["MAX_BACKGROUND_IMAGES"]):
+        for index in range(g_size_constants["MAX_MONSTERS"]):
             if index < len(location["monsters_index"]):
                 binarydata += pack_integer(location["monsters_index"][index])
             else:
                 binarydata += pack_integer(0)
     else:
         binarydata += pack_integer(0)
-        for index in range(g_size_constants["MAX_BACKGROUND_IMAGES"]):
+        for index in range(g_size_constants["MAX_MONSTERS"]):
             binarydata += pack_integer(0)
     return binarydata
 
@@ -228,6 +228,12 @@ def process_skills(story, skill_map, data_index):
    
     for index in range(len(story["skills"])):
         skill = story["skills"][index]
+        
+        if len(skill["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Name is too long: " + skill["name"])
+        if len(skill["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+            quit("Description is too long: " + skill["description"])
+
         skill_map[skill["id"]] = data_index
         data_index += 1
 
@@ -244,6 +250,14 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
     
     for index in range(len(story["battlers"])):
         battler = story["battlers"][index]
+        
+        if len(battler["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Name is too long: " + battler["name"])
+        if battler.has_key("description") and len(battler["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+            quit("Description is too long: " + battler["description"])
+        if len(battler["skill_list"]) > g_size_constants["MAX_SKILLS_IN_LIST"]:
+            quit("Too many skills for " + battler["name"])
+
         battler_map[battler["id"]] = data_index
         data_index += 1
         if imagelist.count(battler["image"]) == 0:
@@ -266,6 +280,16 @@ def process_locations(story, battler_map, imagelist, data_index):
     location_map = {}
     for index in range(len(story["locations"])):
         location = story["locations"][index]
+        
+        if len(location["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Name is too long: " + location["name"])
+        if len(location["adjacent_locations"]) > g_size_constants["MAX_ADJACENT_LOCATIONS"]:
+            quit("Too many adjacent locations for " + location["name"])
+        if len(location["background_images"]) > g_size_constants["MAX_BACKGROUND_IMAGES"]:
+            quit("Too many background images for " + location["name"])
+        if location.has_key("monsters") and len(location["monsters"]) > g_size_constants["MAX_MONSTERS"]:
+            quit("Too many monsters for " + location["name"])
+
         location_map[location["id"]] = data_index
         data_index += 1
         location["background_images_index"] = []
@@ -407,7 +431,6 @@ with open("src_data/stories.txt") as stories:
             story = json.load(story_file)
             process_story(story, imagelist)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
-                print hash[0]
                 write_story(story, datafile, hash[0])
                 newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
                 data_objects.append(newobject)
