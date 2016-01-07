@@ -98,5 +98,5 @@ void Character_Initialize(void)
     ResourceBattler_LoadPlayer(character.classType);
     character.level = 1;
     character.currentXP = 0;
-    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
+    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
 }

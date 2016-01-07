@@ -31,6 +31,7 @@ g_damage_types["lightning"] = 1 << 4
 g_damage_types["slashing"] = 1 << 5
 g_damage_types["piercing"] = 1 << 6
 g_damage_types["bludgeoning"] = 1 << 7
+g_damage_types["holy"] = 1 << 8
 
 g_combatant_ranks = {}
 g_combatant_ranks["rankf"] = 0
@@ -48,6 +49,13 @@ def pack_integer(i):
     Write out an integer into a packed binary file
     '''
     return struct.pack('<h', i)
+
+def pack_integer_with_default(dict, key, default):
+    if dict.has_key(key):
+        binarydata = pack_integer(dict[key])
+    else:
+        binarydata = pack_integer(default)
+    return binarydata
 
 def pack_string(s, max_length):
     '''
@@ -73,18 +81,9 @@ def pack_location(location):
             binarydata += pack_integer(location["background_images_index"][index])
         else:
             binarydata += pack_integer(0)
-    if location.has_key("length"):
-        binarydata += pack_integer(int(location["length"]))
-    else:
-        binarydata += pack_integer(0)
-    if location.has_key("base_level"):
-        binarydata += pack_integer(int(location["base_level"]))
-    else:
-        binarydata += pack_integer(0)
-    if location.has_key("encounter_chance"):
-        binarydata += pack_integer(int(location["encounter_chance"]))
-    else:
-        binarydata += pack_integer(0)
+    binarydata += pack_integer_with_default(location, "length", 0)
+    binarydata += pack_integer_with_default(location, "base_level", 0)
+    binarydata += pack_integer_with_default(location, "encounter_chance", 0)
     if location.has_key("monsters_index"):
         binarydata += pack_integer(len(location["monsters_index"]))
         for index in range(g_size_constants["MAX_MONSTERS"]):
@@ -106,7 +105,7 @@ def pack_skill(skill):
     binarydata += pack_string(skill["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(skill["type_value"])
     binarydata += pack_integer(skill["speed"])
-    binarydata += pack_integer(skill["damage_type_value"])
+    binarydata += pack_integer(skill["damage_types_value"])
     binarydata += pack_integer(skill["potency"])
     binarydata += pack_integer(skill["cooldown"])
     return binarydata
@@ -132,26 +131,26 @@ def pack_battler(battler):
         else:
             binarydata += pack_integer(0)
             binarydata += pack_integer(0)
+
+    binarydata += pack_integer_with_default(battler, "vulnerable_value", 0)
+    binarydata += pack_integer_with_default(battler, "resistant_value", 0)
+    binarydata += pack_integer_with_default(battler, "immune_value", 0)
+    binarydata += pack_integer_with_default(battler, "absorb_value", 0)
+
     return binarydata
 
 def pack_story(story, hash):
     '''
     Write out the main information for a story into a packed binary file
     '''
-    binarydata = pack_integer(int(story["id"]))
-    binarydata += pack_integer(int(story["version"]))
+    binarydata = pack_integer(story["id"])
+    binarydata += pack_integer(story["version"])
     binarydata += pack_integer(hash)
     binarydata += pack_string(story["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string(story["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
-    binarydata += pack_integer(int(story["start_location_index"]))
-    if story.has_key("xp_monsters_per_level"):
-        binarydata += pack_integer(int(story["xp_monsters_per_level"]))
-    else:
-        binarydata += pack_integer(0)
-    if story.has_key("xp_difference_scale"):
-        binarydata += pack_integer(int(story["xp_difference_scale"]))
-    else:
-        binarydata += pack_integer(0)
+    binarydata += pack_integer(story["start_location_index"])
+    binarydata += pack_integer_with_default(story, "xp_monsters_per_level", 0)
+    binarydata += pack_integer_with_default(story, "xp_difference_scale", 0)
     binarydata += pack_integer(len(story["classes_index"]))
     for index in range(g_size_constants["MAX_CLASSES"]):
         if index < len(story["classes_index"]):
@@ -230,6 +229,15 @@ def write_story(story, datafile, hash):
     # Now that all the index and size data has been written, write out the accumulated data
     datafile.write(binarydata)
 
+def process_damage_type_field(dict, field):
+    if not dict.has_key(field):
+        return
+
+    new_field_name = field + "_value"
+    dict[new_field_name] = 0
+    for damage_type in dict[field]:
+        dict[new_field_name] = dict[new_field_name] | g_damage_types[damage_type]
+
 def process_skills(story, skill_map, data_index):
     if not story.has_key("skills"):
         return data_index
@@ -246,9 +254,7 @@ def process_skills(story, skill_map, data_index):
         data_index += 1
 
         skill["type_value"] = g_skill_types[skill["type"]]
-        skill["damage_type_value"] = 0
-        for damage_type in skill["damage_types"]:
-            skill["damage_type_value"] = skill["damage_type_value"] | g_damage_types[damage_type]
+        process_damage_type_field(skill, "damage_types")
 
     return data_index
 
@@ -278,6 +284,11 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
         for skill_index in range(len(battler["skill_list"])):
             skill = battler["skill_list"][skill_index]
             skill["index"] = skill_map[skill["id"]]
+
+        process_damage_type_field(battler, "vulnerable")
+        process_damage_type_field(battler, "resistant")
+        process_damage_type_field(battler, "immune")
+        process_damage_type_field(battler, "absorb")
 
     return data_index
 
@@ -334,7 +345,7 @@ def process_dungeons(story):
         dungeon = story["dungeons"][dungeonindex]
         idlist = []
         namelist = []
-        floors = int(dungeon["floors"])
+        floors = dungeon["floors"]
         for floor in range(floors):
             if floor == 0:
                 idsuffix = "_start"
@@ -436,7 +447,10 @@ with open("src_data/stories.txt") as stories:
                 m.update(line)
             hash = struct.unpack("<h", m.digest()[-2:])
         with open(story_filename) as story_file:
-            story = json.load(story_file)
+            try:
+                story = json.load(story_file)
+            except ValueError as e:
+                quit("Failed to parse story " + story_filename + ". Probably an extraneous ','.")
             process_story(story, imagelist)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
                 write_story(story, datafile, hash[0])

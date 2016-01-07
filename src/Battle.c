@@ -228,7 +228,7 @@ void BattleScreenAppear(void *data)
     SetDescription(ResourceMonster_GetCurrentName());
     RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenSectionName, BattleScreenSectionCount, BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
     ReloadMenu(GetMainMenu());
-    SetForegroundImage(BattlerWrapper_GetImage(gBattleState.monster.battlerWrapper));
+    SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
 #endif
@@ -252,7 +252,7 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
 {
     actorWrapper->battlerWrapper = battlerWrapper;
     actorWrapper->actor.level = level;
-    actorWrapper->actor.maxHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(battlerWrapper), level);
+    actorWrapper->actor.maxHealth = CombatantClass_GetHealth(&battlerWrapper->battler.combatantClass, level);
     actorWrapper->actor.skillQueued = false;
     actorWrapper->actor.activeSkill = INVALID_SKILL;
     actorWrapper->actor.counterSkill = INVALID_SKILL;
@@ -335,7 +335,7 @@ static void UpdateActorCurrentTime(BattleActorWrapper *wrapper)
     }
     else
     {
-        wrapper->actor.currentTime += CombatantClass_GetSpeed(BattlerWrapper_GetCombatantClass(wrapper->battlerWrapper), wrapper->actor.level);
+        wrapper->actor.currentTime += CombatantClass_GetSpeed(&wrapper->battlerWrapper->battler.combatantClass, wrapper->actor.level);
     }
 }
 

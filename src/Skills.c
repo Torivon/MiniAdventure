@@ -36,29 +36,43 @@ static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, Battl
 {
     int attackPower = 1;
     int defensePower = 1;
+    
+    // Compute immunity first. If the defender is immune, return 0
+    if(defender && skill->damageType & defender->battlerWrapper->battler.immune)
+        return 0;
+    
     if(skill->damageType & PHYSICAL)
     {
-        attackPower = CombatantClass_GetStrength(BattlerWrapper_GetCombatantClass(attacker->battlerWrapper), attacker->actor.level);
+        attackPower = CombatantClass_GetStrength(&attacker->battlerWrapper->battler.combatantClass, attacker->actor.level);
         if(defender)
-            defensePower = CombatantClass_GetDefense(BattlerWrapper_GetCombatantClass(defender->battlerWrapper), defender->actor.level);
+            defensePower = CombatantClass_GetDefense(&defender->battlerWrapper->battler.combatantClass, defender->actor.level);
     }
     else if(skill->damageType & MAGIC)
     {
-        attackPower = CombatantClass_GetMagic(BattlerWrapper_GetCombatantClass(attacker->battlerWrapper), attacker->actor.level);
+        attackPower = CombatantClass_GetMagic(&attacker->battlerWrapper->battler.combatantClass, attacker->actor.level);
         if(defender)
-            defensePower = CombatantClass_GetMagicDefense(BattlerWrapper_GetCombatantClass(defender->battlerWrapper), defender->actor.level);
+            defensePower = CombatantClass_GetMagicDefense(&defender->battlerWrapper->battler.combatantClass, defender->actor.level);
     }
     
     if(defensePower == 0)
         defensePower = 1;
     
-    int potency = skill->potency * attackPower / defensePower;
+    // TODO: This formula sucks
+    int damage = skill->potency * attackPower / defensePower;
     
-    if(potency <= 0)
-        potency = 1;
+    if(damage <= 0)
+        damage = 1;
+    
+    if(skill->damageType & defender->battlerWrapper->battler.vulnerable)
+        damage *= 2;
 
-    // TODO: Should also deal with damage types and resistances
-    return potency;
+    if(skill->damageType & defender->battlerWrapper->battler.resistant)
+        damage /= 2;
+    
+    if(skill->damageType & defender->battlerWrapper->battler.absorb)
+        damage = -damage;
+    
+    return damage;
 }
 
 static void DealDamage(int potency, BattleActor *defender)
@@ -88,7 +102,7 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
                 Skill *counterSkill = BattlerWrapper_GetSkillByIndex(defender->battlerWrapper, defender->actor.counterSkill);
                 int potency = ComputeSkillPotency(counterSkill, defender, attacker);
                 DealDamage(potency, &attacker->actor);
-                snprintf(description, sizeof(description), "%s counters for %d damage", BattlerWrapper_GetName(defender->battlerWrapper), potency);
+                snprintf(description, sizeof(description), "%s counters for %d damage", defender->battlerWrapper->battler.name, potency);
 
                 defender->actor.counterSkill = INVALID_SKILL;
             }
@@ -96,21 +110,21 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
             {
                 int potency = ComputeSkillPotency(skill, attacker, defender);
                 DealDamage(potency, &defender->actor);
-                snprintf(description, sizeof(description), "%s takes %d damage", BattlerWrapper_GetName(defender->battlerWrapper), potency);
+                snprintf(description, sizeof(description), "%s takes %d damage", defender->battlerWrapper->battler.name, potency);
             }
             break;
         }
         case SKILL_TYPE_COUNTER:
         {
             attacker->actor.counterSkill = attacker->actor.activeSkill;
-            snprintf(description, sizeof(description), "%s prepares %s", BattlerWrapper_GetName(attacker->battlerWrapper), skill->name);
+            snprintf(description, sizeof(description), "%s prepares %s", attacker->battlerWrapper->battler.name, skill->name);
             break;
         }
         case SKILL_TYPE_HEAL:
         {
             int potency = ComputeSkillPotency(skill, attacker, NULL);
             DealDamage(-potency, &attacker->actor);
-            snprintf(description, sizeof(description), "%s heals %d damage", BattlerWrapper_GetName(attacker->battlerWrapper), potency);
+            snprintf(description, sizeof(description), "%s heals %d damage", attacker->battlerWrapper->battler.name, potency);
             break;
         }
         default:

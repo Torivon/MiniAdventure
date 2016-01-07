@@ -187,22 +187,6 @@ Skill *ResourceSkill_Load(uint16_t logical_index)
 
 /********************* RESOURCE BATTLER ******************************/
 
-typedef struct ResourceBattler
-{
-    char name[MAX_STORY_NAME_LENGTH];
-    char description[MAX_STORY_DESC_LENGTH];
-    uint16_t image;
-    CombatantClass combatantClass;
-    SkillList skillList;
-} ResourceBattler;
-
-typedef struct BattlerWrapper
-{
-    bool loaded;
-    Skill *loadedSkills[MAX_SKILLS_IN_LIST];
-    ResourceBattler battler;
-} BattlerWrapper;
-
 BattlerWrapper currentMonster = {0};
 
 BattlerWrapper playerClass = {0};
@@ -215,11 +199,6 @@ BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void)
 BattlerWrapper *BattlerWrapper_GetMonsterWrapper(void)
 {
     return &currentMonster;
-}
-
-const char *BattlerWrapper_GetName(BattlerWrapper *wrapper)
-{
-    return wrapper->battler.name;
 }
 
 Skill *BattlerWrapper_GetSkillByIndex(BattlerWrapper *wrapper, uint16_t index)

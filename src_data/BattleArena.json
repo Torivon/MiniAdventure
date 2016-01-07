@@ -4,14 +4,14 @@
     "name": "Battle Arena",
     "description": "Train against monsters",
     "start_location": "arena",
-    "xp_monsters_per_level": 2,
-    "xp_difference_scale": 100,
+    "xp_monsters_per_level": 4,
+    "xp_difference_scale": 20,
     "classes": ["adventurer"],
     "locations": [
         {
             "id": "arena",
             "name": "Arena",
-            "adjacent_locations": ["rat_room"],
+            "adjacent_locations": ["rat_room", "goblin_room"],
             "background_images": ["images/dungeonstraight.png"]
         },
         {
@@ -20,7 +20,15 @@
             "adjacent_locations": ["arena"],
             "background_images": ["images/dungeondeadend.png"],
             "monsters": ["rat"],
-            "base_level": 2
+            "base_level": 1
+        },
+        {
+            "id": "goblin_room",
+            "name": "Goblin Room",
+            "adjacent_locations": ["arena"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["goblin"],
+            "base_level": 1
         }
     ],
     "skills": [
@@ -63,6 +71,16 @@
             "damage_types": ["physical", "bludgeoning"],
             "potency": 10,
             "cooldown": 2
+        },
+        {
+            "id": "ice",
+            "name": "Ice",
+            "description": "Ice",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "ice"],
+            "potency": 5,
+            "cooldown": 0
         }
     ],
     "battlers": [
@@ -87,6 +105,28 @@
             ]
         },
         {
+            "id": "goblin",
+            "name": "Goblin",
+            "description": "Goblin",
+            "image": "images/goblin.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankf",
+                "defense": "rankd",
+                "magic_defense": "rankf",
+                "speed": "rankb",
+                "health": "rankb"
+            },
+            "vulnerable": ["ice"],
+            "immune": ["physical"],
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
             "id": "adventurer",
             "name": "Adventurer",
             "description": "A basic adventurer",
@@ -101,11 +141,11 @@
             },
             "skill_list": [
                 {
-                    "id": "shieldbash",
+                    "id": "fastattack",
                     "min_level": 1
                 },
                 {
-                    "id": "fastattack",
+                    "id": "ice",
                     "min_level": 1
                 },
                 {
@@ -115,6 +155,10 @@
                 {
                     "id": "slowattack",
                     "min_level": 3
+                },
+                {
+                    "id": "shieldbash",
+                    "min_level": 4
                 }
             ]          
         }

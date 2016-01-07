@@ -1,10 +1,8 @@
 #pragma once
 
 #include "AutoSizeConstants.h"
-
-typedef struct Skill Skill;
-typedef struct SkillList SkillList;
-typedef struct BattlerWrapper BattlerWrapper;
+#include "Skills.h"
+#include "CombatantClass.h"
 
 typedef enum
 {
@@ -12,6 +10,26 @@ typedef enum
     STORYUPDATE_DONOTHING,
     STORYUPDATE_FULLREFRESH,
 } ResourceStoryUpdateReturnType;
+
+typedef struct ResourceBattler
+{
+    char name[MAX_STORY_NAME_LENGTH];
+    char description[MAX_STORY_DESC_LENGTH];
+    uint16_t image;
+    CombatantClass combatantClass;
+    SkillList skillList;
+    uint16_t vulnerable; // These are bit fields that use the damage type enums
+    uint16_t resistant;
+    uint16_t immune;
+    uint16_t absorb;
+} ResourceBattler;
+
+typedef struct BattlerWrapper
+{
+    bool loaded;
+    Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+    ResourceBattler battler;
+} BattlerWrapper;
 
 void ResourceStory_InitializeCurrent(void);
 
@@ -34,11 +52,8 @@ bool ResourceStory_InStory(void);
 
 uint16_t BattlerWrapper_GetUsableSkillCount(BattlerWrapper *wrapper, uint16_t level);
 Skill *BattlerWrapper_GetSkillByIndex(BattlerWrapper *wrapper, uint16_t index);
-CombatantClass *BattlerWrapper_GetCombatantClass(BattlerWrapper *wrapper);
 BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void);
 BattlerWrapper *BattlerWrapper_GetMonsterWrapper(void);
-const char *BattlerWrapper_GetName(BattlerWrapper *wrapper);
-int BattlerWrapper_GetImage(BattlerWrapper *wrapper);
 
 void ResourceStory_LoadAll(void);
 void ResourceStory_LogCurrent(void);

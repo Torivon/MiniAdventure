@@ -1,5 +1,5 @@
 {
-    "id": "56",
+    "id": 56,
     "version": 4,
     "name": "Wander Test",
     "description": "A test of path traveling",
@@ -41,7 +41,7 @@
             "name": "Poplar Avenue",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
-            "length": "5",
+            "length": 5,
             "base_level": 2,
             "encounter_chance": 25,
             "monsters": ["rat"]
