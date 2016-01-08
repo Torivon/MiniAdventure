@@ -3,22 +3,36 @@
     "version": 7,
     "name": "Battle Arena",
     "description": "Train against monsters",
-    "start_location": "arena",
+    "start_location": "restarea",
     "xp_monsters_per_level": 4,
     "xp_difference_scale": 20,
     "classes": ["adventurer"],
     "locations": [
         {
-            "id": "arena",
-            "name": "Arena",
-            "adjacent_locations": ["rat_room", "goblin_room"],
+            "id": "restarea",
+            "name": "Rest Area",
+            "adjacent_locations": ["training", "win", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
             "background_images": ["images/dungeonstraight.png"],
-            "rest_area": true
+            "location_properties": ["rest_area"]
+        },
+        {
+            "id": "training",
+            "name": "Training Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "location_properties": ["level_up"]
+        },
+        {
+            "id": "win",
+            "name": "Finish in arena",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "location_properties": ["game_win"]
         },
         {
             "id": "rat_room",
             "name": "Rat Room",
-            "adjacent_locations": ["arena"],
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
             "background_images": ["images/dungeondeadend.png"],
             "monsters": ["rat"],
             "base_level": 1
@@ -26,201 +40,52 @@
         {
             "id": "goblin_room",
             "name": "Goblin Room",
-            "adjacent_locations": ["arena"],
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
             "background_images": ["images/dungeondeadend.png"],
             "monsters": ["goblin"],
-            "base_level": 1
+            "base_level": 3
+        },
+        {
+            "id": "wizard_room",
+            "name": "Wizard Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["wizard"],
+            "base_level": 5
+        },
+        {
+            "id": "zombie_room",
+            "name": "Zombie Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["zombie"],
+            "base_level": 7
+        },
+        {
+            "id": "turtle_room",
+            "name": "Turtle Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["turtle"],
+            "base_level": 9
+        },
+        {
+            "id": "lich_room",
+            "name": "Lich Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["lich"],
+            "base_level": 11
+        },
+        {
+            "id": "dragon_room",
+            "name": "Dragon Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["dragon"],
+            "base_level": 20
         }
     ],
-    "skills": [
-        {
-            "id": "attack",
-            "name": "Attack",
-            "description": "Basic sword attack",
-            "type": "attack",
-            "speed": 100,
-            "damage_types": ["physical", "piercing"],
-            "potency": 10,
-            "cooldown": 0
-        },
-        {
-            "id": "fastattack",
-            "name": "Fast Attack",
-            "description": "Lightning quick strike",
-            "type": "attack",
-            "speed": 100,
-            "damage_types": ["physical", "piercing"],
-            "potency": 1,
-            "cooldown": 0
-        },
-        {
-            "id": "potion",
-            "name": "Potion",
-            "description": "Heal with a potion",
-            "type": "heal",
-            "speed": 100,
-            "damage_types": ["magic"],
-            "potency": 25,
-            "cooldown": 6
-        },
-        {
-            "id": "fireball",
-            "name": "Fireball",
-            "description": "Blast of fire",
-            "type": "attack",
-            "speed": 20,
-            "damage_types": ["magic", "fire"],
-            "potency": 20,
-            "cooldown": 0
-        },
-        {
-            "id": "bomb",
-            "name": "Bomb",
-            "description": "Blast of fire",
-            "type": "attack",
-            "speed": 20,
-            "damage_types": ["magic", "fire"],
-            "potency": 15,
-            "cooldown": 6
-        },
-        {
-            "id": "icicle",
-            "name": "Icicle",
-            "description": "Blast of ice",
-            "type": "attack",
-            "speed": 20,
-            "damage_types": ["magic", "ice"],
-            "potency": 15,
-            "cooldown": 6
-        },
-        {
-            "id": "spark",
-            "name": "Spark",
-            "description": "Blast of lightning",
-            "type": "attack",
-            "speed": 20,
-            "damage_types": ["magic", "lightning"],
-            "potency": 15,
-            "cooldown": 6
-        },
-        {
-            "id": "slowattack",
-            "name": "Slow Attack",
-            "description": "Heavy Slash",
-            "type": "attack",
-            "speed": 20,
-            "damage_types": ["physical", "slashing"],
-            "potency": 5,
-            "cooldown": 4
-        },
-        {
-            "id": "shieldbash",
-            "name": "Shield Bash",
-            "description": "Counter with a shield",
-            "type": "counter",
-            "speed": 100,
-            "damage_types": ["physical", "bludgeoning"],
-            "potency": 10,
-            "cooldown": 2
-        },
-        {
-            "id": "ice",
-            "name": "Ice",
-            "description": "Ice",
-            "type": "attack",
-            "speed": 20,
-            "damage_types": ["magic", "ice"],
-            "potency": 5,
-            "cooldown": 0
-        },
-        {
-            "id": "bite",
-            "name": "Rat Bite",
-            "description": "Quick bite",
-            "type": "attack",
-            "speed": 100,
-            "damage_types": ["physical", "piercing"],
-            "potency": 5,
-            "cooldown": 0
-        }
-    ],
-    "battlers": [
-        {
-            "id": "rat",
-            "name": "Rat",
-            "image": "images/rat.png",
-            "combatantclass": {
-                "strength": "rankd",
-                "magic": "rankf",
-                "defense": "rankf",
-                "magic_defense": "rankf",
-                "speed": "ranks",
-                "health": "rankd"
-            },
-            "skill_list": [
-                {
-                    "id": "bite",
-                    "min_level": 1
-                }
-            ]
-        },
-        {
-            "id": "goblin",
-            "name": "Goblin",
-            "description": "Goblin",
-            "image": "images/goblin.png",
-            "combatantclass": {
-                "strength": "rankb",
-                "magic": "rankf",
-                "defense": "rankd",
-                "magic_defense": "rankf",
-                "speed": "rankb",
-                "health": "rankb"
-            },
-            "vulnerable": ["ice"],
-            "immune": ["physical"],
-            "skill_list": [
-                {
-                    "id": "fastattack",
-                    "min_level": 1
-                }
-            ]
-        },
-        {
-            "id": "adventurer",
-            "name": "Adventurer",
-            "description": "A basic adventurer",
-            "image": "images/Title.png",
-            "combatantclass": {
-                "strength": "rankb",
-                "magic": "rankb",
-                "defense": "rankb",
-                "magic_defense": "rankb",
-                "speed": "rankb",
-                "health": "rankb"
-            },
-            "skill_list": [
-                {
-                    "id": "attack",
-                    "min_level": 1
-                },
-                {
-                    "id": "potion",
-                    "min_level": 1
-                },
-                {
-                    "id": "icicle",
-                    "min_level": 3
-                },
-                {
-                    "id": "bomb",
-                    "min_level": 5
-                },
-                {
-                    "id": "spark",
-                    "min_level": 7
-                }
-            ]          
-        }
-    ]
+    "skill_files": ["DungeonCrawl_MonsterSkills.json", "DungeonCrawl_AdventurerSkills.json"],
+    "battler_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"]
 }

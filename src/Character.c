@@ -72,6 +72,12 @@ void Character_Rest(void)
    
 }
 
+void Character_GrantLevel(void)
+{
+    character.level++;
+    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+}
+
 void Character_GrantXP(uint16_t monsterLevel)
 {
     uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();

@@ -9,6 +9,7 @@ typedef enum
     STORYUPDATE_COMPUTERANDOM = 0,
     STORYUPDATE_DONOTHING,
     STORYUPDATE_FULLREFRESH,
+    STORYUPDATE_WIN,
 } ResourceStoryUpdateReturnType;
 
 typedef struct ResourceBattler

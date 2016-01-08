@@ -1,0 +1,144 @@
+{
+    "battlers": [
+        {
+            "id": "rat",
+            "name": "Rat",
+            "image": "images/rat.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "ranks",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "bite",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "goblin",
+            "name": "Goblin",
+            "image": "images/goblin.png",
+            "combatantclass": {
+                "strength": "rankc",
+                "magic": "rankf",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankc",
+                "health": "rankd"
+            },
+            "vulnerable": ["ice"],
+            "skill_list": [
+                {
+                    "id": "attack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "wizard",
+            "name": "Wizard",
+            "image": "images/wizard.png",
+            "combatantclass": {
+                "strength": "rankf",
+                "magic": "ranks",
+                "defense": "rankf",
+                "magic_defense": "ranks",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "fireball",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "zombie",
+            "name": "Zombie",
+            "image": "images/zombie.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "rankf",
+                "health": "ranka"
+            },
+            "vulnerable": ["fire"],
+            "skill_list": [
+                {
+                    "id": "gnaw",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "turtle",
+            "name": "Turtle",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankf",
+                "defense": "ranks",
+                "magic_defense": "rankd",
+                "speed": "ranke",
+                "health": "ranka"
+            },
+            "resistant": ["physical"],
+            "vulnerable": ["lightning"],
+            "skill_list": [
+                {
+                    "id": "bash",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "lich",
+            "name": "Lich",
+            "image": "images/lich.png",
+            "combatantclass": {
+                "strength": "rankf",
+                "magic": "ranka",
+                "defense": "rankc",
+                "magic_defense": "rankb",
+                "speed": "rankd",
+                "health": "rankb"
+            },
+            "vulnerable": ["ice"],
+            "skill_list": [
+                {
+                    "id": "fireball",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "dragon",
+            "name": "Dragon",
+            "image": "images/dragon.png",
+            "combatantclass": {
+                "strength": "ranka",
+                "magic": "rankb",
+                "defense": "ranka",
+                "magic_defense": "rankb",
+                "speed": "rankc",
+                "health": "ranks"
+            },
+            "vulnerable": ["ice"],
+            "absorb": ["fire"],
+            "skill_list": [
+                {
+                    "id": "fireball",
+                    "min_level": 1
+                }
+            ]
+        }
+    ]
+}

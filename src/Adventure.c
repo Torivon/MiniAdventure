@@ -246,6 +246,12 @@ void UpdateAdventure(void *data)
             Menu_ResetSelection(GetMainMenu());
             break;
         }
+        case STORYUPDATE_WIN:
+        {
+            ResetGame();
+            GlobalState_Pop();
+            break;
+        }
     }
 }
 
@@ -279,6 +285,13 @@ void AdventureScreenAppear(void *data)
         returnVal = ResourceStory_MoveToLocation(newLocation);
     }
     newLocation = -1;
+    if(returnVal == STORYUPDATE_WIN)
+    {
+        ResetGame();
+        GlobalState_Pop();
+        return;
+    }
+    
     if(returnVal == STORYUPDATE_FULLREFRESH)
         RefreshAdventure();
     

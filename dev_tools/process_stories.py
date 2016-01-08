@@ -42,6 +42,11 @@ g_combatant_ranks["rankb"] = 4
 g_combatant_ranks["ranka"] = 5
 g_combatant_ranks["ranks"] = 6
 
+g_location_properties = {}
+g_location_properties["rest_area"] = 1 << 0
+g_location_properties["game_win"] = 1 << 1
+g_location_properties["level_up"] = 1 << 2
+
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
 def pack_integer(i):
@@ -81,7 +86,7 @@ def pack_location(location):
             binarydata += pack_integer(location["background_images_index"][index])
         else:
             binarydata += pack_integer(0)
-    binarydata += pack_integer_with_default(location, "rest_area", False)
+    binarydata += pack_integer_with_default(location, "location_properties_value", 0)
     binarydata += pack_integer_with_default(location, "length", 0)
     binarydata += pack_integer_with_default(location, "base_level", 0)
     binarydata += pack_integer_with_default(location, "encounter_chance", 0)
@@ -230,14 +235,14 @@ def write_story(story, datafile, hash):
     # Now that all the index and size data has been written, write out the accumulated data
     datafile.write(binarydata)
 
-def process_damage_type_field(dict, field):
+def process_bit_field(dict, field, global_dict):
     if not field in dict:
         return
 
     new_field_name = field + "_value"
     dict[new_field_name] = 0
     for damage_type in dict[field]:
-        dict[new_field_name] = dict[new_field_name] | g_damage_types[damage_type]
+        dict[new_field_name] = dict[new_field_name] | global_dict[damage_type]
 
 def process_skills(story, skill_map, data_index):
     if not "skills" in story:
@@ -255,7 +260,7 @@ def process_skills(story, skill_map, data_index):
         data_index += 1
 
         skill["type_value"] = g_skill_types[skill["type"]]
-        process_damage_type_field(skill, "damage_types")
+        process_bit_field(skill, "damage_types", g_damage_types)
 
     return data_index
 
@@ -286,10 +291,10 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
             skill = battler["skill_list"][skill_index]
             skill["index"] = skill_map[skill["id"]]
 
-        process_damage_type_field(battler, "vulnerable")
-        process_damage_type_field(battler, "resistant")
-        process_damage_type_field(battler, "immune")
-        process_damage_type_field(battler, "absorb")
+        process_bit_field(battler, "vulnerable", g_damage_types)
+        process_bit_field(battler, "resistant", g_damage_types)
+        process_bit_field(battler, "immune", g_damage_types)
+        process_bit_field(battler, "absorb", g_damage_types)
 
     return data_index
 
@@ -309,6 +314,8 @@ def process_locations(story, battler_map, imagelist, data_index):
             quit("Too many background images for " + location["name"])
         if "monsters" in location and len(location["monsters"]) > g_size_constants["MAX_MONSTERS"]:
             quit("Too many monsters for " + location["name"])
+
+        process_bit_field(location, "location_properties", g_location_properties)
 
         location_map[location["id"]] = data_index
         data_index += 1
@@ -396,12 +403,34 @@ def process_dungeons(story):
 
             story["locations"].append(location)
 
+def process_included_files(story, file_list_key, object_key):
+    if file_list_key in story:
+        for filename in story[file_list_key]:
+            with open("src_data/" + filename) as object_file:
+                try:
+                    object_list = json.load(object_file)
+                except ValueError as e:
+                    quit("Failed to parse file " + filename + ". Probably an extraneous ','.")
+                if not object_key in story:
+                    story[object_key] = []
+                for newobject in object_list[object_key]:
+                    for oldobject in story[object_key]:
+                        if newobject["id"] == oldobject["id"]:
+                            quit("Duplicate id, " + oldobject["id"] + " in list of " + object_key)
+                story[object_key].extend(object_list[object_key])
+
 def process_story(story, imagelist):
     '''
     Here we prepare the story for being written to a packed binary file.
     We have to turn each reference to an object into what will become the 
     index of that object. In addition, we generate a map for image resource references.
     '''
+    
+    # In order to allow stories to share skills and battlers, allow the user to
+    # have a list of skill and battler files to include. process_includedfiles appends
+    # the contents into the appropriate list.
+    process_included_files(story, "skill_files", "skills")
+    process_included_files(story, "battler_files", "battlers")
     
     # This just unrolls the dungeon definitions into the appropriate
     # number of locations. Actual writing to the file happens when
@@ -538,3 +567,10 @@ with open("src/AutoCombatantConstants.h", 'w') as skill_file:
         skill_file.write("#define COMBATANT_RANK_" + k.upper() + " " + str(v) + "\n")
 
     skill_file.write("\n")
+
+with open("src/AutoLocationConstants.h", 'w') as location_file:
+    location_file.write("#pragma once\n\n")
+    for k, v in g_location_properties.items():
+        location_file.write("#define LOCATION_PROPERTY_" + k.upper() + " " + str(v) + "\n")
+    
+    location_file.write("\n")

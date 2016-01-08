@@ -2,6 +2,7 @@
 
 #include "AutoImageMap.h"
 #include "AutoSizeConstants.h"
+#include "AutoLocationConstants.h"
 #include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "CombatantClass.h"
@@ -41,7 +42,7 @@ typedef struct ResourceLocation
     uint16_t adjacentLocations[MAX_ADJACENT_LOCATIONS];
     uint16_t backgroundImageCount;
     uint16_t backgroundImages[MAX_BACKGROUND_IMAGES];
-    bool restArea;
+    uint16_t locationProperties;
     uint16_t length;
     uint16_t baseLevel;
     uint16_t encounterChance;
@@ -178,7 +179,7 @@ bool ResourceStory_CurrentLocationIsRestArea(void)
 {
     if(currentLocation)
     {
-        return currentLocation->restArea;
+        return currentLocation->locationProperties & LOCATION_PROPERTY_REST_AREA;
     }
     
     return false;
@@ -450,11 +451,21 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
         currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = globalIndex;
         currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
 
-        if(ResourceStory_CurrentLocationIsRestArea())
+        if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_REST_AREA))
         {
             Character_Rest();
         }
         
+        if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_LEVEL_UP))
+        {
+            Character_GrantLevel();
+        }
+
+        if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_GAME_WIN))
+        {
+            return STORYUPDATE_WIN;
+        }
+
         if(ResourceStory_CurrentLocationIsPath())
         {
             if(currentLocation->adjacentLocations[0] == oldIndex)

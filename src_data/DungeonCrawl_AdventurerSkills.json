@@ -1,0 +1,54 @@
+{
+    "skills": [
+        {
+            "id": "swordattack",
+            "name": "Attack",
+            "description": "Basic sword attack",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "potion",
+            "name": "Potion",
+            "description": "Heal with a potion",
+            "type": "heal",
+            "speed": 100,
+            "damage_types": ["magic"],
+            "potency": 25,
+            "cooldown": 6
+        },
+        {
+            "id": "bomb",
+            "name": "Bomb",
+            "description": "Blast of fire",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "fire"],
+            "potency": 15,
+            "cooldown": 6
+        },
+        {
+            "id": "icicle",
+            "name": "Icicle",
+            "description": "Blast of ice",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "ice"],
+            "potency": 15,
+            "cooldown": 6
+        },
+        {
+            "id": "spark",
+            "name": "Spark",
+            "description": "Blast of lightning",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "lightning"],
+            "potency": 15,
+            "cooldown": 6
+        }
+    ]
+}
