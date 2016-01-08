@@ -51,7 +51,7 @@ def pack_integer(i):
     return struct.pack('<h', i)
 
 def pack_integer_with_default(dict, key, default):
-    if dict.has_key(key):
+    if key in dict:
         binarydata = pack_integer(dict[key])
     else:
         binarydata = pack_integer(default)
@@ -61,7 +61,7 @@ def pack_string(s, max_length):
     '''
     Write out a string into a packed binary file
     '''
-    binarydata = struct.pack(str(max_length) + 's', str(s))
+    binarydata = struct.pack(str(max_length) + 's', s.encode('ascii'))
     return binarydata
 
 def pack_location(location):
@@ -84,7 +84,7 @@ def pack_location(location):
     binarydata += pack_integer_with_default(location, "length", 0)
     binarydata += pack_integer_with_default(location, "base_level", 0)
     binarydata += pack_integer_with_default(location, "encounter_chance", 0)
-    if location.has_key("monsters_index"):
+    if "monsters_index" in location:
         binarydata += pack_integer(len(location["monsters_index"]))
         for index in range(g_size_constants["MAX_MONSTERS"]):
             if index < len(location["monsters_index"]):
@@ -115,7 +115,7 @@ def pack_battler(battler):
     Write out all information needed for a battler into a packed binary file
     '''
     binarydata = pack_string(battler["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
-    if battler.has_key("description"):
+    if "description" in battler:
         binarydata += pack_string(battler["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     else:
         binarydata += pack_string("", g_size_constants["MAX_STORY_DESC_LENGTH"])
@@ -166,9 +166,9 @@ def get_total_objects(story):
     '''
     count = 1 #main object
     count += len(story["locations"])
-    if story.has_key("skills"):
+    if "skills" in story:
         count += len(story["skills"])
-    if story.has_key("battlers"):
+    if "battlers" in story:
         count += len(story["battlers"])
     return count
 
@@ -194,7 +194,7 @@ def write_story(story, datafile, hash):
     datafile.write(pack_integer(len(binarydata)))
     next_write_location += len(binarydata)
     
-    if story.has_key("skills"):
+    if "skills" in story:
         # This loop walks all skills. For each one, we add the packed data to binarydata
         # and write out the skill and size directly to the file.
         for index in range(len(story["skills"])):
@@ -205,7 +205,7 @@ def write_story(story, datafile, hash):
             next_write_location += len(skill_binary)
             binarydata += skill_binary
 
-    if story.has_key("battlers"):
+    if "battlers" in story:
         # This loop walks all skills. For each one, we add the packed data to binarydata
         # and write out the skill and size directly to the file.
         for index in range(len(story["battlers"])):
@@ -230,7 +230,7 @@ def write_story(story, datafile, hash):
     datafile.write(binarydata)
 
 def process_damage_type_field(dict, field):
-    if not dict.has_key(field):
+    if not field in dict:
         return
 
     new_field_name = field + "_value"
@@ -239,7 +239,7 @@ def process_damage_type_field(dict, field):
         dict[new_field_name] = dict[new_field_name] | g_damage_types[damage_type]
 
 def process_skills(story, skill_map, data_index):
-    if not story.has_key("skills"):
+    if not "skills" in story:
         return data_index
    
     for index in range(len(story["skills"])):
@@ -259,7 +259,7 @@ def process_skills(story, skill_map, data_index):
     return data_index
 
 def process_battlers(story, battler_map, skill_map, imagelist, data_index):
-    if not story.has_key("battlers"):
+    if not "battlers" in story:
         return data_index
     
     for index in range(len(story["battlers"])):
@@ -267,7 +267,7 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
         
         if len(battler["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
             quit("Name is too long: " + battler["name"])
-        if battler.has_key("description") and len(battler["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+        if "description" in battler and len(battler["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
             quit("Description is too long: " + battler["description"])
         if len(battler["skill_list"]) > g_size_constants["MAX_SKILLS_IN_LIST"]:
             quit("Too many skills for " + battler["name"])
@@ -293,7 +293,7 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
     return data_index
 
 def process_locations(story, battler_map, imagelist, data_index):
-    if not story.has_key("locations"):
+    if not "locations" in story:
         return data_index
 
     location_map = {}
@@ -306,7 +306,7 @@ def process_locations(story, battler_map, imagelist, data_index):
             quit("Too many adjacent locations for " + location["name"])
         if len(location["background_images"]) > g_size_constants["MAX_BACKGROUND_IMAGES"]:
             quit("Too many background images for " + location["name"])
-        if location.has_key("monsters") and len(location["monsters"]) > g_size_constants["MAX_MONSTERS"]:
+        if "monsters" in location and len(location["monsters"]) > g_size_constants["MAX_MONSTERS"]:
             quit("Too many monsters for " + location["name"])
 
         location_map[location["id"]] = data_index
@@ -316,7 +316,7 @@ def process_locations(story, battler_map, imagelist, data_index):
             if imagelist.count(background_image) == 0:
                 imagelist.append(background_image)
             location["background_images_index"].append(imagelist.index(background_image))
-        if location.has_key("monsters"):
+        if "monsters" in location:
             location["monsters_index"] = []
             for monster in location["monsters"]:
                 location["monsters_index"].append(battler_map[monster])
@@ -338,7 +338,7 @@ def process_dungeons(story):
     next step
     '''
 
-    if not story.has_key("dungeons"):
+    if not "dungeons" in story:
         return
 
     for dungeonindex in range(len(story["dungeons"])):
@@ -378,11 +378,11 @@ def process_dungeons(story):
                 floor = index / 2
                 location["background_images"] = list(dungeon["background_images"])
                 location["length"] = dungeon["length"]
-                if dungeon.has_key("encounter_chance"):
+                if "encounter_chance" in dungeon:
                     location["encounter_chance"] = dungeon["encounter_chance"]
-                if dungeon.has_key("base_level"):
-                    location["base_level"] = dungeon["base_level"] + floor / dungeon["level_rate"]
-                if dungeon.has_key("monster_scaling") and dungeon.has_key("monsters"):
+                if "base_level" in dungeon:
+                    location["base_level"] = dungeon["base_level"] + int(floor / dungeon["level_rate"])
+                if "monster_scaling" in dungeon and "monsters" in dungeon:
                     location["monsters"] = []
                     for monster_index in range(len(dungeon["monsters"])):
                         if dungeon["monster_scaling"] == 0:
@@ -419,7 +419,7 @@ def process_story(story, imagelist):
     
     data_index = process_locations(story, battler_map, imagelist, data_index)
 
-    if story.has_key("classes"):
+    if "classes" in story:
         story["classes_index"] = []
         for battler in story["classes"]:
             story["classes_index"].append(battler_map[battler])
@@ -438,13 +438,13 @@ with open("appinfo.json") as appinfo_file:
 # adding them to the appinfo, and storing a list of images used.
 with open("src_data/stories.txt") as stories:
     for line in stories.readlines():
-        print "Processing story in " + line.strip()
+        print("Processing story in " + line.strip())
         story_filename = "src_data/" + line.strip()
         story_datafile = "Auto" + os.path.splitext(line.strip())[0]+'.dat'
         with open(story_filename) as story_file:
             m = hashlib.md5()
             for line in story_file.readlines():
-                m.update(line)
+                m.update(line.encode("ascii"))
             hash = struct.unpack("<h", m.digest()[-2:])
         with open(story_filename) as story_file:
             try:
