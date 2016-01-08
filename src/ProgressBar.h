@@ -11,7 +11,7 @@ typedef enum
 } FillDirection;
 
 
-ProgressBar *CreateProgressBar(int *current, int *max, FillDirection fillDirection, GRect frame, GColor fillColor, int iconId);
+ProgressBar *CreateProgressBar(uint16_t *current, uint16_t *max, FillDirection fillDirection, GRect frame, GColor fillColor, int iconId);
 void ProgressBarUpdateProc(struct Layer *layer, GContext *ctx);
 void InitializeProgressBar(ProgressBar *progressBar, Window *window);
 void FreeProgressBar(ProgressBar *progressBar);

@@ -2,11 +2,9 @@
 
 typedef struct Menu Menu;
 
-void UpdateNewClock(void);
 void UpdateBatteryLevel(BatteryChargeState chargeState);
 
-Window * InitializeNewBaseWindow(void);
-bool UsingNewWindow(void);
+Window * InitializeBaseWindow(void);
 Menu *GetMainMenu(void);
 Menu *GetSlaveMenu(void);
 void SetUseSlaveMenu(bool enable);

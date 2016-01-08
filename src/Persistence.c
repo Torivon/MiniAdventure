@@ -3,7 +3,7 @@
 #include "Character.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "NewBattle.h"
+#include "Battle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "TitleScreen.h"
@@ -36,7 +36,7 @@ void ClearGlobalPersistedData(void)
             uint16_t *oldbuffer = NULL;
             oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
             oldbuffer = calloc(sizeof(uint16_t), oldcount);
-            persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount);
+            persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount * sizeof(uint16_t));
             
             for(int i = 0; i < oldcount; ++i)
             {
@@ -133,7 +133,6 @@ bool LoadGlobalPersistedData(void)
     free(oldbuffer);
     free(newbuffer);
     
-    INFO_LOG("Loading global persisted data.");
     SetVibration(persist_read_bool(PERSISTED_VIBRATION));
     useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
     if(useWorkerApp)
@@ -158,9 +157,10 @@ bool SaveStoryPersistedData(void)
 {
     uint16_t storyId = ResourceStory_GetCurrentStoryId();
     uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
+    uint16_t hash = ResourceStory_GetCurrentStoryHash();
     int offset = ComputeStoryPersistedDataOffset(storyId);
 
-    if(!IsStoryPersistedDataCurrent(storyId, storyVersion))
+    if(!IsStoryPersistedDataCurrent(storyId, storyVersion, hash))
     {
         WARNING_LOG("Persisted data does not match current version, clearing.");
         ClearStoryPersistedData(storyId);
@@ -169,12 +169,21 @@ bool SaveStoryPersistedData(void)
     INFO_LOG("Saving story persisted data.");
     persist_write_bool(offset + PERSISTED_STORY_IS_DATA_SAVED, true);
     persist_write_int(offset + PERSISTED_STORY_CURRENT_DATA_VERSION, storyVersion);
+    persist_write_int(offset + PERSISTED_STORY_HASH, hash);
     persist_write_int(offset + PERSISTED_STORY_MAX_KEY_USED, offset + PERSISTED_STORY_DATA_COUNT);
     uint16_t count;
     uint8_t *buffer;
     ResourceStory_GetPersistedData(&count, &buffer);
     persist_write_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
     Character_WritePersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
+    
+    persist_write_bool(offset + PERSISTED_STORY_IN_COMBAT, ClosingWhileInBattle());
+    if(ClosingWhileInBattle())
+    {
+        persist_write_int(offset + PERSISTED_STORY_MONSTER_TYPE, Battle_GetCurrentMonsterIndex());
+        Battle_WritePlayerData(offset + PERSISTED_STORY_BATTLE_PLAYER);
+        Battle_WriteMonsterData(offset + PERSISTED_STORY_BATTLE_MONSTER);
+    }
     
     return true;
 }
@@ -183,6 +192,7 @@ bool LoadStoryPersistedData(void)
 {
     uint16_t storyId = ResourceStory_GetCurrentStoryId();
     uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
+    uint16_t hash = ResourceStory_GetCurrentStoryHash();
     int offset = ComputeStoryPersistedDataOffset(storyId);
     
     if(!persist_exists(offset + PERSISTED_STORY_IS_DATA_SAVED) || !persist_read_bool(offset + PERSISTED_STORY_IS_DATA_SAVED))
@@ -191,7 +201,7 @@ bool LoadStoryPersistedData(void)
         return false;
     }
     
-    if(!IsStoryPersistedDataCurrent(storyId, storyVersion))
+    if(!IsStoryPersistedDataCurrent(storyId, storyVersion, hash))
     {
         WARNING_LOG("Persisted data does not match current version, clearing.");
         ClearStoryPersistedData(storyId);
@@ -206,6 +216,14 @@ bool LoadStoryPersistedData(void)
     
     ResourceStory_UpdateStoryWithPersistedState();
     Character_ReadPersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
-   
+    
+    bool inCombat = persist_read_bool(offset + PERSISTED_STORY_IN_COMBAT);
+    if(inCombat)
+    {
+        Battle_ReadPlayerData(offset + PERSISTED_STORY_BATTLE_PLAYER);
+        Battle_ReadMonsterData(offset + PERSISTED_STORY_BATTLE_MONSTER);
+        ResumeBattle(persist_read_int(offset + PERSISTED_STORY_MONSTER_TYPE));
+    }
+    
     return true;
 }

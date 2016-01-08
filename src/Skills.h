@@ -1,9 +1,14 @@
 #pragma once
+#include "CombatantClass.h"
 #include "Utils.h"
 #include "MiniAdventure.h"
 #include "AutoSizeConstants.h"
 
-typedef struct BattleActor BattleActor;
+#define INVALID_SKILL (uint16_t)(-1)
+
+typedef struct CombatantClass CombatantClass;
+typedef struct SkillList SkillList;
+typedef struct BattlerWrapper BattlerWrapper;
 
 typedef void (*ResponseCallback)(void); // This needs to take some arguments including character and enemy
 
@@ -17,15 +22,6 @@ typedef void (*ResponseCallback)(void); // This needs to take some arguments inc
 #define PIERCING BIT_FIELD(6)
 #define BLUDGEONING BIT_FIELD(7)
 
-typedef enum
-{
-    SKILL_TYPE_BASIC_ATTACK,
-    SKILL_TYPE_BASIC_HEAL,
-    SKILL_TYPE_COUNTER,
-    SKILL_TYPE_BUFF,
-    SKILL_TYPE_DEBUFF,
-} SkillType;
-
 typedef struct Skill
 {
     char name[MAX_STORY_NAME_LENGTH];
@@ -37,20 +33,10 @@ typedef struct Skill
     uint16_t cooldown;
 } Skill;
 
-typedef struct SkillInstance SkillInstance;
-
-typedef enum
-{
-    SKILLID_FAST_ATTACK,
-    SKILLID_SLOW_ATTACK,
-    SKILLID_SHIELD_BASH,
-} SkillID;
-
 typedef struct SkillListEntry
 {
     uint16_t id;
     uint16_t level;
-    uint16_t cooldown;
 } SkillListEntry;
 
 typedef struct SkillList
@@ -59,16 +45,23 @@ typedef struct SkillList
     SkillListEntry entries[MAX_SKILLS_IN_LIST];
 } SkillList;
 
-Skill *GetSkillByID(SkillID id);
+typedef struct BattleActor
+{
+    uint16_t level;
+    uint16_t currentHealth;
+    uint16_t maxHealth;
+    uint16_t currentTime;
+    bool skillQueued;
+    uint16_t activeSkill;
+    uint16_t counterSkill;
+    uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
+} BattleActor;
 
-char *GetSkillName(Skill *skill);
-char *GetSkillDescription(Skill *skill);
-uint16_t GetSkillSpeed(Skill *skill);
+typedef struct BattleActorWrapper
+{
+    BattleActor actor;
+    BattlerWrapper *battlerWrapper;
+} BattleActorWrapper;
 
-Skill *GetSkillFromInstance(SkillInstance *instance);
-
-SkillInstance *CreateSkillInstance(SkillListEntry *entry, BattleActor *attacker, BattleActor *defender);
-const char *ExecuteSkill(SkillInstance *instance);
-void FreeSkillInstance(SkillInstance *instance);
-BattleActor *SkillInstanceGetAttacker(SkillInstance *instance);
-void UpdateSkillCooldowns(SkillList *skillList);
+const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender);
+void UpdateSkillCooldowns(uint16_t *skillCooldowns);

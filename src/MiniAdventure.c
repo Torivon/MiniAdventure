@@ -1,11 +1,12 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "BaseWindow.h"
 #include "Character.h"
 #include "Clock.h"
 #include "GlobalState.h"
 #include "Logging.h"
-#include "NewBattle.h"
+#include "Battle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
 #include "ResourceStory.h"
@@ -14,9 +15,6 @@
 #include "Utils.h"
 #include "WorkerControl.h"
 
-#include "NewBaseWindow.h"
-#include "NewMenu.h"
-	 
 Window *baseWindow = NULL;
 
 static bool hasFocus = true;
@@ -42,11 +40,11 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 	if(!hasFocus)
 		return;
 	
-	UpdateGlobalState(units_changed);
+	GlobalState_Update(units_changed);
 		
 	if(units_changed & MINUTE_UNIT)
 	{
-		UpdateNewClock();
+		UpdateClock();
 	}
 }
 
@@ -55,7 +53,7 @@ void focus_handler(bool in_focus) {
 	DEBUG_VERBOSE_LOG("Focus handler");
 	if(hasFocus)
 	{
-		UpdateNewClock();
+		UpdateClock();
 		SetUpdateDelay();
 		INFO_LOG("Gained focus.");
 	}
@@ -89,8 +87,7 @@ void handle_init() {
 	DEBUG_LOG("First handle second");
 	
 	// Just here so that the health and level fields are always filled in.
-	Character_Initialize();
-	baseWindow = InitializeNewBaseWindow();
+	baseWindow = InitializeBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	RegisterTitleScreen();
@@ -103,7 +100,12 @@ void handle_deinit()
 {
 	INFO_LOG("Cleaning up on exit.");
     SaveGlobalPersistedData();
-#if ALLOW_WORKER_APP		
+    
+    // This should only happen on a hard exit
+    // This pops all states off the stack cleaning them all up.
+    GlobalState_Free();
+
+#if ALLOW_WORKER_APP
 	AppDying(ClosingWhileInBattle());
 #endif
 	tick_timer_service_unsubscribe();
@@ -114,7 +116,8 @@ void handle_deinit()
 #endif
 	if(baseWindow)
 		window_destroy(baseWindow);
-    GlobalState_Free();
+    ResourceBattler_UnloadPlayer();
+    ResourceMonster_UnloadCurrent();
     ResourceStory_FreeAll();
 }
 

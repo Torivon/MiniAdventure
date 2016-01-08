@@ -1,9 +1,9 @@
 #pragma once
 
-void UpdateNewClock(void);
+void UpdateClock(void);
 
-void RemoveNewClockLayer(void);
-void InitializeNewClockLayer(Window *window);
+void RemoveClockLayer(void);
+void InitializeClockLayer(Window *window);
 void FreeClockLayer(void);
 
 void HideDateLayer(void);

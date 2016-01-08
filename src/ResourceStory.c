@@ -6,14 +6,31 @@
 #include "CombatantClass.h"
 #include "Utils.h"
 #include "Logging.h"
-#include "NewBattle.h"
+#include "Battle.h"
 #include "ResourceStory.h"
 #include "Skills.h"
 #include "StoryList.h"
 
 
 /********************* PREDECLARATIONS *********************************/
+
+typedef struct ResourceStory
+{
+    uint16_t id;
+    uint16_t version;
+    uint16_t hash;
+    char name[MAX_STORY_NAME_LENGTH];
+    char description[MAX_STORY_DESC_LENGTH];
+    uint16_t start_location;
+    uint16_t xpMonstersPerLevel;
+    uint16_t xpDifferenceScale;
+    uint16_t classCount;
+    uint16_t classes[MAX_CLASSES];
+} ResourceStory;
+
+
 static ResHandle ResourceStory_GetCurrentResHandle(void);
+static ResourceStory *ResourceStory_GetCurrentStory();
 
 /********************* RESOURCE LOCATION *******************************/
 typedef struct ResourceLocation
@@ -168,62 +185,111 @@ Skill *ResourceSkill_Load(uint16_t logical_index)
     return newSkill;
 }
 
-/********************* RESOURCE MONSTER ******************************/
+/********************* RESOURCE BATTLER ******************************/
 
-typedef struct ResourceMonster
+BattlerWrapper currentMonster = {0};
+
+BattlerWrapper playerClass = {0};
+
+BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void)
 {
-    char name[MAX_STORY_NAME_LENGTH];
-    uint16_t image;
-    CombatantClass combatantClass;
-    SkillList skillList;
-} ResourceMonster;
+    return &playerClass;
+}
 
-typedef struct MonsterWrapper
+BattlerWrapper *BattlerWrapper_GetMonsterWrapper(void)
 {
-    bool loaded;
-    ResourceMonster monster;
-} MonsterWrapper;
+    return &currentMonster;
+}
 
-MonsterWrapper currentMonster = {0};
-Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+Skill *BattlerWrapper_GetSkillByIndex(BattlerWrapper *wrapper, uint16_t index)
+{
+    return wrapper->loadedSkills[index];
+}
+
+uint16_t BattlerWrapper_GetUsableSkillCount(BattlerWrapper *wrapper, uint16_t level)
+{
+    int count;
+    for(count = 0; count < wrapper->battler.skillList.count; ++count)
+    {
+        if(wrapper->battler.skillList.entries[count].level > level)
+            break;
+    }
+    return count;
+}
+
+CombatantClass *BattlerWrapper_GetCombatantClass(BattlerWrapper *wrapper)
+{
+    return &wrapper->battler.combatantClass;
+}
+
+int BattlerWrapper_GetImage(BattlerWrapper *wrapper)
+{
+    if(wrapper->loaded)
+    {
+        return wrapper->battler.image;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+void ResourceBattler_UnloadBattler(BattlerWrapper *wrapper)
+{
+    if(!wrapper->loaded)
+        return;
+    
+    wrapper->loaded = false;
+    for(int i = 0; i < wrapper->battler.skillList.count; ++i)
+    {
+        ResourceSkill_Free(wrapper->loadedSkills[i]);
+        wrapper->loadedSkills[i] = NULL;
+    }
+}
 
 void ResourceMonster_UnloadCurrent(void)
 {
-    if(!currentMonster.loaded)
-        return;
+    ResourceBattler_UnloadBattler(&currentMonster);
+}
+
+void ResourceBattler_UnloadPlayer(void)
+{
+    ResourceBattler_UnloadBattler(&playerClass);
+}
+
+void ResourceBattler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index)
+{
+    ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
+    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(wrapper->battler)), sizeof(ResourceBattler), "ResourceBattler");
     
-    currentMonster.loaded = false;
-    for(int i = 0; i < currentMonster.monster.skillList.count; ++i)
+    wrapper->battler.image = autoImageMap[wrapper->battler.image];
+    for(int i = 0; i < wrapper->battler.skillList.count; ++i)
     {
-        ResourceSkill_Free(loadedSkills[i]);
-        loadedSkills[i] = NULL;
+        wrapper->loadedSkills[i] = ResourceSkill_Load(wrapper->battler.skillList.entries[i].id);
+        wrapper->battler.skillList.entries[i].id = i;
     }
+    wrapper->loaded = true;
 }
 
 void ResourceMonster_LoadCurrent(uint16_t logical_index)
 {
-    ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
-    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(currentMonster.monster)), sizeof(ResourceMonster), "ResourceMonster");
-
-    currentMonster.monster.image = autoImageMap[currentMonster.monster.image];
-    for(int i = 0; i < currentMonster.monster.skillList.count; ++i)
-    {
-        loadedSkills[i] = ResourceSkill_Load(currentMonster.monster.skillList.entries[i].id);
-        currentMonster.monster.skillList.entries[i].id = i;
-    }
-    currentMonster.loaded = true;
+    ResourceBattler_LoadBattler(&currentMonster, logical_index);
 }
 
-Skill *ResourceStory_GetSkillByID(int index)
+void ResourceBattler_LoadPlayer(uint16_t classId)
 {
-    return loadedSkills[index];
+    ResourceStory *currentStory = ResourceStory_GetCurrentStory();
+    if(!currentStory)
+        return;
+    
+    ResourceBattler_LoadBattler(&playerClass, currentStory->classes[classId]);
 }
 
 char *ResourceMonster_GetCurrentName(void)
 {
     if(currentMonster.loaded)
     {
-        return currentMonster.monster.name;
+        return currentMonster.battler.name;
     }
     else
     {
@@ -254,45 +320,7 @@ int ResourceStory_GetCurrentLocationMonster(void)
     }
 }
 
-SkillList *ResourceStory_GetCurrentMonsterSkillList(void)
-{
-    if(currentMonster.loaded)
-        return &currentMonster.monster.skillList;
-    else
-        return NULL;
-}
-
-CombatantClass *ResourceStory_GetCurrentMonsterCombatantClass(void)
-{
-    if(currentMonster.loaded)
-        return &currentMonster.monster.combatantClass;
-    else
-        return NULL;
-}
-
-int ResourceStory_GetCurrentMonsterImage(void)
-{
-    if(currentMonster.loaded)
-    {
-        return currentMonster.monster.image;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-
 /********************* RESOURCE STORY *******************************/
-typedef struct ResourceStory
-{
-    uint16_t id;
-    uint16_t version;
-    char name[MAX_STORY_NAME_LENGTH];
-    char description[MAX_STORY_DESC_LENGTH];
-    uint16_t start_location;
-} ResourceStory;
-
 typedef struct PersistedResourceStoryState
 {
     uint16_t currentLocationIndex;
@@ -511,6 +539,11 @@ const char *ResourceStory_GetDescriptionByIndex(uint16_t index)
     return story->description;
 }
 
+bool ResourceStory_InStory(void)
+{
+    return currentResourceStoryIndex != -1;
+}
+
 void ResourceStory_GetStoryList(uint16_t *count, uint16_t **buffer)
 {
     *count = GetStoryCount();
@@ -530,6 +563,21 @@ uint16_t ResourceStory_GetCurrentStoryId(void)
 uint16_t ResourceStory_GetCurrentStoryVersion(void)
 {
     return ResourceStory_GetCurrentStory()->version;
+}
+
+uint16_t ResourceStory_GetCurrentStoryHash(void)
+{
+    return ResourceStory_GetCurrentStory()->hash;
+}
+
+uint16_t ResourceStory_GetCurrentStoryXPMonstersPerLevel(void)
+{
+    return ResourceStory_GetCurrentStory()->xpMonstersPerLevel;
+}
+
+uint16_t ResourceStory_GetCurrentStoryXPDifferenceScale(void)
+{
+    return ResourceStory_GetCurrentStory()->xpDifferenceScale;
 }
 
 void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer)

@@ -1,9 +1,10 @@
 {
     "id": 567,
-    "version": 2,
+    "version": 4,
     "name": "Dungeon Crawl",
     "description": "20 floor dungeon",
     "start_location": "entrance",
+    "classes": ["adventurer"],
     "locations": [
         {
             "id": "entrance",
@@ -16,7 +17,8 @@
             "name": "Dragon's Room",
             "adjacent_locations": ["treasure"],
             "background_images": ["images/dungeonstraight.png"],
-            "monsters": ["dragon"]
+            "monsters": ["dragon"],
+            "base_level": 20
         },
         {
             "id": "treasure",
@@ -29,7 +31,7 @@
         {
             "id": "dungeon",
             "name": "Dungeon",
-            "adjacent_locations": ["entrance", "treasure"],
+            "adjacent_locations": ["entrance", "dragon_room"],
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
             "length": 30,
@@ -43,9 +45,49 @@
     ],
     "skills": [
         {
+            "id": "attack",
+            "name": "Attack",
+            "description": "Basic sword attack",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 1,
+            "cooldown": 0
+        },
+        {
+            "id": "bite",
+            "name": "Rat Bite",
+            "description": "Quick bite",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 5,
+            "cooldown": 0
+        },
+        {
+            "id": "gnaw",
+            "name": "Zombie Gnaw",
+            "description": "Going for brains",
+            "type": "attack",
+            "speed": 10,
+            "damage_types": ["physical", "piercing"],
+            "potency": 40,
+            "cooldown": 0
+        },
+        {
+            "id": "bash",
+            "name": "Shell Bash",
+            "description": "Body slam",
+            "type": "attack",
+            "speed": 35,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 20,
+            "cooldown": 0
+        },
+        {
             "id": "fastattack",
             "name": "Fast Attack",
-            "description": "Lightning quick strike",
+            "description": "Quick strike",
             "type": "attack",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
@@ -71,9 +113,59 @@
             "damage_types": ["physical", "bludgeoning"],
             "potency": 10,
             "cooldown": 2
+        },
+        {
+            "id": "potion",
+            "name": "Potion",
+            "description": "Heal with a potion",
+            "type": "heal",
+            "speed": 100,
+            "damage_types": [],
+            "potency": 10,
+            "cooldown": 4
+        },
+        {
+            "id": "fireball",
+            "name": "Fireball",
+            "description": "Blast of fire",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "fire"],
+            "potency": 20,
+            "cooldown": 0
+        },
+        {
+            "id": "bomb",
+            "name": "Bomb",
+            "description": "Blast of fire",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "fire"],
+            "potency": 30,
+            "cooldown": 6
+        },
+        {
+            "id": "icicle",
+            "name": "Icicle",
+            "description": "Blast of ice",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "ice"],
+            "potency": 30,
+            "cooldown": 6
+        },
+        {
+            "id": "spark",
+            "name": "Spark",
+            "description": "Blast of lightning",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "lightning"],
+            "potency": 30,
+            "cooldown": 0
         }
     ],
-    "monsters": [
+    "battlers": [
         {
             "id": "rat",
             "name": "Rat",
@@ -88,7 +180,7 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "bite",
                     "min_level": 1
                 }
             ]
@@ -107,7 +199,7 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "attack",
                     "min_level": 1
                 }
             ]
@@ -126,7 +218,7 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "fireball",
                     "min_level": 1
                 }
             ]
@@ -145,7 +237,7 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "gnaw",
                     "min_level": 1
                 }
             ]
@@ -164,7 +256,7 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "bash",
                     "min_level": 1
                 }
             ]
@@ -183,7 +275,7 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "fireball",
                     "min_level": 1
                 }
             ]
@@ -202,10 +294,46 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "fireball",
                     "min_level": 1
                 }
             ]
+        },
+        {
+            "id": "adventurer",
+            "name": "Adventurer",
+            "description": "A basic adventurer",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankb",
+                "defense": "rankb",
+                "magic_defense": "rankb",
+                "speed": "rankb",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "attack",
+                    "min_level": 1
+                },
+                {
+                    "id": "potion",
+                    "min_level": 1
+                },
+                {
+                    "id": "icicle",
+                    "min_level": 3
+                },
+                {
+                    "id": "bomb",
+                    "min_level": 5
+                },
+                {
+                    "id": "spark",
+                    "min_level": 7
+                }
+            ]          
         }
     ]
 }

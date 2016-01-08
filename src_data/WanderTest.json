@@ -1,9 +1,10 @@
 {
-    "id": "56",
-    "version": 3,
+    "id": 56,
+    "version": 4,
     "name": "Wander Test",
     "description": "A test of path traveling",
     "start_location": "village1",
+    "classes": ["adventurer"],
     "locations": [
         {
             "id": "village2",
@@ -13,7 +14,7 @@
         },
         {
             "id": "village1",
-            "name": "Midgar",
+            "name": "Asgard",
             "adjacent_locations": ["road1", "house1", "house3"],
             "background_images": ["images/VillageExterior.png"]
         },
@@ -40,7 +41,7 @@
             "name": "Poplar Avenue",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
-            "length": "5",
+            "length": 5,
             "base_level": 2,
             "encounter_chance": 25,
             "monsters": ["rat"]
@@ -76,9 +77,19 @@
             "damage_types": ["physical", "bludgeoning"],
             "potency": 10,
             "cooldown": 2
+        },
+        {
+            "id": "potion",
+            "name": "Potion",
+            "description": "Heal with a potion",
+            "type": "heal",
+            "speed": 100,
+            "damage_types": [],
+            "potency": 10,
+            "cooldown": 4
         }
     ],
-    "monsters": [
+    "battlers": [
         {
             "id": "rat",
             "name": "Rat",
@@ -97,6 +108,30 @@
                     "min_level": 1
                 }
             ]
+        },
+        {
+            "id": "adventurer",
+            "name": "Adventurer",
+            "description": "A basic adventurer",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankb",
+                "defense": "rankb",
+                "magic_defense": "rankb",
+                "speed": "rankb",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "fastattack",
+                    "min_level": 1
+                },
+                {
+                    "id": "potion",
+                    "min_level": 1
+                }
+            ]          
         }
     ]
 }

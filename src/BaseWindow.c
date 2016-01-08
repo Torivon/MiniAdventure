@@ -6,14 +6,12 @@
 #include "MainImage.h"
 #include "MenuArrow.h"
 #include "MiniAdventure.h"
-#include "NewBaseWindow.h"
-#include "NewBattle.h"
-#include "NewMenu.h"
+#include "BaseWindow.h"
+#include "Battle.h"
+#include "Menu.h"
 #include "ProgressBar.h"
 #include "Logging.h"
 #include "Utils.h"
-
-static bool usingNewWindow = false;
 
 static Menu *mainMenu = NULL;
 static Menu *slaveMenu = NULL;
@@ -21,8 +19,8 @@ static bool useSlaveMenu = false;
 static bool hideMenuOnSelect = true;
 
 static ProgressBar *batteryBar = NULL;
-static int currentBatteryLevel = 0;
-static int maxBatteryLevel = 100;
+static uint16_t currentBatteryLevel = 0;
+static uint16_t maxBatteryLevel = 100;
 #if defined(PBL_ROUND)
 static GRect batteryFrame = {.origin = {.x = 122, .y = 134}, .size = {.w = 10, .h = 30}};
 #else
@@ -59,11 +57,6 @@ bool GetHideMenuOnSelect(void)
 	return hideMenuOnSelect;
 }
 
-bool UsingNewWindow(void)
-{
-	return usingNewWindow;
-}
-
 void UpdateBatteryLevel(BatteryChargeState chargeState)
 {
 	currentBatteryLevel = chargeState.charge_percent;
@@ -84,19 +77,19 @@ void ShowBatteryLevel(void)
 
 static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(GetCurrentGlobalState() == STATE_DIALOG)
+	if(GlobalState_GetCurrent() == STATE_DIALOG)
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 		return;
 	}
-	if(GetCurrentGlobalState() == STATE_LARGE_IMAGE)
+	if(GlobalState_GetCurrent() == STATE_LARGE_IMAGE)
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 		return;
 	}
 	if(IsMenuUsable(GetMainMenu()))
 	{
-		CallNewMenuSelectCallback(GetMainMenu(), recognizer, window);
+		CallMenuSelectCallback(GetMainMenu(), recognizer, window);
 		if(hideMenuOnSelect)
 		{
 			HideMenu(GetMainMenu());
@@ -106,7 +99,7 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 	}
 	else if(IsMenuHidden(GetMainMenu()))
 	{
-		if(GetMenuCellCount(GetMainMenu()) > 0)
+		if(GetMenuTotalCellCount(GetMainMenu()) > 0)
 		{
 			TriggerMenu(GetMainMenu());
 			if(useSlaveMenu)
@@ -122,10 +115,10 @@ static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 	if(IsMenuUsable(GetMainMenu()))
 	{
 		MenuRowAlign align = MenuRowAlignCenter;
-		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), true, align, true);
+		menu_layer_set_selected_next(GetMenuLayer(GetMainMenu()), true, align, true);
 		if(IsMenuUsable(GetSlaveMenu()))
 		{
-			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), true, align, true);
+			menu_layer_set_selected_next(GetMenuLayer(GetSlaveMenu()), true, align, true);
 		}
 	}
 }
@@ -135,10 +128,10 @@ static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 	if(IsMenuUsable(GetMainMenu()))
 	{
 		MenuRowAlign align = MenuRowAlignCenter;
-		menu_layer_set_selected_next(GetNewMenuLayer(GetMainMenu()), false, align, true);
+		menu_layer_set_selected_next(GetMenuLayer(GetMainMenu()), false, align, true);
 		if(IsMenuUsable(GetSlaveMenu()))
 		{
-			menu_layer_set_selected_next(GetNewMenuLayer(GetSlaveMenu()), false, align, true);
+			menu_layer_set_selected_next(GetMenuLayer(GetSlaveMenu()), false, align, true);
 		}
 	}
 }
@@ -151,7 +144,7 @@ static DialogData exitPrompt =
 
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	switch(GetCurrentGlobalState())
+	switch(GlobalState_GetCurrent())
 	{
 		case STATE_MENU:
 		{
@@ -180,17 +173,17 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
             if(Dialog_AllowCancel())
             {
                 GlobalState_ClearQueue();
-                PopGlobalState();
+                GlobalState_Pop();
             }
             else
             {
-                PopGlobalState();
+                GlobalState_Pop();
             }
             break;
         }
 		default:
 		{
-			PopGlobalState();
+			GlobalState_Pop();
 			break;
 		}
 	}
@@ -212,11 +205,11 @@ void BaseWindowAppear(Window *window)
 	DEBUG_LOG("BaseWindowAppear");
 	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
-	InitializeNewClockLayer(window);
+	InitializeClockLayer(window);
 	InitializeProgressBar(batteryBar, window);
 	UpdateBatteryLevel(battery_state_service_peek());
-	InitializeNewMenuLayer(GetMainMenu(), window);
-	InitializeNewMenuLayer(GetSlaveMenu(), window);
+	InitializeMenuLayer(GetMainMenu(), window);
+	InitializeMenuLayer(GetSlaveMenu(), window);
 	InitializeMenuArrowLayer(window);
 	InitializeDialogLayer(window);
 	DEBUG_LOG("BaseWindowAppear end");
@@ -224,7 +217,7 @@ void BaseWindowAppear(Window *window)
 
 void BaseWindowDisappear(Window *window)
 {
-	RemoveNewClockLayer();
+	RemoveClockLayer();
 	RemoveMenuArrowLayer();
 	RemoveMainImageLayer();
 	RemoveDescriptionLayer();
@@ -250,11 +243,10 @@ void SetWindowHandlers(Window *window)
 	window_set_window_handlers(window,handlers);
 }
 
-Window * InitializeNewBaseWindow(void)
+Window * InitializeBaseWindow(void)
 {
-	INFO_LOG("InitializeNewBaseWindow");
+	INFO_LOG("InitializeBaseWindow");
 	Window *window = window_create();
-	usingNewWindow = true;
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
 	slaveMenu = CreateMenuLayer(15,

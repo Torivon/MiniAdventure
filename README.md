@@ -2,7 +2,7 @@
 
 This is an extension of MiniDungeon (https://github.com/Torivon/MiniDungeon). It started from the same core engine to support a broader game. 
 
-The game is broken up into stories. From the title screen you can choose which story to explore. At the moment, each story has its own locations, monsters and monster skills. They currently share character classes and skills, although I plan to put that information in data files as well.
+The game is broken up into stories. From the title screen you can choose which story to explore. At the moment, each story has its own locations, monsters, character classes, and skills. 
 
 
 ##Story files
@@ -16,10 +16,13 @@ A story file is a json file which describese all of the attributes of the story.
 * "name": <string>
 * "description": <string>
 * "start_location": <string> # the id of a location in the file
+* "xp_monsters_per_level": <integer> # The engine uses a simplified experience scale. xp_monsters_per_level represents the number of monsters of equal level that it takes to level up. Fighting higher level monsters will give more experience, while lower level monsters will give less. An xp_monsters_per_level of 0 means no leveling up.
+* "xp_difference_scale": <integer> # an integer percent for the bonus or penalty in experience gains per level difference. With an xp_difference_scale of 20, if you defeat a monster 3 levels higher, you will gain a 60% experience bonus. Leaving this out or setting it to 0 gives no bonus or penalty.
+* "classes": <list> <string> # the ids of all allowed classes for the story. These must be valid battler ids.
 * "locations": <list> <location> # This is a list of location objects to which the player can travel
 * "dungeons": <list> <dungeon> # A list of dungeons. At processing, each dungeon is turned into a list of locations.
 * "skills": <list> <skill> # A list of the skills available to monsters int the story
-* "monsters": <list> <monster> # A list of monsters available to the locations in the story
+* "battlers": <list> <battler> # A list of battlers available to the locations, and available as classes.
 
 ###Location
 
@@ -72,10 +75,11 @@ A dungeon will be unrolled into a series of locations. These locations alternate
 * "potency": <integer> # How strong the skill is.
 * "cooldown": <integer> # How many combat rounds must pass before the skill is ready to be used again
 
-###Monster
+###Battler
 
-* "id": <string> # unique identifier for the monster. This should be included in the monsters list of locations and dungeons.
+* "id": <string> # unique identifier for the battler. This should be included in the monsters list of locations and dungeons. They can also be used as the classes for the player character.
 * "name" <string>
+* "description" <string>
 * "image" <string> # The image used for the monster during combat. Must already by included in appinfo.json.
 * "combatantclass": <dict> # This dict has keys from g_combatant_stats and values from g_combatant_ranks. All will be turned into integer values in processing
     g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
@@ -86,4 +90,4 @@ A dungeon will be unrolled into a series of locations. These locations alternate
     g_combatant_ranks["rankb"] = 4
     g_combatant_ranks["ranka"] = 5
     g_combatant_ranks["ranks"] = 6
-* "skill_list": <list> <skillentry> # Each skill entry must have the id of a skill that is defined in the file, as well as the minimum level for the monster to have access to it. This way more powerful monster get access to a wider variety of skills.
+* "skill_list": <list> <skillentry> # Each skill entry must have the id of a skill that is defined in the file, as well as the minimum level for the monster to have access to it. This way more powerful monsters and players get access to a wider variety of skills.

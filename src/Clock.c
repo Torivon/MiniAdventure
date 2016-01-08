@@ -2,7 +2,7 @@
 #include "Clock.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
-#include "NewBaseWindow.h"
+#include "BaseWindow.h"
 #include "TextBox.h"
 
 static TextBox *clockTextBox = NULL;
@@ -14,12 +14,12 @@ static TextBox *dayTextBox = NULL;
 #define CLOCK_TEXT_X_OFFSET 6
 #define CLOCK_TEXT_Y_OFFSET -1
 #if defined(PBL_RECT)
-static GRect newClockFrame = {.origin = {.x = 144 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 168 - CLOCK_FRAME_HEIGHT}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
+static GRect clockFrame = {.origin = {.x = 144 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 168 - CLOCK_FRAME_HEIGHT}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
 static GRect dayFrame = {.origin = {.x = 0, .y = 60}, .size = {.w = 30, .h = 18}};
 static GRect dateFrame = {.origin = {.x = 0, .y = 100}, .size = {.w = 60, .h = 18}};
 #elif defined(PBL_ROUND)
 #define CLOCK_VERTICAL_OFFSET 10
-static GRect newClockFrame = {.origin = {.x = 180 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 180 - CLOCK_FRAME_HEIGHT - CLOCK_VERTICAL_OFFSET}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
+static GRect clockFrame = {.origin = {.x = 180 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 180 - CLOCK_FRAME_HEIGHT - CLOCK_VERTICAL_OFFSET}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
 static GRect dayFrame = {.origin = {.x = 45, .y = 48}, .size = {.w = 30, .h = 18}};
 static GRect dateFrame = {.origin = {.x = 15, .y = 114}, .size = {.w = 60, .h = 18}};
 #endif
@@ -71,9 +71,9 @@ char *UpdateClockText(void)
     return timeText;
 }
 
-void UpdateNewClock(void)
+void UpdateClock(void)
 {
-    if(!TextBoxInitialized(clockTextBox) || !UsingNewWindow())
+    if(!TextBoxInitialized(clockTextBox))
         return;
     
     TextBoxSetText(clockTextBox, UpdateClockText());
@@ -81,7 +81,7 @@ void UpdateNewClock(void)
     TextBoxSetText(dateTextBox, UpdateDateText());
 }
 
-void RemoveNewClockLayer(void)
+void RemoveClockLayer(void)
 {
     RemoveTextBox(clockTextBox);
     RemoveTextBox(dayTextBox);
@@ -100,11 +100,11 @@ void ShowDateLayer(void)
     ShowTextBox(dateTextBox);
 }
 
-void InitializeNewClockLayer(Window *window)
+void InitializeClockLayer(Window *window)
 {
     if(!clockTextBox)
     {
-        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), newClockFrame);
+        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame);
         dayTextBox = CreateTextBox(0, 0, fonts_get_system_font(FONT_KEY_GOTHIC_14), dayFrame);
         dateTextBox = CreateTextBox(0, 0, fonts_get_system_font(FONT_KEY_GOTHIC_14), dateFrame);
     }

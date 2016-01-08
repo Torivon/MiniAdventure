@@ -4,7 +4,7 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
-#include "NewBaseWindow.h"
+#include "BaseWindow.h"
 #include "TextBox.h"
 
 static TextBox *dialogTextBox = NULL;
@@ -117,10 +117,10 @@ void DialogDisappear(void *data)
 
 void TriggerDialog(DialogData *data)
 {
-	PushGlobalState(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, data);
+	GlobalState_Push(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, data);
 }
 
 void QueueDialog(DialogData *data)
 {
-    QueueGlobalState(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, data);
+    GlobalState_Queue(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, data);
 }

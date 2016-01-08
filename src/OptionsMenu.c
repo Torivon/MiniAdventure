@@ -1,8 +1,8 @@
 #include <pebble.h>
 
 #include "GlobalState.h"
-#include "NewBaseWindow.h"
-#include "NewMenu.h"
+#include "BaseWindow.h"
+#include "Menu.h"
 #include "OptionsMenu.h"
 #include "WorkerControl.h"
 
@@ -74,7 +74,7 @@ bool GetWorkerCanLaunch(void)
 
 bool OptionsMenuIsVisible(void)
 {
-	return GetCurrentGlobalState() == STATE_OPTIONS;
+	return GlobalState_GetCurrent() == STATE_OPTIONS;
 }
 
 void DrawOptionsMenu(void)
@@ -92,14 +92,14 @@ MenuCellDescription optionScreenMenuList[] =
 
 static bool firstLaunch = false;
 
-uint16_t OptionMenuCount(void)
+uint16_t OptionMenuCount(uint16_t sectionIndex)
 {
 	return sizeof(optionScreenMenuList)/sizeof(*optionScreenMenuList);
 }
 
-const char *OptionMainMenuNameCallback(int row)
+const char *OptionMainMenuNameCallback(MenuIndex *index)
 {
-	switch(row)
+	switch(index->row)
 	{
 		case 0:
 		{
@@ -126,14 +126,24 @@ const char *OptionMainMenuNameCallback(int row)
 	return "";
 }
 
-const char *OptionMainMenuDescriptionCallback(int row)
+const char *OptionMainMenuDescriptionCallback(MenuIndex *index)
 {
-	return optionScreenMenuList[row].description;
+	return optionScreenMenuList[index->row].description;
 }
 
-void OptionMainMenuSelectCallback(int row)
+static const char *OptionMenuSectionName(uint16_t sectionIndex)
 {
-	switch(row)
+    return "Options";
+}
+
+static uint16_t OptionMenuSectionCount(void)
+{
+    return 1;
+}
+
+void OptionMainMenuSelectCallback(MenuIndex *index)
+{
+	switch(index->row)
 	{
 		case 0:
 		{
@@ -162,8 +172,8 @@ void OptionScreenAppear(void *data)
 {
 	SetUseSlaveMenu(true);
 	SetHideMenuOnSelect(false);	
-	RegisterMenuCellCallbacks(GetMainMenu(), OptionMenuCount, OptionMainMenuNameCallback, OptionMainMenuDescriptionCallback, OptionMainMenuSelectCallback);	
-	RegisterMenuCellList(GetSlaveMenu(), optionScreenMenuList, OptionMenuCount());
+	RegisterMenuCellCallbacks(GetMainMenu(), OptionMenuSectionName, OptionMenuSectionCount, OptionMenuCount, OptionMainMenuNameCallback, OptionMainMenuDescriptionCallback, OptionMainMenuSelectCallback);
+	RegisterMenuCellList(GetSlaveMenu(), "", optionScreenMenuList, OptionMenuCount(0));
 	if(firstLaunch)
 	{
 		TriggerMenu(GetMainMenu());
@@ -172,7 +182,7 @@ void OptionScreenAppear(void *data)
 	}
 	else
 	{
-		PopGlobalState();
+		GlobalState_Pop();
 	}
 	
 }
@@ -185,10 +195,10 @@ void OptionScreenPop(void *data)
 
 void TriggerOptionScreen(void)
 {
-	PushGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+	GlobalState_Push(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
 }
 
 void QueueOptionsScreen(void)
 {
-    QueueGlobalState(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+    GlobalState_Queue(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
 }
