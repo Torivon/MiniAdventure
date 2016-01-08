@@ -12,7 +12,8 @@
             "id": "arena",
             "name": "Arena",
             "adjacent_locations": ["rat_room", "goblin_room"],
-            "background_images": ["images/dungeonstraight.png"]
+            "background_images": ["images/dungeonstraight.png"],
+            "rest_area": true
         },
         {
             "id": "rat_room",
@@ -33,6 +34,16 @@
     ],
     "skills": [
         {
+            "id": "attack",
+            "name": "Attack",
+            "description": "Basic sword attack",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 10,
+            "cooldown": 0
+        },
+        {
             "id": "fastattack",
             "name": "Fast Attack",
             "description": "Lightning quick strike",
@@ -49,8 +60,48 @@
             "type": "heal",
             "speed": 100,
             "damage_types": ["magic"],
-            "potency": 10,
-            "cooldown": 4
+            "potency": 25,
+            "cooldown": 6
+        },
+        {
+            "id": "fireball",
+            "name": "Fireball",
+            "description": "Blast of fire",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "fire"],
+            "potency": 20,
+            "cooldown": 0
+        },
+        {
+            "id": "bomb",
+            "name": "Bomb",
+            "description": "Blast of fire",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "fire"],
+            "potency": 15,
+            "cooldown": 6
+        },
+        {
+            "id": "icicle",
+            "name": "Icicle",
+            "description": "Blast of ice",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "ice"],
+            "potency": 15,
+            "cooldown": 6
+        },
+        {
+            "id": "spark",
+            "name": "Spark",
+            "description": "Blast of lightning",
+            "type": "attack",
+            "speed": 20,
+            "damage_types": ["magic", "lightning"],
+            "potency": 15,
+            "cooldown": 6
         },
         {
             "id": "slowattack",
@@ -81,25 +132,34 @@
             "damage_types": ["magic", "ice"],
             "potency": 5,
             "cooldown": 0
+        },
+        {
+            "id": "bite",
+            "name": "Rat Bite",
+            "description": "Quick bite",
+            "type": "attack",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 5,
+            "cooldown": 0
         }
     ],
     "battlers": [
         {
             "id": "rat",
             "name": "Rat",
-            "description": "A large rat",
             "image": "images/rat.png",
             "combatantclass": {
-                "strength": "rankc",
+                "strength": "rankd",
                 "magic": "rankf",
                 "defense": "rankf",
                 "magic_defense": "rankf",
                 "speed": "ranks",
-                "health": "rankc"
+                "health": "rankd"
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
+                    "id": "bite",
                     "min_level": 1
                 }
             ]
@@ -141,24 +201,24 @@
             },
             "skill_list": [
                 {
-                    "id": "fastattack",
-                    "min_level": 1
-                },
-                {
-                    "id": "ice",
+                    "id": "attack",
                     "min_level": 1
                 },
                 {
                     "id": "potion",
-                    "min_level": 2
+                    "min_level": 1
                 },
                 {
-                    "id": "slowattack",
+                    "id": "icicle",
                     "min_level": 3
                 },
                 {
-                    "id": "shieldbash",
-                    "min_level": 4
+                    "id": "bomb",
+                    "min_level": 5
+                },
+                {
+                    "id": "spark",
+                    "min_level": 7
                 }
             ]          
         }

@@ -61,6 +61,17 @@ size_t Character_GetDataSize(void)
 	return sizeof(Character);
 }
 
+void Character_Rest(void)
+{
+    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    
+    for(int i = 0; i < MAX_SKILLS_IN_LIST; ++i)
+    {
+        character.skillCooldowns[i] = 0;
+    }
+   
+}
+
 void Character_GrantXP(uint16_t monsterLevel)
 {
     uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();
@@ -77,6 +88,7 @@ void Character_GrantXP(uint16_t monsterLevel)
     {
         character.level++;
         character.currentXP -= XP_TO_LEVEL_UP;
+        character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
     }
 }
 

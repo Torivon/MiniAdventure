@@ -4,6 +4,8 @@
     "name": "Dungeon Crawl",
     "description": "20 floor dungeon",
     "start_location": "entrance",
+    "xp_monsters_per_level": 3,
+    "xp_difference_scale": 50,
     "classes": ["adventurer"],
     "locations": [
         {
@@ -34,11 +36,11 @@
             "adjacent_locations": ["entrance", "dragon_room"],
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
-            "length": 30,
+            "length": 5,
             "floors": 19,
             "base_level": 1,
             "level_rate": 1,
-            "encounter_chance": 20,
+            "encounter_chance": 50,
             "monsters": ["rat", "goblin", "wizard", "zombie", "turtle", "lich"],
             "monster_scaling": 2       
         }
@@ -51,7 +53,7 @@
             "type": "attack",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
-            "potency": 1,
+            "potency": 10,
             "cooldown": 0
         },
         {
@@ -71,7 +73,7 @@
             "type": "attack",
             "speed": 10,
             "damage_types": ["physical", "piercing"],
-            "potency": 40,
+            "potency": 15,
             "cooldown": 0
         },
         {
@@ -81,7 +83,7 @@
             "type": "attack",
             "speed": 35,
             "damage_types": ["physical", "bludgeoning"],
-            "potency": 20,
+            "potency": 10,
             "cooldown": 0
         },
         {
@@ -120,9 +122,9 @@
             "description": "Heal with a potion",
             "type": "heal",
             "speed": 100,
-            "damage_types": [],
-            "potency": 10,
-            "cooldown": 4
+            "damage_types": ["magic"],
+            "potency": 25,
+            "cooldown": 6
         },
         {
             "id": "fireball",
@@ -141,7 +143,7 @@
             "type": "attack",
             "speed": 20,
             "damage_types": ["magic", "fire"],
-            "potency": 30,
+            "potency": 15,
             "cooldown": 6
         },
         {
@@ -151,7 +153,7 @@
             "type": "attack",
             "speed": 20,
             "damage_types": ["magic", "ice"],
-            "potency": 30,
+            "potency": 15,
             "cooldown": 6
         },
         {
@@ -161,8 +163,8 @@
             "type": "attack",
             "speed": 20,
             "damage_types": ["magic", "lightning"],
-            "potency": 30,
-            "cooldown": 0
+            "potency": 15,
+            "cooldown": 6
         }
     ],
     "battlers": [
@@ -171,12 +173,12 @@
             "name": "Rat",
             "image": "images/rat.png",
             "combatantclass": {
-                "strength": "rankc",
+                "strength": "rankd",
                 "magic": "rankf",
                 "defense": "rankf",
                 "magic_defense": "rankf",
                 "speed": "ranks",
-                "health": "rankc"
+                "health": "rankd"
             },
             "skill_list": [
                 {
@@ -190,13 +192,14 @@
             "name": "Goblin",
             "image": "images/goblin.png",
             "combatantclass": {
-                "strength": "ranka",
+                "strength": "rankc",
                 "magic": "rankf",
-                "defense": "rankc",
-                "magic_defense": "rankc",
+                "defense": "rankd",
+                "magic_defense": "rankd",
                 "speed": "rankc",
-                "health": "rankb"
+                "health": "rankd"
             },
+            "vulnerable": ["ice"],
             "skill_list": [
                 {
                     "id": "attack",
@@ -211,9 +214,9 @@
             "combatantclass": {
                 "strength": "rankf",
                 "magic": "ranks",
-                "defense": "rankd",
+                "defense": "rankf",
                 "magic_defense": "ranks",
-                "speed": "rankb",
+                "speed": "rankd",
                 "health": "rankd"
             },
             "skill_list": [
@@ -235,6 +238,7 @@
                 "speed": "rankf",
                 "health": "ranka"
             },
+            "vulnerable": ["fire"],
             "skill_list": [
                 {
                     "id": "gnaw",
@@ -254,6 +258,8 @@
                 "speed": "ranke",
                 "health": "ranka"
             },
+            "resistant": ["physical"],
+            "vulnerable": ["lightning"],
             "skill_list": [
                 {
                     "id": "bash",
@@ -273,6 +279,7 @@
                 "speed": "rankd",
                 "health": "rankb"
             },
+            "vulnerable": ["ice"],
             "skill_list": [
                 {
                     "id": "fireball",
@@ -292,6 +299,7 @@
                 "speed": "rankb",
                 "health": "ranks"
             },
+            "absorb": ["fire"],
             "skill_list": [
                 {
                     "id": "fireball",

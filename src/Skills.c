@@ -57,19 +57,20 @@ static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, Battl
     if(defensePower == 0)
         defensePower = 1;
     
-    // TODO: This formula sucks
-    int damage = skill->potency * attackPower / defensePower;
+    int baseDamage = (skill->potency + (attackPower * skill->potency)) / 10;
+    
+    int damage = (baseDamage * (100 - defensePower)) / 100;
     
     if(damage <= 0)
         damage = 1;
     
-    if(skill->damageType & defender->battlerWrapper->battler.vulnerable)
+    if(defender && skill->damageType & defender->battlerWrapper->battler.vulnerable)
         damage *= 2;
 
-    if(skill->damageType & defender->battlerWrapper->battler.resistant)
+    if(defender && skill->damageType & defender->battlerWrapper->battler.resistant)
         damage /= 2;
     
-    if(skill->damageType & defender->battlerWrapper->battler.absorb)
+    if(defender && skill->damageType & defender->battlerWrapper->battler.absorb)
         damage = -damage;
     
     return damage;

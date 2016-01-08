@@ -3,6 +3,7 @@
 #include "AutoImageMap.h"
 #include "AutoSizeConstants.h"
 #include "BinaryResourceLoading.h"
+#include "Character.h"
 #include "CombatantClass.h"
 #include "Utils.h"
 #include "Logging.h"
@@ -40,6 +41,7 @@ typedef struct ResourceLocation
     uint16_t adjacentLocations[MAX_ADJACENT_LOCATIONS];
     uint16_t backgroundImageCount;
     uint16_t backgroundImages[MAX_BACKGROUND_IMAGES];
+    bool restArea;
     uint16_t length;
     uint16_t baseLevel;
     uint16_t encounterChance;
@@ -171,6 +173,17 @@ bool ResourceStory_CurrentLocationIsPath(void)
     
     return false;
 }
+
+bool ResourceStory_CurrentLocationIsRestArea(void)
+{
+    if(currentLocation)
+    {
+        return currentLocation->restArea;
+    }
+    
+    return false;
+}
+
 /********************* RESOURCE SKILL ******************************/
 void ResourceSkill_Free(Skill *skill)
 {
@@ -437,6 +450,11 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
         currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = globalIndex;
         currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
 
+        if(ResourceStory_CurrentLocationIsRestArea())
+        {
+            Character_Rest();
+        }
+        
         if(ResourceStory_CurrentLocationIsPath())
         {
             if(currentLocation->adjacentLocations[0] == oldIndex)

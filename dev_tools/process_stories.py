@@ -81,6 +81,7 @@ def pack_location(location):
             binarydata += pack_integer(location["background_images_index"][index])
         else:
             binarydata += pack_integer(0)
+    binarydata += pack_integer_with_default(location, "rest_area", False)
     binarydata += pack_integer_with_default(location, "length", 0)
     binarydata += pack_integer_with_default(location, "base_level", 0)
     binarydata += pack_integer_with_default(location, "encounter_chance", 0)
