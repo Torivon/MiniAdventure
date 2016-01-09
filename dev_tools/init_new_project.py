@@ -17,6 +17,7 @@ with open("src_data/base-appinfo.json") as appinfo_file:
 appinfo["companyName"] = sys.argv[1]
 appinfo["shortName"] = sys.argv[2]
 appinfo["longName"] = sys.argv[3]
+appinfo["versionLabel"] = "1.0"
 appinfo["uuid"] = str(uuid.uuid4())
 
 # Write out the new appinfo file
