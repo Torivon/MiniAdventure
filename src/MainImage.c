@@ -50,7 +50,7 @@ void InitializeMainImageLayer(Window *window)
 		image_bounds.size.h -= 2 * INTERNAL_IMAGE_OFFSET;
 
 		backgroundImageLayer = bitmap_layer_create(image_bounds);
-		backgroundResourceId = RESOURCE_ID_IMAGE_BATTLE_FLOOR;
+		backgroundResourceId = RESOURCE_ID_IMAGE_BATTLEFLOOR;
 		backgroundImage = gbitmap_create_with_resource(backgroundResourceId);
 		bitmap_layer_set_bitmap(backgroundImageLayer, backgroundImage);
 		bitmap_layer_set_alignment(backgroundImageLayer, GAlignCenter);

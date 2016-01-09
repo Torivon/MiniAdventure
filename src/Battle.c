@@ -230,7 +230,7 @@ void BattleScreenAppear(void *data)
     ReloadMenu(GetMainMenu());
     SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
-    SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLE_FLOOR);
+    SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
 #endif
     SetMainImageVisibility(true, true, true);
 }

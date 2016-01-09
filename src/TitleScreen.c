@@ -35,39 +35,6 @@ void LaunchResourceStory(uint16_t index)
     QueueAdventureScreen();
 }
 
-void ChooseOptions(void)
-{
-    QueueOptionsScreen();
-}
-
-void ChooseRepo(void)
-{
-    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
-}
-
-static DialogData credits[] =
-{
-    {
-        .text = "Programming and art by Jonathan Panttaja",
-        .allowCancel = false
-    },
-    {
-        .text = "Additional Contributors: Belphemur and BlackLamb",
-        .allowCancel = false
-    },
-    {
-        .text = "Code located at https://Github.com/Torivon/MiniAdventure",
-        .allowCancel = false
-    },
-};
-
-void ChooseCredits(void)
-{
-    QueueDialog(&credits[0]);
-    QueueDialog(&credits[1]);
-    QueueDialog(&credits[2]);
-}
-
 static uint16_t TitleScreenSectionCount(void)
 {
     return 1 + ExtraMenu_GetSectionCount();

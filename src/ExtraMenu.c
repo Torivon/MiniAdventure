@@ -71,7 +71,7 @@ void ExtraMenu_SelectAction(uint16_t row)
         }
         case 2:
         {
-            QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
+            QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORYCODE, true);
             break;
         }
     }

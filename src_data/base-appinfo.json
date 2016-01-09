@@ -1,0 +1,21 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Torivon",
+    "longName": "MiniAdventure",
+    "projectType": "native",
+    "sdkVersion": "3",
+    "shortName": "MiniAdventure",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "39a8ce3d-7be7-4ecc-b7bf-508d9cb4598b",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}

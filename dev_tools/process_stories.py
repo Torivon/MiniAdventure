@@ -3,6 +3,7 @@ import struct
 import json
 import os
 import hashlib
+import shutil
 
 STORY_DATA_STRING = "STORY_DATA_"
 
@@ -406,7 +407,7 @@ def process_dungeons(story):
 def process_included_files(story, file_list_key, object_key):
     if file_list_key in story:
         for filename in story[file_list_key]:
-            with open("src_data/" + filename) as object_file:
+            with open("src_data/stories/" + filename) as object_file:
                 try:
                     object_list = json.load(object_file)
                 except ValueError as e:
@@ -461,7 +462,7 @@ data_objects = []
 imagelist = []
 
 # Load appinfo so we can configure the stories and modify it to match
-with open("appinfo.json") as appinfo_file:
+with open("src_data/base-appinfo.json") as appinfo_file:
     appinfo = json.load(appinfo_file)
 
 # Process the stories to include. This includes generating the data files,
@@ -469,7 +470,7 @@ with open("appinfo.json") as appinfo_file:
 with open("src_data/stories.txt") as stories:
     for line in stories.readlines():
         print("Processing story in " + line.strip())
-        story_filename = "src_data/" + line.strip()
+        story_filename = "src_data/stories/" + line.strip()
         story_datafile = "Auto" + os.path.splitext(line.strip())[0]+'.dat'
         with open(story_filename) as story_file:
             m = hashlib.md5()
@@ -487,35 +488,68 @@ with open("src_data/stories.txt") as stories:
                 newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
                 data_objects.append(newobject)
 
+with open("src_data/imagelist.txt") as imagelist_file:
+    for line in imagelist_file.readlines():
+        imagename = line.strip()
+        if imagelist.count(imagename) == 0:
+            imagelist.append(imagename)
+
+if not "resources" in appinfo:
+    appinfo["resources"] = {};
+
+if not "media" in appinfo["resources"]:
+    appinfo["resources"]["media"] = []
 
 medialist = appinfo["resources"]["media"]
 
-# Make a mapping of image indexes to resource ids
-for object in medialist:
-    if imagelist.count(object["file"]) > 0:
-        index = imagelist.index(object["file"])
-        imagelist[index] = object["name"]
+imagemap = []
+prefixlist = []
+
+for index in range(len(imagelist)):
+    newimage = imagelist[index];
+    prefix = os.path.splitext(newimage)[0]
+    if prefix.count('/') > 0:
+        prefix = prefix[prefix.index('/') + 1:]
+    newobject = {"file": newimage, "name": "IMAGE_" + prefix.upper(), "type": "bitmap"}
+    medialist.append(newobject)
+    imagemap.append(newobject["name"])
+    prefixlist.append(prefix)
 
 # Walk the list of story objects and make sure they are in appinfo
 for newobject in data_objects:
-    found = False
-    for object in medialist:
-        if object["file"] == newobject["file"]:
-            found = True
-    if not found:
-        medialist.append(newobject)
+    medialist.append(newobject)
 
-# the appinfo medialist and remove any files for stories that should no longer be included
-for object in list(medialist):
-    found = False
-    if object["name"][:len(STORY_DATA_STRING)] != STORY_DATA_STRING:
-        continue
-    for newobject in data_objects:
-        if object["file"] == newobject["file"]:
+source_image_files = os.listdir(os.getcwd() + "/src_data/images")
+dest_image_files = os.listdir(os.getcwd() + "/resources/images")
+
+for imagefile in dest_image_files:
+    prefix = os.path.splitext(imagefile)[0]
+    if prefix.count('~') > 0:
+        prefix = prefix[:prefix.index('~')]
+
+    if prefixlist.count(prefix) == 0:
+        os.remove(os.getcwd() + "/resources/images/" + imagefile)
+
+for imagefile in source_image_files:
+    prefix = os.path.splitext(imagefile)[0]
+    if prefix.count('~') > 0:
+        prefix = prefix[:prefix.index('~')]
+    if prefixlist.count(prefix) > 0:
+        shutil.copyfile(os.getcwd() + "/src_data/images/" + imagefile, os.getcwd() + "/resources/images/" + imagefile)
+
+dest_story_files = os.listdir(os.getcwd() + "/resources/data")
+print dest_story_files
+
+for story_file in dest_story_files:
+    for object in list(medialist):
+        found = False
+        if object["name"][:len(STORY_DATA_STRING)] != STORY_DATA_STRING:
+            continue
+        if object["file"] == "data/" + story_file:
             found = True
+            break;
     if not found:
-        medialist.remove(object)
-        os.remove("resources/" + object["file"])
+        os.remove("resources/data/" + story_file)
 
 # Write out the new appinfo file
 with open("appinfo.json", 'w') as appinfo_file:
@@ -524,12 +558,12 @@ with open("appinfo.json", 'w') as appinfo_file:
 
 # Write out a mapping of image indexes to resource ids in a header file
 with open("src/AutoImageMap.h", 'w') as imagemap_file:
-    if len(imagelist) == 0:
+    if len(imagemap) == 0:
         imagemap_file.write("int imageResourceMap[] = {0};")
     else:
         imagemap_file.write("int autoImageMap[] = \n")
         imagemap_file.write("{\n")
-        for image in imagelist:
+        for image in imagemap:
             imagemap_file.write("\tRESOURCE_ID_" + image + ",\n")
         imagemap_file.write("};\n")
 
