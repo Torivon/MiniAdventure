@@ -488,12 +488,14 @@ with open("src_data/stories.txt") as stories:
                 newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
                 data_objects.append(newobject)
 
+# Adds the list of art needed by the engine.
 with open("src_data/imagelist.txt") as imagelist_file:
     for line in imagelist_file.readlines():
         imagename = line.strip()
         if imagelist.count(imagename) == 0:
             imagelist.append(imagename)
 
+# Prep the appinfo for resources
 if not "resources" in appinfo:
     appinfo["resources"] = {};
 
@@ -505,6 +507,8 @@ medialist = appinfo["resources"]["media"]
 imagemap = []
 prefixlist = []
 
+# Add all required images to the medialist. Also creates an imagemap so we can map indexes to resource ids at run time. Lastly, creates
+# the list of file prefixes so we can copy/delete the correct files.
 for index in range(len(imagelist)):
     newimage = imagelist[index];
     prefix = os.path.splitext(newimage)[0]
@@ -522,6 +526,7 @@ for newobject in data_objects:
 source_image_files = os.listdir(os.getcwd() + "/src_data/images")
 dest_image_files = os.listdir(os.getcwd() + "/resources/images")
 
+# Delete all files in the resources/images that we do not need.
 for imagefile in dest_image_files:
     prefix = os.path.splitext(imagefile)[0]
     if prefix.count('~') > 0:
@@ -530,6 +535,7 @@ for imagefile in dest_image_files:
     if prefixlist.count(prefix) == 0:
         os.remove(os.getcwd() + "/resources/images/" + imagefile)
 
+# Add all files to resources/images that we need.
 for imagefile in source_image_files:
     prefix = os.path.splitext(imagefile)[0]
     if prefix.count('~') > 0:
@@ -537,8 +543,9 @@ for imagefile in source_image_files:
     if prefixlist.count(prefix) > 0:
         shutil.copyfile(os.getcwd() + "/src_data/images/" + imagefile, os.getcwd() + "/resources/images/" + imagefile)
 
-dest_story_files = os.listdir(os.getcwd() + "/resources/data")
 
+# Remove any old story files that are no longer included.
+dest_story_files = os.listdir(os.getcwd() + "/resources/data")
 for story_file in dest_story_files:
     for object in list(medialist):
         found = False
@@ -582,6 +589,7 @@ with open("src/AutoSizeConstants.h", 'w') as constants_file:
     for k, v in g_size_constants.items():
         constants_file.write("#define " + k + " " + str(v) + "\n")
 
+# Write out skill constants in a header file so they match at both process time and load time
 with open("src/AutoSkillConstants.h", 'w') as skill_file:
     skill_file.write("#pragma once\n\n")
     for k, v in g_skill_types.items():
@@ -594,6 +602,7 @@ with open("src/AutoSkillConstants.h", 'w') as skill_file:
 
     skill_file.write("\n")
 
+# Write out combatant constants in a header file so they match at both process time and load time
 with open("src/AutoCombatantConstants.h", 'w') as skill_file:
     skill_file.write("#pragma once\n\n")
     for k, v in g_combatant_ranks.items():
@@ -601,6 +610,7 @@ with open("src/AutoCombatantConstants.h", 'w') as skill_file:
 
     skill_file.write("\n")
 
+# Write out location property constants in a header file so they match at both process time and load time
 with open("src/AutoLocationConstants.h", 'w') as location_file:
     location_file.write("#pragma once\n\n")
     for k, v in g_location_properties.items():
