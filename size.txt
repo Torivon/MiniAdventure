@@ -32,21 +32,21 @@
   src/BaseWindow.c: size 11
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 320 size 15758
+.text: count 314 size 15700
   Unknown: size 2234
   src/ResourceStory.c: size 1644
   src/Menu.c: size 1534
-  src/Battle.c: size 1240
+  src/Battle.c: size 1200
   src/Persistence.c: size 766
   src/MainImage.c: size 716
   src/MenuArrow.c: size 700
   src/LargeImage.c: size 648
   src/Clock.c: size 616
   src/DialogFrame.c: size 604
-  src/Adventure.c: size 592
-  src/BaseWindow.c: size 568
+  src/Adventure.c: size 580
+  src/BaseWindow.c: size 564
   src/Skills.c: size 524
-  src/ProgressBar.c: size 486
+  src/ProgressBar.c: size 484
   src/Character.c: size 424
   src/OptionsMenu.c: size 404
   src/GlobalState.c: size 404
@@ -95,21 +95,21 @@
   src/BaseWindow.c: size 11
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 320 size 15832
+.text: count 314 size 15774
   Unknown: size 2234
   src/ResourceStory.c: size 1644
   src/Menu.c: size 1562
-  src/Battle.c: size 1244
+  src/Battle.c: size 1204
   src/Persistence.c: size 766
   src/MenuArrow.c: size 732
   src/MainImage.c: size 724
   src/LargeImage.c: size 648
   src/Clock.c: size 616
   src/DialogFrame.c: size 604
-  src/Adventure.c: size 592
-  src/BaseWindow.c: size 568
+  src/Adventure.c: size 580
+  src/BaseWindow.c: size 564
   src/Skills.c: size 524
-  src/ProgressBar.c: size 488
+  src/ProgressBar.c: size 486
   src/Character.c: size 424
   src/OptionsMenu.c: size 404
   src/GlobalState.c: size 404
@@ -158,21 +158,21 @@
   src/BaseWindow.c: size 11
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 320 size 15836
+.text: count 314 size 15778
   Unknown: size 2234
   src/ResourceStory.c: size 1644
   src/Menu.c: size 1562
-  src/Battle.c: size 1244
+  src/Battle.c: size 1204
   src/Persistence.c: size 766
   src/MenuArrow.c: size 732
   src/MainImage.c: size 728
   src/LargeImage.c: size 648
   src/Clock.c: size 616
   src/DialogFrame.c: size 604
-  src/Adventure.c: size 592
-  src/BaseWindow.c: size 568
+  src/Adventure.c: size 580
+  src/BaseWindow.c: size 564
   src/Skills.c: size 524
-  src/ProgressBar.c: size 488
+  src/ProgressBar.c: size 486
   src/Character.c: size 424
   src/OptionsMenu.c: size 404
   src/GlobalState.c: size 404

@@ -19,9 +19,9 @@
 #include "WorkerControl.h"
 
 #if defined(PBL_ROUND)
-static GRect locationProgressFrame = {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}};
+#define LOCATION_PROGRESS_FRAME {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}}
 #else
-static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}};
+#define LOCATION_PROGRESS_FRAME {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}}
 #endif
 
 static ProgressBar *locationProgress;
@@ -258,7 +258,8 @@ void UpdateAdventure(void *data)
 void AdventureScreenPush(void *data)
 {
     InitializeGameData();
-    locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, locationProgressFrame, GColorYellow, -1);
+    GRect locationProgressFrame = LOCATION_PROGRESS_FRAME;
+    locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, &locationProgressFrame, GColorYellow, -1);
     InitializeProgressBar(locationProgress, GetBaseWindow());
     UpdateLocationProgress();
     

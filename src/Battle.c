@@ -23,17 +23,16 @@ typedef struct BattleState
 } BattleState;
 
 #if defined(PBL_ROUND)
-static GRect playerHealthFrame = {.origin = {.x = 50, .y = 90}, .size = {.w = 16, .h = 40}};
-static GRect playerTimeFrame = {.origin = {.x = 67, .y = 90}, .size = {.w = 8, .h = 40}};
-static GRect monsterHealthFrame = {.origin = {.x = 50, .y = 48}, .size = {.w = 16, .h = 40}};
-static GRect monsterTimeFrame = {.origin = {.x = 67, .y = 48}, .size = {.w = 8, .h = 40}};
+#define PLAYER_HEALTH_FRAME {.origin = {.x = 50, .y = 90}, .size = {.w = 16, .h = 40}}
+#define PLAYER_TIME_FRAME  {.origin = {.x = 67, .y = 90}, .size = {.w = 8, .h = 40}}
+#define MONSTER_HEALTH_FRAME {.origin = {.x = 50, .y = 48}, .size = {.w = 16, .h = 40}}
+#define MONSTER_TIME_FRAME {.origin = {.x = 67, .y = 48}, .size = {.w = 8, .h = 40}}
 #else
-static GRect playerHealthFrame = {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 40}};
-static GRect playerTimeFrame = {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 40}};
-static GRect monsterHealthFrame = {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 40}};
-static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 40}};
+#define PLAYER_HEALTH_FRAME {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 40}}
+#define PLAYER_TIME_FRAME  {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 40}}
+#define MONSTER_HEALTH_FRAME {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 40}}
+#define MONSTER_TIME_FRAME {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 40}}
 #endif
-
 
 static ProgressBar *playerHealthBar = NULL;
 static ProgressBar *playerTimeBar = NULL;
@@ -310,10 +309,15 @@ void BattleInit(void)
         InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
     }
     
-    playerHealthBar = CreateProgressBar(&gBattleState.player.actor.currentHealth, &gBattleState.player.actor.maxHealth, FILL_UP, playerHealthFrame, GColorBrightGreen, -1);
-    monsterHealthBar = CreateProgressBar(&gBattleState.monster.actor.currentHealth, &gBattleState.monster.actor.maxHealth, FILL_DOWN, monsterHealthFrame, GColorFolly, -1);
-    playerTimeBar = CreateProgressBar(&gBattleState.player.actor.currentTime, &maxTimeCount, FILL_UP, playerTimeFrame, GColorVeryLightBlue, -1);
-    monsterTimeBar = CreateProgressBar(&gBattleState.monster.actor.currentTime, &maxTimeCount, FILL_DOWN, monsterTimeFrame, GColorRichBrilliantLavender, -1);
+    GRect playerHealthFrame = PLAYER_HEALTH_FRAME;
+    GRect playerTimeFrame = PLAYER_TIME_FRAME;
+    GRect monsterHealthFrame = MONSTER_HEALTH_FRAME;
+    GRect monsterTimeFrame = MONSTER_TIME_FRAME;
+    
+    playerHealthBar = CreateProgressBar(&gBattleState.player.actor.currentHealth, &gBattleState.player.actor.maxHealth, FILL_UP, &playerHealthFrame, GColorBrightGreen, -1);
+    monsterHealthBar = CreateProgressBar(&gBattleState.monster.actor.currentHealth, &gBattleState.monster.actor.maxHealth, FILL_DOWN, &monsterHealthFrame, GColorFolly, -1);
+    playerTimeBar = CreateProgressBar(&gBattleState.player.actor.currentTime, &maxTimeCount, FILL_UP, &playerTimeFrame, GColorVeryLightBlue, -1);
+    monsterTimeBar = CreateProgressBar(&gBattleState.monster.actor.currentTime, &maxTimeCount, FILL_DOWN, &monsterTimeFrame, GColorRichBrilliantLavender, -1);
     
     InitializeProgressBar(playerHealthBar, GetBaseWindow());
     InitializeProgressBar(playerTimeBar, GetBaseWindow());
