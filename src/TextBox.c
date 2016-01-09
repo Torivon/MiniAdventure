@@ -78,7 +78,7 @@ void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
 		text_layer_set_background_color(textBox->textLayer, GColorClear);
 		text_layer_set_font(textBox->textLayer, textBox->font);
 		text_layer_set_text_alignment(textBox->textLayer, GTextAlignmentCenter);
-		layer_add_child(textBox->mainLayer, text_layer_get_layer(textBox->textLayer));
+		layer_add_child(textBox->mainLayer, (Layer*)textBox->textLayer);
 		text_layer_set_text(textBox->textLayer, initialText);
 		textBox->initialized = true;
 
@@ -89,6 +89,9 @@ void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
 
 void FreeTextBox(TextBox *textBox)
 {
+    if(!textBox)
+        return;
+    
 	if(textBox->initialized)
 	{
 		layer_destroy(textBox->mainLayer);
@@ -103,13 +106,13 @@ void ShowTextBox(TextBox *textBox)
 	if(!TextBoxInitialized(textBox))
 		return;
 	
-	layer_set_hidden(textBox->mainLayer, false);
+    ShowLayer(textBox->mainLayer);
 }
 
 void HideTextBox(TextBox *textBox)
 {
 	if(!TextBoxInitialized(textBox))
 		return;
-	
-	layer_set_hidden(textBox->mainLayer, true);
+
+    HideLayer(textBox->mainLayer);
 }

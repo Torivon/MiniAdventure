@@ -35,17 +35,29 @@ static GRect monsterTimeFrame = {.origin = {.x = 140, .y = 65}, .size = {.w = 8,
 #endif
 
 
-static ProgressBar *playerHealthBar;
-static ProgressBar *playerTimeBar;
+static ProgressBar *playerHealthBar = NULL;
+static ProgressBar *playerTimeBar = NULL;
 
-static ProgressBar *monsterHealthBar;
-static ProgressBar *monsterTimeBar;
+static ProgressBar *monsterHealthBar = NULL;
+static ProgressBar *monsterTimeBar = NULL;
 
 static uint16_t maxTimeCount = 100;
 
 static bool battleCleanExit = true;
 
-static BattleState gBattleState;
+static BattleState gBattleState =
+{
+    .player =
+    {
+        .actor = {0},
+        .battlerWrapper = NULL
+    },
+    .monster =
+    {
+        .actor = {0},
+        .battlerWrapper = NULL
+    }
+};
 
 uint16_t currentMonsterIndex = 0;
 
@@ -87,11 +99,10 @@ void Battle_ReadMonsterData(int index)
     persist_read_data(index, &gBattleState.monster.actor, sizeof(BattleActor));
 }
 
-bool gUpdateBattle = false;
-bool gPlayerTurn = false;
-bool gPlayerActed = false;
-int gSkillDelay = 0;
-const char *gEffectDescription = NULL;
+static bool gPlayerTurn = false;
+static bool gPlayerActed = false;
+static int gSkillDelay = 0;
+static const char *gEffectDescription = NULL;
 
 void CloseBattleWindow(void)
 {

@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 static TextBox *okTextBox = NULL;
-bool largeImageForceBacklight = false;
+static bool largeImageForceBacklight = false;
 
 #define OK_FRAME_WIDTH 25
 #define OK_FRAME_HEIGHT 22
@@ -63,7 +63,7 @@ void InitializeLargeImageLayer(Window *window)
 		bitmap_layer_set_alignment(largeImageLayer, GAlignCenter);
 
 		layer_set_update_proc(largeImageTopLayer, LargeImageUpdateProc);
-		layer_add_child(largeImageTopLayer, bitmap_layer_get_layer(largeImageLayer));
+		layer_add_child(largeImageTopLayer, (Layer*)largeImageLayer);
 
 		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame);
 

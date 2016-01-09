@@ -120,7 +120,7 @@ void HideMenuArrow(void)
 {
 	if(menuArrowInitialized)
 	{
-		layer_set_hidden(bitmap_layer_get_layer(menuArrowLayer), true);
+		layer_set_hidden((Layer*)menuArrowLayer, true);
 	}
 }
 
@@ -128,7 +128,7 @@ void ShowMenuArrow(void)
 {
 	if(menuArrowInitialized)
 	{
-		layer_set_hidden(bitmap_layer_get_layer(menuArrowLayer), false);
+		layer_set_hidden((Layer*)menuArrowLayer, false);
 	}	
 }
 
@@ -137,7 +137,7 @@ void RemoveMenuArrowLayer(void)
 	if(!menuArrowInitialized)
 		return;
 
-	layer_remove_from_parent(bitmap_layer_get_layer(menuArrowLayer));
+	layer_remove_from_parent((Layer*)menuArrowLayer);
 }
 
 void InitializeMenuArrowLayer(Window *window)
@@ -161,7 +161,7 @@ void InitializeMenuArrowLayer(Window *window)
 #endif
 		menuArrowInitialized = true;
 	}
-	layer_add_child(window_layer, bitmap_layer_get_layer(menuArrowLayer));
+	layer_add_child(window_layer, (Layer*)menuArrowLayer);
 }
 
 void FreeMenuArrowLayer()

@@ -108,6 +108,9 @@ void RemoveProgressBar(ProgressBar *progressBar)
 
 void FreeProgressBar(ProgressBar *progressBar)
 {
+    if(!progressBar)
+        return;
+    
 	if(progressBar->initialized)
 	{
 		layer_destroy(progressBar->layer);
@@ -124,7 +127,7 @@ void ShowProgressBar(ProgressBar *progressBar)
 	if(!layer_get_hidden(progressBar->layer))
 		return;
 	
-	layer_set_hidden(progressBar->layer, false);
+    ShowLayer(progressBar->layer);
 }
 
 void HideProgressBar(ProgressBar *progressBar)
@@ -135,7 +138,7 @@ void HideProgressBar(ProgressBar *progressBar)
 	if(layer_get_hidden(progressBar->layer))
 		return;
 	
-	layer_set_hidden(progressBar->layer, true);
+    HideLayer(progressBar->layer);
 }
 
 void MarkProgressBarDirty(ProgressBar *progressBar)

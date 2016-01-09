@@ -360,7 +360,7 @@ void InitializeMenuLayer(Menu *menu, Window *window)
 		menu_bounds.size.w -= 2 * menu->innerOffset;
 		menu_bounds.size.h -= 2 * menu->innerOffset;
 		menu->menuLayer = menu_layer_create(menu_bounds);
-		layer_add_child(menu->topLevelMenuLayer, menu_layer_get_layer(menu->menuLayer));
+		layer_add_child(menu->topLevelMenuLayer, (Layer*)menu->menuLayer);
 		menu_layer_set_callbacks(menu->menuLayer, menu, (MenuLayerCallbacks){
 			.get_num_sections = menu_get_num_sections_callback,
             .get_header_height = get_header_height_callback,

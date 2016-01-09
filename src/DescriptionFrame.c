@@ -20,17 +20,11 @@ static GRect descriptionFrame = {.origin = {.x = 180 / 2 - DESC_FRAME_WIDTH / 2,
 
 void SetDescription(const char *text)
 {
-	if(!TextBoxInitialized(descriptionTextBox))
-		return;
-	
 	TextBoxSetText(descriptionTextBox, text);
 }
 
 const char *GetDescription(void)
 {
-	if(!TextBoxInitialized(descriptionTextBox))
-		return "";
-	
 	return TextBoxGetText(descriptionTextBox);
 }
 

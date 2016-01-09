@@ -15,7 +15,7 @@
 #include "Utils.h"
 #include "WorkerControl.h"
 
-Window *baseWindow = NULL;
+static Window *baseWindow = NULL;
 
 static bool hasFocus = true;
 

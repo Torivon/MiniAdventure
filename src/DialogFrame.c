@@ -34,18 +34,11 @@ static GRect cancelFrame = {.origin = {.x = 10, .y = 180 / 2 - CANCEL_FRAME_HEIG
 
 void SetDialog(const char *text)
 {
-	if(!TextBoxInitialized(dialogTextBox))
-		return;
-	
-	DEBUG_LOG("SetDialog %s", text);
 	TextBoxSetText(dialogTextBox, text);
 }
 
 const char *GetDialog(void)
 {
-	if(!TextBoxInitialized(dialogTextBox))
-		return "";
-	
 	return TextBoxGetText(dialogTextBox);
 }
 

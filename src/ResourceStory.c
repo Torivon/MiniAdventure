@@ -30,7 +30,6 @@ typedef struct ResourceStory
     uint16_t classes[MAX_CLASSES];
 } ResourceStory;
 
-
 static ResHandle ResourceStory_GetCurrentResHandle(void);
 static ResourceStory *ResourceStory_GetCurrentStory();
 
@@ -201,9 +200,9 @@ Skill *ResourceSkill_Load(uint16_t logical_index)
 
 /********************* RESOURCE BATTLER ******************************/
 
-BattlerWrapper currentMonster = {0};
+static BattlerWrapper currentMonster = {0};
 
-BattlerWrapper playerClass = {0};
+static BattlerWrapper playerClass = {0};
 
 BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void)
 {

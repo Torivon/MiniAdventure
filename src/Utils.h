@@ -2,6 +2,8 @@
 
 #define BIT_FIELD(num) 1 << num
 
+typedef struct Layer Layer;
+
 void SeedRandom(void);
 
 // Returns an integer in the range [0,max)
@@ -19,3 +21,5 @@ typedef struct GContext GContext;
 typedef struct GRect GRect;
 
 void DrawContentFrame(GContext *ctx, GRect *rect);
+void ShowLayer(Layer *layer);
+void HideLayer(Layer *layer);

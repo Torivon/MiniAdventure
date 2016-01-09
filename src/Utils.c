@@ -33,3 +33,13 @@ void DrawContentFrame(GContext * ctx, GRect *rect)
 	inner_frame.size.h -= 4;
 	graphics_fill_rect(ctx, inner_frame, 0, GCornerNone);	
 }
+
+void ShowLayer(Layer *layer)
+{
+    layer_set_hidden(layer, false);
+}
+
+void HideLayer(Layer *layer)
+{
+    layer_set_hidden(layer, true);
+}

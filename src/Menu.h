@@ -45,13 +45,6 @@ typedef struct MenuParameters
     MenuSelectCallback selectCallback;
 } MenuParameters;
 
-typedef struct MenuCellDescription
-{
-	char *name;
-	char *description;
-	MenuCellSelectCallback callback;
-} MenuCellDescription;
-
 void RegisterMenuCellCallbacks(Menu *menu, MenuParameters *parameters);
 void ClearMenuCellList(Menu *menu);
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index);
