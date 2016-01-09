@@ -136,9 +136,9 @@ void ResourceLocation_FreeAdjacentLocations(void)
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void)
 {
     if(currentLocation)
-    return currentLocation->adjacentLocationCount;
+        return currentLocation->adjacentLocationCount;
     else
-    return 0;
+        return 0;
 }
 
 const char *ResourceStory_GetAdjacentLocationName(uint16_t index)
