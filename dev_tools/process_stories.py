@@ -538,7 +538,6 @@ for imagefile in source_image_files:
         shutil.copyfile(os.getcwd() + "/src_data/images/" + imagefile, os.getcwd() + "/resources/images/" + imagefile)
 
 dest_story_files = os.listdir(os.getcwd() + "/resources/data")
-print dest_story_files
 
 for story_file in dest_story_files:
     for object in list(medialist):
