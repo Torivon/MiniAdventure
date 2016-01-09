@@ -6,9 +6,9 @@
 
 //******* MENU ARROW *********//
 
-static BitmapLayer *menuArrowLayer;
-static GBitmap *rightArrowImage;
-static GBitmap *leftArrowImage;
+static BitmapLayer *menuArrowLayer = NULL;
+static GBitmap *rightArrowImage = NULL;
+static GBitmap *leftArrowImage = NULL;
 #define ARROW_DIMENSION 10
 #define ARROW_OFFSET 5
 #if defined(PBL_RECT)

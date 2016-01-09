@@ -16,7 +16,14 @@ typedef struct Character
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
 } Character;
 
-Character character;
+Character character =
+{
+    .classType = 0,
+    .level = 1,
+    .currentHealth = 1,
+    .currentXP = 0,
+    .skillCooldowns = {0}
+};
 
 void Character_SetCooldowns(uint16_t *cooldowns)
 {

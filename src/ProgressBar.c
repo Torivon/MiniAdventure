@@ -16,8 +16,6 @@ typedef struct ProgressBar
 	Layer *layer;
 } ProgressBar;
 
-
-
 ProgressBar *CreateProgressBar(uint16_t *current, uint16_t *max, FillDirection fillDirection, GRect *frame, GColor fillColor, int iconId)
 {
 	ProgressBar *bar = calloc(sizeof(ProgressBar), 1);

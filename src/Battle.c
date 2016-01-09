@@ -58,7 +58,7 @@ static BattleState gBattleState =
     }
 };
 
-uint16_t currentMonsterIndex = 0;
+static uint16_t currentMonsterIndex = 0;
 
 uint16_t Battle_GetCurrentMonsterIndex(void)
 {

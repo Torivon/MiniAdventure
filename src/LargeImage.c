@@ -32,7 +32,7 @@ static BitmapLayer *largeImageLayer = NULL;
 
 static GRect largeImagePosition = {.origin = {.x = LARGE_IMAGE_LAYER_X, .y = LARGE_IMAGE_LAYER_Y}, .size = {.w = LARGE_IMAGE_LAYER_W, .h = LARGE_IMAGE_LAYER_H}};
 
-static bool largeImageInitialized;
+static bool largeImageInitialized = false;
 
 static int largeImageResourceId = -1;
 

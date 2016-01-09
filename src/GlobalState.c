@@ -22,11 +22,6 @@ static GlobalStateInstance *stackTop = NULL;
 static GlobalStateInstance *queueFront = NULL;
 static GlobalStateInstance *queueBack = NULL;
 
-//static GlobalStateInstance globalStateInstances[MAX_GLOBAL_STATES];
-//static Queue *globalQueue = NULL;
-
-//static int globalStateInstanceCount = 0;
-
 void GlobalState_Queue(GlobalState state,
                       TimeUnits triggerUnits,
                       GlobalStateChangeCallback updateCallback,

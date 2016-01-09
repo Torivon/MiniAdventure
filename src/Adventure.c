@@ -24,7 +24,7 @@
 #define LOCATION_PROGRESS_FRAME {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}}
 #endif
 
-static ProgressBar *locationProgress;
+static ProgressBar *locationProgress = NULL;
 static uint16_t currentProgress = 0;
 static uint16_t maxProgress = 1;
 
