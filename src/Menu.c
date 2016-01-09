@@ -35,10 +35,6 @@ typedef struct Menu
 	bool menuVisible;
 	bool menuAnimating;
 
-	bool useCallbackFunctions;
-	uint16_t cellCount;
-    const char *sectionName;
-	MenuCellDescription *cellList;
     MenuSectionCountCallback menuSectionCountCallback;
     MenuSectionNameCallback menuSectionNameCallback;
 	MenuCountCallback menuCountCallback;
@@ -49,67 +45,52 @@ typedef struct Menu
 
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index)
 {
-	if(menu->useCallbackFunctions)
-	{
-		return menu->menuCountCallback(section_index);
-	}
-	else
-	{
-		return menu->cellCount;
-	}
+    if(menu->menuCountCallback)
+        return menu->menuCountCallback(section_index);
+    else
+        return 0;
+}
+
+uint16_t GetMenuSectionCount(Menu *menu)
+{
+    if(menu->menuSectionCountCallback)
+        return menu->menuSectionCountCallback();
+    else
+        return 0;
 }
 
 uint16_t GetMenuTotalCellCount(Menu *menu)
 {
-    if(menu->useCallbackFunctions)
+    uint16_t totalCells = 0;
+    for(int i = 0; i < GetMenuSectionCount(menu); ++i)
     {
-        uint16_t totalCells = 0;
-        for(int i = 0; i < menu->menuSectionCountCallback(); ++i)
-        {
-            totalCells += GetMenuCellCount(menu, i);
-        }
-        return totalCells;
+        totalCells += GetMenuCellCount(menu, i);
     }
-    else
-    {
-        return menu->cellCount;
-    }
+    return totalCells;
 }
 
 const char *GetMenuName(Menu *menu, MenuIndex *index)
 {
-	if(menu->useCallbackFunctions)
-	{
-		return menu->menuNameCallback(index);
-	}
-	else
-	{
-		return menu->cellList[index->row].name;
-	}
+    if(menu->menuNameCallback)
+        return menu->menuNameCallback(index);
+    else
+        return "";
 }
 
 const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
 {
-    if(menu->useCallbackFunctions)
-    {
+    if(menu->menuSectionNameCallback)
         return menu->menuSectionNameCallback(section_index);
-    }
     else
-    {
-        return menu->sectionName;
-    }
+        return "";
 }
 
 const char *GetMenuDescription(Menu *menu, MenuIndex *index)
 {
-	if(menu->useCallbackFunctions)
-	{
-		return menu->menuDescriptionCallback(index);
-	}
-	else
-	{
-		return menu->cellList[index->row].description;
-	}
+    if(menu->menuDescriptionCallback)
+        return menu->menuDescriptionCallback(index);
+    else
+        return "";
 }
 
 void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window)
@@ -121,57 +102,18 @@ void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *w
 	
 	if(index.row < GetMenuCellCount(menu, index.section))
 	{
-		if(menu->useCallbackFunctions)
-		{
-			menu->menuSelectCallback(&index);
-		}
-		else
-		{
-			menu->cellList[index.row].callback();
-		}
+		menu->menuSelectCallback(&index);
 	}
 }
 
-void RegisterMenuCellList(Menu *menu, const char *sectionName, MenuCellDescription *list, uint16_t count)
+void RegisterMenuCellCallbacks(Menu *menu, MenuParameters *parameters)
 {
-	DEBUG_LOG("RegisterMenuCellList");
-	if(count == 0)
-	{
-		ClearMenuCellList(menu);
-		return;
-	}
-
-	menu->useCallbackFunctions = false;
-	menu->menuCountCallback = NULL;
-	menu->menuNameCallback = NULL;
-	menu->menuDescriptionCallback = NULL;
-	menu->menuSelectCallback = NULL;
-    menu->menuSectionCountCallback = NULL;
-    menu->menuSectionNameCallback = NULL;
-	
-	menu->cellList = list;
-	menu->cellCount = count;
-    menu->sectionName = sectionName;
-	if(menu->menuLayerInitialized)
-	{
-		menu_layer_reload_data(menu->menuLayer);
-		MenuIndex index = {.section = 0, .row = 0};
-		menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
-	}
-	if(menu->mainMenu)
-		ShowMenuArrow();
-}
-
-void RegisterMenuCellCallbacks(Menu *menu, MenuSectionNameCallback menuSectionNameCallback, MenuSectionCountCallback menuSectionCountCallback, MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback)
-{
-	DEBUG_LOG("RegisterMenuCellCallbacks");
-	menu->useCallbackFunctions = true;
-	menu->menuCountCallback = countCallback;
-	menu->menuNameCallback = nameCallback;
-	menu->menuDescriptionCallback = descriptionCallback;
-	menu->menuSelectCallback = selectCallback;
-    menu->menuSectionCountCallback = menuSectionCountCallback;
-    menu->menuSectionNameCallback = menuSectionNameCallback;
+	menu->menuCountCallback = parameters->countCallback;
+	menu->menuNameCallback = parameters->nameCallback;
+	menu->menuDescriptionCallback = parameters->descriptionCallback;
+	menu->menuSelectCallback = parameters->selectCallback;
+    menu->menuSectionCountCallback = parameters->menuSectionCountCallback;
+    menu->menuSectionNameCallback = parameters->menuSectionNameCallback;
 	
 	if(!menu->menuCountCallback)
 	{
@@ -179,34 +121,29 @@ void RegisterMenuCellCallbacks(Menu *menu, MenuSectionNameCallback menuSectionNa
 		return;
 	}
 	
-	menu->cellCount = 0;
-	menu->cellList = NULL;
-    menu->sectionName = NULL;
-
-	if(menu->mainMenu)
-	{
-        uint16_t totalCells = GetMenuTotalCellCount(menu);
-		if(totalCells > 0)
-        {
-            MenuIndex index = {.section = 0, .row = 0};
-            menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
-            menu_layer_reload_data(menu->menuLayer);
-			ShowMenuArrow();
-        }
-		else
-			HideMenuArrow();
+    uint16_t totalCells = GetMenuTotalCellCount(menu);
+    if(totalCells > 0)
+    {
+        menu_layer_reload_data(menu->menuLayer);
+        MenuIndex index = {.section = 0, .row = 0};
+        menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
+        if(menu->mainMenu)
+            ShowMenuArrow();
+    }
+    else if(menu->mainMenu)
+    {
+		HideMenuArrow();
 	}
 }
 
 void ClearMenuCellList(Menu *menu)
 {
-	menu->cellCount = 0;
-	menu->cellList = NULL;
-	menu->useCallbackFunctions = false;
 	menu->menuCountCallback = NULL;
 	menu->menuNameCallback = NULL;
 	menu->menuDescriptionCallback = NULL;
 	menu->menuSelectCallback = NULL;
+    menu->menuSectionCountCallback = NULL;
+    menu->menuSectionNameCallback = NULL;
 	
 	if(menu->mainMenu)
 		HideMenuArrow();
@@ -324,10 +261,7 @@ void HideMenu(Menu *menu)
 static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data)
 {
     Menu *menu = (Menu *) data;
-    if(menu->useCallbackFunctions)
-        return menu->menuSectionCountCallback();
-    else
-        return NUM_MENU_SECTIONS;
+    return GetMenuSectionCount(menu);
 }
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) 

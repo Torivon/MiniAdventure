@@ -99,9 +99,17 @@ static void TitleScreenSelectCallback(MenuIndex *index)
     }
 }
 
+static MenuParameters menuParameters = {.menuSectionNameCallback = TitleScreenSectionName,
+    .menuSectionCountCallback = TitleScreenSectionCount,
+    .countCallback = TitleScreenCount,
+    .nameCallback = TitleScreenNameCallback,
+    .descriptionCallback = TitleScreenDescriptionCallback,
+    .selectCallback = TitleScreenSelectCallback
+};
+
 static void TitleScreenAppear(void *data)
 {
-    RegisterMenuCellCallbacks(GetMainMenu(), TitleScreenSectionName, TitleScreenSectionCount, TitleScreenCount, TitleScreenNameCallback, TitleScreenDescriptionCallback, TitleScreenSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");

@@ -270,6 +270,13 @@ void AdventureScreenPush(void *data)
     InitializeDialogLayer(GetBaseWindow());
 }
 
+static MenuParameters menuParameters = {.menuSectionNameCallback = AdventureMenuSectionName,
+    .menuSectionCountCallback = AdventureMenuSectionCount,
+    .countCallback = AdventureMenuCount,
+    .nameCallback = AdventureMenuNameCallback,
+    .descriptionCallback = AdventureMenuNameCallback,
+    .selectCallback = AdventureMenuSelectCallback};
+
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
@@ -278,7 +285,7 @@ void AdventureScreenAppear(void *data)
         ResetGame();
     }
     UpdateLocationProgress();
-    RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuSectionName, AdventureMenuSectionCount, AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {

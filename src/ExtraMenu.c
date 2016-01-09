@@ -40,7 +40,7 @@ const char *ExtraMenu_GetCellName(uint16_t row)
 static DialogData credits[] =
 {
     {
-        .text = "Programming and art by Jonathan Panttaja",
+        .text = "Engine Programming and art by Jonathan Panttaja",
         .allowCancel = false
     },
     {

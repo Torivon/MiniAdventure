@@ -34,9 +34,9 @@ enum
 
 // Logging
 #define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
-#define ERROR_LOGGING 1 // ERROR_LOG should be used for actual incorrect operation.
-#define WARNING_LOGGING 1 // WARNING_LOG should be used strange edge cases that are not expected
-#define INFO_LOGGING 1 // INFO_LOG should be used to log game flow.
+#define ERROR_LOGGING 0 // ERROR_LOG should be used for actual incorrect operation.
+#define WARNING_LOGGING 0 // WARNING_LOG should be used strange edge cases that are not expected
+#define INFO_LOGGING 0 // INFO_LOG should be used to log game flow.
 
 // Features to turn off to make space
 #define BOUNDS_CHECKING 1

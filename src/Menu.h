@@ -35,6 +35,16 @@ typedef void(*MenuSelectCallback)(MenuIndex *cell_index);
 
 typedef void (*MenuCellSelectCallback)(void);
 
+typedef struct MenuParameters
+{
+    MenuSectionNameCallback menuSectionNameCallback;
+    MenuSectionCountCallback menuSectionCountCallback;
+    MenuCountCallback countCallback;
+    MenuNameCallback nameCallback;
+    MenuDescriptionCallback descriptionCallback;
+    MenuSelectCallback selectCallback;
+} MenuParameters;
+
 typedef struct MenuCellDescription
 {
 	char *name;
@@ -42,8 +52,7 @@ typedef struct MenuCellDescription
 	MenuCellSelectCallback callback;
 } MenuCellDescription;
 
-void RegisterMenuCellCallbacks(Menu *menu, MenuSectionNameCallback menusectionNameCallback, MenuSectionCountCallback menuSectionCountCallback, MenuCountCallback countCallback, MenuNameCallback nameCallback, MenuDescriptionCallback descriptionCallback, MenuSelectCallback selectCallback);
-void RegisterMenuCellList(Menu *menu, const char *sectionName, MenuCellDescription *list, uint16_t count);
+void RegisterMenuCellCallbacks(Menu *menu, MenuParameters *parameters);
 void ClearMenuCellList(Menu *menu);
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index);
 uint16_t GetMenuTotalCellCount(Menu *menu);

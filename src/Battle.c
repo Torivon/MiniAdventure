@@ -217,6 +217,13 @@ static void BattleScreenSelectCallback(MenuIndex *index)
     }
 }
 
+static MenuParameters menuParameters = {.menuSectionNameCallback = BattleScreenSectionName,
+    .menuSectionCountCallback = BattleScreenSectionCount,
+    .countCallback = BattleScreenCount,
+    .nameCallback = BattleScreenNameCallback,
+    .descriptionCallback = BattleScreenDescriptionCallback,
+    .selectCallback = BattleScreenSelectCallback};
+
 void BattleScreenAppear(void *data)
 {
     if(gPlayerActed)
@@ -226,7 +233,7 @@ void BattleScreenAppear(void *data)
         gBattleState.player.actor.currentTime = 0;
     }
     SetDescription(ResourceMonster_GetCurrentName());
-    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenSectionName, BattleScreenSectionCount, BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
     ReloadMenu(GetMainMenu());
     SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
@@ -308,7 +315,7 @@ void BattleInit(void)
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
-    RegisterMenuCellCallbacks(GetMainMenu(), BattleScreenSectionName, BattleScreenSectionCount, BattleScreenCount, BattleScreenNameCallback, BattleScreenDescriptionCallback, BattleScreenSelectCallback);
+    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
     
     DEBUG_VERBOSE_LOG("Finished battle init");
     battleCleanExit = false;

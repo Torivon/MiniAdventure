@@ -23,7 +23,6 @@ void SetDescription(const char *text)
 	if(!TextBoxInitialized(descriptionTextBox))
 		return;
 	
-	DEBUG_LOG("SetDescription %s", text);
 	TextBoxSetText(descriptionTextBox, text);
 }
 
