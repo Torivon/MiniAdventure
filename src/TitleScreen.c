@@ -101,7 +101,8 @@ void TitleScreen_MenuSelect(MenuIndex *index)
 
 void TitleScreen_Appear(void *data)
 {
-    ReloadMenu(GetMainMenu());
+    RegisterMenuState(GetMainMenu(), STATE_TITLE_SCREEN);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");

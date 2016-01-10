@@ -176,7 +176,8 @@ void RefreshAdventure(void)
     
     updateDelay = 1;
     LoadLocationImage();
-    ReloadMenu(GetMainMenu());
+    RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     SetDescription(ResourceStory_GetCurrentLocationName()); //Add floor back in somehow
     UpdateLocationProgress();
 }
@@ -279,8 +280,8 @@ void AdventureScreenAppear(void *data)
         ResetGame();
     }
     UpdateLocationProgress();
-    ReloadMenu(GetMainMenu());
-    ReloadMenu(GetSlaveMenu());
+    RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {

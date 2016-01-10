@@ -38,11 +38,13 @@ typedef struct Menu
 
 	bool menuVisible;
 	bool menuAnimating;
+    
+    GlobalState menuState;
 } Menu;
 
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index)
 {
-    GlobalState state = GlobalState_GetCurrent();
+    GlobalState state = menu->menuState;
     if(menu->mainMenu)
     {
         switch(state)
@@ -92,7 +94,7 @@ uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index)
 
 uint16_t GetMenuSectionCount(Menu *menu)
 {
-    GlobalState state = GlobalState_GetCurrent();
+    GlobalState state = menu->menuState;
     if(menu->mainMenu)
     {
         switch(state)
@@ -152,7 +154,7 @@ uint16_t GetMenuTotalCellCount(Menu *menu)
 
 const char *GetMenuName(Menu *menu, MenuIndex *index)
 {
-    GlobalState state = GlobalState_GetCurrent();
+    GlobalState state = menu->menuState;
     switch(state)
     {
         case STATE_ADVENTURE:
@@ -191,7 +193,7 @@ const char *GetMenuName(Menu *menu, MenuIndex *index)
 
 const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
 {
-    GlobalState state = GlobalState_GetCurrent();
+    GlobalState state = menu->menuState;
     switch(state)
     {
         case STATE_ADVENTURE:
@@ -223,7 +225,7 @@ const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
 
 const char *GetMenuDescription(Menu *menu, MenuIndex *index)
 {
-    GlobalState state = GlobalState_GetCurrent();
+    GlobalState state = menu->menuState;
     switch(state)
     {
         case STATE_ADVENTURE:
@@ -262,7 +264,7 @@ void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *w
 	
 	if(index.row < GetMenuCellCount(menu, index.section))
 	{
-        GlobalState state = GlobalState_GetCurrent();
+        GlobalState state = menu->menuState;
         switch(state)
         {
             case STATE_ADVENTURE:
@@ -468,6 +470,7 @@ Menu *CreateMenuLayer(int onScreenX,
 	menu->innerOffset = innerOffset;
 	menu->offScreenRight = offScreenRight;
 	menu->mainMenu = mainMenu;
+    menu->menuState = STATE_NONE;
 	return menu;
 }
 
@@ -574,6 +577,12 @@ void ReloadMenu(Menu *menu)
             HideMenuArrow();
         }
 	}
+}
+
+void RegisterMenuState(Menu *menu, int state)
+{
+    menu->menuState = state;
+    ReloadMenu(menu);
 }
 
 void Menu_ResetSelection(Menu *menu)

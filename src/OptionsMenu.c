@@ -79,8 +79,8 @@ bool OptionsMenuIsVisible(void)
 
 void DrawOptionsMenu(void)
 {
-	ReloadMenu(GetMainMenu());
-	ReloadMenu(GetSlaveMenu());
+    RegisterMenuState(GetMainMenu(), STATE_OPTIONS);
+    RegisterMenuState(GetSlaveMenu(), STATE_OPTIONS);
 }
 
 static bool firstLaunch = false;
@@ -200,8 +200,8 @@ void OptionScreenAppear(void *data)
 {
 	SetUseSlaveMenu(true);
 	SetHideMenuOnSelect(false);
-    ReloadMenu(GetMainMenu());
-    ReloadMenu(GetSlaveMenu());
+    RegisterMenuState(GetMainMenu(), STATE_OPTIONS);
+    RegisterMenuState(GetSlaveMenu(), STATE_OPTIONS);
 	if(firstLaunch)
 	{
 		TriggerMenu(GetMainMenu());

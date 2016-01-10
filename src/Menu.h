@@ -26,26 +26,7 @@ MenuLayer *GetMenuLayer(Menu *menu);
 
 void CleanupMenu(Menu *menu);
 
-typedef uint16_t (*MenuSectionCountCallback)(void);
-typedef uint16_t (*MenuCountCallback)(uint16_t section_index);
-typedef const char *(*MenuSectionNameCallback)(uint16_t section_index);
-typedef const char *(*MenuNameCallback)(MenuIndex *cell_index);
-typedef const char *(*MenuDescriptionCallback)(MenuIndex *cell_index);
-typedef void(*MenuSelectCallback)(MenuIndex *cell_index);
-
-typedef void (*MenuCellSelectCallback)(void);
-
-typedef struct MenuParameters
-{
-    MenuSectionNameCallback menuSectionNameCallback;
-    MenuSectionCountCallback menuSectionCountCallback;
-    MenuCountCallback countCallback;
-    MenuNameCallback nameCallback;
-    MenuDescriptionCallback descriptionCallback;
-    MenuSelectCallback selectCallback;
-} MenuParameters;
-
-void RegisterMenuCellCallbacks(Menu *menu, MenuParameters *parameters);
+void RegisterMenuState(Menu *menu, int state);
 void ClearMenuCellList(Menu *menu);
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index);
 uint16_t GetMenuTotalCellCount(Menu *menu);

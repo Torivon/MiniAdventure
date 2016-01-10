@@ -236,8 +236,8 @@ void BattleScreenAppear(void *data)
         gBattleState.player.actor.currentTime = 0;
     }
     SetDescription(ResourceMonster_GetCurrentName());
-    ReloadMenu(GetMainMenu());
-    ReloadMenu(GetSlaveMenu());
+    RegisterMenuState(GetMainMenu(), STATE_BATTLE);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
@@ -323,8 +323,8 @@ void BattleInit(void)
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
-    ReloadMenu(GetMainMenu());
-    ReloadMenu(GetSlaveMenu());
+    RegisterMenuState(GetMainMenu(), STATE_BATTLE);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     
     DEBUG_VERBOSE_LOG("Finished battle init");
     battleCleanExit = false;
@@ -396,7 +396,8 @@ void UpdateBattle(void *unused)
                 UpdateSkillCooldowns(gBattleState.player.actor.skillCooldowns);
                 gPlayerTurn = true;
                 gPlayerActed = false;
-                ReloadMenu(GetMainMenu());
+                RegisterMenuState(GetMainMenu(), STATE_BATTLE);
+                RegisterMenuState(GetSlaveMenu(), STATE_NONE);
                 Menu_ResetSelection(GetMainMenu());
                 SetDescription("Your turn");
             }
