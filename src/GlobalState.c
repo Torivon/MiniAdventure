@@ -102,7 +102,7 @@ void GlobalState_RunAppearCallback(GlobalStateInstance *instance)
         }
         case STATE_TITLE_SCREEN:
         {
-            TitleScreenAppear(instance->data);
+            TitleScreen_Appear(instance->data);
             break;
         }
         default:
@@ -188,7 +188,7 @@ void GlobalState_RunPopCallback(GlobalStateInstance *instance)
         }
         case STATE_TITLE_SCREEN:
         {
-            TitleScreenPop(instance->data);
+            TitleScreen_Pop(instance->data);
             break;
         }
         default:

@@ -1,10 +1,14 @@
 #include <pebble.h>
+#include "Adventure.h"
+#include "BaseWindow.h"
+#include "Battle.h"
 #include "DescriptionFrame.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MenuArrow.h"
 #include "Menu.h"
-#include "BaseWindow.h"
+#include "OptionsMenu.h"
+#include "TitleScreen.h"
 #include "Utils.h"
 
 #define WINDOW_ROW_HEIGHT 16
@@ -34,29 +38,106 @@ typedef struct Menu
 
 	bool menuVisible;
 	bool menuAnimating;
-
-    MenuSectionCountCallback menuSectionCountCallback;
-    MenuSectionNameCallback menuSectionNameCallback;
-	MenuCountCallback menuCountCallback;
-	MenuNameCallback menuNameCallback;
-	MenuDescriptionCallback menuDescriptionCallback;
-	MenuSelectCallback menuSelectCallback;
 } Menu;
 
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index)
 {
-    if(menu->menuCountCallback)
-        return menu->menuCountCallback(section_index);
+    GlobalState state = GlobalState_GetCurrent();
+    if(menu->mainMenu)
+    {
+        switch(state)
+        {
+            case STATE_ADVENTURE:
+            {
+                return Adventure_MenuCellCount(section_index);
+                break;
+            }
+            case STATE_OPTIONS:
+            {
+                return OptionsMenu_CellCount(section_index);
+                break;
+            }
+            case STATE_BATTLE:
+            {
+                return BattleScreen_MenuCellCount(section_index);
+                break;
+            }
+            case STATE_TITLE_SCREEN:
+            {
+                return TitleScreen_MenuCellCount(section_index);
+                break;
+            }
+            default:
+            {
+                return 0;
+            }
+        }
+    }
     else
-        return 0;
+    {
+        switch(state)
+        {
+            case STATE_OPTIONS:
+            {
+                return OptionsMenu_CellCount(section_index);
+                break;
+            }
+            default:
+            {
+                return 0;
+            }
+        }
+    }
 }
 
 uint16_t GetMenuSectionCount(Menu *menu)
 {
-    if(menu->menuSectionCountCallback)
-        return menu->menuSectionCountCallback();
+    GlobalState state = GlobalState_GetCurrent();
+    if(menu->mainMenu)
+    {
+        switch(state)
+        {
+            case STATE_ADVENTURE:
+            {
+                return Adventure_MenuSectionCount();
+                break;
+            }
+            case STATE_OPTIONS:
+            {
+                return OptionsMenu_SectionCount();
+                break;
+            }
+            case STATE_BATTLE:
+            {
+                return BattleScreen_MenuSectionCount();
+                break;
+            }
+            case STATE_TITLE_SCREEN:
+            {
+                return TitleScreen_MenuSectionCount();
+                break;
+            }
+            default:
+            {
+                return 0;
+            }
+        }
+    }
     else
-        return 0;
+    {
+        switch(state)
+        {
+            case STATE_OPTIONS:
+            {
+                return OptionsMenu_SectionCount();
+                break;
+            }
+            default:
+            {
+                return 0;
+            }
+        }
+    }
 }
 
 uint16_t GetMenuTotalCellCount(Menu *menu)
@@ -71,26 +152,105 @@ uint16_t GetMenuTotalCellCount(Menu *menu)
 
 const char *GetMenuName(Menu *menu, MenuIndex *index)
 {
-    if(menu->menuNameCallback)
-        return menu->menuNameCallback(index);
-    else
-        return "";
+    GlobalState state = GlobalState_GetCurrent();
+    switch(state)
+    {
+        case STATE_ADVENTURE:
+        {
+            return Adventure_MenuCellName(index);
+            break;
+        }
+        case STATE_OPTIONS:
+        {
+            if(menu->mainMenu)
+            {
+                return OptionsMenu_MainCellName(index);
+            }
+            else
+            {
+                return OptionsMenu_SlaveCellName(index);
+            }
+            break;
+        }
+        case STATE_BATTLE:
+        {
+            return BattleScreen_MenuCellName(index);
+            break;
+        }
+        case STATE_TITLE_SCREEN:
+        {
+            return TitleScreen_MenuCellName(index);
+            break;
+        }
+        default:
+        {
+            return "";
+        }
+    }
 }
 
 const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
 {
-    if(menu->menuSectionNameCallback)
-        return menu->menuSectionNameCallback(section_index);
-    else
-        return "";
+    GlobalState state = GlobalState_GetCurrent();
+    switch(state)
+    {
+        case STATE_ADVENTURE:
+        {
+            return Adventure_MenuSectionName(section_index);
+            break;
+        }
+        case STATE_OPTIONS:
+        {
+            return OptionsMenu_SectionName(section_index);
+            break;
+        }
+        case STATE_BATTLE:
+        {
+            return BattleScreen_MenuSectionName(section_index);
+            break;
+        }
+        case STATE_TITLE_SCREEN:
+        {
+            return TitleScreen_MenuSectionName(section_index);
+            break;
+        }
+        default:
+        {
+            return "";
+        }
+    }
 }
 
 const char *GetMenuDescription(Menu *menu, MenuIndex *index)
 {
-    if(menu->menuDescriptionCallback)
-        return menu->menuDescriptionCallback(index);
-    else
-        return "";
+    GlobalState state = GlobalState_GetCurrent();
+    switch(state)
+    {
+        case STATE_ADVENTURE:
+        {
+            return Adventure_MenuCellName(index);
+            break;
+        }
+        case STATE_OPTIONS:
+        {
+            return OptionsMenu_CellDescription(index);
+            break;
+        }
+        case STATE_BATTLE:
+        {
+            return BattleScreen_MenuCellDescription(index);
+            break;
+        }
+        case STATE_TITLE_SCREEN:
+        {
+            return TitleScreen_MenuCellDescription(index);
+            break;
+        }
+        default:
+        {
+            return "";
+        }
+    }
 }
 
 void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window)
@@ -102,51 +262,36 @@ void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *w
 	
 	if(index.row < GetMenuCellCount(menu, index.section))
 	{
-		menu->menuSelectCallback(&index);
+        GlobalState state = GlobalState_GetCurrent();
+        switch(state)
+        {
+            case STATE_ADVENTURE:
+            {
+                Adventure_MenuSelect(&index);
+                break;
+            }
+            case STATE_OPTIONS:
+            {
+                if(menu->mainMenu)
+                    OptionsMenu_Select(&index);
+                break;
+            }
+            case STATE_BATTLE:
+            {
+                BattleScreen_MenuSelect(&index);
+                break;
+            }
+            case STATE_TITLE_SCREEN:
+            {
+                TitleScreen_MenuSelect(&index);
+                break;
+            }
+            default:
+            {
+                return;
+            }
+        }
 	}
-}
-
-void RegisterMenuCellCallbacks(Menu *menu, MenuParameters *parameters)
-{
-	menu->menuCountCallback = parameters->countCallback;
-	menu->menuNameCallback = parameters->nameCallback;
-	menu->menuDescriptionCallback = parameters->descriptionCallback;
-	menu->menuSelectCallback = parameters->selectCallback;
-    menu->menuSectionCountCallback = parameters->menuSectionCountCallback;
-    menu->menuSectionNameCallback = parameters->menuSectionNameCallback;
-	
-	if(!menu->menuCountCallback)
-	{
-		ClearMenuCellList(menu);
-		return;
-	}
-	
-    uint16_t totalCells = GetMenuTotalCellCount(menu);
-    if(totalCells > 0)
-    {
-        menu_layer_reload_data(menu->menuLayer);
-        MenuIndex index = {.section = 0, .row = 0};
-        menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
-        if(menu->mainMenu)
-            ShowMenuArrow();
-    }
-    else if(menu->mainMenu)
-    {
-		HideMenuArrow();
-	}
-}
-
-void ClearMenuCellList(Menu *menu)
-{
-	menu->menuCountCallback = NULL;
-	menu->menuNameCallback = NULL;
-	menu->menuDescriptionCallback = NULL;
-	menu->menuSelectCallback = NULL;
-    menu->menuSectionCountCallback = NULL;
-    menu->menuSectionNameCallback = NULL;
-	
-	if(menu->mainMenu)
-		HideMenuArrow();
 }
 
 MenuLayer *GetMenuLayer(Menu *menu)
@@ -415,17 +560,19 @@ void ReloadMenu(Menu *menu)
 	if(menu->menuLayerInitialized)
 	{
 		menu_layer_reload_data(menu->menuLayer);
-		if(menu->mainMenu)
-		{
-			if(GetMenuTotalCellCount(menu) > 0)
-			{
+        if(GetMenuTotalCellCount(menu) > 0)
+        {
+            MenuIndex index = {.section = 0, .row = 0};
+            menu_layer_set_selected_index(menu->menuLayer, index, MenuRowAlignCenter, false);
+            if(menu->mainMenu)
+            {
 				ShowMenuArrow();
 			}
-			else
-			{
-				HideMenuArrow();
-			}
-		}
+        }
+		else if(menu->mainMenu)
+        {
+            HideMenuArrow();
+        }
 	}
 }
 

@@ -35,12 +35,12 @@ void LaunchResourceStory(uint16_t index)
     QueueAdventureScreen();
 }
 
-static uint16_t TitleScreenSectionCount(void)
+uint16_t TitleScreen_MenuSectionCount(void)
 {
     return 1 + ExtraMenu_GetSectionCount();
 }
 
-static const char *TitleScreenSectionName(uint16_t sectionIndex)
+const char *TitleScreen_MenuSectionName(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -52,7 +52,7 @@ static const char *TitleScreenSectionName(uint16_t sectionIndex)
     return "None";
 }
 
-static uint16_t TitleScreenCount(uint16_t sectionIndex)
+uint16_t TitleScreen_MenuCellCount(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -64,7 +64,7 @@ static uint16_t TitleScreenCount(uint16_t sectionIndex)
     return 0;
 }
 
-static const char *TitleScreenNameCallback(MenuIndex *index)
+const char *TitleScreen_MenuCellName(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -76,7 +76,7 @@ static const char *TitleScreenNameCallback(MenuIndex *index)
     return "None";
 }
 
-static const char *TitleScreenDescriptionCallback(MenuIndex *index)
+const char *TitleScreen_MenuCellDescription(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -88,7 +88,7 @@ static const char *TitleScreenDescriptionCallback(MenuIndex *index)
     return "None";
 }
 
-static void TitleScreenSelectCallback(MenuIndex *index)
+void TitleScreen_MenuSelect(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -99,23 +99,15 @@ static void TitleScreenSelectCallback(MenuIndex *index)
     }
 }
 
-static MenuParameters menuParameters = {.menuSectionNameCallback = TitleScreenSectionName,
-    .menuSectionCountCallback = TitleScreenSectionCount,
-    .countCallback = TitleScreenCount,
-    .nameCallback = TitleScreenNameCallback,
-    .descriptionCallback = TitleScreenDescriptionCallback,
-    .selectCallback = TitleScreenSelectCallback
-};
-
-void TitleScreenAppear(void *data)
+void TitleScreen_Appear(void *data)
 {
-    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
+    ReloadMenu(GetMainMenu());
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
 }
 
-void TitleScreenPop(void *data)
+void TitleScreen_Pop(void *data)
 {
 	SetMainImageVisibility(false, false, false);
 	SetDescription("");
@@ -141,7 +133,7 @@ DialogData introText[] =
     },
 };
 
-void RegisterTitleScreen(void)
+void TitleScreen_Register(void)
 {
 	INFO_LOG("RegisterTitleScreen");
     GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL);

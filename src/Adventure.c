@@ -58,12 +58,12 @@ void ResetGame(void)
     SaveStoryPersistedData();
 }
 
-static uint16_t AdventureMenuSectionCount(void)
+uint16_t Adventure_MenuSectionCount(void)
 {
     return 2 + ExtraMenu_GetSectionCount();
 }
 
-static const char *AdventureMenuSectionName(uint16_t sectionIndex)
+const char *Adventure_MenuSectionName(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -77,7 +77,7 @@ static const char *AdventureMenuSectionName(uint16_t sectionIndex)
     return "None";
 }
 
-static uint16_t AdventureMenuCount(uint16_t sectionIndex)
+uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -101,7 +101,7 @@ static uint16_t AdventureMenuCount(uint16_t sectionIndex)
     return 0;
 }
 
-static const char *AdventureMenuNameCallback(MenuIndex *index)
+const char *Adventure_MenuCellName(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -131,7 +131,7 @@ void ResetGamePop(void *data)
     ResetGame();
 }
 
-static void AdventureMenuSelectCallback(MenuIndex *index)
+void Adventure_MenuSelect(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -271,13 +271,6 @@ void AdventureScreenPush(void *data)
     InitializeDialogLayer(GetBaseWindow());
 }
 
-static MenuParameters menuParameters = {.menuSectionNameCallback = AdventureMenuSectionName,
-    .menuSectionCountCallback = AdventureMenuSectionCount,
-    .countCallback = AdventureMenuCount,
-    .nameCallback = AdventureMenuNameCallback,
-    .descriptionCallback = AdventureMenuNameCallback,
-    .selectCallback = AdventureMenuSelectCallback};
-
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
@@ -286,7 +279,8 @@ void AdventureScreenAppear(void *data)
         ResetGame();
     }
     UpdateLocationProgress();
-    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
+    ReloadMenu(GetMainMenu());
+    ReloadMenu(GetSlaveMenu());
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {

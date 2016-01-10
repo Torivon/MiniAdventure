@@ -85,12 +85,12 @@ void DrawOptionsMenu(void)
 
 static bool firstLaunch = false;
 
-uint16_t OptionMenuCount(uint16_t sectionIndex)
+uint16_t OptionsMenu_CellCount(uint16_t sectionIndex)
 {
     return 3;
 }
 
-const char *OptionSlaveMenuNameCallback(MenuIndex *index)
+const char *OptionsMenu_SlaveCellName(MenuIndex *index)
 {
     switch(index->row)
     {
@@ -110,7 +110,7 @@ const char *OptionSlaveMenuNameCallback(MenuIndex *index)
     return "";
 }
 
-const char *OptionMenuDescriptionCallback(MenuIndex *index)
+const char *OptionsMenu_CellDescription(MenuIndex *index)
 {
     switch(index->row)
     {
@@ -130,7 +130,7 @@ const char *OptionMenuDescriptionCallback(MenuIndex *index)
     return "";
 }
 
-const char *OptionMainMenuNameCallback(MenuIndex *index)
+const char *OptionsMenu_MainCellName(MenuIndex *index)
 {
 	switch(index->row)
 	{
@@ -159,17 +159,17 @@ const char *OptionMainMenuNameCallback(MenuIndex *index)
 	return "";
 }
 
-static const char *OptionMenuSectionName(uint16_t sectionIndex)
+const char *OptionsMenu_SectionName(uint16_t sectionIndex)
 {
     return "Options";
 }
 
-static uint16_t OptionMenuSectionCount(void)
+uint16_t OptionsMenu_SectionCount(void)
 {
     return 1;
 }
 
-void OptionMainMenuSelectCallback(MenuIndex *index)
+void OptionsMenu_Select(MenuIndex *index)
 {
 	switch(index->row)
 	{
@@ -196,25 +196,12 @@ void OptionScreenPush(void *data)
 	firstLaunch = true;
 }
 
-static MenuParameters mainParameters = {.menuSectionNameCallback = OptionMenuSectionName,
-    .menuSectionCountCallback = OptionMenuSectionCount,
-    .countCallback = OptionMenuCount,
-    .nameCallback = OptionMainMenuNameCallback,
-    .descriptionCallback = OptionMenuDescriptionCallback,
-    .selectCallback = OptionMainMenuSelectCallback};
-static MenuParameters slaveParameters = {.menuSectionNameCallback = NULL,
-    .menuSectionCountCallback = OptionMenuSectionCount,
-    .countCallback = OptionMenuCount,
-    .nameCallback = OptionSlaveMenuNameCallback,
-    .descriptionCallback = OptionMenuDescriptionCallback,
-    .selectCallback = NULL};
-
 void OptionScreenAppear(void *data)
 {
 	SetUseSlaveMenu(true);
-	SetHideMenuOnSelect(false);	
-	RegisterMenuCellCallbacks(GetMainMenu(), &mainParameters);
-    RegisterMenuCellCallbacks(GetSlaveMenu(), &slaveParameters);
+	SetHideMenuOnSelect(false);
+    ReloadMenu(GetMainMenu());
+    ReloadMenu(GetSlaveMenu());
 	if(firstLaunch)
 	{
 		TriggerMenu(GetMainMenu());

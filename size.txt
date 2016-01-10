@@ -16,42 +16,42 @@
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 32 size 553
+.data: count 27 size 433
   src/AutoImageMap.h: size 184
-  src/TitleScreen.c: size 56
-  src/OptionsMenu.c: size 50
   src/Clock.c: size 48
   src/Character.c: size 44
-  src/Adventure.c: size 42
-  src/Battle.c: size 31
+  src/TitleScreen.c: size 32
   src/ExtraMenu.c: size 24
+  src/Adventure.c: size 18
   src/MenuArrow.c: size 16
   src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
   src/LargeImage.c: size 12
   src/BaseWindow.c: size 11
+  src/Battle.c: size 7
+  src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 318 size 15458
-  Unknown: size 1698
+.text: count 316 size 15680
+  src/Menu.c: size 1766
+  src/Battle.c: size 1720
   src/ResourceStory.c: size 1644
-  src/Menu.c: size 1512
-  src/Battle.c: size 1460
+  Unknown: size 1106
+  src/Adventure.c: size 794
   src/Persistence.c: size 766
   src/MainImage.c: size 716
   src/MenuArrow.c: size 700
-  src/Adventure.c: size 638
   src/LargeImage.c: size 620
   src/Clock.c: size 616
   src/GlobalState.c: size 568
   src/BaseWindow.c: size 564
+  src/OptionsMenu.c: size 542
   src/DialogFrame.c: size 536
   src/Skills.c: size 524
   src/ProgressBar.c: size 484
-  src/OptionsMenu.c: size 454
   src/TextBox.c: size 390
   src/Character.c: size 336
-  src/TitleScreen.c: size 260
+  src/TitleScreen.c: size 316
   src/MiniAdventure.c: size 214
   src/DescriptionFrame.c: size 152
   src/Utils.c: size 150
@@ -79,42 +79,42 @@
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 32 size 553
+.data: count 27 size 433
   src/AutoImageMap.h: size 184
-  src/TitleScreen.c: size 56
-  src/OptionsMenu.c: size 50
   src/Clock.c: size 48
   src/Character.c: size 44
-  src/Adventure.c: size 42
-  src/Battle.c: size 31
+  src/TitleScreen.c: size 32
   src/ExtraMenu.c: size 24
+  src/Adventure.c: size 18
   src/MenuArrow.c: size 16
   src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
   src/LargeImage.c: size 12
   src/BaseWindow.c: size 11
+  src/Battle.c: size 7
+  src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 318 size 15532
-  Unknown: size 1698
+.text: count 316 size 15754
+  src/Menu.c: size 1794
+  src/Battle.c: size 1724
   src/ResourceStory.c: size 1644
-  src/Menu.c: size 1540
-  src/Battle.c: size 1464
+  Unknown: size 1106
+  src/Adventure.c: size 794
   src/Persistence.c: size 766
   src/MenuArrow.c: size 732
   src/MainImage.c: size 724
-  src/Adventure.c: size 638
   src/LargeImage.c: size 620
   src/Clock.c: size 616
   src/GlobalState.c: size 568
   src/BaseWindow.c: size 564
+  src/OptionsMenu.c: size 542
   src/DialogFrame.c: size 536
   src/Skills.c: size 524
   src/ProgressBar.c: size 486
-  src/OptionsMenu.c: size 454
   src/TextBox.c: size 390
   src/Character.c: size 336
-  src/TitleScreen.c: size 260
+  src/TitleScreen.c: size 316
   src/MiniAdventure.c: size 214
   src/DescriptionFrame.c: size 152
   src/Utils.c: size 150
@@ -142,42 +142,42 @@
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 32 size 553
+.data: count 27 size 433
   src/AutoImageMap.h: size 184
-  src/TitleScreen.c: size 56
-  src/OptionsMenu.c: size 50
   src/Clock.c: size 48
   src/Character.c: size 44
-  src/Adventure.c: size 42
-  src/Battle.c: size 31
+  src/TitleScreen.c: size 32
   src/ExtraMenu.c: size 24
+  src/Adventure.c: size 18
   src/MenuArrow.c: size 16
   src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
   src/LargeImage.c: size 12
   src/BaseWindow.c: size 11
+  src/Battle.c: size 7
+  src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 318 size 15536
-  Unknown: size 1698
+.text: count 316 size 15758
+  src/Menu.c: size 1794
+  src/Battle.c: size 1724
   src/ResourceStory.c: size 1644
-  src/Menu.c: size 1540
-  src/Battle.c: size 1464
+  Unknown: size 1106
+  src/Adventure.c: size 794
   src/Persistence.c: size 766
   src/MenuArrow.c: size 732
   src/MainImage.c: size 728
-  src/Adventure.c: size 638
   src/LargeImage.c: size 620
   src/Clock.c: size 616
   src/GlobalState.c: size 568
   src/BaseWindow.c: size 564
+  src/OptionsMenu.c: size 542
   src/DialogFrame.c: size 536
   src/Skills.c: size 524
   src/ProgressBar.c: size 486
-  src/OptionsMenu.c: size 454
   src/TextBox.c: size 390
   src/Character.c: size 336
-  src/TitleScreen.c: size 260
+  src/TitleScreen.c: size 316
   src/MiniAdventure.c: size 214
   src/DescriptionFrame.c: size 152
   src/Utils.c: size 150

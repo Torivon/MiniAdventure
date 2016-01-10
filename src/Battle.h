@@ -27,3 +27,9 @@ void BattleScreenPop(void *data);
 void UpdateBattle(void *unused);
 void BattleScreenAppear(void *data);
 
+uint16_t BattleScreen_MenuSectionCount(void);
+const char *BattleScreen_MenuSectionName(uint16_t sectionIndex);
+uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex);
+const char *BattleScreen_MenuCellName(MenuIndex *index);
+const char *BattleScreen_MenuCellDescription(MenuIndex *index);
+void BattleScreen_MenuSelect(MenuIndex *index);

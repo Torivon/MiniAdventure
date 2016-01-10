@@ -124,12 +124,12 @@ bool ClosingWhileInBattle(void)
     return !battleCleanExit;
 }
 
-static uint16_t BattleScreenSectionCount(void)
+uint16_t BattleScreen_MenuSectionCount(void)
 {
-    return 2;
+    return 1 + ExtraMenu_GetSectionCount();
 }
 
-static const char *BattleScreenSectionName(uint16_t sectionIndex)
+const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -141,7 +141,7 @@ static const char *BattleScreenSectionName(uint16_t sectionIndex)
     return "None";
 }
 
-static uint16_t BattleScreenCount(uint16_t sectionIndex)
+uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -162,7 +162,7 @@ static uint16_t BattleScreenCount(uint16_t sectionIndex)
     return 0;
 }
 
-static const char *BattleScreenNameCallback(MenuIndex *index)
+const char *BattleScreen_MenuCellName(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -182,7 +182,7 @@ static const char *BattleScreenNameCallback(MenuIndex *index)
     return "None";
 }
 
-static const char *BattleScreenDescriptionCallback(MenuIndex *index)
+const char *BattleScreen_MenuCellDescription(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -204,7 +204,7 @@ static const char *BattleScreenDescriptionCallback(MenuIndex *index)
     return "None";
 }
 
-static void BattleScreenSelectCallback(MenuIndex *index)
+void BattleScreen_MenuSelect(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -227,13 +227,6 @@ static void BattleScreenSelectCallback(MenuIndex *index)
     }
 }
 
-static MenuParameters menuParameters = {.menuSectionNameCallback = BattleScreenSectionName,
-    .menuSectionCountCallback = BattleScreenSectionCount,
-    .countCallback = BattleScreenCount,
-    .nameCallback = BattleScreenNameCallback,
-    .descriptionCallback = BattleScreenDescriptionCallback,
-    .selectCallback = BattleScreenSelectCallback};
-
 void BattleScreenAppear(void *data)
 {
     if(gPlayerActed)
@@ -243,8 +236,8 @@ void BattleScreenAppear(void *data)
         gBattleState.player.actor.currentTime = 0;
     }
     SetDescription(ResourceMonster_GetCurrentName());
-    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
     ReloadMenu(GetMainMenu());
+    ReloadMenu(GetSlaveMenu());
     SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
@@ -330,7 +323,8 @@ void BattleInit(void)
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
-    RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
+    ReloadMenu(GetMainMenu());
+    ReloadMenu(GetSlaveMenu());
     
     DEBUG_VERBOSE_LOG("Finished battle init");
     battleCleanExit = false;
