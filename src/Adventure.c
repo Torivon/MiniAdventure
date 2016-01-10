@@ -121,12 +121,12 @@ static DialogData resetPrompt =
     .allowCancel = true
 };
 
-static void ResetGamePush(void *data)
+void ResetGamePush(void *data)
 {
     GlobalState_Pop();
 }
 
-static void ResetGamePop(void *data)
+void ResetGamePop(void *data)
 {
     ResetGame();
 }
@@ -143,7 +143,7 @@ static void AdventureMenuSelectCallback(MenuIndex *index)
         case 1:
         {
             QueueDialog(&resetPrompt);
-            GlobalState_Queue(STATE_RESET_GAME, 0, NULL, ResetGamePush, NULL, NULL, ResetGamePop, NULL);
+            GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
             break;
         }
         case 2:
@@ -325,5 +325,5 @@ void AdventureScreenPop(void *data)
 
 void QueueAdventureScreen(void)
 {
-    GlobalState_Queue(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
+    GlobalState_Queue(STATE_ADVENTURE, MINUTE_UNIT, NULL);
 }

@@ -437,5 +437,5 @@ void Menu_ResetSelection(Menu *menu)
 
 void TriggerMenu(Menu *menu)
 {
-	GlobalState_Push(STATE_MENU, 0, NULL, ShowMenu, NULL, NULL, NULL, menu);
+	GlobalState_Push(STATE_MENU, 0, menu);
 }

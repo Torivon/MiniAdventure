@@ -26,22 +26,12 @@ void GlobalState_QueueStatePop(void);
 // Switching game modes
 void GlobalState_Push(GlobalState state,
 					 TimeUnits triggerUnits,
-					 GlobalStateChangeCallback updateCallback,
-					 GlobalStateChangeCallback pushCallback, 
-					 GlobalStateChangeCallback appearCallback, 
-					 GlobalStateChangeCallback disappearCallback, 
-					 GlobalStateChangeCallback popCallback,
 					 void *data);
 
 // Pushes a new state on the next pop. This allows for sibling state transitions.
 // Used for sequential dialogs, menus, or battles.
 void GlobalState_Queue(GlobalState state,
                       TimeUnits triggerUnits,
-                      GlobalStateChangeCallback updateCallback,
-                      GlobalStateChangeCallback pushCallback,
-                      GlobalStateChangeCallback appearCallback,
-                      GlobalStateChangeCallback disappearCallback,
-                      GlobalStateChangeCallback popCallback,
                       void *data);
 
 void GlobalState_ClearQueue(void);

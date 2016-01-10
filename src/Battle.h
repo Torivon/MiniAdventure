@@ -21,3 +21,9 @@ void Battle_WritePlayerData(int index);
 void Battle_WriteMonsterData(int index);
 void Battle_ReadPlayerData(int index);
 void Battle_ReadMonsterData(int index);
+
+void BattleScreenPush(void *data);
+void BattleScreenPop(void *data);
+void UpdateBattle(void *unused);
+void BattleScreenAppear(void *data);
+

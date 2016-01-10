@@ -18,3 +18,6 @@ bool Dialog_AllowCancel(void);
 
 void TriggerDialog(DialogData *data);
 void QueueDialog(DialogData *data);
+
+void DialogAppear(void *data);
+void DialogDisappear(void *data);

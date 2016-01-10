@@ -110,10 +110,10 @@ void DialogDisappear(void *data)
 
 void TriggerDialog(DialogData *data)
 {
-	GlobalState_Push(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, data);
+	GlobalState_Push(STATE_DIALOG, 0, data);
 }
 
 void QueueDialog(DialogData *data)
 {
-    GlobalState_Queue(STATE_DIALOG, 0, NULL, NULL, DialogAppear, DialogDisappear, NULL, data);
+    GlobalState_Queue(STATE_DIALOG, 0, data);
 }

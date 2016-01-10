@@ -460,5 +460,5 @@ void BattleScreenPop(void *data)
 void TriggerBattleScreen(void)
 {
     if(ResourceStory_CurrentLocationHasMonster())
-        GlobalState_Push(STATE_BATTLE, SECOND_UNIT, UpdateBattle, BattleScreenPush, BattleScreenAppear, NULL, BattleScreenPop, NULL);
+        GlobalState_Push(STATE_BATTLE, SECOND_UNIT, NULL);
 }

@@ -236,10 +236,10 @@ void OptionScreenPop(void *data)
 
 void TriggerOptionScreen(void)
 {
-	GlobalState_Push(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+	GlobalState_Push(STATE_OPTIONS, 0, NULL);
 }
 
 void QueueOptionsScreen(void)
 {
-    GlobalState_Queue(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+    GlobalState_Queue(STATE_OPTIONS, 0, NULL);
 }

@@ -13,3 +13,6 @@ void ShowOptionsMenu(void);
 bool OptionsMenuIsVisible(void);
 void TriggerOptionScreen(void);
 void QueueOptionsScreen(void);
+void OptionScreenPush(void *data);
+void OptionScreenAppear(void *data);
+void OptionScreenPop(void *data);

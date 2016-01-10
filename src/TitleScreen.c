@@ -107,7 +107,7 @@ static MenuParameters menuParameters = {.menuSectionNameCallback = TitleScreenSe
     .selectCallback = TitleScreenSelectCallback
 };
 
-static void TitleScreenAppear(void *data)
+void TitleScreenAppear(void *data)
 {
     RegisterMenuCellCallbacks(GetMainMenu(), &menuParameters);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
@@ -115,7 +115,7 @@ static void TitleScreenAppear(void *data)
 	SetDescription("MiniAdventure");
 }
 
-static void TitleScreenPop(void *data)
+void TitleScreenPop(void *data)
 {
 	SetMainImageVisibility(false, false, false);
 	SetDescription("");
@@ -144,7 +144,7 @@ DialogData introText[] =
 void RegisterTitleScreen(void)
 {
 	INFO_LOG("RegisterTitleScreen");
-    GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL);
     if(!GetTutorialSeen())
     {
         TriggerDialog(&introText[0]);
