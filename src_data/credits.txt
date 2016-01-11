@@ -1,6 +1,0 @@
-Credits.h
-Credits.dat
-CREDITS
-CREDITS_PAGE_1,Programming and art by Jonathan Panttaja
-CREDITS_PAGE_2,Additional Contributors: Belphemur and BlackLamb
-CREDITS_PAGE_3,Code located at https://Github.com/Torivon/MiniAdventure

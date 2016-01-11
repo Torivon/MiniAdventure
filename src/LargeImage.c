@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 static TextBox *okTextBox = NULL;
-bool largeImageForceBacklight = false;
+static bool largeImageForceBacklight = false;
 
 #define OK_FRAME_WIDTH 25
 #define OK_FRAME_HEIGHT 22
@@ -32,7 +32,7 @@ static BitmapLayer *largeImageLayer = NULL;
 
 static GRect largeImagePosition = {.origin = {.x = LARGE_IMAGE_LAYER_X, .y = LARGE_IMAGE_LAYER_Y}, .size = {.w = LARGE_IMAGE_LAYER_W, .h = LARGE_IMAGE_LAYER_H}};
 
-static bool largeImageInitialized;
+static bool largeImageInitialized = false;
 
 static int largeImageResourceId = -1;
 
@@ -63,15 +63,15 @@ void InitializeLargeImageLayer(Window *window)
 		bitmap_layer_set_alignment(largeImageLayer, GAlignCenter);
 
 		layer_set_update_proc(largeImageTopLayer, LargeImageUpdateProc);
-		layer_add_child(largeImageTopLayer, bitmap_layer_get_layer(largeImageLayer));
+		layer_add_child(largeImageTopLayer, (Layer*)largeImageLayer);
 
-		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame);
+		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame, GTextAlignmentCenter, false);
 
 		largeImageInitialized = true;
 	}
 	Layer *window_layer = window_get_root_layer(window);
 	layer_add_child(window_layer, largeImageTopLayer);
-	InitializeTextBox(window, okTextBox, "OK");
+	InitializeTextBox(window_layer, okTextBox, "OK");
 }
 
 void RemoveLargeImageLayer(void)
@@ -117,12 +117,12 @@ void TriggerLargeImage(int resourceId, bool forceBacklight)
 {
 	largeImageResourceId = resourceId;
 	largeImageForceBacklight = forceBacklight;
-	GlobalState_Push(STATE_LARGE_IMAGE, 0, NULL, LargeImagePush, NULL, NULL, LargeImagePop, NULL);
+	GlobalState_Push(STATE_LARGE_IMAGE, 0, NULL);
 }
 
 void QueueLargeImage(int resourceId, bool forceBacklight)
 {
     largeImageResourceId = resourceId;
     largeImageForceBacklight = forceBacklight;
-    GlobalState_Queue(STATE_LARGE_IMAGE, 0, NULL, LargeImagePush, NULL, NULL, LargeImagePop, NULL);
+    GlobalState_Queue(STATE_LARGE_IMAGE, 0, NULL);
 }

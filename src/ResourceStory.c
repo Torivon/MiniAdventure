@@ -2,11 +2,13 @@
 
 #include "AutoImageMap.h"
 #include "AutoSizeConstants.h"
+#include "AutoLocationConstants.h"
 #include "BinaryResourceLoading.h"
+#include "Character.h"
 #include "CombatantClass.h"
+#include "DialogFrame.h"
 #include "Utils.h"
 #include "Logging.h"
-#include "Battle.h"
 #include "ResourceStory.h"
 #include "Skills.h"
 #include "StoryList.h"
@@ -26,11 +28,34 @@ typedef struct ResourceStory
     uint16_t xpDifferenceScale;
     uint16_t classCount;
     uint16_t classes[MAX_CLASSES];
+    uint16_t openingDialog;
+    uint16_t winDialog;
 } ResourceStory;
-
 
 static ResHandle ResourceStory_GetCurrentResHandle(void);
 static ResourceStory *ResourceStory_GetCurrentStory();
+
+/********************* RESOURCE DIALOG *******************************/
+
+void ResourceStory_TriggerDialog(uint16_t dialogIndex)
+{
+    if(dialogIndex == 0)
+        return;
+    
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    ResourceLoadStruct(ResourceStory_GetCurrentResHandle(), dialogIndex, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+    TriggerDialog(dialog);
+}
+
+uint16_t ResourceStory_GetOpeningDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->openingDialog;
+}
+
+uint16_t ResourceStory_GetWinDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->winDialog;
+}
 
 /********************* RESOURCE LOCATION *******************************/
 typedef struct ResourceLocation
@@ -40,6 +65,7 @@ typedef struct ResourceLocation
     uint16_t adjacentLocations[MAX_ADJACENT_LOCATIONS];
     uint16_t backgroundImageCount;
     uint16_t backgroundImages[MAX_BACKGROUND_IMAGES];
+    uint16_t locationProperties;
     uint16_t length;
     uint16_t baseLevel;
     uint16_t encounterChance;
@@ -134,9 +160,9 @@ void ResourceLocation_FreeAdjacentLocations(void)
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void)
 {
     if(currentLocation)
-    return currentLocation->adjacentLocationCount;
+        return currentLocation->adjacentLocationCount;
     else
-    return 0;
+        return 0;
 }
 
 const char *ResourceStory_GetAdjacentLocationName(uint16_t index)
@@ -171,6 +197,17 @@ bool ResourceStory_CurrentLocationIsPath(void)
     
     return false;
 }
+
+bool ResourceStory_CurrentLocationIsRestArea(void)
+{
+    if(currentLocation)
+    {
+        return currentLocation->locationProperties & LOCATION_PROPERTY_REST_AREA;
+    }
+    
+    return false;
+}
+
 /********************* RESOURCE SKILL ******************************/
 void ResourceSkill_Free(Skill *skill)
 {
@@ -187,9 +224,9 @@ Skill *ResourceSkill_Load(uint16_t logical_index)
 
 /********************* RESOURCE BATTLER ******************************/
 
-BattlerWrapper currentMonster = {0};
+static BattlerWrapper currentMonster = {0};
 
-BattlerWrapper playerClass = {0};
+static BattlerWrapper playerClass = {0};
 
 BattlerWrapper *BattlerWrapper_GetPlayerWrapper(void)
 {
@@ -321,12 +358,6 @@ int ResourceStory_GetCurrentLocationMonster(void)
 }
 
 /********************* RESOURCE STORY *******************************/
-typedef struct PersistedResourceStoryState
-{
-    uint16_t currentLocationIndex;
-    uint16_t timeOnPath;
-    uint16_t destinationIndex;
-} PersistedResourceStoryState;
 
 typedef struct ResourceStoryState
 {
@@ -335,9 +366,27 @@ typedef struct ResourceStoryState
 } ResourceStoryState;
 
 static int16_t currentResourceStoryIndex = -1;
+uint16_t lastResourceStoryId = 0;
+bool isLastResourceStoryIdValid = false;
 static ResourceStoryState currentResourceStoryState = {0};
 
 static ResourceStory **resourceStoryList = NULL;
+
+bool ResourceStory_IsLastResourceStoryIdValid(void)
+{
+    return isLastResourceStoryIdValid;
+}
+
+void ResourceStory_SetLastResourceStoryId(uint16_t id)
+{
+    lastResourceStoryId = id;
+    isLastResourceStoryIdValid = true;
+}
+
+uint16_t ResourceStory_GetLastResourceStoryId(void)
+{
+    return lastResourceStoryId;
+}
 
 static ResourceStory *ResourceStory_GetCurrentStory(void)
 {
@@ -345,6 +394,16 @@ static ResourceStory *ResourceStory_GetCurrentStory(void)
         return NULL;
     
     return resourceStoryList[currentResourceStoryIndex];
+}
+
+int16_t ResourceStory_GetStoryIndexById(uint16_t id)
+{
+    for(int i = 0; i < GetStoryCount(); ++i)
+    {
+        if(resourceStoryList[i]->id == id)
+            return i;
+    }
+    return -1;
 }
 
 static ResHandle ResourceStory_GetCurrentResHandle(void)
@@ -436,6 +495,23 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
         ResourceLocation_LoadAdjacentLocations();
         currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = globalIndex;
         currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
+        currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
+        currentResourceStoryState.persistedResourceStoryState.pathLength = currentLocation->length;
+
+        if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_REST_AREA))
+        {
+            Character_Rest();
+        }
+        
+        if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_LEVEL_UP))
+        {
+            Character_GrantLevel();
+        }
+
+        if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_GAME_WIN))
+        {
+            return STORYUPDATE_WIN;
+        }
 
         if(ResourceStory_CurrentLocationIsPath())
         {
@@ -448,8 +524,7 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
         {
             if(ResourceStory_CurrentLocationHasMonster())
             {
-                TriggerBattleScreen();
-                return STORYUPDATE_DONOTHING;
+                return STORYUPDATE_TRIGGER_BATTLE;
             }
         }
         return STORYUPDATE_FULLREFRESH;
@@ -500,6 +575,7 @@ void ResourceStory_LoadAll(void)
 void ResourceStory_SetCurrentStory(uint16_t index)
 {
     currentResourceStoryIndex = index;
+    ResourceStory_SetLastResourceStoryId(resourceStoryList[currentResourceStoryIndex]->id);
 }
 
 void ResourceStory_ClearCurrentStory(void)
@@ -592,6 +668,8 @@ void ResourceStory_UpdateStoryWithPersistedState(void)
         ResourceLocation_Free(currentLocation);
     
     currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
+    currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
+    currentResourceStoryState.persistedResourceStoryState.pathLength = currentLocation->length;
     ResourceLocation_LoadAdjacentLocations();
 #if DEBUG_LOGGING > 1
     ResourceLocation_Log(currentLocation);

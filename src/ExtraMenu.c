@@ -14,7 +14,7 @@ uint16_t ExtraMenu_GetSectionCount(void)
 
 const char *ExtraMenu_GetSectionName(void)
 {
-    return "Extras";
+    return "Engine";
 }
 
 uint16_t ExtraMenu_GetCellCount(void)
@@ -40,7 +40,7 @@ const char *ExtraMenu_GetCellName(uint16_t row)
 static DialogData credits[] =
 {
     {
-        .text = "Programming and art by Jonathan Panttaja",
+        .text = "Engine Programming by Jonathan Panttaja",
         .allowCancel = false
     },
     {
@@ -71,7 +71,7 @@ void ExtraMenu_SelectAction(uint16_t row)
         }
         case 2:
         {
-            QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
+            QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORYCODE, true);
             break;
         }
     }

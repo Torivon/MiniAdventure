@@ -10,8 +10,11 @@ typedef struct TextBox
 	int yoffset;
 	GFont font;
 	GRect frame;
+    bool allowScroll;
+    GTextAlignment align;
 	Layer *mainLayer;
 	TextLayer *textLayer;
+    ScrollLayer *scrollLayer;
 	bool initialized;
 } TextBox;
 
@@ -25,7 +28,23 @@ void TextBoxSetText(TextBox *textBox, const char *text)
 	if(!textBox || !textBox->initialized)
 		return;
 	
+    GRect bounds = {.origin = {0}, .size = {0}};
+
+    if(textBox->scrollLayer)
+    {
+        bounds = layer_get_bounds((Layer*)textBox->scrollLayer);
+        text_layer_set_size(textBox->textLayer, GSize(bounds.size.w, 2000));
+    }
+    
 	text_layer_set_text(textBox->textLayer, text);
+    if(textBox->scrollLayer)
+    {
+        GPoint offset = GPointZero;
+        scroll_layer_set_content_offset(textBox->scrollLayer, offset, false);
+        GSize max_size = text_layer_get_content_size(textBox->textLayer);
+        text_layer_set_size(textBox->textLayer, max_size);
+        scroll_layer_set_content_size(textBox->scrollLayer, GSize(bounds.size.w, max_size.h + 4));
+    }
 }
 
 const char *TextBoxGetText(TextBox *textBox)
@@ -44,13 +63,15 @@ void RemoveTextBox(TextBox *textBox)
 	layer_remove_from_parent(textBox->mainLayer);
 }
 
-TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame)
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll)
 {
 	TextBox *textBox = calloc(sizeof(TextBox), 1);
 	textBox->font = font;
 	textBox->frame = frame;
 	textBox->xoffset = xoffset;
 	textBox->yoffset = yoffset;
+    textBox->allowScroll = scroll;
+    textBox->align = align;
 	return textBox;
 }
 
@@ -60,39 +81,49 @@ void TextBoxUpdateProc(struct Layer *layer, GContext *ctx)
 	DrawContentFrame(ctx, &bounds);
 }
 
-void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
+void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText)
 {
-	Layer *window_layer = window_get_root_layer(window);
-
 	if(!textBox->initialized)
 	{
 		textBox->mainLayer = layer_create(textBox->frame);
-		layer_add_child(window_layer, textBox->mainLayer);
 		GRect newFrame = layer_get_bounds(textBox->mainLayer);
 		newFrame.origin.x += textBox->xoffset;
 		newFrame.origin.y += textBox->yoffset;
 		newFrame.size.w -= 2 * textBox->xoffset;
 		newFrame.size.h -= 2 * textBox->yoffset;
+        if(textBox->allowScroll)
+        {
+            textBox->scrollLayer = scroll_layer_create(newFrame);
+            layer_add_child(textBox->mainLayer, (Layer*)textBox->scrollLayer);
+        }
 		textBox->textLayer = text_layer_create(newFrame);
 		text_layer_set_text_color(textBox->textLayer, GColorWhite);
 		text_layer_set_background_color(textBox->textLayer, GColorClear);
 		text_layer_set_font(textBox->textLayer, textBox->font);
-		text_layer_set_text_alignment(textBox->textLayer, GTextAlignmentCenter);
-		layer_add_child(textBox->mainLayer, text_layer_get_layer(textBox->textLayer));
+		text_layer_set_text_alignment(textBox->textLayer, textBox->align);
+        if(textBox->scrollLayer)
+            scroll_layer_add_child(textBox->scrollLayer, (Layer*)textBox->textLayer);
+        else
+            layer_add_child(textBox->mainLayer, (Layer*)textBox->textLayer);
 		text_layer_set_text(textBox->textLayer, initialText);
 		textBox->initialized = true;
 
 		layer_set_update_proc(textBox->mainLayer, TextBoxUpdateProc);
 	}
-	layer_add_child(window_layer, textBox->mainLayer);
+	layer_add_child(layer, textBox->mainLayer);
 }
 
 void FreeTextBox(TextBox *textBox)
 {
+    if(!textBox)
+        return;
+    
 	if(textBox->initialized)
 	{
 		layer_destroy(textBox->mainLayer);
 		text_layer_destroy(textBox->textLayer);
+        if(textBox->scrollLayer)
+            scroll_layer_destroy(textBox->scrollLayer);
 	}
 	
 	free(textBox);
@@ -103,13 +134,35 @@ void ShowTextBox(TextBox *textBox)
 	if(!TextBoxInitialized(textBox))
 		return;
 	
-	layer_set_hidden(textBox->mainLayer, false);
+    ShowLayer(textBox->mainLayer);
 }
 
 void HideTextBox(TextBox *textBox)
 {
 	if(!TextBoxInitialized(textBox))
 		return;
-	
-	layer_set_hidden(textBox->mainLayer, true);
+
+    HideLayer(textBox->mainLayer);
+}
+
+void TextBox_ScrollUp(TextBox *textBox)
+{
+    DEBUG_LOG("ScrollUp");
+    if(textBox->scrollLayer)
+    {
+        GPoint offset = scroll_layer_get_content_offset(textBox->scrollLayer);
+        offset.y += WINDOW_ROW_HEIGHT;
+        scroll_layer_set_content_offset(textBox->scrollLayer, offset, true);
+    }
+}
+
+void TextBox_ScrollDown(TextBox *textBox)
+{
+    DEBUG_LOG("ScrollDown");
+    if(textBox->scrollLayer)
+    {
+        GPoint offset = scroll_layer_get_content_offset(textBox->scrollLayer);
+        offset.y -= WINDOW_ROW_HEIGHT;
+        scroll_layer_set_content_offset(textBox->scrollLayer, offset, true);
+    }
 }

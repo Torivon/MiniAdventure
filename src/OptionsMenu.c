@@ -6,7 +6,7 @@
 #include "OptionsMenu.h"
 #include "WorkerControl.h"
 
-void DrawOptionsMenu(void);
+void ReloadOptionsMenu(void);
 
 static bool vibration = true;
 static bool useWorkerApp = false;
@@ -15,7 +15,7 @@ static bool workerCanLaunch = true;
 void ToggleVibration(void)
 {
 	vibration = !vibration;
-	DrawOptionsMenu();
+	ReloadOptionsMenu();
 }
 
 bool GetVibration(void)
@@ -31,8 +31,7 @@ void SetVibration(bool enable)
 void SetWorkerApp(bool enable)
 {
 	useWorkerApp = enable;
-	if(OptionsMenuIsVisible())
-		DrawOptionsMenu();
+    ReloadMenu(GetMainMenu());
 }
 
 void ToggleWorkerApp(void)
@@ -55,7 +54,6 @@ bool GetWorkerApp(void)
 void SetWorkerCanLaunch(bool enable)
 {
 	workerCanLaunch = enable;
-	SendWorkerCanLaunch();
 }
 
 void ToggleWorkerCanLaunch(void)
@@ -64,7 +62,7 @@ void ToggleWorkerCanLaunch(void)
 		return;
 	
 	SetWorkerCanLaunch(!workerCanLaunch);
-	DrawOptionsMenu();
+	ReloadOptionsMenu();
 }
 
 bool GetWorkerCanLaunch(void)
@@ -77,27 +75,60 @@ bool OptionsMenuIsVisible(void)
 	return GlobalState_GetCurrent() == STATE_OPTIONS;
 }
 
-void DrawOptionsMenu(void)
+void ReloadOptionsMenu(void)
 {
-	ReloadMenu(GetMainMenu());
-	ReloadMenu(GetSlaveMenu());
+    ReloadMenu(GetMainMenu());
+    ReloadMenu(GetSlaveMenu());
 }
-
-MenuCellDescription optionScreenMenuList[] = 
-{
-	{.name = "Vibration", .description = "Allow Vibration", .callback = NULL},
-	{.name = "Background", .description = "Use worker app", .callback = NULL},
-	{.name = "Launch", .description = "Worker app can launch", .callback = NULL},
-};
 
 static bool firstLaunch = false;
 
-uint16_t OptionMenuCount(uint16_t sectionIndex)
+uint16_t OptionsMenu_CellCount(uint16_t sectionIndex)
 {
-	return sizeof(optionScreenMenuList)/sizeof(*optionScreenMenuList);
+    return 3;
 }
 
-const char *OptionMainMenuNameCallback(MenuIndex *index)
+const char *OptionsMenu_SlaveCellName(MenuIndex *index)
+{
+    switch(index->row)
+    {
+        case 0:
+        {
+            return "Vibration";
+        }
+        case 1:
+        {
+            return "Background";
+        }
+        case 2:
+        {
+            return "Launch";
+        }
+    }
+    return "";
+}
+
+const char *OptionsMenu_CellDescription(MenuIndex *index)
+{
+    switch(index->row)
+    {
+        case 0:
+        {
+            return "Allow Vibration";
+        }
+        case 1:
+        {
+            return "Use worker app";
+        }
+        case 2:
+        {
+            return "Worker app can launch";
+        }
+    }
+    return "";
+}
+
+const char *OptionsMenu_MainCellName(MenuIndex *index)
 {
 	switch(index->row)
 	{
@@ -126,22 +157,17 @@ const char *OptionMainMenuNameCallback(MenuIndex *index)
 	return "";
 }
 
-const char *OptionMainMenuDescriptionCallback(MenuIndex *index)
-{
-	return optionScreenMenuList[index->row].description;
-}
-
-static const char *OptionMenuSectionName(uint16_t sectionIndex)
+const char *OptionsMenu_SectionName(uint16_t sectionIndex)
 {
     return "Options";
 }
 
-static uint16_t OptionMenuSectionCount(void)
+uint16_t OptionsMenu_SectionCount(void)
 {
     return 1;
 }
 
-void OptionMainMenuSelectCallback(MenuIndex *index)
+void OptionsMenu_Select(MenuIndex *index)
 {
 	switch(index->row)
 	{
@@ -171,9 +197,9 @@ void OptionScreenPush(void *data)
 void OptionScreenAppear(void *data)
 {
 	SetUseSlaveMenu(true);
-	SetHideMenuOnSelect(false);	
-	RegisterMenuCellCallbacks(GetMainMenu(), OptionMenuSectionName, OptionMenuSectionCount, OptionMenuCount, OptionMainMenuNameCallback, OptionMainMenuDescriptionCallback, OptionMainMenuSelectCallback);
-	RegisterMenuCellList(GetSlaveMenu(), "", optionScreenMenuList, OptionMenuCount(0));
+	SetHideMenuOnSelect(false);
+    RegisterMenuState(GetMainMenu(), STATE_OPTIONS);
+    RegisterMenuState(GetSlaveMenu(), STATE_OPTIONS);
 	if(firstLaunch)
 	{
 		TriggerMenu(GetMainMenu());
@@ -195,10 +221,10 @@ void OptionScreenPop(void *data)
 
 void TriggerOptionScreen(void)
 {
-	GlobalState_Push(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+	GlobalState_Push(STATE_OPTIONS, 0, NULL);
 }
 
 void QueueOptionsScreen(void)
 {
-    GlobalState_Queue(STATE_OPTIONS, 0, NULL, OptionScreenPush, OptionScreenAppear, NULL, OptionScreenPop, NULL);
+    GlobalState_Queue(STATE_OPTIONS, 0, NULL);
 }

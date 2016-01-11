@@ -7,6 +7,7 @@ int GetCurrentMonsterHealth(void);
 void SaveBattleState(void);
 
 void ResumeBattle(int currentMonster);
+void ForceRandomBattle(void);
 bool IsBattleForced(void);
 
 BattleActor *GetPlayerActor(void);
@@ -21,3 +22,15 @@ void Battle_WritePlayerData(int index);
 void Battle_WriteMonsterData(int index);
 void Battle_ReadPlayerData(int index);
 void Battle_ReadMonsterData(int index);
+
+void BattleScreenPush(void *data);
+void BattleScreenPop(void *data);
+void UpdateBattle(void *unused);
+void BattleScreenAppear(void *data);
+
+uint16_t BattleScreen_MenuSectionCount(void);
+const char *BattleScreen_MenuSectionName(uint16_t sectionIndex);
+uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex);
+const char *BattleScreen_MenuCellName(MenuIndex *index);
+const char *BattleScreen_MenuCellDescription(MenuIndex *index);
+void BattleScreen_MenuSelect(MenuIndex *index);

@@ -1,0 +1,40 @@
+{
+    "battlers": [
+        {
+            "id": "adventurer",
+            "name": "Adventurer",
+            "description": "A basic adventurer",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankb",
+                "defense": "rankb",
+                "magic_defense": "rankb",
+                "speed": "rankb",
+                "health": "rankb"
+            },
+            "skill_list": [
+                {
+                    "id": "swordattack",
+                    "min_level": 1
+                },
+                {
+                    "id": "potion",
+                    "min_level": 1
+                },
+                {
+                    "id": "icicle",
+                    "min_level": 3
+                },
+                {
+                    "id": "bomb",
+                    "min_level": 5
+                },
+                {
+                    "id": "spark",
+                    "min_level": 7
+                }
+            ]          
+        }
+    ]
+}

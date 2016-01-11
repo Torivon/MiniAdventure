@@ -20,18 +20,11 @@ static GRect descriptionFrame = {.origin = {.x = 180 / 2 - DESC_FRAME_WIDTH / 2,
 
 void SetDescription(const char *text)
 {
-	if(!TextBoxInitialized(descriptionTextBox))
-		return;
-	
-	DEBUG_LOG("SetDescription %s", text);
 	TextBoxSetText(descriptionTextBox, text);
 }
 
 const char *GetDescription(void)
 {
-	if(!TextBoxInitialized(descriptionTextBox))
-		return "";
-	
 	return TextBoxGetText(descriptionTextBox);
 }
 
@@ -44,10 +37,10 @@ void InitializeDescriptionLayer(Window *window)
 {
 	if(!descriptionTextBox)
 	{
-		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame);
+		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame, GTextAlignmentCenter, false);
 	}
 	
-	InitializeTextBox(window, descriptionTextBox, "");
+	InitializeTextBox(window_get_root_layer(window), descriptionTextBox, "");
 }
 
 void FreeDescriptionLayer(void)

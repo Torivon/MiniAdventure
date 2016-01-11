@@ -7,7 +7,6 @@ if len(sys.argv) == 1:
 with open(sys.argv[1]) as input_file:
     header_file = ""
     data_file = ""
-    identifier = ""
 
     text_dict = {}
     count = 0
@@ -17,8 +16,6 @@ with open(sys.argv[1]) as input_file:
             header_file = line.strip()
         elif count == 1:
             data_file = line.strip()
-        elif count == 2:
-            identifier = line.strip()
         else:
             mapping = line.split(',')
             text_dict[mapping[0]] = mapping[1].encode()

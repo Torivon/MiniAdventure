@@ -24,51 +24,42 @@ static GRect dayFrame = {.origin = {.x = 45, .y = 48}, .size = {.w = 30, .h = 18
 static GRect dateFrame = {.origin = {.x = 15, .y = 114}, .size = {.w = 60, .h = 18}};
 #endif
 
-char *UpdateDateText(void)
+typedef struct TimeFormatData
 {
-    static char dateText[] = "00/00/00";
-    char *date_format;
-    
-    date_format = "%m/%d/%y";
-    time_t now = time(NULL);
-    struct tm *current_time = localtime(&now);
-    
-    strftime(dateText, sizeof(dateText), date_format, current_time);
-    return dateText;
+    char buffer[10];
+    const char *format;
+} TimeFormatData;
+
+static TimeFormatData formatData[3] =
+{
+    {
+        .buffer = "00/00/00",
+        .format = "%m/%d/%y"
+    },
+    {
+        .buffer = "Sun",
+        .format = "%a"
+    },
+    {
+        .buffer = "00:00",
+        .format = "%R"
+    }
+};
+
+void UpdateTimeData(uint16_t index, struct tm *current_time)
+{
+    strftime(formatData[index].buffer, 10, formatData[index].format, current_time);
 }
 
-char *UpdateDayText(void)
+void UpdateClockData(void)
 {
-    static char dayText[] = "Sun";
-    char *day_format;
-    
-    day_format = "%a";
     time_t now = time(NULL);
     struct tm *current_time = localtime(&now);
     
-    strftime(dayText, sizeof(dayText), day_format, current_time);
-    return dayText;
-}
-
-char *UpdateClockText(void)
-{
-    static char timeText[] = "00:00"; // Needs to be static because it's used by the system later.
-    char *time_format;
-    
-    if (clock_is_24h_style())
+    for(int i = 0; i < 3; ++i)
     {
-        time_format = "%R";
+        UpdateTimeData(i, current_time);
     }
-    else
-    {
-        time_format = "%I:%M";
-    }
-    
-    time_t now = time(NULL);
-    struct tm *current_time = localtime(&now);
-    
-    strftime(timeText, sizeof(timeText), time_format, current_time);
-    return timeText;
 }
 
 void UpdateClock(void)
@@ -76,9 +67,11 @@ void UpdateClock(void)
     if(!TextBoxInitialized(clockTextBox))
         return;
     
-    TextBoxSetText(clockTextBox, UpdateClockText());
-    TextBoxSetText(dayTextBox, UpdateDayText());
-    TextBoxSetText(dateTextBox, UpdateDateText());
+    UpdateClockData();
+    
+    TextBoxSetText(clockTextBox, formatData[2].buffer);
+    TextBoxSetText(dayTextBox, formatData[1].buffer);
+    TextBoxSetText(dateTextBox, formatData[0].buffer);
 }
 
 void RemoveClockLayer(void)
@@ -104,14 +97,24 @@ void InitializeClockLayer(Window *window)
 {
     if(!clockTextBox)
     {
-        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame);
-        dayTextBox = CreateTextBox(0, 0, fonts_get_system_font(FONT_KEY_GOTHIC_14), dayFrame);
-        dateTextBox = CreateTextBox(0, 0, fonts_get_system_font(FONT_KEY_GOTHIC_14), dateFrame);
+        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame, GTextAlignmentCenter, false);
+        GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+        dayTextBox = CreateTextBox(0, 0, font, dayFrame, GTextAlignmentCenter, false);
+        dateTextBox = CreateTextBox(0, 0, font, dateFrame, GTextAlignmentCenter, false);
+        if (clock_is_24h_style())
+        {
+            formatData[2].format = "%R";
+        }
+        else
+        {
+            formatData[2].format = "%I:%M";
+        }
     }
     
-    InitializeTextBox(window, clockTextBox, UpdateClockText());
-    InitializeTextBox(window, dayTextBox, UpdateDayText());
-    InitializeTextBox(window, dateTextBox, UpdateDateText());
+    UpdateClockData();
+    InitializeTextBox(window_get_root_layer(window), clockTextBox, formatData[2].buffer);
+    InitializeTextBox(window_get_root_layer(window), dayTextBox, formatData[1].buffer);
+    InitializeTextBox(window_get_root_layer(window), dateTextBox, formatData[0].buffer);
 }
 
 void FreeClockLayer(void)

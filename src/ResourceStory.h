@@ -9,6 +9,8 @@ typedef enum
     STORYUPDATE_COMPUTERANDOM = 0,
     STORYUPDATE_DONOTHING,
     STORYUPDATE_FULLREFRESH,
+    STORYUPDATE_WIN,
+    STORYUPDATE_TRIGGER_BATTLE,
 } ResourceStoryUpdateReturnType;
 
 typedef struct ResourceBattler
@@ -31,7 +33,21 @@ typedef struct BattlerWrapper
     ResourceBattler battler;
 } BattlerWrapper;
 
+typedef struct PersistedResourceStoryState
+{
+    uint16_t currentLocationIndex;
+    uint16_t timeOnPath;
+    uint16_t destinationIndex;
+    uint16_t pathLength;
+    uint16_t encounterChance;
+} PersistedResourceStoryState;
+
 void ResourceStory_InitializeCurrent(void);
+
+void ResourceStory_TriggerDialog(uint16_t dialogIndex);
+uint16_t ResourceStory_GetOpeningDialogIndex(void);
+uint16_t ResourceStory_GetWinDialogIndex(void);
+
 
 uint16_t ResourceStory_GetCurrentLocationIndex(void);
 int ResourceStory_GetCurrentLocationBackgroundImageId(void);
@@ -85,3 +101,8 @@ bool ResourceMonster_Loaded(void);
 void ResourceBattler_UnloadPlayer(void);
 void ResourceMonster_UnloadCurrent(void);
 
+int16_t ResourceStory_GetStoryIndexById(uint16_t id);
+
+bool ResourceStory_IsLastResourceStoryIdValid(void);
+void ResourceStory_SetLastResourceStoryId(uint16_t id);
+uint16_t ResourceStory_GetLastResourceStoryId(void);

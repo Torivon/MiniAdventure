@@ -16,16 +16,14 @@ typedef struct ProgressBar
 	Layer *layer;
 } ProgressBar;
 
-
-
-ProgressBar *CreateProgressBar(uint16_t *current, uint16_t *max, FillDirection fillDirection, GRect frame, GColor fillColor, int iconId)
+ProgressBar *CreateProgressBar(uint16_t *current, uint16_t *max, FillDirection fillDirection, GRect *frame, GColor fillColor, int iconId)
 {
 	ProgressBar *bar = calloc(sizeof(ProgressBar), 1);
 	
 	bar->current = current;
 	bar->max = max;
 	bar->fillDirection = fillDirection;
-	bar->frame = frame;
+	bar->frame = *frame;
 	bar->iconId = iconId;
 	bar->fillColor = fillColor;
 	
@@ -108,6 +106,9 @@ void RemoveProgressBar(ProgressBar *progressBar)
 
 void FreeProgressBar(ProgressBar *progressBar)
 {
+    if(!progressBar)
+        return;
+    
 	if(progressBar->initialized)
 	{
 		layer_destroy(progressBar->layer);
@@ -124,7 +125,7 @@ void ShowProgressBar(ProgressBar *progressBar)
 	if(!layer_get_hidden(progressBar->layer))
 		return;
 	
-	layer_set_hidden(progressBar->layer, false);
+    ShowLayer(progressBar->layer);
 }
 
 void HideProgressBar(ProgressBar *progressBar)
@@ -135,7 +136,7 @@ void HideProgressBar(ProgressBar *progressBar)
 	if(layer_get_hidden(progressBar->layer))
 		return;
 	
-	layer_set_hidden(progressBar->layer, true);
+    HideLayer(progressBar->layer);
 }
 
 void MarkProgressBarDirty(ProgressBar *progressBar)

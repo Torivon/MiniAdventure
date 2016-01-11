@@ -22,9 +22,9 @@ static ProgressBar *batteryBar = NULL;
 static uint16_t currentBatteryLevel = 0;
 static uint16_t maxBatteryLevel = 100;
 #if defined(PBL_ROUND)
-static GRect batteryFrame = {.origin = {.x = 122, .y = 134}, .size = {.w = 10, .h = 30}};
+#define BATTERY_FRAME {.origin = {.x = 122, .y = 134}, .size = {.w = 10, .h = 30}}
 #else
-static GRect batteryFrame = {.origin = {.x = 20, .y = 61}, .size = {.w = 16, .h = 36}};
+#define BATTERY_FRAME {.origin = {.x = 20, .y = 61}, .size = {.w = 16, .h = 36}}
 #endif
 
 Menu *GetMainMenu(void)
@@ -112,7 +112,11 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 
 static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable(GetMainMenu()))
+    if(GlobalState_GetCurrent() == STATE_DIALOG)
+    {
+        DialogFrame_ScrollUp();
+    }
+	else if(IsMenuUsable(GetMainMenu()))
 	{
 		MenuRowAlign align = MenuRowAlignCenter;
 		menu_layer_set_selected_next(GetMenuLayer(GetMainMenu()), true, align, true);
@@ -125,7 +129,11 @@ static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 
 static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable(GetMainMenu()))
+    if(GlobalState_GetCurrent() == STATE_DIALOG)
+    {
+        DialogFrame_ScrollDown();
+    }
+	else if(IsMenuUsable(GetMainMenu()))
 	{
 		MenuRowAlign align = MenuRowAlignCenter;
 		menu_layer_set_selected_next(GetMenuLayer(GetMainMenu()), false, align, true);
@@ -263,7 +271,8 @@ Window * InitializeBaseWindow(void)
 							   4,
 							   true,
 							   true);
-	batteryBar = CreateProgressBar(&currentBatteryLevel, &maxBatteryLevel, FILL_UP, batteryFrame, GColorBrightGreen, -1);
+    GRect batteryFrame = BATTERY_FRAME;
+	batteryBar = CreateProgressBar(&currentBatteryLevel, &maxBatteryLevel, FILL_UP, &batteryFrame, GColorBrightGreen, -1);
 	window_set_click_config_provider(window, MenuClickConfigProvider);
 	return window;		
 }

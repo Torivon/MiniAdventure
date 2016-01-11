@@ -1,0 +1,103 @@
+{
+    "id": 12,
+    "version": 9,
+    "name": "Battle Arena",
+    "description": "Train against monsters",
+    "start_location": "restarea",
+    "xp_monsters_per_level": 4,
+    "xp_difference_scale": 20,
+    "classes": ["adventurer"],
+    "opening_dialog": "intro_text",
+    "win_dialog": "end_text",
+    "locations": [
+        {
+            "id": "restarea",
+            "name": "Rest Area",
+            "adjacent_locations": ["training", "win", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeonstraight.png"],
+            "location_properties": ["rest_area"]
+        },
+        {
+            "id": "training",
+            "name": "Training Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "location_properties": ["level_up"]
+        },
+        {
+            "id": "win",
+            "name": "Exit arena",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "location_properties": ["game_win"]
+        },
+        {
+            "id": "rat_room",
+            "name": "Rat Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["rat"],
+            "base_level": 1
+        },
+        {
+            "id": "goblin_room",
+            "name": "Goblin Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["goblin"],
+            "base_level": 3
+        },
+        {
+            "id": "wizard_room",
+            "name": "Wizard Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["wizard"],
+            "base_level": 5
+        },
+        {
+            "id": "zombie_room",
+            "name": "Zombie Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["zombie"],
+            "base_level": 7
+        },
+        {
+            "id": "turtle_room",
+            "name": "Turtle Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["turtle"],
+            "base_level": 9
+        },
+        {
+            "id": "lich_room",
+            "name": "Lich Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["lich"],
+            "base_level": 11
+        },
+        {
+            "id": "dragon_room",
+            "name": "Dragon Room",
+            "adjacent_locations": ["restarea", "rat_room", "goblin_room", "wizard_room", "zombie_room", "turtle_room", "lich_room", "dragon_room"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["dragon"],
+            "base_level": 20
+        }
+    ],
+    "skill_files": ["DungeonCrawl_MonsterSkills.json", "DungeonCrawl_AdventurerSkills.json"],
+    "battler_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"],
+    "dialog": [
+        {
+            "id": "intro_text",
+            "text": "Welcome to the battle arena. Here you can face off against a collection of monsters. This is a debug story, used to help tune the monster and character stats."
+        },
+        {
+            "id": "end_text",
+            "text": "You have had enough of fighting monsters in the arena. Time to go do something else."
+        }
+    ]
+}

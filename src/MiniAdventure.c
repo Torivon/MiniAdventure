@@ -15,7 +15,7 @@
 #include "Utils.h"
 #include "WorkerControl.h"
 
-Window *baseWindow = NULL;
+static Window *baseWindow = NULL;
 
 static bool hasFocus = true;
 
@@ -90,7 +90,7 @@ void handle_init() {
 	baseWindow = InitializeBaseWindow();
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
-	RegisterTitleScreen();
+	TitleScreen_Register();
 	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 	app_focus_service_subscribe(focus_handler);
 	battery_state_service_subscribe(battery_state_handler);
@@ -106,7 +106,7 @@ void handle_deinit()
     GlobalState_Free();
 
 #if ALLOW_WORKER_APP
-	AppDying(ClosingWhileInBattle());
+	AppDying();
 #endif
 	tick_timer_service_unsubscribe();
 	app_focus_service_unsubscribe();

@@ -18,6 +18,7 @@
 #include "ResourceStory.h"
 
 static bool tutorialSeen = false;
+static bool firstLaunch = true;
 
 void SetTutorialSeen(bool enable)
 {
@@ -29,51 +30,21 @@ bool GetTutorialSeen(void)
     return tutorialSeen;
 }
 
-void LaunchResourceStory(uint16_t index)
+void LaunchResourceStory(uint16_t index, bool now)
 {
     ResourceStory_SetCurrentStory(index);
-    QueueAdventureScreen();
+    if(now)
+        TriggerAdventureScreen();
+    else
+        QueueAdventureScreen();
 }
 
-void ChooseOptions(void)
-{
-    QueueOptionsScreen();
-}
-
-void ChooseRepo(void)
-{
-    QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORY_CODE, true);
-}
-
-static DialogData credits[] =
-{
-    {
-        .text = "Programming and art by Jonathan Panttaja",
-        .allowCancel = false
-    },
-    {
-        .text = "Additional Contributors: Belphemur and BlackLamb",
-        .allowCancel = false
-    },
-    {
-        .text = "Code located at https://Github.com/Torivon/MiniAdventure",
-        .allowCancel = false
-    },
-};
-
-void ChooseCredits(void)
-{
-    QueueDialog(&credits[0]);
-    QueueDialog(&credits[1]);
-    QueueDialog(&credits[2]);
-}
-
-static uint16_t TitleScreenSectionCount(void)
+uint16_t TitleScreen_MenuSectionCount(void)
 {
     return 1 + ExtraMenu_GetSectionCount();
 }
 
-static const char *TitleScreenSectionName(uint16_t sectionIndex)
+const char *TitleScreen_MenuSectionName(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -85,7 +56,7 @@ static const char *TitleScreenSectionName(uint16_t sectionIndex)
     return "None";
 }
 
-static uint16_t TitleScreenCount(uint16_t sectionIndex)
+uint16_t TitleScreen_MenuCellCount(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -97,7 +68,7 @@ static uint16_t TitleScreenCount(uint16_t sectionIndex)
     return 0;
 }
 
-static const char *TitleScreenNameCallback(MenuIndex *index)
+const char *TitleScreen_MenuCellName(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -109,7 +80,7 @@ static const char *TitleScreenNameCallback(MenuIndex *index)
     return "None";
 }
 
-static const char *TitleScreenDescriptionCallback(MenuIndex *index)
+const char *TitleScreen_MenuCellDescription(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -121,26 +92,32 @@ static const char *TitleScreenDescriptionCallback(MenuIndex *index)
     return "None";
 }
 
-static void TitleScreenSelectCallback(MenuIndex *index)
+void TitleScreen_MenuSelect(MenuIndex *index)
 {
     switch(index->section)
     {
         case 0:
-            return LaunchResourceStory(index->row);
+            return LaunchResourceStory(index->row, false);
         case 1:
             return ExtraMenu_SelectAction(index->row);
     }
 }
 
-static void TitleScreenAppear(void *data)
+void TitleScreen_Appear(void *data)
 {
-    RegisterMenuCellCallbacks(GetMainMenu(), TitleScreenSectionName, TitleScreenSectionCount, TitleScreenCount, TitleScreenNameCallback, TitleScreenDescriptionCallback, TitleScreenSelectCallback);
+    RegisterMenuState(GetMainMenu(), STATE_TITLE_SCREEN);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
+    if(launch_reason() == APP_LAUNCH_WORKER && ResourceStory_IsLastResourceStoryIdValid() && firstLaunch)
+    {
+        LaunchResourceStory(ResourceStory_GetStoryIndexById(ResourceStory_GetLastResourceStoryId()), true);
+        firstLaunch = false;
+    }
 }
 
-static void TitleScreenPop(void *data)
+void TitleScreen_Pop(void *data)
 {
 	SetMainImageVisibility(false, false, false);
 	SetDescription("");
@@ -166,10 +143,10 @@ DialogData introText[] =
     },
 };
 
-void RegisterTitleScreen(void)
+void TitleScreen_Register(void)
 {
 	INFO_LOG("RegisterTitleScreen");
-    GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL, NULL, TitleScreenAppear, NULL, TitleScreenPop, NULL);
+    GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL);
     if(!GetTutorialSeen())
     {
         TriggerDialog(&introText[0]);

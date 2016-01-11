@@ -2,8 +2,8 @@
 
 typedef struct TextBox TextBox;
 
-TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame);
-void InitializeTextBox(Window *window, TextBox *textBox, char *initialText);
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll);
+void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText);
 void RemoveTextBox(TextBox *textBox);
 void FreeTextBox(TextBox *textBox);
 
@@ -13,3 +13,5 @@ bool TextBoxInitialized(TextBox *textBox);
 void ShowTextBox(TextBox *textBox);
 void HideTextBox(TextBox *textBox);
 
+void TextBox_ScrollUp(TextBox *textBox);
+void TextBox_ScrollDown(TextBox *textBox);

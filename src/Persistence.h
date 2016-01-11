@@ -1,6 +1,6 @@
 #pragma once
 
-#define CURRENT_DATA_VERSION 6
+#define CURRENT_DATA_VERSION 7
 
 #define PERSISTED_DATA_GAP 1000
 
@@ -17,6 +17,7 @@ enum
     PERSISTED_STORY_LIST,
     PERSISTED_TUTORIAL_SEEN,
 	PERSISTED_GLOBAL_DATA_COUNT,
+    PERSISTED_CURRENT_GAME_VALID,
 };
 
 enum
@@ -32,6 +33,7 @@ enum
 	PERSISTED_STORY_MONSTER_TYPE,
     PERSISTED_STORY_BATTLE_PLAYER,
     PERSISTED_STORY_BATTLE_MONSTER,
+    PERSISTED_STORY_FORCE_RANDOM_BATTLE,
 	
 	// This needs to always be last
 	PERSISTED_STORY_DATA_COUNT
@@ -74,3 +76,4 @@ bool LoadGlobalPersistedData(void);
 
 bool SaveStoryPersistedData(void);
 bool LoadStoryPersistedData(void);
+void ClearCurrentStoryPersistedData(void);

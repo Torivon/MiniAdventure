@@ -25,6 +25,11 @@ void ClearStoryPersistedData(uint16_t storyId)
     }
 }
 
+void ClearCurrentStoryPersistedData(void)
+{
+    ClearStoryPersistedData(ResourceStory_GetCurrentStoryId());
+}
+
 void ClearGlobalPersistedData(void)
 {
 	if(persist_exists(PERSISTED_IS_DATA_SAVED))
@@ -72,6 +77,8 @@ bool SaveGlobalPersistedData(void)
     persist_write_bool(PERSISTED_VIBRATION, GetVibration());
     persist_write_bool(PERSISTED_WORKER_APP, GetWorkerApp());
     persist_write_bool(PERSISTED_WORKER_CAN_LAUNCH, GetWorkerCanLaunch());
+    persist_write_int(PERSISTED_CURRENT_GAME, ResourceStory_GetLastResourceStoryId());
+    persist_write_bool(PERSISTED_CURRENT_GAME_VALID, ResourceStory_IsLastResourceStoryIdValid());
     
     uint16_t count = 0;
     uint16_t *buffer = NULL;
@@ -125,7 +132,6 @@ bool LoadGlobalPersistedData(void)
         }
         if(!found)
         {
-            INFO_LOG("Deleting data for missing story: %d", oldbuffer[i]);
             ClearStoryPersistedData(oldbuffer[i]);
         }
     }
@@ -133,6 +139,10 @@ bool LoadGlobalPersistedData(void)
     free(oldbuffer);
     free(newbuffer);
     
+    if(persist_read_bool(PERSISTED_CURRENT_GAME_VALID))
+    {
+        ResourceStory_SetLastResourceStoryId(persist_read_int(PERSISTED_CURRENT_GAME));
+    }
     SetVibration(persist_read_bool(PERSISTED_VIBRATION));
     useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
     if(useWorkerApp)
@@ -184,6 +194,7 @@ bool SaveStoryPersistedData(void)
         Battle_WritePlayerData(offset + PERSISTED_STORY_BATTLE_PLAYER);
         Battle_WriteMonsterData(offset + PERSISTED_STORY_BATTLE_MONSTER);
     }
+    persist_write_bool(offset + PERSISTED_STORY_FORCE_RANDOM_BATTLE, false);
     
     return true;
 }
@@ -217,12 +228,15 @@ bool LoadStoryPersistedData(void)
     ResourceStory_UpdateStoryWithPersistedState();
     Character_ReadPersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
     
-    bool inCombat = persist_read_bool(offset + PERSISTED_STORY_IN_COMBAT);
-    if(inCombat)
+    if(persist_read_bool(offset + PERSISTED_STORY_IN_COMBAT))
     {
         Battle_ReadPlayerData(offset + PERSISTED_STORY_BATTLE_PLAYER);
         Battle_ReadMonsterData(offset + PERSISTED_STORY_BATTLE_MONSTER);
         ResumeBattle(persist_read_int(offset + PERSISTED_STORY_MONSTER_TYPE));
+    }
+    else if(persist_read_bool(offset + PERSISTED_STORY_FORCE_RANDOM_BATTLE))
+    {
+        ForceRandomBattle();
     }
     
     return true;

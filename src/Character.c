@@ -3,6 +3,7 @@
 #include "Adventure.h"
 #include "Character.h"
 #include "CombatantClass.h"
+#include "DialogFrame.h"
 #include "Logging.h"
 #include "ResourceStory.h"
 #include "Utils.h"
@@ -16,7 +17,14 @@ typedef struct Character
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
 } Character;
 
-Character character;
+Character character =
+{
+    .classType = 0,
+    .level = 1,
+    .currentHealth = 1,
+    .currentXP = 0,
+    .skillCooldowns = {0}
+};
 
 void Character_SetCooldowns(uint16_t *cooldowns)
 {
@@ -61,6 +69,23 @@ size_t Character_GetDataSize(void)
 	return sizeof(Character);
 }
 
+void Character_Rest(void)
+{
+    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    
+    for(int i = 0; i < MAX_SKILLS_IN_LIST; ++i)
+    {
+        character.skillCooldowns[i] = 0;
+    }
+   
+}
+
+void Character_GrantLevel(void)
+{
+    character.level++;
+    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+}
+
 void Character_GrantXP(uint16_t monsterLevel)
 {
     uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();
@@ -77,6 +102,7 @@ void Character_GrantXP(uint16_t monsterLevel)
     {
         character.level++;
         character.currentXP -= XP_TO_LEVEL_UP;
+        character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
     }
 }
 
@@ -99,4 +125,65 @@ void Character_Initialize(void)
     character.level = 1;
     character.currentXP = 0;
     character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+}
+
+char RankToCharacter(int rank)
+{
+    if(rank == 6)
+        return 'S';
+    else
+        return 'F' - rank;
+}
+
+void Character_ShowClass(void)
+{
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    CombatantClass *combatant = &BattlerWrapper_GetPlayerWrapper()->battler.combatantClass;
+    dialog->heap = true;
+    dialog->allowCancel = false;
+    snprintf(dialog->text, 256, "Class: %s\n\nStrength: %c\nMagic: %c\nDefense: %c\nMagDefense: %c\nSpeed: %c\nHealth: %c\n", BattlerWrapper_GetPlayerWrapper()->battler.name, RankToCharacter(combatant->strengthRank),
+             RankToCharacter(combatant->magicRank),
+             RankToCharacter(combatant->defenseRank),
+             RankToCharacter(combatant->magicDefenseRank),
+             RankToCharacter(combatant->speedRank),
+             RankToCharacter(combatant->healthRank));
+    QueueDialog(dialog);
+}
+
+void Character_ShowSkills(void)
+{
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    SkillList *skillList = &BattlerWrapper_GetPlayerWrapper()->battler.skillList;
+    dialog->heap = true;
+    dialog->allowCancel = false;
+    snprintf(dialog->text, 256, "Skill: cooldown\n");
+    for(int i = 0; i < skillList->count; ++i)
+    {
+        if(skillList->entries[i].level > character.level)
+            break;
+        char skillInfo[20] = {0};
+        Skill *skill = BattlerWrapper_GetSkillByIndex(BattlerWrapper_GetPlayerWrapper(), i);
+        if(skill->cooldown == 0)
+        {
+            snprintf(skillInfo, 20, "%s: None\n", skill->name);
+        }
+        else
+        {
+            snprintf(skillInfo, 20, "%s: %d/%d\n", skill->name, character.skillCooldowns[i],skill->cooldown);
+        }
+        strncat(dialog->text, skillInfo, 20);
+    }
+    
+    QueueDialog(dialog);
+}
+
+void Character_ShowStatus(void)
+{
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    CombatantClass *combatant = &BattlerWrapper_GetPlayerWrapper()->battler.combatantClass;
+    dialog->heap = true;
+    dialog->allowCancel = false;
+    snprintf(dialog->text, MAX_DIALOG_LENGTH, "Status\n\nLevel: %d\nXP: %d/%d, Health: %d/%d", character.level, character.currentXP, XP_TO_LEVEL_UP, character.currentHealth, CombatantClass_GetHealth(combatant, character.level));
+    
+    QueueDialog(dialog);
 }

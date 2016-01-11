@@ -19,12 +19,12 @@ static BitmapLayer *backgroundImageLayer = NULL;
 
 static GRect mainImagePosition = {.origin = {.x = MAIN_IMAGE_LAYER_X, .y = MAIN_IMAGE_LAYER_Y}, .size = {.w = MAIN_IMAGE_LAYER_W, .h = MAIN_IMAGE_LAYER_H}};
 
-static bool mainImageInitialized;
+static bool mainImageInitialized = false;
 
 static int foregroundResourceId = -1;
 static int backgroundResourceId = -1;
 
-void MainImageUpdateProc(struct Layer *layer, GContext *ctx)
+static void MainImageUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
 	DrawContentFrame(ctx, &bounds);
@@ -50,11 +50,11 @@ void InitializeMainImageLayer(Window *window)
 		image_bounds.size.h -= 2 * INTERNAL_IMAGE_OFFSET;
 
 		backgroundImageLayer = bitmap_layer_create(image_bounds);
-		backgroundResourceId = RESOURCE_ID_IMAGE_BATTLE_FLOOR;
+		backgroundResourceId = RESOURCE_ID_IMAGE_BATTLEFLOOR;
 		backgroundImage = gbitmap_create_with_resource(backgroundResourceId);
 		bitmap_layer_set_bitmap(backgroundImageLayer, backgroundImage);
 		bitmap_layer_set_alignment(backgroundImageLayer, GAlignCenter);
-		layer_add_child(mainImageTopLayer, bitmap_layer_get_layer(backgroundImageLayer));
+		layer_add_child(mainImageTopLayer, (Layer*)backgroundImageLayer);
 		
 		foregroundImageLayer = bitmap_layer_create(image_bounds);
 		foregroundResourceId = RESOURCE_ID_IMAGE_TITLE;
@@ -66,7 +66,7 @@ void InitializeMainImageLayer(Window *window)
 #endif
 
 		layer_set_update_proc(mainImageTopLayer, MainImageUpdateProc);
-		layer_add_child(mainImageTopLayer, bitmap_layer_get_layer(foregroundImageLayer));
+		layer_add_child(mainImageTopLayer, (Layer*)foregroundImageLayer);
 
 		mainImageInitialized = true;
 		SetMainImageVisibility(false, false, false);
@@ -109,8 +109,8 @@ void SetMainImageVisibility(bool topLevelVisible, bool foregroundVisible, bool b
 		return;
 	
 	layer_set_hidden(mainImageTopLayer, !topLevelVisible);
-	layer_set_hidden(bitmap_layer_get_layer(backgroundImageLayer), !backgroundVisible);
-	layer_set_hidden(bitmap_layer_get_layer(foregroundImageLayer), !foregroundVisible);
+	layer_set_hidden((Layer*)backgroundImageLayer, !backgroundVisible);
+	layer_set_hidden((Layer*)foregroundImageLayer, !foregroundVisible);
 }
 
 void RemoveMainImageLayer(void)

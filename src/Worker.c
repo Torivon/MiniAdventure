@@ -5,6 +5,7 @@
 #include "../src/Utils.h"
 #include "../src/WorkerControl.h"
 #include "Worker_Persistence.h"
+#include "../src/ResourceStory.h"
 
 #if ALLOW_WORKER_APP
 
@@ -21,36 +22,20 @@ void SendMessageToApp(uint8_t type, uint16_t data0, uint16_t data1, uint16_t dat
 }
 
 static bool handlingTicks = false;
-static int lastEvent = -1;
 static bool forcedDelay = false; // Make sure we don't trigger an event while the app is still closing
 static bool appAlive = true; 
 static bool error = false;
-
-static int ticksSinceLastEvent = 0;
-
-static void TriggerEvent(int event)
-{
-	if(event > -1)
-	{
-		SendMessageToApp(TRIGGER_EVENT, event, 0, 0);
-		ticksSinceLastEvent = 0;
-		lastEvent = -1;
-	}
-}
 
 void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed) 
 {	
 	if(appAlive)
 		return;
 	
-	if(GetClosedInBattle())
+    if(GetClosedInBattle())
 		return;
-		
-	if(!handlingTicks && lastEvent == -1)
-	{
-		error = true;
-		worker_launch_app();
-	}
+    
+    if(!IsCurrentStoryValid())
+        return;
 
 	if(handlingTicks)
 	{
@@ -59,35 +44,40 @@ void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed)
 			forcedDelay = false;
 			return;
 		}
-#if EVENT_CHANCE_SCALING
-		++ticksSinceLastEvent;
-#endif
-		lastEvent = ComputeRandomEvent_inline(GetBaseChanceOfEvent(), ticksSinceLastEvent, GetEventChances(), GetEventCount(), FAST_MODE_IN_BACKGROUND);
-		if(lastEvent > -1)
-		{
-			if(GetWorkerCanLaunch())
-				worker_launch_app();
-			handlingTicks = false;
-		}
-	}
-	else
-	{
-		if(lastEvent > -1)
-		{
-			if(GetWorkerCanLaunch())
-				worker_launch_app();
-		}
-	}
+        
+        PersistedResourceStoryState *storyState = GetPersistedStoryState();
+        
+        if(storyState->pathLength > 0)
+        {
+            storyState->timeOnPath++;
+            bool launch = false;
+            if(storyState->timeOnPath >= storyState->pathLength)
+            {
+                launch = true;
+                handlingTicks = false;
+            }
+            else
+            {
+                int roll = Random_inline(100) + 1;
+
+                if(roll <= storyState->encounterChance)
+                {
+                    ForceRandomBattle();
+                    launch = true;
+                    handlingTicks = false;
+                }
+            }
+            SaveWorkerData();
+            if(launch && GetWorkerCanLaunch())
+                worker_launch_app();
+        }
+    }
 }
 
-static void InitializeState(int ticks)
+static void InitializeState(void)
 {
 	handlingTicks = !GetClosedInBattle(); // Don't handle ticks while in combat
-#if EVENT_CHANCE_SCALING
-	ticksSinceLastEvent = ticks;
-#endif
 	forcedDelay = true;
-	lastEvent = -1;
 	appAlive = false;
 	error = false;	
 }
@@ -98,24 +88,14 @@ static void AppMessageHandler(uint16_t type, AppWorkerMessage *data)
 	{
 		case APP_DYING:
 		{
-			SetClosedInBattle(data->data1);
-			InitializeState(data->data0);
+            LoadWorkerData();
+			InitializeState();
 			break;
 		}
 		case APP_AWAKE:
 		{
-			SendMessageToApp(WORKER_SEND_STATE1, handlingTicks, lastEvent, ticksSinceLastEvent);
-			SendMessageToApp(WORKER_SEND_STATE2, GetClosedInBattle(), forcedDelay, appAlive);
-			if(error)
-				SendMessageToApp(WORKER_SEND_ERROR, 0, 0, 0);
 			handlingTicks = false;
 			appAlive = true;
-			TriggerEvent(lastEvent);
-			break;
-		}
-		case APP_SEND_WORKER_CAN_LAUNCH:
-		{
-			SetWorkerCanLaunch(data->data0);
 			break;
 		}
 	}
@@ -131,14 +111,14 @@ static void init()
 #if ALLOW_WORKER_APP_LISTENING
 	app_worker_message_subscribe(AppMessageHandler);
 #endif
-	InitializeState(0);
+	InitializeState();
 	SendMessageToApp(WORKER_LAUNCHED, 0, 0, 0);
 	tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
 }
 
 static void deinit() {
 	// Deinitialize your worker here
-	SendMessageToApp(WORKER_DYING, ticksSinceLastEvent, 0, 0);
+	SendMessageToApp(WORKER_DYING, 0, 0, 0);
 #if ALLOW_WORKER_APP_LISTENING
 	app_worker_message_unsubscribe();
 #endif

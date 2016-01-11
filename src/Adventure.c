@@ -19,12 +19,12 @@
 #include "WorkerControl.h"
 
 #if defined(PBL_ROUND)
-static GRect locationProgressFrame = {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}};
+#define LOCATION_PROGRESS_FRAME {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}}
 #else
-static GRect locationProgressFrame = {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}};
+#define LOCATION_PROGRESS_FRAME {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}}
 #endif
 
-static ProgressBar *locationProgress;
+static ProgressBar *locationProgress = NULL;
 static uint16_t currentProgress = 0;
 static uint16_t maxProgress = 1;
 
@@ -35,6 +35,10 @@ static int updateDelay = 0;
 static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
 
 static int newLocation = -1;
+
+static bool firstLaunch = true;
+static bool playOpeningDialog = false;
+static bool skipFinalSave = false;
 
 void SetUpdateDelay(void)
 {
@@ -56,14 +60,16 @@ void ResetGame(void)
     Character_Initialize();
     
     SaveStoryPersistedData();
+    playOpeningDialog = true;
+    skipFinalSave = false;
 }
 
-static uint16_t AdventureMenuSectionCount(void)
+uint16_t Adventure_MenuSectionCount(void)
 {
     return 2 + ExtraMenu_GetSectionCount();
 }
 
-static const char *AdventureMenuSectionName(uint16_t sectionIndex)
+const char *Adventure_MenuSectionName(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -77,7 +83,7 @@ static const char *AdventureMenuSectionName(uint16_t sectionIndex)
     return "None";
 }
 
-static uint16_t AdventureMenuCount(uint16_t sectionIndex)
+uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
 {
     switch(sectionIndex)
     {
@@ -91,7 +97,7 @@ static uint16_t AdventureMenuCount(uint16_t sectionIndex)
         }
         case 1:
         {
-            return 1;
+            return 4;
         }
         case 2:
         {
@@ -101,14 +107,27 @@ static uint16_t AdventureMenuCount(uint16_t sectionIndex)
     return 0;
 }
 
-static const char *AdventureMenuNameCallback(MenuIndex *index)
+const char *Adventure_MenuCellName(MenuIndex *index)
 {
     switch(index->section)
     {
         case 0:
             return ResourceStory_GetAdjacentLocationName(index->row);
         case 1:
-            return "Reset";
+        {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Reset";
+            }
+            break;
+        }
         case 2:
             return ExtraMenu_GetCellName(index->row);
     }
@@ -121,17 +140,17 @@ static DialogData resetPrompt =
     .allowCancel = true
 };
 
-static void ResetGamePush(void *data)
+void ResetGamePush(void *data)
 {
     GlobalState_Pop();
 }
 
-static void ResetGamePop(void *data)
+void ResetGamePop(void *data)
 {
     ResetGame();
 }
 
-static void AdventureMenuSelectCallback(MenuIndex *index)
+void Adventure_MenuSelect(MenuIndex *index)
 {
     switch(index->section)
     {
@@ -142,8 +161,30 @@ static void AdventureMenuSelectCallback(MenuIndex *index)
         }
         case 1:
         {
-            QueueDialog(&resetPrompt);
-            GlobalState_Queue(STATE_RESET_GAME, 0, NULL, ResetGamePush, NULL, NULL, ResetGamePop, NULL);
+            switch(index->row)
+            {
+                case 0:
+                {
+                    Character_ShowStatus();
+                    break;
+                }
+                case 1:
+                {
+                    Character_ShowClass();
+                    break;
+                }
+                case 2:
+                {
+                    Character_ShowSkills();
+                    break;
+                }
+                case 3:
+                {
+                    QueueDialog(&resetPrompt);
+                    GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
+                    break;
+                }
+            }
             break;
         }
         case 2:
@@ -204,16 +245,51 @@ bool ComputeRandomEvent(void)
     return true;
 }
 
+static void StoryUpdateResponse(ResourceStoryUpdateReturnType returnVal, bool vibration)
+{
+    switch(returnVal)
+    {
+        case STORYUPDATE_TRIGGER_BATTLE:
+        {
+            TriggerBattleScreen();
+            break;
+        }
+        case STORYUPDATE_COMPUTERANDOM:
+        {
+            if(ComputeRandomEvent())
+                break;
+            LoadLocationImage();
+            UpdateLocationProgress();
+            break;
+        }
+        case STORYUPDATE_FULLREFRESH:
+        {
+            if(vibration && GetVibration())
+                vibes_short_pulse();
+            
+            RefreshAdventure();
+            Menu_ResetSelection(GetMainMenu());
+            break;
+        }
+        case STORYUPDATE_WIN:
+        {
+            RefreshAdventure();
+            Menu_ResetSelection(GetMainMenu());
+            ResourceStory_TriggerDialog(ResourceStory_GetWinDialogIndex());
+            ClearCurrentStoryPersistedData();
+            skipFinalSave = true;
+            GlobalState_QueueStatePop();
+            break;
+        }
+        default:
+        {
+        }
+    }
+}
+
 void UpdateAdventure(void *data)
 {
     ResourceStoryUpdateReturnType returnVal;
-    
-    if(IsBattleForced())
-    {
-        INFO_LOG("Triggering forced battle.");
-        TriggerBattleScreen();
-        return;
-    }
     
     if(updateDelay)
     {
@@ -223,45 +299,23 @@ void UpdateAdventure(void *data)
 
     returnVal = ResourceStory_UpdateCurrentLocation();
     
-    switch(returnVal)
-    {
-        case STORYUPDATE_COMPUTERANDOM:
-        {
-            if(ComputeRandomEvent())
-                break;
-            LoadLocationImage();
-            UpdateLocationProgress();
-            break;
-        }
-        case STORYUPDATE_DONOTHING:
-        {
-            break;
-        }
-        case STORYUPDATE_FULLREFRESH:
-        {
-            if(GetVibration())
-                vibes_short_pulse();
-            
-            RefreshAdventure();
-            Menu_ResetSelection(GetMainMenu());
-            break;
-        }
-    }
+    StoryUpdateResponse(returnVal, true);
 }
 
 void AdventureScreenPush(void *data)
 {
-    InitializeGameData();
-    locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, locationProgressFrame, GColorYellow, -1);
+    GRect locationProgressFrame = LOCATION_PROGRESS_FRAME;
+    locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, &locationProgressFrame, GColorYellow, -1);
     InitializeProgressBar(locationProgress, GetBaseWindow());
-    UpdateLocationProgress();
     
     // Force the main menu to the front
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
-    
     // Force dialog layer to the top
     InitializeDialogLayer(GetBaseWindow());
+
+    InitializeGameData();
+    UpdateLocationProgress();
 }
 
 void AdventureScreenAppear(void *data)
@@ -271,20 +325,39 @@ void AdventureScreenAppear(void *data)
     {
         ResetGame();
     }
+
     UpdateLocationProgress();
-    RegisterMenuCellCallbacks(GetMainMenu(), AdventureMenuSectionName, AdventureMenuSectionCount, AdventureMenuCount, AdventureMenuNameCallback, AdventureMenuNameCallback, AdventureMenuSelectCallback);
+    RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
+    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+    
+    if(IsBattleForced())
+    {
+        INFO_LOG("Triggering forced battle.");
+        TriggerBattleScreen();
+        firstLaunch = false;
+        return;
+    }
+    
+    if(launch_reason() == APP_LAUNCH_WORKER && firstLaunch)
+    {
+        updateDelay = 0;
+        UpdateAdventure(NULL);
+        updateDelay = 1;
+    }
+    firstLaunch = false;
+
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
         returnVal = ResourceStory_MoveToLocation(newLocation);
     }
     newLocation = -1;
-    if(returnVal == STORYUPDATE_FULLREFRESH)
-        RefreshAdventure();
-    
-    if(IsBattleForced())
+    StoryUpdateResponse(returnVal, false);
+
+    if(playOpeningDialog)
     {
-        TriggerBattleScreen();
+        ResourceStory_TriggerDialog(ResourceStory_GetOpeningDialogIndex());
+        playOpeningDialog = false;
     }
 }
 
@@ -296,13 +369,19 @@ void AdventureScreenDisappear(void *data)
 
 void AdventureScreenPop(void *data)
 {
-    SaveStoryPersistedData();
+    if(!skipFinalSave)
+        SaveStoryPersistedData();
     ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
 }
 
+void TriggerAdventureScreen(void)
+{
+    GlobalState_Push(STATE_ADVENTURE, MINUTE_UNIT, NULL);
+}
+
 void QueueAdventureScreen(void)
 {
-    GlobalState_Queue(STATE_ADVENTURE, MINUTE_UNIT, UpdateAdventure, AdventureScreenPush, AdventureScreenAppear, AdventureScreenDisappear, AdventureScreenPop, NULL);
+    GlobalState_Queue(STATE_ADVENTURE, MINUTE_UNIT, NULL);
 }
