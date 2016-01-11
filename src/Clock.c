@@ -112,9 +112,9 @@ void InitializeClockLayer(Window *window)
     }
     
     UpdateClockData();
-    InitializeTextBox(window, clockTextBox, formatData[2].buffer);
-    InitializeTextBox(window, dayTextBox, formatData[1].buffer);
-    InitializeTextBox(window, dateTextBox, formatData[0].buffer);
+    InitializeTextBox(window_get_root_layer(window), clockTextBox, formatData[2].buffer);
+    InitializeTextBox(window_get_root_layer(window), dayTextBox, formatData[1].buffer);
+    InitializeTextBox(window_get_root_layer(window), dateTextBox, formatData[0].buffer);
 }
 
 void FreeClockLayer(void)

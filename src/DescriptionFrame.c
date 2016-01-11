@@ -40,7 +40,7 @@ void InitializeDescriptionLayer(Window *window)
 		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame);
 	}
 	
-	InitializeTextBox(window, descriptionTextBox, "");
+	InitializeTextBox(window_get_root_layer(window), descriptionTextBox, "");
 }
 
 void FreeDescriptionLayer(void)

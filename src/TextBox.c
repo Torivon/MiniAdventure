@@ -60,14 +60,11 @@ void TextBoxUpdateProc(struct Layer *layer, GContext *ctx)
 	DrawContentFrame(ctx, &bounds);
 }
 
-void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
+void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText)
 {
-	Layer *window_layer = window_get_root_layer(window);
-
 	if(!textBox->initialized)
 	{
 		textBox->mainLayer = layer_create(textBox->frame);
-		layer_add_child(window_layer, textBox->mainLayer);
 		GRect newFrame = layer_get_bounds(textBox->mainLayer);
 		newFrame.origin.x += textBox->xoffset;
 		newFrame.origin.y += textBox->yoffset;
@@ -84,7 +81,7 @@ void InitializeTextBox(Window *window, TextBox *textBox, char *initialText)
 
 		layer_set_update_proc(textBox->mainLayer, TextBoxUpdateProc);
 	}
-	layer_add_child(window_layer, textBox->mainLayer);
+	layer_add_child(layer, textBox->mainLayer);
 }
 
 void FreeTextBox(TextBox *textBox)

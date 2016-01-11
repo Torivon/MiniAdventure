@@ -63,9 +63,9 @@ void InitializeDialogLayer(Window *window)
         cancelTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), cancelFrame);
 	}
 	
-	InitializeTextBox(window, dialogTextBox, "");
-	InitializeTextBox(window, okTextBox, "OK");
-    InitializeTextBox(window, cancelTextBox, "X");
+	InitializeTextBox(window_get_root_layer(window), dialogTextBox, "");
+	InitializeTextBox(window_get_root_layer(window), okTextBox, "OK");
+    InitializeTextBox(window_get_root_layer(window), cancelTextBox, "X");
 	HideDialogLayer();
 	
 }

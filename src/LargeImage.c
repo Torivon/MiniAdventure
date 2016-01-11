@@ -71,7 +71,7 @@ void InitializeLargeImageLayer(Window *window)
 	}
 	Layer *window_layer = window_get_root_layer(window);
 	layer_add_child(window_layer, largeImageTopLayer);
-	InitializeTextBox(window, okTextBox, "OK");
+	InitializeTextBox(window_layer, okTextBox, "OK");
 }
 
 void RemoveLargeImageLayer(void)
