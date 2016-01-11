@@ -17,6 +17,9 @@ Character *Character_GetData(void);
 void Character_SetCooldowns(uint16_t *cooldowns);
 uint16_t *Character_GetCooldowns(void);
 void Character_Rest(void);
+void Character_ShowClass(void);
+void Character_ShowSkills(void);
+void Character_ShowStatus(void);
 
 void Character_WritePersistedData(int index);
 void Character_ReadPersistedData(int index);

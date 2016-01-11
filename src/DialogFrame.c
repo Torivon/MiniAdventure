@@ -58,7 +58,7 @@ void InitializeDialogLayer(Window *window)
 {
 	if(!dialogTextBox)
 	{
-		dialogTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), dialogFrame);
+		dialogTextBox = CreateScrollTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), dialogFrame);
 		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame);
         cancelTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), cancelFrame);
 	}
@@ -106,6 +106,26 @@ void DialogAppear(void *data)
 void DialogDisappear(void *data)
 {
 	HideDialogLayer();
+}
+
+void Dialog_Pop(void *data)
+{
+    DialogData *frame = (DialogData*)data;
+    if(frame->heap)
+    {
+        free(frame->text);
+        free(frame);
+    }
+}
+
+void DialogFrame_ScrollUp(void)
+{
+    TextBox_ScrollUp(dialogTextBox);
+}
+
+void DialogFrame_ScrollDown(void)
+{
+    TextBox_ScrollDown(dialogTextBox);
 }
 
 void TriggerDialog(DialogData *data)

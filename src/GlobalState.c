@@ -161,6 +161,10 @@ void GlobalState_RunPopCallback(GlobalStateInstance *instance)
 {
     switch(instance->state)
     {
+        case STATE_DIALOG:
+        {
+            Dialog_Pop(instance->data);
+        }
         case STATE_OPTIONS:
         {
             OptionScreenPop(instance->data);

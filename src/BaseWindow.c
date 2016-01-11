@@ -112,7 +112,11 @@ static void SelectSingleClickHandler(ClickRecognizerRef recognizer, Window *wind
 
 static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable(GetMainMenu()))
+    if(GlobalState_GetCurrent() == STATE_DIALOG)
+    {
+        DialogFrame_ScrollUp();
+    }
+	else if(IsMenuUsable(GetMainMenu()))
 	{
 		MenuRowAlign align = MenuRowAlignCenter;
 		menu_layer_set_selected_next(GetMenuLayer(GetMainMenu()), true, align, true);
@@ -125,7 +129,11 @@ static void UpSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 
 static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
-	if(IsMenuUsable(GetMainMenu()))
+    if(GlobalState_GetCurrent() == STATE_DIALOG)
+    {
+        DialogFrame_ScrollDown();
+    }
+	else if(IsMenuUsable(GetMainMenu()))
 	{
 		MenuRowAlign align = MenuRowAlignCenter;
 		menu_layer_set_selected_next(GetMenuLayer(GetMainMenu()), false, align, true);

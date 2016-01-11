@@ -93,7 +93,7 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
         }
         case 1:
         {
-            return 1;
+            return 4;
         }
         case 2:
         {
@@ -110,7 +110,20 @@ const char *Adventure_MenuCellName(MenuIndex *index)
         case 0:
             return ResourceStory_GetAdjacentLocationName(index->row);
         case 1:
-            return "Reset";
+        {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Reset";
+            }
+            break;
+        }
         case 2:
             return ExtraMenu_GetCellName(index->row);
     }
@@ -144,8 +157,30 @@ void Adventure_MenuSelect(MenuIndex *index)
         }
         case 1:
         {
-            QueueDialog(&resetPrompt);
-            GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
+            switch(index->row)
+            {
+                case 0:
+                {
+                    Character_ShowStatus();
+                    break;
+                }
+                case 1:
+                {
+                    Character_ShowClass();
+                    break;
+                }
+                case 2:
+                {
+                    Character_ShowSkills();
+                    break;
+                }
+                case 3:
+                {
+                    QueueDialog(&resetPrompt);
+                    GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
+                    break;
+                }
+            }
             break;
         }
         case 2:

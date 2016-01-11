@@ -6,6 +6,8 @@
 #define BUILD_WORKER_FILES
 #endif
 
+#define WINDOW_ROW_HEIGHT 16
+
 // Game tuning 
 #define SKILL_DELAY 3
 

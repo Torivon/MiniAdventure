@@ -11,7 +11,6 @@
 #include "TitleScreen.h"
 #include "Utils.h"
 
-#define WINDOW_ROW_HEIGHT 16
 #define NUM_MENU_SECTIONS 1
 #define NUM_FIRST_MENU_ITEMS 10
 

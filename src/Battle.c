@@ -289,7 +289,6 @@ void BattleInit(void)
     
     if(forcedBattle && forcedBattleMonsterType > -1)
     {
-        DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
         ResourceMonster_LoadCurrent(forcedBattleMonsterType);
         gBattleState.monster.battlerWrapper = BattlerWrapper_GetMonsterWrapper();
         gBattleState.player.battlerWrapper = BattlerWrapper_GetPlayerWrapper();
