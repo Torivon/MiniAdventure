@@ -6,7 +6,7 @@
 #include "OptionsMenu.h"
 #include "WorkerControl.h"
 
-void DrawOptionsMenu(void);
+void ReloadOptionsMenu(void);
 
 static bool vibration = true;
 static bool useWorkerApp = false;
@@ -15,7 +15,7 @@ static bool workerCanLaunch = true;
 void ToggleVibration(void)
 {
 	vibration = !vibration;
-	DrawOptionsMenu();
+	ReloadOptionsMenu();
 }
 
 bool GetVibration(void)
@@ -31,8 +31,7 @@ void SetVibration(bool enable)
 void SetWorkerApp(bool enable)
 {
 	useWorkerApp = enable;
-	if(OptionsMenuIsVisible())
-		DrawOptionsMenu();
+    ReloadMenu(GetMainMenu());
 }
 
 void ToggleWorkerApp(void)
@@ -55,7 +54,6 @@ bool GetWorkerApp(void)
 void SetWorkerCanLaunch(bool enable)
 {
 	workerCanLaunch = enable;
-	SendWorkerCanLaunch();
 }
 
 void ToggleWorkerCanLaunch(void)
@@ -64,7 +62,7 @@ void ToggleWorkerCanLaunch(void)
 		return;
 	
 	SetWorkerCanLaunch(!workerCanLaunch);
-	DrawOptionsMenu();
+	ReloadOptionsMenu();
 }
 
 bool GetWorkerCanLaunch(void)
@@ -77,10 +75,10 @@ bool OptionsMenuIsVisible(void)
 	return GlobalState_GetCurrent() == STATE_OPTIONS;
 }
 
-void DrawOptionsMenu(void)
+void ReloadOptionsMenu(void)
 {
-    RegisterMenuState(GetMainMenu(), STATE_OPTIONS);
-    RegisterMenuState(GetSlaveMenu(), STATE_OPTIONS);
+    ReloadMenu(GetMainMenu());
+    ReloadMenu(GetSlaveMenu());
 }
 
 static bool firstLaunch = false;

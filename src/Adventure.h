@@ -12,7 +12,7 @@ void UpdateAdventure(void *data);
 void AdventureScreenDisappear(void *data);
 void AdventureScreenPop(void *data);
 
-
+void TriggerAdventureScreen(void);
 void QueueAdventureScreen(void);
 
 uint16_t Adventure_MenuSectionCount(void);

@@ -334,12 +334,6 @@ int ResourceStory_GetCurrentLocationMonster(void)
 }
 
 /********************* RESOURCE STORY *******************************/
-typedef struct PersistedResourceStoryState
-{
-    uint16_t currentLocationIndex;
-    uint16_t timeOnPath;
-    uint16_t destinationIndex;
-} PersistedResourceStoryState;
 
 typedef struct ResourceStoryState
 {
@@ -348,9 +342,27 @@ typedef struct ResourceStoryState
 } ResourceStoryState;
 
 static int16_t currentResourceStoryIndex = -1;
+uint16_t lastResourceStoryId = 0;
+bool isLastResourceStoryIdValid = false;
 static ResourceStoryState currentResourceStoryState = {0};
 
 static ResourceStory **resourceStoryList = NULL;
+
+bool ResourceStory_IsLastResourceStoryIdValid(void)
+{
+    return isLastResourceStoryIdValid;
+}
+
+void ResourceStory_SetLastResourceStoryId(uint16_t id)
+{
+    lastResourceStoryId = id;
+    isLastResourceStoryIdValid = true;
+}
+
+uint16_t ResourceStory_GetLastResourceStoryId(void)
+{
+    return lastResourceStoryId;
+}
 
 static ResourceStory *ResourceStory_GetCurrentStory(void)
 {
@@ -358,6 +370,16 @@ static ResourceStory *ResourceStory_GetCurrentStory(void)
         return NULL;
     
     return resourceStoryList[currentResourceStoryIndex];
+}
+
+int16_t ResourceStory_GetStoryIndexById(uint16_t id)
+{
+    for(int i = 0; i < GetStoryCount(); ++i)
+    {
+        if(resourceStoryList[i]->id == id)
+            return i;
+    }
+    return -1;
 }
 
 static ResHandle ResourceStory_GetCurrentResHandle(void)
@@ -449,6 +471,8 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
         ResourceLocation_LoadAdjacentLocations();
         currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = globalIndex;
         currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
+        currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
+        currentResourceStoryState.persistedResourceStoryState.pathLength = currentLocation->length;
 
         if(currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_REST_AREA))
         {
@@ -528,6 +552,7 @@ void ResourceStory_LoadAll(void)
 void ResourceStory_SetCurrentStory(uint16_t index)
 {
     currentResourceStoryIndex = index;
+    ResourceStory_SetLastResourceStoryId(resourceStoryList[currentResourceStoryIndex]->id);
 }
 
 void ResourceStory_ClearCurrentStory(void)
@@ -620,6 +645,8 @@ void ResourceStory_UpdateStoryWithPersistedState(void)
         ResourceLocation_Free(currentLocation);
     
     currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
+    currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
+    currentResourceStoryState.persistedResourceStoryState.pathLength = currentLocation->length;
     ResourceLocation_LoadAdjacentLocations();
 #if DEBUG_LOGGING > 1
     ResourceLocation_Log(currentLocation);

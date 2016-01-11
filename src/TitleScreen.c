@@ -18,6 +18,7 @@
 #include "ResourceStory.h"
 
 static bool tutorialSeen = false;
+static bool firstLaunch = true;
 
 void SetTutorialSeen(bool enable)
 {
@@ -29,10 +30,13 @@ bool GetTutorialSeen(void)
     return tutorialSeen;
 }
 
-void LaunchResourceStory(uint16_t index)
+void LaunchResourceStory(uint16_t index, bool now)
 {
     ResourceStory_SetCurrentStory(index);
-    QueueAdventureScreen();
+    if(now)
+        TriggerAdventureScreen();
+    else
+        QueueAdventureScreen();
 }
 
 uint16_t TitleScreen_MenuSectionCount(void)
@@ -93,7 +97,7 @@ void TitleScreen_MenuSelect(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return LaunchResourceStory(index->row);
+            return LaunchResourceStory(index->row, false);
         case 1:
             return ExtraMenu_SelectAction(index->row);
     }
@@ -106,6 +110,11 @@ void TitleScreen_Appear(void *data)
 	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
+    if(launch_reason() == APP_LAUNCH_WORKER && ResourceStory_IsLastResourceStoryIdValid() && firstLaunch)
+    {
+        LaunchResourceStory(ResourceStory_GetStoryIndexById(ResourceStory_GetLastResourceStoryId()), true);
+        firstLaunch = false;
+    }
 }
 
 void TitleScreen_Pop(void *data)

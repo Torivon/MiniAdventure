@@ -203,7 +203,10 @@ const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
         }
         case STATE_OPTIONS:
         {
-            return OptionsMenu_SectionName(section_index);
+            if(menu->mainMenu)
+                return OptionsMenu_SectionName(section_index);
+            else
+                return "";
             break;
         }
         case STATE_BATTLE:
@@ -560,7 +563,7 @@ void CleanupMenu(Menu *menu)
 
 void ReloadMenu(Menu *menu)
 {
-	if(menu->menuLayerInitialized)
+	if(menu && menu->menuLayerInitialized)
 	{
 		menu_layer_reload_data(menu->menuLayer);
         if(GetMenuTotalCellCount(menu) > 0)

@@ -106,7 +106,7 @@ void handle_deinit()
     GlobalState_Free();
 
 #if ALLOW_WORKER_APP
-	AppDying(ClosingWhileInBattle());
+	AppDying();
 #endif
 	tick_timer_service_unsubscribe();
 	app_focus_service_unsubscribe();

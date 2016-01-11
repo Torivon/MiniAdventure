@@ -18,12 +18,11 @@ void SendMessageToWorker(uint8_t type, uint16_t data0, uint16_t data1, uint16_t 
 #endif
 }
 
-void AppDying(bool closingWhileInBattle)
+void AppDying(void)
 {
 #if ALLOW_WORKER_APP
-	INFO_LOG("AppDying %s battle", closingWhileInBattle ? "in" : "not in");
 	if(WorkerIsRunning())
-		SendMessageToWorker(APP_DYING, GetTickCount(), closingWhileInBattle, 0);
+		SendMessageToWorker(APP_DYING, 0, 0, 0);
 #endif
 }
 
@@ -74,6 +73,7 @@ void AttemptToLaunchWorkerApp()
 #if ALLOW_WORKER_APP_LISTENING
 		app_worker_message_subscribe(WorkerMessageHandler);
 #endif
+        
 		LaunchWorkerApp();
 		SetWorkerApp(false);
 	}
@@ -103,15 +103,6 @@ bool WorkerIsRunning(void)
 #endif
 }
 
-void SendWorkerCanLaunch(void)
-{
-#if ALLOW_WORKER_APP
-	INFO_LOG("SendWorkerCanLaunch");
-	if(WorkerIsRunning())
-		SendMessageToWorker(APP_SEND_WORKER_CAN_LAUNCH, GetWorkerCanLaunch(), 0, 0);
-#endif
-}
-
 void WorkerMessageHandler(uint16_t type, AppWorkerMessage *data)
 {
 #if ALLOW_WORKER_APP
@@ -121,41 +112,14 @@ void WorkerMessageHandler(uint16_t type, AppWorkerMessage *data)
 		case WORKER_LAUNCHED:
 		{
 			DEBUG_LOG("Worker Launched.");
-			SendWorkerCanLaunch();
 			SetWorkerApp(true);
-			SetFastMode(false);
 			AppAwake();
-			break;
-		}
-		case TRIGGER_EVENT:
-		{
-			DEBUG_VERBOSE_LOG("Trigger event");
-			if(AdventureWindowIsVisible())
-				ExecuteEvent(data->data0);
 			break;
 		}
 		case WORKER_DYING:
 		{
 			DEBUG_LOG("Worker dying");
 			SetWorkerApp(false);
-			if(OptionsMenuIsVisible())
-				DrawOptionsMenu();
-			break;
-		}
-		case WORKER_SEND_STATE1:
-		{
-			DEBUG_LOG("Worker on wake up: HandlingTicks: %s; LastEvent: %d; TicksSinceLastEvent: %d", BOOL_TO_STR(data->data0), (int16_t)data->data1, data->data2);
-			SetTickCount(data->data2);
-			break;
-		}
-		case WORKER_SEND_STATE2:
-		{
-			DEBUG_LOG("Worker on wake up: closingWhileInBattle: %s; forcedDelay: %s; appAlive: %s", BOOL_TO_STR(data->data0), BOOL_TO_STR(data->data1), BOOL_TO_STR(data->data2));
-			break;
-		}
-		case WORKER_SEND_ERROR:
-		{
-			ERROR_LOG("Worker in bad state.");
 			break;
 		}
 		default:

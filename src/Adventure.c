@@ -36,6 +36,8 @@ static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
 
 static int newLocation = -1;
 
+static bool firstLaunch = true;
+
 void SetUpdateDelay(void)
 {
     updateDelay = 1;
@@ -205,16 +207,46 @@ bool ComputeRandomEvent(void)
     return true;
 }
 
+void UpdateLocation(void)
+{
+    ResourceStoryUpdateReturnType returnVal;
+    returnVal = ResourceStory_UpdateCurrentLocation();
+    
+    switch(returnVal)
+    {
+        case STORYUPDATE_COMPUTERANDOM:
+        {
+            if(ComputeRandomEvent())
+                break;
+            LoadLocationImage();
+            UpdateLocationProgress();
+            break;
+        }
+        case STORYUPDATE_DONOTHING:
+        {
+            break;
+        }
+        case STORYUPDATE_FULLREFRESH:
+        {
+            if(GetVibration())
+                vibes_short_pulse();
+            
+            RefreshAdventure();
+            Menu_ResetSelection(GetMainMenu());
+            break;
+        }
+        case STORYUPDATE_WIN:
+        {
+            ResetGame();
+            GlobalState_Pop();
+            break;
+        }
+    }
+}
+
 void UpdateAdventure(void *data)
 {
     ResourceStoryUpdateReturnType returnVal;
-    
-    if(IsBattleForced())
-    {
-        INFO_LOG("Triggering forced battle.");
-        TriggerBattleScreen();
-        return;
-    }
     
     if(updateDelay)
     {
@@ -279,9 +311,27 @@ void AdventureScreenAppear(void *data)
     {
         ResetGame();
     }
+
     UpdateLocationProgress();
     RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+    
+    if(IsBattleForced())
+    {
+        INFO_LOG("Triggering forced battle.");
+        TriggerBattleScreen();
+        firstLaunch = false;
+        return;
+    }
+    
+    if(launch_reason() == APP_LAUNCH_WORKER && firstLaunch)
+    {
+        updateDelay = 0;
+        UpdateAdventure(NULL);
+        updateDelay = 1;
+    }
+    firstLaunch = false;
+
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
@@ -294,14 +344,10 @@ void AdventureScreenAppear(void *data)
         GlobalState_Pop();
         return;
     }
-    
+
     if(returnVal == STORYUPDATE_FULLREFRESH)
         RefreshAdventure();
     
-    if(IsBattleForced())
-    {
-        TriggerBattleScreen();
-    }
 }
 
 void AdventureScreenDisappear(void *data)
@@ -316,6 +362,11 @@ void AdventureScreenPop(void *data)
     ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
+}
+
+void TriggerAdventureScreen(void)
+{
+    GlobalState_Push(STATE_ADVENTURE, MINUTE_UNIT, NULL);
 }
 
 void QueueAdventureScreen(void)

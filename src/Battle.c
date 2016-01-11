@@ -253,6 +253,12 @@ void ResumeBattle(int currentMonster)
     forcedBattleMonsterType = currentMonster;
 }
 
+void ForceRandomBattle(void)
+{
+    forcedBattle = true;
+    forcedBattleMonsterType = -1;
+}
+
 bool IsBattleForced(void)
 {
     return forcedBattle;
@@ -281,7 +287,7 @@ void BattleInit(void)
 {
     ResourceMonster_UnloadCurrent();
     
-    if(forcedBattle)
+    if(forcedBattle && forcedBattleMonsterType > -1)
     {
         DEBUG_LOG("Starting forced battle with (%d,%d)", forcedBattleMonsterType, forcedBattleMonsterHealth);
         ResourceMonster_LoadCurrent(forcedBattleMonsterType);
@@ -292,6 +298,7 @@ void BattleInit(void)
     }
     else
     {
+        forcedBattle = false;
         if(!ResourceMonster_Loaded())
         {
             currentMonsterIndex = ResourceStory_GetCurrentLocationMonster();

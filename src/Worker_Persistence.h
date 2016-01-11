@@ -4,9 +4,13 @@
 #ifdef BUILD_WORKER_FILES
 #include <pebble_worker.h>
 
+typedef struct PersistedResourceStoryState PersistedResourceStoryState;
+
 bool LoadWorkerData(void);
+bool SaveWorkerData(void);
 bool GetWorkerCanLaunch(void);
-void SetWorkerCanLaunch(bool enable);
 bool GetClosedInBattle(void);
-void SetClosedInBattle(bool enable);
+PersistedResourceStoryState *GetPersistedStoryState(void);
+bool IsCurrentStoryValid(void);
+void ForceRandomBattle(void);
 #endif
