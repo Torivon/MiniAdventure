@@ -26,7 +26,7 @@
         },
         {
             "id": "win",
-            "name": "Finish in arena",
+            "name": "Exit arena",
             "adjacent_locations": ["restarea"],
             "background_images": ["images/dungeondeadend.png"],
             "location_properties": ["game_win"]
