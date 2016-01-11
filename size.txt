@@ -32,7 +32,7 @@
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 335 size 17450
+.text: count 334 size 17446
   src/Battle.c: size 1792
   src/ResourceStory.c: size 1784
   src/Menu.c: size 1750
@@ -40,12 +40,12 @@
   src/Adventure.c: size 916
   src/Character.c: size 852
   src/Persistence.c: size 836
-  src/TextBox.c: size 732
   src/MenuArrow.c: size 732
   src/MainImage.c: size 724
-  src/Clock.c: size 628
-  src/LargeImage.c: size 616
-  src/DialogFrame.c: size 606
+  src/TextBox.c: size 680
+  src/Clock.c: size 644
+  src/DialogFrame.c: size 626
+  src/LargeImage.c: size 624
   src/GlobalState.c: size 602
   src/BaseWindow.c: size 564
   src/Skills.c: size 524
@@ -53,8 +53,8 @@
   src/ProgressBar.c: size 486
   src/TitleScreen.c: size 372
   src/MiniAdventure.c: size 254
+  src/DescriptionFrame.c: size 160
   src/WorkerControl.c: size 160
-  src/DescriptionFrame.c: size 156
   src/Utils.c: size 150
   src/ExtraMenu.c: size 144
   build/basalt/appinfo.auto.c: size 130
@@ -95,7 +95,7 @@
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 335 size 17454
+.text: count 334 size 17450
   src/Battle.c: size 1792
   src/ResourceStory.c: size 1784
   src/Menu.c: size 1750
@@ -103,12 +103,12 @@
   src/Adventure.c: size 916
   src/Character.c: size 852
   src/Persistence.c: size 836
-  src/TextBox.c: size 732
   src/MenuArrow.c: size 732
   src/MainImage.c: size 728
-  src/Clock.c: size 628
-  src/LargeImage.c: size 616
-  src/DialogFrame.c: size 606
+  src/TextBox.c: size 680
+  src/Clock.c: size 644
+  src/DialogFrame.c: size 626
+  src/LargeImage.c: size 624
   src/GlobalState.c: size 602
   src/BaseWindow.c: size 564
   src/Skills.c: size 524
@@ -116,8 +116,8 @@
   src/ProgressBar.c: size 486
   src/TitleScreen.c: size 372
   src/MiniAdventure.c: size 254
+  src/DescriptionFrame.c: size 160
   src/WorkerControl.c: size 160
-  src/DescriptionFrame.c: size 156
   src/Utils.c: size 150
   src/ExtraMenu.c: size 144
   build/chalk/appinfo.auto.c: size 130
