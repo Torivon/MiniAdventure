@@ -11,6 +11,7 @@ typedef struct TextBox
 	GFont font;
 	GRect frame;
     bool allowScroll;
+    GTextAlignment align;
 	Layer *mainLayer;
 	TextLayer *textLayer;
     ScrollLayer *scrollLayer;
@@ -62,26 +63,16 @@ void RemoveTextBox(TextBox *textBox)
 	layer_remove_from_parent(textBox->mainLayer);
 }
 
-TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame)
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll)
 {
 	TextBox *textBox = calloc(sizeof(TextBox), 1);
 	textBox->font = font;
 	textBox->frame = frame;
 	textBox->xoffset = xoffset;
 	textBox->yoffset = yoffset;
-    textBox->allowScroll = false;
+    textBox->allowScroll = scroll;
+    textBox->align = align;
 	return textBox;
-}
-
-TextBox *CreateScrollTextBox(int xoffset, int yoffset, GFont font, GRect frame)
-{
-    TextBox *textBox = calloc(sizeof(TextBox), 1);
-    textBox->font = font;
-    textBox->frame = frame;
-    textBox->xoffset = xoffset;
-    textBox->yoffset = yoffset;
-    textBox->allowScroll = true;
-    return textBox;
 }
 
 void TextBoxUpdateProc(struct Layer *layer, GContext *ctx)
@@ -109,7 +100,7 @@ void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText)
 		text_layer_set_text_color(textBox->textLayer, GColorWhite);
 		text_layer_set_background_color(textBox->textLayer, GColorClear);
 		text_layer_set_font(textBox->textLayer, textBox->font);
-		text_layer_set_text_alignment(textBox->textLayer, GTextAlignmentCenter);
+		text_layer_set_text_alignment(textBox->textLayer, textBox->align);
         if(textBox->scrollLayer)
             scroll_layer_add_child(textBox->scrollLayer, (Layer*)textBox->textLayer);
         else

@@ -37,7 +37,7 @@ void InitializeDescriptionLayer(Window *window)
 {
 	if(!descriptionTextBox)
 	{
-		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame);
+		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame, GTextAlignmentCenter, false);
 	}
 	
 	InitializeTextBox(window_get_root_layer(window), descriptionTextBox, "");

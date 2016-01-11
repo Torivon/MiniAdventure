@@ -65,7 +65,7 @@ void InitializeLargeImageLayer(Window *window)
 		layer_set_update_proc(largeImageTopLayer, LargeImageUpdateProc);
 		layer_add_child(largeImageTopLayer, (Layer*)largeImageLayer);
 
-		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame);
+		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame, GTextAlignmentCenter, false);
 
 		largeImageInitialized = true;
 	}
