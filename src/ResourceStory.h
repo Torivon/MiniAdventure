@@ -32,6 +32,15 @@ typedef struct BattlerWrapper
     ResourceBattler battler;
 } BattlerWrapper;
 
+typedef struct PersistedResourceStoryState
+{
+    uint16_t currentLocationIndex;
+    uint16_t timeOnPath;
+    uint16_t destinationIndex;
+    uint16_t pathLength;
+    uint16_t encounterChance;
+} PersistedResourceStoryState;
+
 void ResourceStory_InitializeCurrent(void);
 
 uint16_t ResourceStory_GetCurrentLocationIndex(void);
@@ -86,3 +95,8 @@ bool ResourceMonster_Loaded(void);
 void ResourceBattler_UnloadPlayer(void);
 void ResourceMonster_UnloadCurrent(void);
 
+int16_t ResourceStory_GetStoryIndexById(uint16_t id);
+
+bool ResourceStory_IsLastResourceStoryIdValid(void);
+void ResourceStory_SetLastResourceStoryId(uint16_t id);
+uint16_t ResourceStory_GetLastResourceStoryId(void);

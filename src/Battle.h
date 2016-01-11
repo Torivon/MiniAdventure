@@ -7,6 +7,7 @@ int GetCurrentMonsterHealth(void);
 void SaveBattleState(void);
 
 void ResumeBattle(int currentMonster);
+void ForceRandomBattle(void);
 bool IsBattleForced(void);
 
 BattleActor *GetPlayerActor(void);

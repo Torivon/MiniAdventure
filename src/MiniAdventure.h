@@ -7,8 +7,6 @@
 #endif
 
 // Game tuning 
-#define STAT_POINTS_PER_LEVEL 2
-#define XP_FOR_NEXT_LEVEL 5 * level
 #define SKILL_DELAY 3
 
 // Feature tuning
@@ -18,20 +16,6 @@
 // Publish 0 turns on the test menu
 #define PUBLISH 1
 	
-// Stories to include
-#define INCLUDE_DUNGEON_CRAWL 0
-#define INCLUDE_DRAGON_QUEST 0
-#define INCLUDE_BATTLE_TEST_STORY 0
-
-#define INCLUDE_SLIDESHOW 0
-
-enum
-{
-	DUNGEON_CRAWL_INDEX = 0,
-	DRAGON_QUEST_INDEX = 1,
-	BATTLE_TEST_INDEX = 2,
-};
-
 // Logging
 #define DEBUG_LOGGING 0 // DEBUG_LOGGING 1 turns on DEBUG_LOG. DEBUG_LOGGING 2 turns on DEBUG_VERBOSE_LOG also.
 #define ERROR_LOGGING 0 // ERROR_LOG should be used for actual incorrect operation.
@@ -44,27 +28,15 @@ enum
 // Set up the test menu based on previous choices
 #if PUBLISH
 	#define ALLOW_TEST_MENU 0
-	#define FAST_MODE_IN_BACKGROUND false
 #else
 	#define ALLOW_TEST_MENU 1
-	#define FAST_MODE_IN_BACKGROUND true
 #endif
 
-// This needs to be large enough to handle the maximum size of the window stack
-#define MAX_MENU_WINDOWS 7
-// This determines how many text rows there are in the interface
-#define MAX_MENU_ENTRIES 6
-
-#define MAX_EVENT_COUNT 10
-
 #define TIME_TO_ACT 100
-#define MAX_BATTLE_QUEUE 10
 
-#define ALLOW_WORKER_APP 0
-#define ALLOW_WORKER_APP_MESSAGES 0
-#define ALLOW_WORKER_APP_LISTENING 0
-
-#define COMPILE_OLD_UILAYERS 0
+#define ALLOW_WORKER_APP 1
+#define ALLOW_WORKER_APP_MESSAGES 1
+#define ALLOW_WORKER_APP_LISTENING 1
 
 typedef struct Window Window;
 
