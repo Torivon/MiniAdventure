@@ -213,8 +213,7 @@ void RefreshAdventure(void)
     
     updateDelay = 1;
     LoadLocationImage();
-    RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
-    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+    ReloadMenu(GetMainMenu());
     SetDescription(ResourceStory_GetCurrentLocationName()); //Add floor back in somehow
     UpdateLocationProgress();
 }
@@ -242,13 +241,15 @@ bool ComputeRandomEvent(void)
     return true;
 }
 
-void UpdateLocation(void)
+static void StoryUpdateResponse(ResourceStoryUpdateReturnType returnVal, bool vibration)
 {
-    ResourceStoryUpdateReturnType returnVal;
-    returnVal = ResourceStory_UpdateCurrentLocation();
-    
     switch(returnVal)
     {
+        case STORYUPDATE_TRIGGER_BATTLE:
+        {
+            TriggerBattleScreen();
+            break;
+        }
         case STORYUPDATE_COMPUTERANDOM:
         {
             if(ComputeRandomEvent())
@@ -257,13 +258,9 @@ void UpdateLocation(void)
             UpdateLocationProgress();
             break;
         }
-        case STORYUPDATE_DONOTHING:
-        {
-            break;
-        }
         case STORYUPDATE_FULLREFRESH:
         {
-            if(GetVibration())
+            if(vibration && GetVibration())
                 vibes_short_pulse();
             
             RefreshAdventure();
@@ -275,6 +272,9 @@ void UpdateLocation(void)
             ResetGame();
             GlobalState_Pop();
             break;
+        }
+        default:
+        {
         }
     }
 }
@@ -291,36 +291,7 @@ void UpdateAdventure(void *data)
 
     returnVal = ResourceStory_UpdateCurrentLocation();
     
-    switch(returnVal)
-    {
-        case STORYUPDATE_COMPUTERANDOM:
-        {
-            if(ComputeRandomEvent())
-                break;
-            LoadLocationImage();
-            UpdateLocationProgress();
-            break;
-        }
-        case STORYUPDATE_DONOTHING:
-        {
-            break;
-        }
-        case STORYUPDATE_FULLREFRESH:
-        {
-            if(GetVibration())
-                vibes_short_pulse();
-            
-            RefreshAdventure();
-            Menu_ResetSelection(GetMainMenu());
-            break;
-        }
-        case STORYUPDATE_WIN:
-        {
-            ResetGame();
-            GlobalState_Pop();
-            break;
-        }
-    }
+    StoryUpdateResponse(returnVal, true);
 }
 
 void AdventureScreenPush(void *data)
@@ -373,16 +344,7 @@ void AdventureScreenAppear(void *data)
         returnVal = ResourceStory_MoveToLocation(newLocation);
     }
     newLocation = -1;
-    if(returnVal == STORYUPDATE_WIN)
-    {
-        ResetGame();
-        GlobalState_Pop();
-        return;
-    }
-
-    if(returnVal == STORYUPDATE_FULLREFRESH)
-        RefreshAdventure();
-    
+    StoryUpdateResponse(returnVal, false);
 }
 
 void AdventureScreenDisappear(void *data)

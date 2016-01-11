@@ -32,12 +32,12 @@
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 334 size 17446
+.text: count 335 size 17444
   src/Battle.c: size 1792
-  src/ResourceStory.c: size 1784
+  src/ResourceStory.c: size 1788
   src/Menu.c: size 1750
-  Unknown: size 1250
-  src/Adventure.c: size 916
+  Unknown: size 1228
+  src/Adventure.c: size 932
   src/Character.c: size 852
   src/Persistence.c: size 836
   src/MenuArrow.c: size 732
@@ -95,12 +95,12 @@
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/MiniAdventure.c: size 1
-.text: count 334 size 17450
+.text: count 335 size 17448
   src/Battle.c: size 1792
-  src/ResourceStory.c: size 1784
+  src/ResourceStory.c: size 1788
   src/Menu.c: size 1750
-  Unknown: size 1250
-  src/Adventure.c: size 916
+  Unknown: size 1228
+  src/Adventure.c: size 932
   src/Character.c: size 852
   src/Persistence.c: size 836
   src/MenuArrow.c: size 732

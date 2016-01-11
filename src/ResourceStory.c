@@ -8,7 +8,6 @@
 #include "CombatantClass.h"
 #include "Utils.h"
 #include "Logging.h"
-#include "Battle.h"
 #include "ResourceStory.h"
 #include "Skills.h"
 #include "StoryList.h"
@@ -500,8 +499,7 @@ ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
         {
             if(ResourceStory_CurrentLocationHasMonster())
             {
-                TriggerBattleScreen();
-                return STORYUPDATE_DONOTHING;
+                return STORYUPDATE_TRIGGER_BATTLE;
             }
         }
         return STORYUPDATE_FULLREFRESH;

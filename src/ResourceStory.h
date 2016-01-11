@@ -10,6 +10,7 @@ typedef enum
     STORYUPDATE_DONOTHING,
     STORYUPDATE_FULLREFRESH,
     STORYUPDATE_WIN,
+    STORYUPDATE_TRIGGER_BATTLE,
 } ResourceStoryUpdateReturnType;
 
 typedef struct ResourceBattler
