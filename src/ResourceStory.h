@@ -44,6 +44,11 @@ typedef struct PersistedResourceStoryState
 
 void ResourceStory_InitializeCurrent(void);
 
+void ResourceStory_TriggerDialog(uint16_t dialogIndex);
+uint16_t ResourceStory_GetOpeningDialogIndex(void);
+uint16_t ResourceStory_GetWinDialogIndex(void);
+
+
 uint16_t ResourceStory_GetCurrentLocationIndex(void);
 int ResourceStory_GetCurrentLocationBackgroundImageId(void);
 bool ResourceStory_IncrementTimeOnPath(void);

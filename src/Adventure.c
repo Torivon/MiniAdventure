@@ -37,6 +37,8 @@ static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
 static int newLocation = -1;
 
 static bool firstLaunch = true;
+static bool playOpeningDialog = false;
+static bool skipFinalSave = false;
 
 void SetUpdateDelay(void)
 {
@@ -58,6 +60,8 @@ void ResetGame(void)
     Character_Initialize();
     
     SaveStoryPersistedData();
+    playOpeningDialog = true;
+    skipFinalSave = false;
 }
 
 uint16_t Adventure_MenuSectionCount(void)
@@ -269,8 +273,12 @@ static void StoryUpdateResponse(ResourceStoryUpdateReturnType returnVal, bool vi
         }
         case STORYUPDATE_WIN:
         {
-            ResetGame();
-            GlobalState_Pop();
+            RefreshAdventure();
+            Menu_ResetSelection(GetMainMenu());
+            ResourceStory_TriggerDialog(ResourceStory_GetWinDialogIndex());
+            ClearCurrentStoryPersistedData();
+            skipFinalSave = true;
+            GlobalState_QueueStatePop();
             break;
         }
         default:
@@ -296,18 +304,18 @@ void UpdateAdventure(void *data)
 
 void AdventureScreenPush(void *data)
 {
-    InitializeGameData();
     GRect locationProgressFrame = LOCATION_PROGRESS_FRAME;
     locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, &locationProgressFrame, GColorYellow, -1);
     InitializeProgressBar(locationProgress, GetBaseWindow());
-    UpdateLocationProgress();
     
     // Force the main menu to the front
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
-    
     // Force dialog layer to the top
     InitializeDialogLayer(GetBaseWindow());
+
+    InitializeGameData();
+    UpdateLocationProgress();
 }
 
 void AdventureScreenAppear(void *data)
@@ -345,6 +353,12 @@ void AdventureScreenAppear(void *data)
     }
     newLocation = -1;
     StoryUpdateResponse(returnVal, false);
+
+    if(playOpeningDialog)
+    {
+        ResourceStory_TriggerDialog(ResourceStory_GetOpeningDialogIndex());
+        playOpeningDialog = false;
+    }
 }
 
 void AdventureScreenDisappear(void *data)
@@ -355,7 +369,8 @@ void AdventureScreenDisappear(void *data)
 
 void AdventureScreenPop(void *data)
 {
-    SaveStoryPersistedData();
+    if(!skipFinalSave)
+        SaveStoryPersistedData();
     ResourceStory_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);

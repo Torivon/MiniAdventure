@@ -25,6 +25,11 @@ void ClearStoryPersistedData(uint16_t storyId)
     }
 }
 
+void ClearCurrentStoryPersistedData(void)
+{
+    ClearStoryPersistedData(ResourceStory_GetCurrentStoryId());
+}
+
 void ClearGlobalPersistedData(void)
 {
 	if(persist_exists(PERSISTED_IS_DATA_SAVED))

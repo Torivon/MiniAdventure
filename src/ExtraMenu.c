@@ -14,7 +14,7 @@ uint16_t ExtraMenu_GetSectionCount(void)
 
 const char *ExtraMenu_GetSectionName(void)
 {
-    return "Extras";
+    return "Engine";
 }
 
 uint16_t ExtraMenu_GetCellCount(void)

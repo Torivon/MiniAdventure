@@ -1,0 +1,3 @@
+EngineText.h
+EngineText.dat
+ENGINE_CREDITS_PAGE_1,Main Programmer\n\tJonathan Panttaja\n\nAdditional Contributors\n\tBelphemur\n\tBlackLamb\n\nCode located at https://Github.com/Torivon/MiniAdventure

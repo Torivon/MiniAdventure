@@ -6,6 +6,7 @@
 #include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "CombatantClass.h"
+#include "DialogFrame.h"
 #include "Utils.h"
 #include "Logging.h"
 #include "ResourceStory.h"
@@ -27,10 +28,34 @@ typedef struct ResourceStory
     uint16_t xpDifferenceScale;
     uint16_t classCount;
     uint16_t classes[MAX_CLASSES];
+    uint16_t openingDialog;
+    uint16_t winDialog;
 } ResourceStory;
 
 static ResHandle ResourceStory_GetCurrentResHandle(void);
 static ResourceStory *ResourceStory_GetCurrentStory();
+
+/********************* RESOURCE DIALOG *******************************/
+
+void ResourceStory_TriggerDialog(uint16_t dialogIndex)
+{
+    if(dialogIndex == 0)
+        return;
+    
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    ResourceLoadStruct(ResourceStory_GetCurrentResHandle(), dialogIndex, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+    TriggerDialog(dialog);
+}
+
+uint16_t ResourceStory_GetOpeningDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->openingDialog;
+}
+
+uint16_t ResourceStory_GetWinDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->winDialog;
+}
 
 /********************* RESOURCE LOCATION *******************************/
 typedef struct ResourceLocation

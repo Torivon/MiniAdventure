@@ -1,8 +1,9 @@
 #pragma once
+#include "AutoSizeConstants.h"
 
 typedef struct DialogData
 {
-    char *text;
+    char text[MAX_DIALOG_LENGTH];
     bool allowCancel;
     bool heap;
 } DialogData;

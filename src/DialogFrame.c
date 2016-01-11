@@ -113,7 +113,6 @@ void Dialog_Pop(void *data)
     DialogData *frame = (DialogData*)data;
     if(frame->heap)
     {
-        free(frame->text);
         free(frame);
     }
 }

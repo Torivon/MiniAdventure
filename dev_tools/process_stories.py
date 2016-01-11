@@ -15,6 +15,7 @@ g_size_constants["MAX_BACKGROUND_IMAGES"] = 10
 g_size_constants["MAX_MONSTERS"] = 10
 g_size_constants["MAX_SKILLS_IN_LIST"] = 15
 g_size_constants["MAX_CLASSES"] = 5
+g_size_constants["MAX_DIALOG_LENGTH"] = 256
 
 g_skill_types = {}
 g_skill_types["attack"] = 0
@@ -117,6 +118,12 @@ def pack_skill(skill):
     binarydata += pack_integer(skill["cooldown"])
     return binarydata
 
+def pack_dialog(dialog):
+    binarydata = pack_string(dialog["text"], g_size_constants["MAX_DIALOG_LENGTH"])
+    binarydata += pack_integer(0);
+    binarydata += pack_integer(1);
+    return binarydata
+
 def pack_battler(battler):
     '''
     Write out all information needed for a battler into a packed binary file
@@ -164,6 +171,8 @@ def pack_story(story, hash):
             binarydata += pack_integer(story["classes_index"][index])
         else:
             binarydata += pack_integer(0)
+    binarydata += pack_integer_with_default(story, "opening_dialog_index", 0)
+    binarydata += pack_integer_with_default(story, "win_dialog_index", 0)
     return binarydata
 
 def get_total_objects(story):
@@ -172,12 +181,20 @@ def get_total_objects(story):
     This includes locations, monsters, classes, skills, and possibly more
     '''
     count = 1 #main object
-    count += len(story["locations"])
+    if "dialog" in story:
+        count += len(story["dialog"])
     if "skills" in story:
         count += len(story["skills"])
     if "battlers" in story:
         count += len(story["battlers"])
+    count += len(story["locations"])
     return count
+
+def write_data_block(datafile, write_state, new_data):
+    datafile.write(pack_integer(write_state["next_write_location"]))
+    datafile.write(pack_integer(len(new_data)))
+    write_state["binarydata"] += new_data
+    write_state["next_write_location"] += len(new_data)
 
 def write_story(story, datafile, hash):
     '''
@@ -186,31 +203,36 @@ def write_story(story, datafile, hash):
     #processing data objects assigns them an index in the file. They must be
     # written to the file in the same order they were processed.
 
-    next_write_location = 0
+    write_state = {}
+    
+    write_state["next_write_location"] = 0
 
     # we always write count first, though it is not clear it is necessary
     count = get_total_objects(story)
     datafile.write(pack_integer(count))
     # For each object in the file, we store two 16 bit (2 byte) integers, start index and size.
     # With an additional number for count, this gives us the location to start writing actual object data.
-    next_write_location = (1 + 2 * count) * 2
+    write_state["next_write_location"] = (1 + 2 * count) * 2
     
     # Here, we generate the binary data for the main story object, and write out its size
-    binarydata = pack_story(story, hash)
-    datafile.write(pack_integer(next_write_location))
-    datafile.write(pack_integer(len(binarydata)))
-    next_write_location += len(binarydata)
+    write_state["binarydata"] = pack_story(story, hash)
+    datafile.write(pack_integer(write_state["next_write_location"]))
+    datafile.write(pack_integer(len(write_state["binarydata"])))
+    write_state["next_write_location"] += len(write_state["binarydata"])
     
+    if "dialog" in story:
+        for index in range(len(story["dialog"])):
+            dialog = story["dialog"][index]
+            dialog_binary = pack_dialog(dialog)
+            write_data_block(datafile, write_state, dialog_binary)
+
     if "skills" in story:
         # This loop walks all skills. For each one, we add the packed data to binarydata
         # and write out the skill and size directly to the file.
         for index in range(len(story["skills"])):
             skill = story["skills"][index]
             skill_binary = pack_skill(skill)
-            datafile.write(pack_integer(next_write_location))
-            datafile.write(pack_integer(len(skill_binary)))
-            next_write_location += len(skill_binary)
-            binarydata += skill_binary
+            write_data_block(datafile, write_state, skill_binary)
 
     if "battlers" in story:
         # This loop walks all skills. For each one, we add the packed data to binarydata
@@ -218,23 +240,17 @@ def write_story(story, datafile, hash):
         for index in range(len(story["battlers"])):
             battler = story["battlers"][index]
             battler_binary = pack_battler(battler)
-            datafile.write(pack_integer(next_write_location))
-            datafile.write(pack_integer(len(battler_binary)))
-            next_write_location += len(battler_binary)
-            binarydata += battler_binary
+            write_data_block(datafile, write_state, battler_binary)
 
     # This loop walks all locations. For each one, we add the packed data to binarydata
     # and write out the location and size directly to the file.
     for index in range(len(story["locations"])):
         location = story["locations"][index]
         location_binary = pack_location(location)
-        datafile.write(pack_integer(next_write_location))
-        datafile.write(pack_integer(len(location_binary)))
-        next_write_location += len(location_binary)
-        binarydata += location_binary
+        write_data_block(datafile, write_state, location_binary)
     
     # Now that all the index and size data has been written, write out the accumulated data
-    datafile.write(binarydata)
+    datafile.write(write_state["binarydata"])
 
 def process_bit_field(dict, field, global_dict):
     if not field in dict:
@@ -244,6 +260,21 @@ def process_bit_field(dict, field, global_dict):
     dict[new_field_name] = 0
     for damage_type in dict[field]:
         dict[new_field_name] = dict[new_field_name] | global_dict[damage_type]
+
+def process_dialog(story, dialog_map, data_index):
+    if not "dialog" in story:
+        return data_index
+
+    for index in range(len(story["dialog"])):
+        dialog = story["dialog"][index]
+        
+        if len(dialog["text"]) >= g_size_constants["MAX_DIALOG_LENGTH"]:
+            quit("Text is too long: " + dialog["text"])
+        
+        dialog_map[dialog["id"]] = data_index
+        data_index += 1
+
+    return data_index
 
 def process_skills(story, skill_map, data_index):
     if not "skills" in story:
@@ -442,6 +473,9 @@ def process_story(story, imagelist):
     # written to the file in the same order they were processed.
     data_index = 1 # 0 is reserved for the main story struct
 
+    dialog_map = {}
+    data_index = process_dialog(story, dialog_map, data_index)
+
     skill_map = {}
     data_index = process_skills(story, skill_map, data_index)
     
@@ -456,6 +490,11 @@ def process_story(story, imagelist):
             story["classes_index"].append(battler_map[battler])
     else:
         quit("Must have at least one class.")
+
+    if "opening_dialog" in story:
+        story["opening_dialog_index"] = dialog_map[story["opening_dialog"]]
+    if "win_dialog" in story:
+        story["win_dialog_index"] = dialog_map[story["win_dialog"]]
 
 appinfo = {}
 data_objects = []

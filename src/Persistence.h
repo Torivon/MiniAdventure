@@ -76,3 +76,4 @@ bool LoadGlobalPersistedData(void);
 
 bool SaveStoryPersistedData(void);
 bool LoadStoryPersistedData(void);
+void ClearCurrentStoryPersistedData(void);
