@@ -1,7 +1,9 @@
 #include <pebble.h>
+#include "BinaryResourceLoading.h"
 #include "Clock.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "GlobalState.h"
 #include "MainImage.h"
 #include "MenuArrow.h"
@@ -144,12 +146,6 @@ static void DownSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 	}
 }
 
-static DialogData exitPrompt =
-{
-    .text = "Are you sure you want to exit the game?",
-    .allowCancel = true
-};
-
 static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window)
 {
 	switch(GlobalState_GetCurrent())
@@ -172,7 +168,10 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 		}
         case STATE_ADVENTURE:
         {
-            TriggerDialog(&exitPrompt);
+            DialogData *dialog = calloc(sizeof(DialogData), 1);
+            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+            dialog->allowCancel = true;
+            TriggerDialog(dialog);
             GlobalState_QueueStatePop();
             break;
         }

@@ -15,6 +15,8 @@ typedef struct EngineInfo
     uint16_t battleWinDialog;
     uint16_t levelUpDialog;
     uint16_t engineCreditsDialog;
+    uint16_t resetPromptDialog;
+    uint16_t exitPromptDialog;
 } EngineInfo;
 
 ResHandle EngineInfo_GetResHandle(void);

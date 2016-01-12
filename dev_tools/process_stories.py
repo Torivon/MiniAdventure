@@ -511,6 +511,8 @@ def pack_engineinfo(engineinfo):
     binarydata += pack_integer(engineinfo["battlewin_dialog_index"])
     binarydata += pack_integer(engineinfo["levelup_dialog_index"])
     binarydata += pack_integer(engineinfo["engine_credits_dialog_index"])
+    binarydata += pack_integer(engineinfo["reset_dialog_index"])
+    binarydata += pack_integer(engineinfo["exit_dialog_index"])
     return binarydata
 
 def write_engineinfo(engineinfo, datafile):
@@ -578,6 +580,8 @@ def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
     engineinfo["battlewin_dialog_index"] = dialog_map[engineinfo["battlewin_dialog"]]
     engineinfo["levelup_dialog_index"] = dialog_map[engineinfo["levelup_dialog"]]
     engineinfo["engine_credits_dialog_index"] = dialog_map[engineinfo["engine_credits_dialog"]]
+    engineinfo["reset_dialog_index"] = dialog_map[engineinfo["reset_dialog"]]
+    engineinfo["exit_dialog_index"] = dialog_map[engineinfo["exit_dialog"]]
 
     with open("resources/data/" + "engineinfo.dat", 'wb') as datafile:
         print "opened file " + datafile.name

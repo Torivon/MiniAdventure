@@ -1,9 +1,11 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
@@ -32,7 +34,7 @@ bool gUpdateAdventure = false;
 
 static int updateDelay = 0;
 
-static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
+static int adventureImageId = -1;
 
 static int newLocation = -1;
 
@@ -134,12 +136,6 @@ const char *Adventure_MenuCellName(MenuIndex *index)
     return "None";
 }
 
-static DialogData resetPrompt =
-{
-    .text = "Are you sure you want to reset the game?",
-    .allowCancel = true
-};
-
 void ResetGamePush(void *data)
 {
     GlobalState_Pop();
@@ -180,7 +176,10 @@ void Adventure_MenuSelect(MenuIndex *index)
                 }
                 case 3:
                 {
-                    QueueDialog(&resetPrompt);
+                    DialogData *dialog = calloc(sizeof(DialogData), 1);
+                    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+                    dialog->allowCancel = true;
+                    QueueDialog(dialog);
                     GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
                     break;
                 }

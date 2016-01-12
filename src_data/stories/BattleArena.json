@@ -93,7 +93,7 @@
     "dialog": [
         {
             "id": "intro_text",
-            "text": "%s, Welcome to the battle arena. Here you can face off against a collection of monsters. This is a debug story, used to help tune the monster and character stats."
+            "text": "Welcome to the battle arena. Here you can face off against a collection of monsters. This is a debug story, used to help tune the monster and character stats."
         },
         {
             "id": "end_text",
