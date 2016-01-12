@@ -1,12 +1,15 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "BinaryResourceLoading.h"
 #include "Credits.h"
 #include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "ExtraMenu.h"
 #include "GlobalState.h"
+#include "ImageMap.h"
 #include "LargeImage.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -107,7 +110,7 @@ void TitleScreen_Appear(void *data)
 {
     RegisterMenuState(GetMainMenu(), STATE_TITLE_SCREEN);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
-	SetForegroundImage(RESOURCE_ID_IMAGE_TITLE);
+	SetForegroundImage(ImageMap_GetIdByIndex(EngineInfo_GetInfo()->titleImage));
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
     if(launch_reason() == APP_LAUNCH_WORKER && ResourceStory_IsLastResourceStoryIdValid() && firstLaunch)
@@ -123,36 +126,13 @@ void TitleScreen_Pop(void *data)
 	SetDescription("");
 }
 
-DialogData introText[] =
-{
-    {
-        .text = "MiniAdventure:\n Welcome to MiniAdventure. Press select to continue.",
-        .allowCancel = true
-    },
-    {
-        .text = "Use the select button to open the main menu.",
-        .allowCancel = true
-    },
-    {
-        .text = "Use the up and down buttons to make your selections inside menus.",
-        .allowCancel = true
-    },
-    {
-        .text = "The back button will exit games in progress.",
-        .allowCancel = true
-    },
-};
-
 void TitleScreen_Register(void)
 {
 	INFO_LOG("RegisterTitleScreen");
     GlobalState_Push(STATE_TITLE_SCREEN, 0, NULL);
     if(!GetTutorialSeen())
     {
-        TriggerDialog(&introText[0]);
-        QueueDialog(&introText[1]);
-        QueueDialog(&introText[2]);
-        QueueDialog(&introText[3]);
+        TriggerTutorialDialog(true);
         SetTutorialSeen(true);
     }
 }

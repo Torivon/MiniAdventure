@@ -1,6 +1,6 @@
 #include "pebble.h"
 
-#include "AutoImageMap.h"
+#include "ImageMap.h"
 #include "AutoSizeConstants.h"
 #include "AutoLocationConstants.h"
 #include "BinaryResourceLoading.h"
@@ -84,7 +84,7 @@ static ResourceLocation *ResourceLocation_Load(uint16_t logical_index)
     
     for(int i = 0; i < newLocation->backgroundImageCount; ++i)
     {
-        newLocation->backgroundImages[i] = autoImageMap[newLocation->backgroundImages[i]];
+        newLocation->backgroundImages[i] = ImageMap_GetIdByIndex(newLocation->backgroundImages[i]);
     }
     
     return newLocation;
@@ -299,7 +299,7 @@ void ResourceBattler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index
     ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
     ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(wrapper->battler)), sizeof(ResourceBattler), "ResourceBattler");
     
-    wrapper->battler.image = autoImageMap[wrapper->battler.image];
+    wrapper->battler.image = ImageMap_GetIdByIndex(wrapper->battler.image);
     for(int i = 0; i < wrapper->battler.skillList.count; ++i)
     {
         wrapper->loadedSkills[i] = ResourceSkill_Load(wrapper->battler.skillList.entries[i].id);

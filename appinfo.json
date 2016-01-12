@@ -263,6 +263,11 @@
                 "file": "data/AutoWanderTest.dat",
                 "name": "STORY_DATA_AUTOWANDERTEST",
                 "type": "raw"
+            },
+            {
+                "file": "data/engineinfo.dat",
+                "name": "ENGINEINFO",
+                "type": "raw"
             }
         ]
     },

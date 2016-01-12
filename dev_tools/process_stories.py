@@ -192,7 +192,8 @@ def get_total_objects(story):
         count += len(story["skills"])
     if "battlers" in story:
         count += len(story["battlers"])
-    count += len(story["locations"])
+    if "locations" in story:
+        count += len(story["locations"])
     return count
 
 def write_data_block(datafile, write_state, new_data):
@@ -497,6 +498,49 @@ def process_story(story, imagelist):
     if "win_dialog" in story:
         story["win_dialog_index"] = dialog_map[story["win_dialog"]]
 
+def pack_engineinfo(engineinfo):
+    binarydata = pack_integer(engineinfo["image_index"]["title_image"])
+    binarydata += pack_integer(engineinfo["image_index"]["right_arrow_image"])
+    binarydata += pack_integer(engineinfo["image_index"]["left_arrow_image"])
+    binarydata += pack_integer(engineinfo["image_index"]["rest_image"])
+    binarydata += pack_integer(engineinfo["image_index"]["default_battlefloor"])
+    binarydata += pack_integer(engineinfo["image_index"]["engine_repository"])
+    binarydata += pack_integer(engineinfo["image_index"]["default_adventure_image"])
+    binarydata += pack_integer(engineinfo["tutorial_dialog_index"])
+    binarydata += pack_integer(engineinfo["gameover_dialog_index"])
+    binarydata += pack_integer(engineinfo["battlewin_dialog_index"])
+    binarydata += pack_integer(engineinfo["levelup_dialog_index"])
+    binarydata += pack_integer(engineinfo["engine_credits_dialog_index"])
+    return binarydata
+
+def write_engineinfo(engineinfo, datafile):
+    write_state = {}
+    
+    write_state["next_write_location"] = 0
+    
+    # we always write count first, though it is not clear it is necessary
+    count = get_total_objects(engineinfo)
+    datafile.write(pack_integer(count))
+    # For each object in the file, we store two 16 bit (2 byte) integers, start index and size.
+    # With an additional number for count, this gives us the location to start writing actual object data.
+    write_state["next_write_location"] = (1 + 2 * count) * 2
+    
+    # Here, we generate the binary data for the main story object, and write out its size
+    write_state["binarydata"] = pack_engineinfo(engineinfo)
+    datafile.write(pack_integer(write_state["next_write_location"]))
+    datafile.write(pack_integer(len(write_state["binarydata"])))
+    write_state["next_write_location"] += len(write_state["binarydata"])
+    
+    if "dialog" in engineinfo:
+        for index in range(len(engineinfo["dialog"])):
+            dialog = engineinfo["dialog"][index]
+            dialog_binary = pack_dialog(dialog)
+            write_data_block(datafile, write_state, dialog_binary)
+
+    # Now that all the index and size data has been written, write out the accumulated data
+    datafile.write(write_state["binarydata"])
+    print "Wrote data to " + datafile.name
+
 def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
     # Process the stories to include. This includes generating the data files,
     # adding them to the appinfo, and storing a list of images used.
@@ -517,13 +561,30 @@ def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
             process_story(story, imagelist)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
                 write_story(story, datafile, hash[0])
-                newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
-                data_objects.append(newobject)
+            newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
+            data_objects.append(newobject)
 
     # Adds the list of art needed by the engine.
     engineinfo["image_index"] = {}
     for k, v in engineinfo["images"].items():
         engineinfo["image_index"][k] = add_image(imagelist, v)
+
+    data_index = 1 # 0 is reserved for the main story struct
+    dialog_map = {}
+    data_index = process_dialog(engineinfo, dialog_map, data_index)
+
+    engineinfo["tutorial_dialog_index"] = dialog_map[engineinfo["tutorial_dialog"]]
+    engineinfo["gameover_dialog_index"] = dialog_map[engineinfo["gameover_dialog"]]
+    engineinfo["battlewin_dialog_index"] = dialog_map[engineinfo["battlewin_dialog"]]
+    engineinfo["levelup_dialog_index"] = dialog_map[engineinfo["levelup_dialog"]]
+    engineinfo["engine_credits_dialog_index"] = dialog_map[engineinfo["engine_credits_dialog"]]
+
+    with open("resources/data/" + "engineinfo.dat", 'wb') as datafile:
+        print "opened file " + datafile.name
+        write_engineinfo(engineinfo, datafile)
+    newobject = {"file": "data/" + "engineinfo.dat", "name": "ENGINEINFO", "type": "raw"}
+    data_objects.append(newobject)
+
     return add_image(imagelist, engineinfo["icon"])
 
 def write_headers(imagemap, data_objects):
@@ -546,7 +607,8 @@ def write_headers(imagemap, data_objects):
             storylist_file.write("int autoStoryList[] = \n")
             storylist_file.write("{\n")
             for object in data_objects:
-                storylist_file.write("\tRESOURCE_ID_" + object["name"] + ",\n")
+                if object["name"][:len(STORY_DATA_STRING)] == STORY_DATA_STRING:
+                    storylist_file.write("\tRESOURCE_ID_" + object["name"] + ",\n")
             storylist_file.write("};\n")
 
     # Write out size constants in a header file so they match at both process time and load time
@@ -638,18 +700,20 @@ def update_files(appinfo, prefixlist):
 
 
     # Remove any old story files that are no longer included.
-    dest_story_files = os.listdir(os.getcwd() + "/resources/data")
-    for story_file in dest_story_files:
+    dest_data_files = os.listdir(os.getcwd() + "/resources/data")
+    for data_file in dest_data_files:
         for object in list(appinfo["resources"]["media"]):
             found = False
+            if object["name"] == "ENGINEINFO":
+                found = True
+                break
             if object["name"][:len(STORY_DATA_STRING)] != STORY_DATA_STRING:
                 continue
-            if object["file"] == "data/" + story_file:
+            if object["file"] == "data/" + data_file:
                 found = True
-                break;
+                break
         if not found:
-            os.remove("resources/data/" + story_file)
-
+            os.remove("resources/data/" + data_file)
 
 imagelist = []
 engineinfo = {}
@@ -662,8 +726,8 @@ prefixlist = []
 with open("src_data/base-appinfo.json") as appinfo_file:
     appinfo = json.load(appinfo_file)
 
-with open("src_data/engineresources.json") as engineresources_file:
-    engineinfo = json.load(engineresources_file)
+with open("src_data/engineinfo.json") as engineinfo_file:
+    engineinfo = json.load(engineinfo_file)
 
 icon_index = process_engineinfo(engineinfo, appinfo, data_objects, imagelist)
 
