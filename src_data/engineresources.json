@@ -1,0 +1,41 @@
+{
+    "icon": "images/icon.png",
+    "images": {
+        "title_image": "images/Title.png",
+        "right_arrow_image": "images/right_arrow.png",
+        "left_arrow_image": "images/left_arrow.png",
+        "rest_image": "images/rest.png",
+        "default_battlefloor": "images/battlefloor.png",
+        "engine_repository": "images/RepositoryCode.png",
+        "default_adventure_image": "images/dungeonright.png"
+    },
+    "tutorial_dialog": "tutorial",
+    "gameover_dialog": "gameover",
+    "battlewin_dialog": "battle_win",
+    "levelup_dialog": "levelup",
+    "engine_credits_dialog": "credits",
+    "stories": ["BattleArena.json", "DungeonCrawl.json", "DragonQuest.json", "WanderTest.json"],
+    "dialog": [
+        {
+            "id": "tutorial",
+            "text": "MiniAdventure:\n Welcome to MiniAdventure.\n*Use the select button to open the main menu.\n*Use the up and down buttons to make your selections inside menus.\n*The back button will exit games in progress."
+        },
+        {
+            "id": "gameover",
+            "text": "GAME OVER.\n\nYou have lost. Please try again"
+        },
+        {
+            "id": "levelup",
+            "text": "Congratulations\n\nYou have gained a level."
+        },
+        {
+            "id": "credits",
+            "text": "Main Programmer\n\tJonathan Panttaja\n\nAdditional Contributors\n\tBelphemur\n\tBlackLamb\n\nCode located at https://Github.com/Torivon/MiniAdventure"
+        },
+        {
+            "id": "battle_win",
+            "text": "You have defeated your enemy."
+        }
+    ]
+
+}

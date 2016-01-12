@@ -1,6 +1,6 @@
 
 ======build/basalt/pebble-app.elf======
-.bss: count 65 size 846
+.bss: count 67 size 848
   src/ResourceStory.c: size 551
   src/Battle.c: size 129
   Unknown: size 30
@@ -8,50 +8,50 @@
   src/MainImage.c: size 21
   src/LargeImage.c: size 18
   src/BaseWindow.c: size 15
+  src/Adventure.c: size 13
   src/DialogFrame.c: size 13
   src/Clock.c: size 12
   src/GlobalState.c: size 12
-  src/Adventure.c: size 11
   src/DescriptionFrame.c: size 4
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 29 size 435
-  src/AutoImageMap.h: size 184
+.data: count 28 size 1657
+  src/ExtraMenu.c: size 774
+  src/Adventure.c: size 269
+  src/BaseWindow.c: size 261
+  src/AutoImageMap.h: size 188
   src/Clock.c: size 48
   src/Character.c: size 44
-  src/TitleScreen.c: size 33
-  src/ExtraMenu.c: size 24
-  src/Adventure.c: size 19
   src/MenuArrow.c: size 16
   src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
   src/LargeImage.c: size 12
-  src/BaseWindow.c: size 11
   src/Battle.c: size 7
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
+  src/TitleScreen.c: size 1
   src/MiniAdventure.c: size 1
-.text: count 335 size 17444
+.text: count 339 size 17530
+  src/ResourceStory.c: size 1872
   src/Battle.c: size 1792
-  src/ResourceStory.c: size 1788
   src/Menu.c: size 1750
-  Unknown: size 1228
-  src/Adventure.c: size 932
-  src/Character.c: size 852
-  src/Persistence.c: size 836
+  Unknown: size 1294
+  src/Adventure.c: size 934
+  src/Persistence.c: size 850
+  src/Character.c: size 820
   src/MenuArrow.c: size 732
   src/MainImage.c: size 724
   src/TextBox.c: size 680
   src/Clock.c: size 644
-  src/DialogFrame.c: size 626
   src/LargeImage.c: size 624
+  src/DialogFrame.c: size 612
   src/GlobalState.c: size 602
   src/BaseWindow.c: size 564
   src/Skills.c: size 524
   src/OptionsMenu.c: size 518
   src/ProgressBar.c: size 486
-  src/TitleScreen.c: size 372
+  src/TitleScreen.c: size 338
   src/MiniAdventure.c: size 254
   src/DescriptionFrame.c: size 160
   src/WorkerControl.c: size 160
@@ -63,7 +63,7 @@
   src/StoryList.c: size 24
 
 ======build/chalk/pebble-app.elf======
-.bss: count 65 size 846
+.bss: count 67 size 848
   src/ResourceStory.c: size 551
   src/Battle.c: size 129
   Unknown: size 30
@@ -71,50 +71,50 @@
   src/MainImage.c: size 21
   src/LargeImage.c: size 18
   src/BaseWindow.c: size 15
+  src/Adventure.c: size 13
   src/DialogFrame.c: size 13
   src/Clock.c: size 12
   src/GlobalState.c: size 12
-  src/Adventure.c: size 11
   src/DescriptionFrame.c: size 4
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 29 size 435
-  src/AutoImageMap.h: size 184
+.data: count 28 size 1657
+  src/ExtraMenu.c: size 774
+  src/Adventure.c: size 269
+  src/BaseWindow.c: size 261
+  src/AutoImageMap.h: size 188
   src/Clock.c: size 48
   src/Character.c: size 44
-  src/TitleScreen.c: size 33
-  src/ExtraMenu.c: size 24
-  src/Adventure.c: size 19
   src/MenuArrow.c: size 16
   src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
   src/LargeImage.c: size 12
-  src/BaseWindow.c: size 11
   src/Battle.c: size 7
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
+  src/TitleScreen.c: size 1
   src/MiniAdventure.c: size 1
-.text: count 335 size 17448
+.text: count 339 size 17534
+  src/ResourceStory.c: size 1872
   src/Battle.c: size 1792
-  src/ResourceStory.c: size 1788
   src/Menu.c: size 1750
-  Unknown: size 1228
-  src/Adventure.c: size 932
-  src/Character.c: size 852
-  src/Persistence.c: size 836
+  Unknown: size 1294
+  src/Adventure.c: size 934
+  src/Persistence.c: size 850
+  src/Character.c: size 820
   src/MenuArrow.c: size 732
   src/MainImage.c: size 728
   src/TextBox.c: size 680
   src/Clock.c: size 644
-  src/DialogFrame.c: size 626
   src/LargeImage.c: size 624
+  src/DialogFrame.c: size 612
   src/GlobalState.c: size 602
   src/BaseWindow.c: size 564
   src/Skills.c: size 524
   src/OptionsMenu.c: size 518
   src/ProgressBar.c: size 486
-  src/TitleScreen.c: size 372
+  src/TitleScreen.c: size 338
   src/MiniAdventure.c: size 254
   src/DescriptionFrame.c: size 160
   src/WorkerControl.c: size 160

@@ -51,6 +51,11 @@ g_location_properties["level_up"] = 1 << 2
 
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
+def add_image(imagelist, imagename):
+    if imagelist.count(imagename) == 0:
+        imagelist.append(imagename)
+    return imagelist.index(imagename)
+
 def pack_integer(i):
     '''
     Write out an integer into a packed binary file
@@ -312,9 +317,7 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
 
         battler_map[battler["id"]] = data_index
         data_index += 1
-        if imagelist.count(battler["image"]) == 0:
-            imagelist.append(battler["image"])
-        battler["image_index"] = imagelist.index(battler["image"])
+        battler["image_index"] = add_image(imagelist, battler["image"])
         battler["combatantclass_values"] = []
         for stat_name in g_combatant_stats:
             battler["combatantclass_values"].append(g_combatant_ranks[battler["combatantclass"][stat_name]])
@@ -353,9 +356,7 @@ def process_locations(story, battler_map, imagelist, data_index):
         data_index += 1
         location["background_images_index"] = []
         for background_image in location["background_images"]:
-            if imagelist.count(background_image) == 0:
-                imagelist.append(background_image)
-            location["background_images_index"].append(imagelist.index(background_image))
+            location["background_images_index"].append(add_image(imagelist, background_image))
         if "monsters" in location:
             location["monsters_index"] = []
             for monster in location["monsters"]:
@@ -496,21 +497,13 @@ def process_story(story, imagelist):
     if "win_dialog" in story:
         story["win_dialog_index"] = dialog_map[story["win_dialog"]]
 
-appinfo = {}
-data_objects = []
-imagelist = []
-
-# Load appinfo so we can configure the stories and modify it to match
-with open("src_data/base-appinfo.json") as appinfo_file:
-    appinfo = json.load(appinfo_file)
-
-# Process the stories to include. This includes generating the data files,
-# adding them to the appinfo, and storing a list of images used.
-with open("src_data/stories.txt") as stories:
-    for line in stories.readlines():
-        print("Processing story in " + line.strip())
-        story_filename = "src_data/stories/" + line.strip()
-        story_datafile = "Auto" + os.path.splitext(line.strip())[0]+'.dat'
+def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
+    # Process the stories to include. This includes generating the data files,
+    # adding them to the appinfo, and storing a list of images used.
+    for story_name in engineinfo["stories"]:
+        print("Processing story in " + story_name)
+        story_filename = "src_data/stories/" + story_name
+        story_datafile = "Auto" + os.path.splitext(story_name)[0]+'.dat'
         with open(story_filename) as story_file:
             m = hashlib.md5()
             for line in story_file.readlines():
@@ -527,132 +520,155 @@ with open("src_data/stories.txt") as stories:
                 newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
                 data_objects.append(newobject)
 
-# Adds the list of art needed by the engine.
-with open("src_data/imagelist.txt") as imagelist_file:
-    for line in imagelist_file.readlines():
-        imagename = line.strip()
-        if imagelist.count(imagename) == 0:
-            imagelist.append(imagename)
+    # Adds the list of art needed by the engine.
+    engineinfo["image_index"] = {}
+    for k, v in engineinfo["images"].items():
+        engineinfo["image_index"][k] = add_image(imagelist, v)
+    return add_image(imagelist, engineinfo["icon"])
 
-# Prep the appinfo for resources
-if not "resources" in appinfo:
-    appinfo["resources"] = {};
+def write_headers(imagemap, data_objects):
+    # Write out a mapping of image indexes to resource ids in a header file
+    with open("src/AutoImageMap.h", 'w') as imagemap_file:
+        if len(imagemap) == 0:
+            imagemap_file.write("int imageResourceMap[] = {0};")
+        else:
+            imagemap_file.write("int autoImageMap[] = \n")
+            imagemap_file.write("{\n")
+            for image in imagemap:
+                imagemap_file.write("\tRESOURCE_ID_" + image + ",\n")
+            imagemap_file.write("};\n")
 
-if not "media" in appinfo["resources"]:
-    appinfo["resources"]["media"] = []
+    # Write out the story list in a header file
+    with open("src/AutoStoryList.h", 'w') as storylist_file:
+        if len(data_objects) == 0:
+            storylist_file.write("int autoStoryList[] = {0};")
+        else:
+            storylist_file.write("int autoStoryList[] = \n")
+            storylist_file.write("{\n")
+            for object in data_objects:
+                storylist_file.write("\tRESOURCE_ID_" + object["name"] + ",\n")
+            storylist_file.write("};\n")
 
-medialist = appinfo["resources"]["media"]
+    # Write out size constants in a header file so they match at both process time and load time
+    with open("src/AutoSizeConstants.h", 'w') as constants_file:
+        for k, v in g_size_constants.items():
+            constants_file.write("#define " + k + " " + str(v) + "\n")
 
+    # Write out skill constants in a header file so they match at both process time and load time
+    with open("src/AutoSkillConstants.h", 'w') as skill_file:
+        skill_file.write("#pragma once\n\n")
+        for k, v in g_skill_types.items():
+            skill_file.write("#define SKILL_TYPE_" + k.upper() + " " + str(v) + "\n")
+
+        skill_file.write("\n")
+
+        for k, v in g_damage_types.items():
+            skill_file.write("#define DAMAGE_TYPE_" + k.upper() + " " + str(v) + "\n")
+        skill_file.write("\n")
+
+    # Write out combatant constants in a header file so they match at both process time and load time
+    with open("src/AutoCombatantConstants.h", 'w') as skill_file:
+        skill_file.write("#pragma once\n\n")
+        for k, v in g_combatant_ranks.items():
+            skill_file.write("#define COMBATANT_RANK_" + k.upper() + " " + str(v) + "\n")
+        
+        skill_file.write("\n")
+
+    # Write out location property constants in a header file so they match at both process time and load time
+    with open("src/AutoLocationConstants.h", 'w') as location_file:
+        location_file.write("#pragma once\n\n")
+        for k, v in g_location_properties.items():
+            location_file.write("#define LOCATION_PROPERTY_" + k.upper() + " " + str(v) + "\n")
+        
+        location_file.write("\n")
+
+def create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index):
+    # Prep the appinfo for resources
+    if not "resources" in appinfo:
+        appinfo["resources"] = {};
+
+    if not "media" in appinfo["resources"]:
+        appinfo["resources"]["media"] = []
+
+    medialist = appinfo["resources"]["media"]
+
+    # Add all required images to the medialist. Also creates an imagemap so we can map indexes to resource ids at run time. Lastly, creates
+    # the list of file prefixes so we can copy/delete the correct files.
+    for index in range(len(imagelist)):
+        newimage = imagelist[index];
+        prefix = os.path.splitext(newimage)[0]
+        if prefix.count('/') > 0:
+            prefix = prefix[prefix.index('/') + 1:]
+        newobject = {"file": newimage, "name": "IMAGE_" + prefix.upper(), "type": "bitmap"}
+        if(index == icon_index):
+            newobject["menuIcon"] = True
+        medialist.append(newobject)
+        imagemap.append(newobject["name"])
+        prefixlist.append(prefix)
+
+    # Walk the list of story objects and make sure they are in appinfo
+    for newobject in data_objects:
+        medialist.append(newobject)
+
+    # Write out the new appinfo file
+    with open("appinfo.json", 'w') as appinfo_file:
+        json.dump(appinfo, appinfo_file, indent = 4, separators=(',', ': '), sort_keys=True)
+        appinfo_file.write("\n")
+
+def update_files(appinfo, prefixlist):
+    source_image_files = os.listdir(os.getcwd() + "/src_data/images")
+    dest_image_files = os.listdir(os.getcwd() + "/resources/images")
+
+    # Delete all files in the resources/images that we do not need.
+    for imagefile in dest_image_files:
+        prefix = os.path.splitext(imagefile)[0]
+        if prefix.count('~') > 0:
+            prefix = prefix[:prefix.index('~')]
+        
+        if prefixlist.count(prefix) == 0:
+            os.remove(os.getcwd() + "/resources/images/" + imagefile)
+
+    # Add all files to resources/images that we need.
+    for imagefile in source_image_files:
+        prefix = os.path.splitext(imagefile)[0]
+        if prefix.count('~') > 0:
+            prefix = prefix[:prefix.index('~')]
+        if prefixlist.count(prefix) > 0:
+            shutil.copyfile(os.getcwd() + "/src_data/images/" + imagefile, os.getcwd() + "/resources/images/" + imagefile)
+
+
+    # Remove any old story files that are no longer included.
+    dest_story_files = os.listdir(os.getcwd() + "/resources/data")
+    for story_file in dest_story_files:
+        for object in list(appinfo["resources"]["media"]):
+            found = False
+            if object["name"][:len(STORY_DATA_STRING)] != STORY_DATA_STRING:
+                continue
+            if object["file"] == "data/" + story_file:
+                found = True
+                break;
+        if not found:
+            os.remove("resources/data/" + story_file)
+
+
+imagelist = []
+engineinfo = {}
+appinfo = {}
+data_objects = []
 imagemap = []
 prefixlist = []
 
-# Add all required images to the medialist. Also creates an imagemap so we can map indexes to resource ids at run time. Lastly, creates
-# the list of file prefixes so we can copy/delete the correct files.
-for index in range(len(imagelist)):
-    newimage = imagelist[index];
-    prefix = os.path.splitext(newimage)[0]
-    if prefix.count('/') > 0:
-        prefix = prefix[prefix.index('/') + 1:]
-    newobject = {"file": newimage, "name": "IMAGE_" + prefix.upper(), "type": "bitmap"}
-    medialist.append(newobject)
-    imagemap.append(newobject["name"])
-    prefixlist.append(prefix)
+# Load base-appinfo so we can configure the stories and create the real appinfo with all needed files
+with open("src_data/base-appinfo.json") as appinfo_file:
+    appinfo = json.load(appinfo_file)
 
-# Walk the list of story objects and make sure they are in appinfo
-for newobject in data_objects:
-    medialist.append(newobject)
+with open("src_data/engineresources.json") as engineresources_file:
+    engineinfo = json.load(engineresources_file)
 
-source_image_files = os.listdir(os.getcwd() + "/src_data/images")
-dest_image_files = os.listdir(os.getcwd() + "/resources/images")
+icon_index = process_engineinfo(engineinfo, appinfo, data_objects, imagelist)
 
-# Delete all files in the resources/images that we do not need.
-for imagefile in dest_image_files:
-    prefix = os.path.splitext(imagefile)[0]
-    if prefix.count('~') > 0:
-        prefix = prefix[:prefix.index('~')]
+create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index)
 
-    if prefixlist.count(prefix) == 0:
-        os.remove(os.getcwd() + "/resources/images/" + imagefile)
+update_files(appinfo, prefixlist)
 
-# Add all files to resources/images that we need.
-for imagefile in source_image_files:
-    prefix = os.path.splitext(imagefile)[0]
-    if prefix.count('~') > 0:
-        prefix = prefix[:prefix.index('~')]
-    if prefixlist.count(prefix) > 0:
-        shutil.copyfile(os.getcwd() + "/src_data/images/" + imagefile, os.getcwd() + "/resources/images/" + imagefile)
-
-
-# Remove any old story files that are no longer included.
-dest_story_files = os.listdir(os.getcwd() + "/resources/data")
-for story_file in dest_story_files:
-    for object in list(medialist):
-        found = False
-        if object["name"][:len(STORY_DATA_STRING)] != STORY_DATA_STRING:
-            continue
-        if object["file"] == "data/" + story_file:
-            found = True
-            break;
-    if not found:
-        os.remove("resources/data/" + story_file)
-
-# Write out the new appinfo file
-with open("appinfo.json", 'w') as appinfo_file:
-   json.dump(appinfo, appinfo_file, indent = 4, separators=(',', ': '), sort_keys=True)
-   appinfo_file.write("\n")
-
-# Write out a mapping of image indexes to resource ids in a header file
-with open("src/AutoImageMap.h", 'w') as imagemap_file:
-    if len(imagemap) == 0:
-        imagemap_file.write("int imageResourceMap[] = {0};")
-    else:
-        imagemap_file.write("int autoImageMap[] = \n")
-        imagemap_file.write("{\n")
-        for image in imagemap:
-            imagemap_file.write("\tRESOURCE_ID_" + image + ",\n")
-        imagemap_file.write("};\n")
-
-# Write out the story list in a header file
-with open("src/AutoStoryList.h", 'w') as storylist_file:
-    if len(data_objects) == 0:
-        storylist_file.write("int autoStoryList[] = {0};")
-    else:
-        storylist_file.write("int autoStoryList[] = \n")
-        storylist_file.write("{\n")
-        for object in data_objects:
-            storylist_file.write("\tRESOURCE_ID_" + object["name"] + ",\n")
-        storylist_file.write("};\n")
-
-# Write out size constants in a header file so they match at both process time and load time
-with open("src/AutoSizeConstants.h", 'w') as constants_file:
-    for k, v in g_size_constants.items():
-        constants_file.write("#define " + k + " " + str(v) + "\n")
-
-# Write out skill constants in a header file so they match at both process time and load time
-with open("src/AutoSkillConstants.h", 'w') as skill_file:
-    skill_file.write("#pragma once\n\n")
-    for k, v in g_skill_types.items():
-        skill_file.write("#define SKILL_TYPE_" + k.upper() + " " + str(v) + "\n")
-
-    skill_file.write("\n")
-
-    for k, v in g_damage_types.items():
-        skill_file.write("#define DAMAGE_TYPE_" + k.upper() + " " + str(v) + "\n")
-
-    skill_file.write("\n")
-
-# Write out combatant constants in a header file so they match at both process time and load time
-with open("src/AutoCombatantConstants.h", 'w') as skill_file:
-    skill_file.write("#pragma once\n\n")
-    for k, v in g_combatant_ranks.items():
-        skill_file.write("#define COMBATANT_RANK_" + k.upper() + " " + str(v) + "\n")
-
-    skill_file.write("\n")
-
-# Write out location property constants in a header file so they match at both process time and load time
-with open("src/AutoLocationConstants.h", 'w') as location_file:
-    location_file.write("#pragma once\n\n")
-    for k, v in g_location_properties.items():
-        location_file.write("#define LOCATION_PROPERTY_" + k.upper() + " " + str(v) + "\n")
-    
-    location_file.write("\n")
+write_headers(imagemap, data_objects)

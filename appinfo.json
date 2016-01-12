@@ -214,13 +214,13 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/right_arrow.png",
-                "name": "IMAGE_RIGHT_ARROW",
+                "file": "images/rest.png",
+                "name": "IMAGE_REST",
                 "type": "bitmap"
             },
             {
-                "file": "images/rest.png",
-                "name": "IMAGE_REST",
+                "file": "images/right_arrow.png",
+                "name": "IMAGE_RIGHT_ARROW",
                 "type": "bitmap"
             },
             {
@@ -229,13 +229,19 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/RepositoryCode.png",
+                "name": "IMAGE_REPOSITORYCODE",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/battlefloor.png",
                 "name": "IMAGE_BATTLEFLOOR",
                 "type": "bitmap"
             },
             {
-                "file": "images/RepositoryCode.png",
-                "name": "IMAGE_REPOSITORYCODE",
+                "file": "images/icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_ICON",
                 "type": "bitmap"
             },
             {
