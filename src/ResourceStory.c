@@ -122,7 +122,7 @@ static void ResourceLocation_Free(ResourceLocation *location)
     }
 }
 
-#if DEBUGLOGGING > 1
+#if DEBUG_LOGGING > 1
 static void ResourceLocation_Log(ResourceLocation *location)
 {
     DEBUG_VERBOSE_LOG("ResourceLocation: %s", location->name);
@@ -670,6 +670,8 @@ void ResourceStory_UpdateStoryWithPersistedState(void)
     currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
     currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
     currentResourceStoryState.persistedResourceStoryState.pathLength = currentLocation->length;
+    ResourceBattler_UnloadPlayer();
+    ResourceLocation_FreeAdjacentLocations();
     ResourceLocation_LoadAdjacentLocations();
 #if DEBUG_LOGGING > 1
     ResourceLocation_Log(currentLocation);

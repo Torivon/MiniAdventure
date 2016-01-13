@@ -3,6 +3,7 @@
 #include "Adventure.h"
 #include "BinaryResourceLoading.h"
 #include "Character.h"
+#include "Clock.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "EngineInfo.h"
@@ -64,6 +65,7 @@ void ResetGame(void)
     SaveStoryPersistedData();
     playOpeningDialog = true;
     skipFinalSave = false;
+    Battle_SetCleanExit();
 }
 
 uint16_t Adventure_MenuSectionCount(void)
@@ -328,6 +330,7 @@ void AdventureScreenAppear(void *data)
     UpdateLocationProgress();
     RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+    ShowDateLayer();
     
     if(IsBattleForced())
     {

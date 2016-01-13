@@ -2,10 +2,13 @@
 #include "AutoSizeConstants.h"
 #include "BaseWindow.h"
 #include "Battle.h"
+#include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "Clock.h"
 #include "CombatantClass.h"
 #include "DescriptionFrame.h"
+#include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
@@ -116,7 +119,6 @@ void CloseBattleWindow(void)
     }
     
     Character_SetCooldowns(gBattleState.player.actor.skillCooldowns);
-    ShowDateLayer();
 }
 
 bool ClosingWhileInBattle(void)
@@ -124,9 +126,14 @@ bool ClosingWhileInBattle(void)
     return !battleCleanExit;
 }
 
+void Battle_SetCleanExit(void)
+{
+    battleCleanExit = true;
+}
+
 uint16_t BattleScreen_MenuSectionCount(void)
 {
-    return 1 + ExtraMenu_GetSectionCount();
+    return 2 + ExtraMenu_GetSectionCount();
 }
 
 const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
@@ -136,6 +143,8 @@ const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
         case 0:
             return "Skills";
         case 1:
+            return "Battle";
+        case 2:
             return ExtraMenu_GetSectionName();
     }
     return "None";
@@ -147,14 +156,16 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
     {
         case 0:
         {
-            DEBUG_LOG("BattleScreenCount");
             if(!gPlayerTurn)
                 return 0;
             
-            DEBUG_LOG("Returning good value");
             return BattlerWrapper_GetUsableSkillCount(gBattleState.player.battlerWrapper, gBattleState.player.actor.level);
         }
         case 1:
+        {
+            return 4;
+        }
+        case 2:
         {
             return ExtraMenu_GetCellCount();
         }
@@ -175,6 +186,21 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
             return skill->name;
         }
         case 1:
+        {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Reset";
+            }
+            break;
+        }
+        case 2:
         {
             return ExtraMenu_GetCellName(index->row);
         }
@@ -198,6 +224,21 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
         }
         case 1:
         {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Reset";
+            }
+            break;
+        }
+        case 2:
+        {
             return ExtraMenu_GetCellName(index->row);
         }
     }
@@ -215,12 +256,44 @@ void BattleScreen_MenuSelect(MenuIndex *index)
             
             if(gBattleState.player.actor.skillCooldowns[index->row] > 0)
                 return;
-            gBattleState.player.actor.skillQueued = true;
+            gBattleState.player.actor.skillQueued = true ;
             gBattleState.player.actor.activeSkill = index->row;
             gPlayerActed = true;
             break;
         }
         case 1:
+        {
+            switch(index->row)
+            {
+                case 0:
+                {
+                    Character_ShowStatus();
+                    break;
+                }
+                case 1:
+                {
+                    Character_ShowClass();
+                    break;
+                }
+                case 2:
+                {
+                    Character_ShowSkills();
+                    break;
+                }
+                case 3:
+                {
+                    DialogData *dialog = calloc(sizeof(DialogData), 1);
+                    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+                    dialog->allowCancel = true;
+                    QueueDialog(dialog);
+                    GlobalState_QueueStatePop();
+                    GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
+                    break;
+                }
+            }
+            break;
+        }
+        case 2:
         {
             ExtraMenu_SelectAction(index->row);
         }
@@ -329,6 +402,9 @@ void BattleInit(void)
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
+    // Force dialog layer to the top
+    InitializeDialogLayer(GetBaseWindow());
+
     RegisterMenuState(GetMainMenu(), STATE_BATTLE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     

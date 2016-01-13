@@ -56,6 +56,13 @@ def add_image(imagelist, imagename):
         imagelist.append(imagename)
     return imagelist.index(imagename)
 
+def pack_bool(b):
+    '''
+    Write out an integer into a packed binary file
+    '''
+
+    return struct.pack('?', b)
+
 def pack_integer(i):
     '''
     Write out an integer into a packed binary file
@@ -125,8 +132,8 @@ def pack_skill(skill):
 
 def pack_dialog(dialog):
     binarydata = pack_string(dialog["text"], g_size_constants["MAX_DIALOG_LENGTH"])
-    binarydata += pack_integer(0);
-    binarydata += pack_integer(1);
+    binarydata += pack_bool(False);
+    binarydata += pack_bool(True);
     return binarydata
 
 def pack_battler(battler):

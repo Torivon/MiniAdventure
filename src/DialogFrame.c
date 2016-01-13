@@ -6,6 +6,7 @@
 #include "MiniAdventure.h"
 #include "BaseWindow.h"
 #include "TextBox.h"
+#include "Utils.h"
 
 static TextBox *dialogTextBox = NULL;
 static TextBox *okTextBox = NULL;

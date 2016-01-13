@@ -38,6 +38,7 @@ void GlobalState_ClearQueue(void);
 
 void GlobalState_Update(TimeUnits units_changed);
 void GlobalState_Pop(void);
+void GlobalState_PopIgnoreQueue(void);
 GlobalState GlobalState_GetCurrent(void);
 void GlobalState_PopAll(void);
 void GlobalState_Initialize(void);

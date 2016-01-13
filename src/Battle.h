@@ -6,6 +6,7 @@ bool ClosingWhileInBattle(void);
 int GetCurrentMonsterHealth(void);
 void SaveBattleState(void);
 
+void Battle_SetCleanExit(void);
 void ResumeBattle(int currentMonster);
 void ForceRandomBattle(void);
 bool IsBattleForced(void);
