@@ -42,6 +42,7 @@ static int newLocation = -1;
 static bool firstLaunch = true;
 static bool playOpeningDialog = false;
 static bool skipFinalSave = false;
+static bool dead = false;
 
 void SetUpdateDelay(void)
 {
@@ -65,6 +66,7 @@ void ResetGame(void)
     SaveStoryPersistedData();
     playOpeningDialog = true;
     skipFinalSave = false;
+    dead = false;
     Battle_SetCleanExit();
 }
 
@@ -317,15 +319,12 @@ void AdventureScreenPush(void *data)
 
     InitializeGameData();
     UpdateLocationProgress();
+    dead = false;
 }
 
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
-    if(Character_GetHealth() <= 0)
-    {
-        ResetGame();
-    }
 
     UpdateLocationProgress();
     RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
@@ -355,6 +354,18 @@ void AdventureScreenAppear(void *data)
     }
     newLocation = -1;
     StoryUpdateResponse(returnVal, false);
+
+    if(!dead && Character_GetHealth() <= 0)
+    {
+        DialogData *dialog = calloc(sizeof(DialogData), 1);
+        ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->gameOverDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+        TriggerDialog(dialog);
+        ClearCurrentStoryPersistedData();
+        skipFinalSave = true;
+        GlobalState_QueueStatePop();
+        dead = true;
+        return;
+    }
 
     if(playOpeningDialog)
     {

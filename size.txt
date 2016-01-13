@@ -1,6 +1,6 @@
 
 ======build/basalt/pebble-app.elf======
-.bss: count 69 size 877
+.bss: count 70 size 878
   src/ResourceStory.c: size 551
   src/Battle.c: size 129
   Unknown: size 30
@@ -9,7 +9,7 @@
   src/MainImage.c: size 21
   src/LargeImage.c: size 18
   src/BaseWindow.c: size 15
-  src/Adventure.c: size 13
+  src/Adventure.c: size 14
   src/DialogFrame.c: size 13
   src/Clock.c: size 12
   src/GlobalState.c: size 12
@@ -32,14 +32,14 @@
   src/ResourceStory.c: size 2
   src/TitleScreen.c: size 1
   src/MiniAdventure.c: size 1
-.text: count 347 size 18284
-  src/Battle.c: size 2100
+.text: count 347 size 18500
+  src/Battle.c: size 2208
   src/ResourceStory.c: size 1864
   src/Menu.c: size 1750
   Unknown: size 1198
-  src/Adventure.c: size 1002
+  src/Adventure.c: size 1102
   src/Persistence.c: size 850
-  src/Character.c: size 820
+  src/Character.c: size 828
   src/BaseWindow.c: size 796
   src/MenuArrow.c: size 732
   src/MainImage.c: size 724
@@ -65,7 +65,7 @@
   src/ImageMap.c: size 16
 
 ======build/chalk/pebble-app.elf======
-.bss: count 69 size 877
+.bss: count 70 size 878
   src/ResourceStory.c: size 551
   src/Battle.c: size 129
   Unknown: size 30
@@ -74,7 +74,7 @@
   src/MainImage.c: size 21
   src/LargeImage.c: size 18
   src/BaseWindow.c: size 15
-  src/Adventure.c: size 13
+  src/Adventure.c: size 14
   src/DialogFrame.c: size 13
   src/Clock.c: size 12
   src/GlobalState.c: size 12
@@ -97,14 +97,14 @@
   src/ResourceStory.c: size 2
   src/TitleScreen.c: size 1
   src/MiniAdventure.c: size 1
-.text: count 347 size 18288
-  src/Battle.c: size 2100
+.text: count 347 size 18504
+  src/Battle.c: size 2208
   src/ResourceStory.c: size 1864
   src/Menu.c: size 1750
   Unknown: size 1198
-  src/Adventure.c: size 1002
+  src/Adventure.c: size 1102
   src/Persistence.c: size 850
-  src/Character.c: size 820
+  src/Character.c: size 828
   src/BaseWindow.c: size 796
   src/MenuArrow.c: size 732
   src/MainImage.c: size 728
