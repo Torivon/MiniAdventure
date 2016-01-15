@@ -16,6 +16,7 @@ typedef enum
 	STATE_LARGE_IMAGE,
     STATE_STATE_POP,
     STATE_RESET_GAME,
+    STATE_UPDATE_GAME_STATE,
 } GlobalState;
 
 typedef void(*GlobalStateQueueFunction)(void);

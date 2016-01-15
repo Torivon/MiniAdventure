@@ -5,6 +5,7 @@
     "description": "A test of path traveling",
     "start_location": "village1",
     "classes": ["adventurer"],
+    "win_dialog": "game_end",
     "locations": [
         {
             "id": "village2",
@@ -15,36 +16,50 @@
         {
             "id": "village1",
             "name": "Asgard",
-            "adjacent_locations": ["road1", "house1", "house3"],
+            "adjacent_locations": ["road1", "house1", "house3", "house3-bed"],
             "background_images": ["images/VillageExterior.png"]
         },
         {
             "id": "house1",
             "name": "Bob's House",
             "adjacent_locations": ["village1"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "initial_event": "bobs_house_enter",
+            "events": ["bob1", "bob2"]
         },
         {
             "id": "house2",
             "name": "Fred's House",
             "adjacent_locations": ["village2"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "events": ["fred1", "fred2", "wife1"]
         },
         {
             "id": "house3",
             "name": "Jon's House",
             "adjacent_locations": ["village1"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "initial_event": "daytime",
+            "location_properties": ["rest_area"]
+        },
+        {
+            "id": "house3-bed",
+            "name": "Jon's House",
+            "adjacent_locations": ["village1"],
+            "background_images": ["images/VillageInterior.png"],
+            "initial_event": "bedtime",
+            "location_properties": ["game_win"]
         },
         {
             "id": "road1",
             "name": "Poplar Avenue",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
-            "length": 5,
+            "length": 2,
             "base_level": 2,
-            "encounter_chance": 25,
-            "monsters": ["rat"]
+            "encounter_chance": 100,
+            "monsters": ["rat"],
+            "initial_event": "poplar_enter"
         }
     ],
     "skills": [
@@ -55,7 +70,7 @@
             "type": "attack",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
-            "potency": 1,
+            "potency": 10,
             "cooldown": 0
         },
         {
@@ -84,7 +99,7 @@
             "description": "Heal with a potion",
             "type": "heal",
             "speed": 100,
-            "damage_types": [],
+            "damage_types": ["magic"],
             "potency": 10,
             "cooldown": 4
         }
@@ -95,19 +110,20 @@
             "name": "Rat",
             "image": "images/rat.png",
             "combatantclass": {
-                "strength": "rankc",
+                "strength": "rankf",
                 "magic": "rankf",
                 "defense": "rankf",
                 "magic_defense": "rankf",
-                "speed": "ranks",
-                "health": "rankc"
+                "speed": "rankf",
+                "health": "rankf"
             },
             "skill_list": [
                 {
                     "id": "fastattack",
                     "min_level": 1
                 }
-            ]
+            ],
+            "event": "no_rats"
         },
         {
             "id": "adventurer",
@@ -115,12 +131,12 @@
             "description": "A basic adventurer",
             "image": "images/Title.png",
             "combatantclass": {
-                "strength": "rankb",
-                "magic": "rankb",
-                "defense": "rankb",
-                "magic_defense": "rankb",
-                "speed": "rankb",
-                "health": "rankb"
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
             },
             "skill_list": [
                 {
@@ -132,6 +148,100 @@
                     "min_level": 1
                 }
             ]          
+        }
+    ],
+    "dialog": [
+        {
+            "id": "bob1",
+            "text": "You need a key to leave town. Would you like mine?",
+            "allow_cancel": true
+        },
+        {
+            "id": "bob2",
+            "text": "You already have my key. Get going."
+        },    
+        {
+            "id": "bob_desc",
+            "text": "Bob is sitting in the corner."
+        },    
+        {
+            "id": "fred1",
+            "text": "If you are heading back home, take this rat repellent."
+        },
+        {
+            "id": "fred2",
+            "text": "You should get home before it gets dark."
+        },  
+        {
+            "id": "wife1",
+            "text": "You say you fought a rat on your way here?"
+        },  
+        {
+            "id": "poplar",
+            "text": "You enter Poplar Avenue and hope for an uneventful walk to the next village."
+        },
+        {
+            "id": "game_end",
+            "text": "You head to bed."
+        }  
+    ],
+    "events": [
+        {
+            "id": "bob1",
+            "name": "Bob",
+            "dialog": "bob1",
+            "negative_prerequisites": ["talk_to_bob"],
+            "state_changes": ["talk_to_bob", "villagekey"]
+        },
+        {
+            "id": "bob2",
+            "name": "Bob",
+            "dialog": "bob2",
+            "positive_prerequisites": ["talk_to_bob"]
+        },
+        {
+            "id": "poplar_enter",
+            "name": "Poplar",
+            "dialog": "poplar",
+            "positive_prerequisites": ["villagekey"]
+        },
+        {
+            "id": "bobs_house_enter",
+            "name": "Bob's House",
+            "dialog": "bob_desc",
+            "negative_prerequisites": ["talk_to_bob"]
+        },
+        {
+            "id": "no_rats",
+            "negative_prerequisites": ["rat_repellent"],
+            "state_changes": ["beat_rat"]
+        },
+        {
+            "id": "fred1",
+            "name": "Fred",
+            "dialog": "fred1",
+            "negative_prerequisites": ["talk_to_fred"],
+            "state_changes": ["rat_repellent", "talk_to_fred"]
+        },
+        {
+            "id": "fred2",
+            "name": "Fred",
+            "dialog": "fred2",
+            "positive_prerequisites": ["talk_to_fred"]
+        },
+        {
+            "id": "wife1",
+            "name": "Joan",
+            "dialog": "wife1",
+            "positive_prerequisites": ["beat_rat"]
+        },
+        {
+            "id": "bedtime",
+            "positive_prerequisites": ["talk_to_fred"]
+        },
+        {
+            "id": "daytime",
+            "negative_prerequisites": ["talk_to_fred"]
         }
     ]
 }

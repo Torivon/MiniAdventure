@@ -7,6 +7,7 @@
 #include "Character.h"
 #include "CombatantClass.h"
 #include "DialogFrame.h"
+#include "GlobalState.h"
 #include "Utils.h"
 #include "Logging.h"
 #include "ResourceStory.h"
@@ -35,29 +36,17 @@ typedef struct ResourceStory
 static ResHandle ResourceStory_GetCurrentResHandle(void);
 static ResourceStory *ResourceStory_GetCurrentStory();
 
-/********************* RESOURCE DIALOG *******************************/
-
-void ResourceStory_TriggerDialog(uint16_t dialogIndex)
+typedef struct ResourceStoryState
 {
-    if(dialogIndex == 0)
-        return;
-    
-    DialogData *dialog = calloc(sizeof(DialogData), 1);
-    ResourceLoadStruct(ResourceStory_GetCurrentResHandle(), dialogIndex, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-    TriggerDialog(dialog);
-}
+    bool needsSaving;
+    PersistedResourceStoryState persistedResourceStoryState;
+} ResourceStoryState;
 
-uint16_t ResourceStory_GetOpeningDialogIndex(void)
-{
-    return ResourceStory_GetCurrentStory()->openingDialog;
-}
+static int16_t currentResourceStoryIndex = -1;
+uint16_t lastResourceStoryId = 0;
+bool isLastResourceStoryIdValid = false;
+static ResourceStoryState currentResourceStoryState = {0};
 
-uint16_t ResourceStory_GetWinDialogIndex(void)
-{
-    return ResourceStory_GetCurrentStory()->winDialog;
-}
-
-/********************* RESOURCE LOCATION *******************************/
 typedef struct ResourceLocation
 {
     char name[MAX_STORY_NAME_LENGTH];
@@ -71,10 +60,198 @@ typedef struct ResourceLocation
     uint16_t encounterChance;
     uint16_t monsterCount;
     uint16_t monsters[MAX_MONSTERS];
+    uint16_t initialEvent;
+    uint16_t localEventCount;
+    uint16_t localEvents[MAX_EVENTS];
 } ResourceLocation;
 
 static ResourceLocation *currentLocation = NULL;
+static ResourceEvent *currentLocationInitialEvent = NULL;
 static ResourceLocation *adjacentLocations[MAX_ADJACENT_LOCATIONS] = {0};
+static ResourceEvent *adjacentLocationInitialEvents[MAX_ADJACENT_LOCATIONS] = {0};
+static ResourceEvent *localEvents[MAX_EVENTS] = {0};
+
+/********************* RESOURCE EVENT *******************************/
+
+typedef struct ResourceEvent
+{
+    char name[MAX_STORY_NAME_LENGTH];
+    uint16_t dialog;
+    uint16_t usePrerequisites;
+    uint16_t positivePrerequisites[MAX_GAME_STATE_VARIABLES];
+    uint16_t negativePrerequisites[MAX_GAME_STATE_VARIABLES];
+    uint16_t stateChanges[MAX_GAME_STATE_VARIABLES];
+} ResourceEvent;
+
+ResourceEvent *ResourceEvent_Load(uint16_t logical_index)
+{
+    if(logical_index == 0)
+        return NULL;
+    
+    ResourceEvent *event = calloc(sizeof(ResourceEvent), 1);
+    ResourceLoadStruct(ResourceStory_GetCurrentResHandle(), logical_index, (uint8_t*)event, sizeof(ResourceEvent), "ResourceEvent");
+    return event;
+}
+
+void ResourceEvent_Free(ResourceEvent *event)
+{
+    if(event)
+        free(event);
+}
+
+static bool CheckPrerequisites(uint16_t *gameStateList, uint16_t *prerequisiteList, bool positive)
+{
+    bool match = true;
+    for(int i = 0; i < MAX_GAME_STATE_VARIABLES; ++i)
+    {
+        uint16_t gameState  = gameStateList[i];
+        uint16_t prerequisite = prerequisiteList[i];
+        if(prerequisite > 0)
+        {
+            bool result = ((gameState & prerequisite) == prerequisite);
+            if(!positive)
+                result = !result;
+            match = match && result;
+        }
+    }
+    return match;
+}
+
+bool ResourceEvent_CheckPrerequisites(ResourceEvent *event)
+{
+    if(!event || !event->usePrerequisites)
+        return true;
+    
+    bool match = true;
+    match = match && CheckPrerequisites(currentResourceStoryState.persistedResourceStoryState.gameState, event->positivePrerequisites, true);
+    match = match && CheckPrerequisites(currentResourceStoryState.persistedResourceStoryState.gameState, event->negativePrerequisites, false);
+    return match;
+}
+
+void ResourceEvent_UpdateGameState(void *data)
+{
+    uint16_t *stateChanges = (uint16_t*)data;
+    for(int i = 0; i < MAX_GAME_STATE_VARIABLES; ++i)
+    {
+        currentResourceStoryState.persistedResourceStoryState.gameState[i] |= stateChanges[i];
+    }
+}
+
+void ResourceEvent_UpdateGameState_Push(void *data)
+{
+    ResourceEvent *event = (ResourceEvent*)data;
+    ResourceEvent_UpdateGameState(event);
+    GlobalState_Pop();
+}
+
+void ResourceEvent_TriggerEvent(ResourceEvent *event, bool now)
+{
+    if(event->dialog > 0)
+    {
+        if(now)
+            ResourceStory_TriggerDialog(event->dialog);
+        else
+            ResourceStory_QueueDialog(event->dialog);
+        GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, event->stateChanges);
+    }
+    else
+    {
+        if(now)
+            GlobalState_Push(STATE_UPDATE_GAME_STATE, 0, event->stateChanges);
+        else
+            GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, event->stateChanges);
+    }
+}
+
+void ResourceEvent_Trigger(uint16_t index)
+{
+    uint16_t newIndex = 0;
+    uint16_t indexToUse = 0;
+    for(int i = 0; i < currentLocation->localEventCount; ++i)
+    {
+        if(ResourceEvent_CheckPrerequisites(localEvents[i]))
+        {
+            if(newIndex == index)
+            {
+                indexToUse = i;
+                break;
+            }
+            ++newIndex;
+        }
+    }
+    
+    if(localEvents[indexToUse]->dialog > 0)
+    {
+        ResourceStory_TriggerDialog(localEvents[indexToUse]->dialog);
+        GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, localEvents[indexToUse]->stateChanges);
+    }
+    else
+    {
+        GlobalState_Push(STATE_UPDATE_GAME_STATE, 0, localEvents[indexToUse]->stateChanges);
+    }
+}
+
+void ResourceEvent_Queue(uint16_t index)
+{
+    uint16_t newIndex = 0;
+    uint16_t indexToUse = 0;
+    for(int i = 0; i < currentLocation->localEventCount; ++i)
+    {
+        if(ResourceEvent_CheckPrerequisites(localEvents[i]))
+        {
+            if(newIndex == index)
+            {
+                indexToUse = i;
+                break;
+            }
+            ++newIndex;
+        }
+    }
+
+    if(localEvents[indexToUse]->dialog > 0)
+        ResourceStory_QueueDialog(localEvents[indexToUse]->dialog);
+    GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, localEvents[indexToUse]->stateChanges);
+}
+
+/********************* RESOURCE DIALOG *******************************/
+
+DialogData *ResourceDialog_Load(uint16_t dialogIndex)
+{
+    if(dialogIndex == 0)
+        return NULL;
+    
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    ResourceLoadStruct(ResourceStory_GetCurrentResHandle(), dialogIndex, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+    return dialog;
+}
+
+void ResourceStory_TriggerDialog(uint16_t dialogIndex)
+{
+    DialogData *dialog = ResourceDialog_Load(dialogIndex);
+    if(!dialog)
+        return;
+    TriggerDialog(dialog);
+}
+
+void ResourceStory_QueueDialog(uint16_t dialogIndex)
+{
+    DialogData *dialog = ResourceDialog_Load(dialogIndex);
+    if(!dialog)
+        return;
+    QueueDialog(dialog);
+}
+
+uint16_t ResourceStory_GetOpeningDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->openingDialog;
+}
+
+uint16_t ResourceStory_GetWinDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->winDialog;
+}
+
+/********************* RESOURCE LOCATION *******************************/
 
 static ResourceLocation *ResourceLocation_Load(uint16_t logical_index)
 {
@@ -142,6 +319,7 @@ static void ResourceLocation_LoadAdjacentLocations(void)
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
         adjacentLocations[i] = ResourceLocation_Load(currentLocation->adjacentLocations[i]);
+        adjacentLocationInitialEvents[i] = ResourceEvent_Load(adjacentLocations[i]->initialEvent);
     }
 }
 
@@ -153,6 +331,28 @@ void ResourceLocation_FreeAdjacentLocations(void)
         {
             ResourceLocation_Free(adjacentLocations[i]);
             adjacentLocations[i] = NULL;
+            ResourceEvent_Free(adjacentLocationInitialEvents[i]);
+            adjacentLocationInitialEvents[i] = NULL;
+        }
+    }
+}
+
+static void ResourceLocation_LoadLocalEvents(void)
+{
+    for(int i = 0; i < currentLocation->localEventCount; ++i)
+    {
+        localEvents[i] = ResourceEvent_Load(currentLocation->localEvents[i]);
+    }
+}
+
+void ResourceLocation_FreeLocalEvents(void)
+{
+    for(int i = 0; i < MAX_EVENTS; ++i)
+    {
+        if(localEvents[i])
+        {
+            ResourceEvent_Free(localEvents[i]);
+            localEvents[i] = NULL;
         }
     }
 }
@@ -160,16 +360,66 @@ void ResourceLocation_FreeAdjacentLocations(void)
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void)
 {
     if(currentLocation)
-        return currentLocation->adjacentLocationCount;
+    {
+        uint16_t count = 0;
+        for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
+        {
+            if(ResourceEvent_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+                ++count;
+        }
+        return count;
+    }
     else
+    {
         return 0;
+    }
 }
 
 const char *ResourceStory_GetAdjacentLocationName(uint16_t index)
 {
-    if(adjacentLocations[index])
+    uint16_t currentIndex = 0;
+    for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
-        return adjacentLocations[index]->name;
+        if(ResourceEvent_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        {
+            if(currentIndex == index)
+                return adjacentLocations[i]->name;
+            ++currentIndex;
+        }
+    }
+    
+    return "None";
+}
+
+uint16_t ResourceStory_GetCurrentLocalEvents(void)
+{
+    if(currentLocation)
+    {
+        uint16_t count = 0;
+        for(int i = 0; i < currentLocation->localEventCount; ++i)
+        {
+            if(ResourceEvent_CheckPrerequisites(localEvents[i]))
+                ++count;
+        }
+        return count;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+const char *ResourceStory_GetLocalEventName(uint16_t index)
+{
+    uint16_t currentIndex = 0;
+    for(int i = 0; i < currentLocation->localEventCount; ++i)
+    {
+        if(ResourceEvent_CheckPrerequisites(localEvents[i]))
+        {
+            if(currentIndex == index)
+                return localEvents[i]->name;
+            ++currentIndex;
+        }
     }
     
     return "None";
@@ -211,7 +461,8 @@ bool ResourceStory_CurrentLocationIsRestArea(void)
 /********************* RESOURCE SKILL ******************************/
 void ResourceSkill_Free(Skill *skill)
 {
-    free(skill);
+    if(skill)
+        free(skill);
 }
 
 Skill *ResourceSkill_Load(uint16_t logical_index)
@@ -282,6 +533,8 @@ void ResourceBattler_UnloadBattler(BattlerWrapper *wrapper)
         ResourceSkill_Free(wrapper->loadedSkills[i]);
         wrapper->loadedSkills[i] = NULL;
     }
+    ResourceEvent_Free(wrapper->event);
+    wrapper->event = NULL;
 }
 
 void ResourceMonster_UnloadCurrent(void)
@@ -294,7 +547,7 @@ void ResourceBattler_UnloadPlayer(void)
     ResourceBattler_UnloadBattler(&playerClass);
 }
 
-void ResourceBattler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index)
+bool ResourceBattler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index)
 {
     ResHandle currentStoryData = ResourceStory_GetCurrentResHandle();
     ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)(&(wrapper->battler)), sizeof(ResourceBattler), "ResourceBattler");
@@ -305,12 +558,21 @@ void ResourceBattler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index
         wrapper->loadedSkills[i] = ResourceSkill_Load(wrapper->battler.skillList.entries[i].id);
         wrapper->battler.skillList.entries[i].id = i;
     }
+    
     wrapper->loaded = true;
+
+    if(wrapper->battler.event > 0)
+    {
+        wrapper->event = ResourceEvent_Load(wrapper->battler.event);
+        return ResourceEvent_CheckPrerequisites(wrapper->event);
+    }
+    
+    return true;
 }
 
-void ResourceMonster_LoadCurrent(uint16_t logical_index)
+bool ResourceMonster_LoadCurrent(uint16_t logical_index)
 {
-    ResourceBattler_LoadBattler(&currentMonster, logical_index);
+    return ResourceBattler_LoadBattler(&currentMonster, logical_index);
 }
 
 void ResourceBattler_LoadPlayer(uint16_t classId)
@@ -358,17 +620,6 @@ int ResourceStory_GetCurrentLocationMonster(void)
 }
 
 /********************* RESOURCE STORY *******************************/
-
-typedef struct ResourceStoryState
-{
-    bool needsSaving;
-    PersistedResourceStoryState persistedResourceStoryState;
-} ResourceStoryState;
-
-static int16_t currentResourceStoryIndex = -1;
-uint16_t lastResourceStoryId = 0;
-bool isLastResourceStoryIdValid = false;
-static ResourceStoryState currentResourceStoryState = {0};
 
 static ResourceStory **resourceStoryList = NULL;
 
@@ -418,7 +669,11 @@ void ResourceStory_InitializeCurrent(void)
 {
     currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = ResourceStory_GetCurrentStory()->start_location;
     currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
-
+    for(int i = 0; i < MAX_GAME_STATE_VARIABLES; ++i)
+    {
+        currentResourceStoryState.persistedResourceStoryState.gameState[i] = 0;
+    }
+    
     ResourceStory_UpdateStoryWithPersistedState();
 }
 
@@ -480,19 +735,42 @@ ResourceStoryUpdateReturnType ResourceStory_UpdateCurrentLocation(void)
 
 ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index)
 {
+    uint16_t newIndex = 0;
+    uint16_t indexToUse = 0;
+    for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
+    {
+        if(ResourceEvent_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        {
+            if(newIndex == index)
+            {
+                indexToUse = i;
+                break;
+            }
+            ++newIndex;
+        }
+    }
+
     if(currentLocation)
     {
-        ResourceLocation *newLocation = adjacentLocations[index];
-        adjacentLocations[index] = NULL;
+        ResourceLocation *newLocation = adjacentLocations[indexToUse];
+        ResourceEvent *newInitialEvent = adjacentLocationInitialEvents[indexToUse];
+        adjacentLocations[indexToUse] = NULL;
+        adjacentLocationInitialEvents[indexToUse] = NULL;
 
-        uint16_t globalIndex = currentLocation->adjacentLocations[index];
+        uint16_t globalIndex = currentLocation->adjacentLocations[indexToUse];
         uint16_t oldIndex = currentResourceStoryState.persistedResourceStoryState.currentLocationIndex;
         
+        ResourceLocation_FreeLocalEvents();
         ResourceLocation_FreeAdjacentLocations();
         ResourceLocation_Free(currentLocation);
+        ResourceEvent_Free(currentLocationInitialEvent);
 
         currentLocation = newLocation;
+        currentLocationInitialEvent = newInitialEvent;
+        if(currentLocationInitialEvent)
+            ResourceEvent_TriggerEvent(currentLocationInitialEvent, true);
         ResourceLocation_LoadAdjacentLocations();
+        ResourceLocation_LoadLocalEvents();
         currentResourceStoryState.persistedResourceStoryState.currentLocationIndex = globalIndex;
         currentResourceStoryState.persistedResourceStoryState.timeOnPath = 0;
         currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
@@ -585,7 +863,10 @@ void ResourceStory_ClearCurrentStory(void)
     {
         ResourceLocation_Free(currentLocation);
         currentLocation = NULL;
+        ResourceEvent_Free(currentLocationInitialEvent);
+        currentLocationInitialEvent = NULL;
         ResourceLocation_FreeAdjacentLocations();
+        ResourceLocation_FreeLocalEvents();
     }
 }
 
@@ -665,14 +946,20 @@ void ResourceStory_GetPersistedData(uint16_t *count, uint8_t **buffer)
 void ResourceStory_UpdateStoryWithPersistedState(void)
 {
     if(currentLocation)
+    {
         ResourceLocation_Free(currentLocation);
+        ResourceEvent_Free(currentLocationInitialEvent);
+    }
     
     currentLocation = ResourceLocation_Load(currentResourceStoryState.persistedResourceStoryState.currentLocationIndex);
+    currentLocationInitialEvent = ResourceEvent_Load(currentLocation->initialEvent);
     currentResourceStoryState.persistedResourceStoryState.encounterChance = currentLocation->encounterChance;
     currentResourceStoryState.persistedResourceStoryState.pathLength = currentLocation->length;
     ResourceBattler_UnloadPlayer();
     ResourceLocation_FreeAdjacentLocations();
     ResourceLocation_LoadAdjacentLocations();
+    ResourceLocation_FreeLocalEvents();
+    ResourceLocation_LoadLocalEvents();
 #if DEBUG_LOGGING > 1
     ResourceLocation_Log(currentLocation);
 #endif

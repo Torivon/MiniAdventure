@@ -4,8 +4,8 @@
 typedef struct DialogData
 {
     char text[MAX_DIALOG_LENGTH];
-    bool allowCancel;
-    bool heap;
+    uint16_t allowCancel;
+    uint16_t heap;
 } DialogData;
 
 void SetDialog(const char *text);
