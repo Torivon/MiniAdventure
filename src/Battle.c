@@ -115,6 +115,8 @@ void CloseBattleWindow(void)
     {
         // The player won, so grant xp.
         bool leveledUp = Character_GrantXP(gBattleState.monster.actor.level);
+        if(gBattleState.monster.battlerWrapper && gBattleState.monster.battlerWrapper->event)
+            ResourceEvent_TriggerEvent(gBattleState.monster.battlerWrapper->event, false);
         DialogData *dialog = calloc(sizeof(DialogData), 1);
         ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->battleWinDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
         QueueDialog(dialog);
@@ -311,6 +313,9 @@ void BattleScreen_MenuSelect(MenuIndex *index)
 
 void BattleScreenAppear(void *data)
 {
+    if(!gBattleState.monster.battlerWrapper)
+        return;
+    
     if(gPlayerActed)
     {
         gPlayerTurn = false;
@@ -320,7 +325,8 @@ void BattleScreenAppear(void *data)
     SetDescription(ResourceMonster_GetCurrentName());
     RegisterMenuState(GetMainMenu(), STATE_BATTLE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
-    SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
+    if(gBattleState.monster.battlerWrapper && gBattleState.monster.battlerWrapper->loaded)
+        SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
 #endif
@@ -367,11 +373,14 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
 
 void BattleInit(void)
 {
+    DEBUG_LOG("BattleInit");
     ResourceMonster_UnloadCurrent();
+    gBattleState.monster.battlerWrapper = NULL;
+    bool loaded = false;
     
     if(forcedBattle && forcedBattleMonsterType > -1)
     {
-        ResourceMonster_LoadCurrent(forcedBattleMonsterType);
+        loaded = ResourceMonster_LoadCurrent(forcedBattleMonsterType);
         gBattleState.monster.battlerWrapper = BattlerWrapper_GetMonsterWrapper();
         gBattleState.player.battlerWrapper = BattlerWrapper_GetPlayerWrapper();
         currentMonsterIndex = forcedBattleMonsterType;
@@ -383,11 +392,22 @@ void BattleInit(void)
         if(!ResourceMonster_Loaded())
         {
             currentMonsterIndex = ResourceStory_GetCurrentLocationMonster();
-            ResourceMonster_LoadCurrent(currentMonsterIndex);
+            loaded = ResourceMonster_LoadCurrent(currentMonsterIndex);
         }
-        InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
-        uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
-        InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
+        if(loaded)
+        {
+            InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
+            uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
+            InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
+        }
+    }
+    
+    if(!loaded)
+    {
+        DEBUG_LOG("Aborting battle");
+        // Monster prereqs failed
+        GlobalState_Pop();
+        return;
     }
     
     GRect playerHealthFrame = PLAYER_HEALTH_FRAME;
@@ -532,14 +552,19 @@ void BattleScreenPush(void *data)
 
 void BattleScreenPop(void *data)
 {
+    DEBUG_LOG("BattleScreenPop");
     RemoveProgressBar(playerHealthBar);
     RemoveProgressBar(playerTimeBar);
     RemoveProgressBar(monsterHealthBar);
     RemoveProgressBar(monsterTimeBar);
     FreeProgressBar(playerHealthBar);
+    playerHealthBar = NULL;
     FreeProgressBar(playerTimeBar);
+    playerTimeBar = NULL;
     FreeProgressBar(monsterHealthBar);
+    monsterHealthBar = NULL;
     FreeProgressBar(monsterTimeBar);
+    monsterTimeBar = NULL;
     ResourceMonster_UnloadCurrent();
 }
 

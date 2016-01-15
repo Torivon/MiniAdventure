@@ -4,6 +4,8 @@
 #include "Skills.h"
 #include "CombatantClass.h"
 
+typedef struct ResourceEvent ResourceEvent;
+
 typedef enum
 {
     STORYUPDATE_COMPUTERANDOM = 0,
@@ -20,6 +22,7 @@ typedef struct ResourceBattler
     uint16_t image;
     CombatantClass combatantClass;
     SkillList skillList;
+    uint16_t event;
     uint16_t vulnerable; // These are bit fields that use the damage type enums
     uint16_t resistant;
     uint16_t immune;
@@ -30,6 +33,7 @@ typedef struct BattlerWrapper
 {
     bool loaded;
     Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+    ResourceEvent *event;
     ResourceBattler battler;
 } BattlerWrapper;
 
@@ -43,8 +47,6 @@ typedef struct PersistedResourceStoryState
     uint16_t gameState[MAX_GAME_STATE_VARIABLES];
 } PersistedResourceStoryState;
 
-typedef struct ResourceEvent ResourceEvent;
-
 void ResourceStory_InitializeCurrent(void);
 
 void ResourceEvent_UpdateGameState_Push(void *data);
@@ -57,6 +59,7 @@ uint16_t ResourceStory_GetCurrentLocalEvents(void);
 const char *ResourceStory_GetLocalEventName(uint16_t index);
 void ResourceEvent_Trigger(uint16_t index);
 void ResourceEvent_Queue(uint16_t index);
+void ResourceEvent_TriggerEvent(ResourceEvent *event, bool now);
 
 
 uint16_t ResourceStory_GetCurrentLocationIndex(void);
@@ -106,7 +109,7 @@ void ResourceBattler_LoadPlayer(uint16_t classId);
 
 char *ResourceMonster_GetCurrentName(void);
 void ResourceMonster_UnloadCurrent(void);
-void ResourceMonster_LoadCurrent(uint16_t index);
+bool ResourceMonster_LoadCurrent(uint16_t index);
 bool ResourceMonster_Loaded(void);
 void ResourceBattler_UnloadPlayer(void);
 void ResourceMonster_UnloadCurrent(void);

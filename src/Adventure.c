@@ -373,9 +373,10 @@ void AdventureScreenAppear(void *data)
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
-        returnVal = ResourceStory_MoveToLocation(newLocation);
+        int temp = newLocation;
+        newLocation = -1;
+        returnVal = ResourceStory_MoveToLocation(temp);
     }
-    newLocation = -1;
     StoryUpdateResponse(returnVal, false);
 
     if(!dead && Character_GetHealth() <= 0)

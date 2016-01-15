@@ -63,7 +63,7 @@ def pack_bool(b):
     Write out a boolean into a packed binary file
     '''
 
-    return struct.pack('?', b)
+    return struct.pack('<H', b)
 
 def pack_bool_with_default(dict, key, default):
     if key in dict:
@@ -90,6 +90,13 @@ def pack_string(s, max_length):
     Write out a string into a packed binary file
     '''
     binarydata = struct.pack(str(max_length) + 's', s.encode('ascii'))
+    return binarydata
+
+def pack_string_with_default(dict, key, default, size):
+    if key in dict:
+        binarydata = pack_string(dict[key], size)
+    else:
+        binarydata = pack_string(default, size)
     return binarydata
 
 def pack_location(location):
@@ -125,10 +132,7 @@ def pack_location(location):
         for index in range(g_size_constants["MAX_MONSTERS"]):
             binarydata += pack_integer(0)
 
-    binarydata += pack_integer_with_default(location, "use_prerequisites", False)
-    binarydata += pack_gamestate(location, "positive_prerequisites_values")
-    binarydata += pack_gamestate(location, "negative_prerequisites_values")
-
+    binarydata += pack_integer_with_default(location, "initial_event_index", 0)
     if "events_index" in location:
         binarydata += pack_integer(len(location["events_index"]))
         for index in range(g_size_constants["MAX_EVENTS"]):
@@ -177,9 +181,8 @@ def pack_gamestate(dict, listkey):
     return binarydata
 
 def pack_event(event):
-    binarydata = pack_string(event["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
-    binarydata += pack_integer(event["dialog_index"])
-    binarydata += pack_bool_with_default(event, "cancelable", False)
+    binarydata = pack_string_with_default(event, "name", "", g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_integer_with_default(event, "dialog_index", 0)
     binarydata += pack_bool_with_default(event, "use_prerequisites", False)
     binarydata += pack_gamestate(event, "positive_prerequisites_values")
     binarydata += pack_gamestate(event, "negative_prerequisites_values")
@@ -208,6 +211,7 @@ def pack_battler(battler):
             binarydata += pack_integer(0)
             binarydata += pack_integer(0)
 
+    binarydata += pack_integer_with_default(battler, "event_index", 0)
     binarydata += pack_integer_with_default(battler, "vulnerable_value", 0)
     binarydata += pack_integer_with_default(battler, "resistant_value", 0)
     binarydata += pack_integer_with_default(battler, "immune_value", 0)
@@ -380,13 +384,15 @@ def process_events(story, event_map, dialog_map, gamestate_list, data_index):
 
     for index in range(len(story["events"])):
         event = story["events"][index]
-        if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-            quit("Event name is too long: " + event["name"])
+        if "name" in event:
+            if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+                quit("Event name is too long: " + event["name"])
 
         event_map[event["id"]] = data_index
         data_index += 1
 
-        event["dialog_index"] = dialog_map[event["dialog"]]
+        if "dialog" in event:
+            event["dialog_index"] = dialog_map[event["dialog"]]
 
         process_gamestate_list(event, gamestate_list, "positive_prerequisites", "positive_prerequisites_values")
         process_gamestate_list(event, gamestate_list, "negative_prerequisites", "negative_prerequisites_values")
@@ -416,7 +422,7 @@ def process_skills(story, skill_map, data_index):
 
     return data_index
 
-def process_battlers(story, battler_map, skill_map, imagelist, data_index):
+def process_battlers(story, battler_map, skill_map, imagelist, event_map, data_index):
     if not "battlers" in story:
         return data_index
     
@@ -441,6 +447,8 @@ def process_battlers(story, battler_map, skill_map, imagelist, data_index):
             skill = battler["skill_list"][skill_index]
             skill["index"] = skill_map[skill["id"]]
 
+        if "event" in battler:
+            battler["event_index"] = event_map[battler["event"]]
         process_bit_field(battler, "vulnerable", g_damage_types)
         process_bit_field(battler, "resistant", g_damage_types)
         process_bit_field(battler, "immune", g_damage_types)
@@ -476,6 +484,8 @@ def process_locations(story, battler_map, imagelist, event_map, gamestate_list, 
             location["monsters_index"] = []
             for monster in location["monsters"]:
                 location["monsters_index"].append(battler_map[monster])
+        if "initial_event" in location:
+            location["initial_event_index"] = event_map[location["initial_event"]]
         if "events" in location:
             location["events_index"] = []
             for event in location["events"]:
@@ -609,7 +619,7 @@ def process_story(story, imagelist):
     data_index = process_skills(story, skill_map, data_index)
     
     battler_map = {}
-    data_index = process_battlers(story, battler_map, skill_map, imagelist, data_index)
+    data_index = process_battlers(story, battler_map, skill_map, imagelist, event_map, data_index)
     
     data_index = process_locations(story, battler_map, imagelist, event_map, gamestate_list, data_index)
 
