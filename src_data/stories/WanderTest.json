@@ -3,15 +3,24 @@
     "version": 4,
     "name": "Wander Test",
     "description": "A test of path traveling",
-    "start_location": "village1",
+    "start_location": "house3",
     "classes": ["adventurer"],
+    "opening_dialog": "wake_up",
     "win_dialog": "game_end",
     "locations": [
         {
             "id": "village2",
             "name": "Haven",
-            "adjacent_locations": ["road1", "house2"],
+            "adjacent_locations": ["road1", "house2", "shop1"],
             "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "shop1",
+            "name": "Cheese shop",
+            "adjacent_locations": ["village2"],
+            "background_images": ["images/shop.png"],
+            "initial_event": "shop_enter",
+            "events": ["shop1", "shop2"]
         },
         {
             "id": "village1",
@@ -183,7 +192,23 @@
         {
             "id": "game_end",
             "text": "You head to bed."
-        }  
+        },
+        {
+            "id": "wake_up",
+            "text": "You wake up and realize that you need to head down to Haven to get some cheese."
+        },
+        {
+            "id": "shop1",
+            "text": "What kind of cheese do you want?\n\nCheddar, eh?\n\nHere you go."
+        },
+        {
+            "id": "shop2",
+            "text": "I'm a bit short, so I can't sell you any more cheese right now."
+        },
+        {
+            "id": "shop_enter",
+            "text": "Welcome, how can I help you?"
+        }
     ],
     "events": [
         {
@@ -200,6 +225,19 @@
             "positive_prerequisites": ["talk_to_bob"]
         },
         {
+            "id": "shop1",
+            "name": "George",
+            "dialog": "shop1",
+            "negative_prerequisites": ["bought_cheese"],
+            "state_changes": ["bought_cheese"]
+        },
+        {
+            "id": "shop2",
+            "name": "George",
+            "dialog": "shop2",
+            "positive_prerequisites": ["bought_cheese"]
+        },
+        {
             "id": "poplar_enter",
             "name": "Poplar",
             "dialog": "poplar",
@@ -210,6 +248,11 @@
             "name": "Bob's House",
             "dialog": "bob_desc",
             "negative_prerequisites": ["talk_to_bob"]
+        },
+        {
+            "id": "shop_enter",
+            "name": "Cheese Shop",
+            "dialog": "shop_enter"
         },
         {
             "id": "no_rats",
@@ -237,11 +280,11 @@
         },
         {
             "id": "bedtime",
-            "positive_prerequisites": ["talk_to_fred"]
+            "positive_prerequisites": ["bought_cheese"]
         },
         {
             "id": "daytime",
-            "negative_prerequisites": ["talk_to_fred"]
+            "negative_prerequisites": ["bought_cheese"]
         }
     ]
 }

@@ -214,6 +214,11 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/shop.png",
+                "name": "IMAGE_SHOP",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/rest.png",
                 "name": "IMAGE_REST",
                 "type": "bitmap"
