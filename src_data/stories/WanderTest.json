@@ -55,9 +55,9 @@
             "name": "Poplar Avenue",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
-            "length": 2,
-            "base_level": 2,
-            "encounter_chance": 100,
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 25,
             "monsters": ["rat"],
             "initial_event": "poplar_enter"
         }
