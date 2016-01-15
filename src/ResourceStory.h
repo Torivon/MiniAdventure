@@ -40,13 +40,23 @@ typedef struct PersistedResourceStoryState
     uint16_t destinationIndex;
     uint16_t pathLength;
     uint16_t encounterChance;
+    uint16_t gameState[MAX_GAME_STATE_VARIABLES];
 } PersistedResourceStoryState;
+
+typedef struct ResourceEvent ResourceEvent;
 
 void ResourceStory_InitializeCurrent(void);
 
+void ResourceEvent_UpdateGameState_Push(void *data);
+
 void ResourceStory_TriggerDialog(uint16_t dialogIndex);
+void ResourceStory_QueueDialog(uint16_t dialogIndex);
 uint16_t ResourceStory_GetOpeningDialogIndex(void);
 uint16_t ResourceStory_GetWinDialogIndex(void);
+uint16_t ResourceStory_GetCurrentLocalEvents(void);
+const char *ResourceStory_GetLocalEventName(uint16_t index);
+void ResourceEvent_Trigger(uint16_t index);
+void ResourceEvent_Queue(uint16_t index);
 
 
 uint16_t ResourceStory_GetCurrentLocationIndex(void);

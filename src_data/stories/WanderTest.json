@@ -22,19 +22,22 @@
             "id": "house1",
             "name": "Bob's House",
             "adjacent_locations": ["village1"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "events": ["bob1", "bob2"]
         },
         {
             "id": "house2",
             "name": "Fred's House",
             "adjacent_locations": ["village2"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "positive_prerequisites": ["o"]
         },
         {
             "id": "house3",
             "name": "Jon's House",
             "adjacent_locations": ["village1"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "negative_prerequisites": ["n"]
         },
         {
             "id": "road1",
@@ -44,7 +47,8 @@
             "length": 5,
             "base_level": 2,
             "encounter_chance": 25,
-            "monsters": ["rat"]
+            "monsters": ["rat"],
+            "positive_prerequisites": ["villagekey"]
         }
     ],
     "skills": [
@@ -132,6 +136,31 @@
                     "min_level": 1
                 }
             ]          
+        }
+    ],
+    "dialog": [
+        {
+            "id": "bob1",
+            "text": "You need a key to leave town. Here, take mine."
+        },
+        {
+            "id": "bob2",
+            "text": "You already have my key. Get going."
+        }      
+    ],
+    "events": [
+        {
+            "id": "bob1",
+            "name": "Bob",
+            "dialog": "bob1",
+            "negative_prerequisites": ["talk_to_bob"],
+            "state_changes": ["talk_to_bob", "villagekey", "fiddle", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"]
+        },
+        {
+            "id": "bob2",
+            "name": "Bob",
+            "dialog": "bob2",
+            "positive_prerequisites": ["talk_to_bob"]
         }
     ]
 }

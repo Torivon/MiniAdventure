@@ -37,6 +37,7 @@ static int updateDelay = 0;
 
 static int adventureImageId = -1;
 
+static int newEvent = -1;
 static int newLocation = -1;
 
 static bool firstLaunch = true;
@@ -72,7 +73,7 @@ void ResetGame(void)
 
 uint16_t Adventure_MenuSectionCount(void)
 {
-    return 2 + ExtraMenu_GetSectionCount();
+    return 3 + ExtraMenu_GetSectionCount();
 }
 
 const char *Adventure_MenuSectionName(uint16_t sectionIndex)
@@ -80,10 +81,12 @@ const char *Adventure_MenuSectionName(uint16_t sectionIndex)
     switch(sectionIndex)
     {
         case 0:
-            return "Locations";
+            return "Events";
         case 1:
-            return "Story";
+            return "Locations";
         case 2:
+            return "Story";
+        case 3:
             return ExtraMenu_GetSectionName();
     }
     return "None";
@@ -98,14 +101,22 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
             if(ResourceStory_CurrentLocationIsPath())
                 return 0;
             
-            return ResourceStory_GetCurrentAdjacentLocations();
+            return ResourceStory_GetCurrentLocalEvents();
             break;
         }
         case 1:
         {
-            return 4;
+            if(ResourceStory_CurrentLocationIsPath())
+                return 0;
+            
+            return ResourceStory_GetCurrentAdjacentLocations();
+            break;
         }
         case 2:
+        {
+            return 4;
+        }
+        case 3:
         {
             return ExtraMenu_GetCellCount();
         }
@@ -118,8 +129,10 @@ const char *Adventure_MenuCellName(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetAdjacentLocationName(index->row);
+            return ResourceStory_GetLocalEventName(index->row);
         case 1:
+            return ResourceStory_GetAdjacentLocationName(index->row);
+        case 2:
         {
             switch(index->row)
             {
@@ -134,7 +147,7 @@ const char *Adventure_MenuCellName(MenuIndex *index)
             }
             break;
         }
-        case 2:
+        case 3:
             return ExtraMenu_GetCellName(index->row);
     }
     return "None";
@@ -156,10 +169,15 @@ void Adventure_MenuSelect(MenuIndex *index)
     {
         case 0:
         {
-            newLocation = index->row;
+            newEvent = index->row;
             break;
         }
         case 1:
+        {
+            newLocation = index->row;
+            break;
+        }
+        case 2:
         {
             switch(index->row)
             {
@@ -190,7 +208,7 @@ void Adventure_MenuSelect(MenuIndex *index)
             }
             break;
         }
-        case 2:
+        case 3:
         {
             ExtraMenu_SelectAction(index->row);
             break;
@@ -347,6 +365,11 @@ void AdventureScreenAppear(void *data)
     }
     firstLaunch = false;
 
+    if(newEvent > -1)
+    {
+        ResourceEvent_Trigger(newEvent);
+    }
+    newEvent = -1;
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {

@@ -40,11 +40,13 @@
         },
         {
             "id": "reset_prompt",
-            "text": "Are you sure you want to reset the game?"
+            "text": "Are you sure you want to reset the game?",
+            "allow_cancel": true
         },
         {
             "id": "exit_prompt",
-            "text": "Are you sure you want to save and exit the game?"
+            "text": "Are you sure you want to save and exit the game?",
+            "allow_cancel": true
         }
     ]
 }
