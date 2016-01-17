@@ -3,11 +3,6 @@
 #include "MiniAdventure.h"
 #include "Utils.h"
 
-#define MAIN_IMAGE_LAYER_X 50
-#define MAIN_IMAGE_LAYER_Y 20
-#define MAIN_IMAGE_LAYER_W 84
-#define MAIN_IMAGE_LAYER_H 84
-
 #define INTERNAL_IMAGE_OFFSET 2
 
 static GBitmap *foregroundImage = NULL;
