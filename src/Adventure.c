@@ -108,7 +108,7 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
         }
         case 2:
         {
-            return 4;
+            return 5;
         }
         case 3:
         {
@@ -137,6 +137,8 @@ const char *Adventure_MenuCellName(MenuIndex *index)
                 case 2:
                     return "Skills";
                 case 3:
+                    return "Credits";
+                case 4:
                     return "Reset";
             }
             break;
@@ -191,6 +193,11 @@ void Adventure_MenuSelect(MenuIndex *index)
                     break;
                 }
                 case 3:
+                {
+                    ResourceStory_QueueDialog(ResourceStory_GetCreditsDialogIndex());
+                    break;
+                }
+                case 4:
                 {
                     DialogData *dialog = calloc(sizeof(DialogData), 1);
                     ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");

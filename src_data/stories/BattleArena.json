@@ -9,6 +9,7 @@
     "classes": ["adventurer"],
     "opening_dialog": "intro_text",
     "win_dialog": "end_text",
+    "credits_dialog": "credits",
     "locations": [
         {
             "id": "restarea",
@@ -98,6 +99,10 @@
         {
             "id": "end_text",
             "text": "You have had enough of fighting monsters in the arena. Time to go do something else."
+        },
+        {
+            "id": "credits",
+            "text": "Design and art by Jonathan Panttaja."
         }
     ]
 }

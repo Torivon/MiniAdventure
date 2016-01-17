@@ -31,6 +31,7 @@ typedef struct ResourceStory
     uint16_t classes[MAX_CLASSES];
     uint16_t openingDialog;
     uint16_t winDialog;
+    uint16_t creditsDialog;
 } ResourceStory;
 
 static ResHandle ResourceStory_GetCurrentResHandle(void);
@@ -249,6 +250,11 @@ uint16_t ResourceStory_GetOpeningDialogIndex(void)
 uint16_t ResourceStory_GetWinDialogIndex(void)
 {
     return ResourceStory_GetCurrentStory()->winDialog;
+}
+
+uint16_t ResourceStory_GetCreditsDialogIndex(void)
+{
+    return ResourceStory_GetCurrentStory()->creditsDialog;
 }
 
 /********************* RESOURCE LOCATION *******************************/

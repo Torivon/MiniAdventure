@@ -239,6 +239,7 @@ def pack_story(story, hash):
             binarydata += pack_integer(0)
     binarydata += pack_integer_with_default(story, "opening_dialog_index", 0)
     binarydata += pack_integer_with_default(story, "win_dialog_index", 0)
+    binarydata += pack_integer_with_default(story, "credits_dialog_index", 0)
     return binarydata
 
 def get_total_objects(story):
@@ -634,6 +635,8 @@ def process_story(story, imagelist):
         story["opening_dialog_index"] = dialog_map[story["opening_dialog"]]
     if "win_dialog" in story:
         story["win_dialog_index"] = dialog_map[story["win_dialog"]]
+    if "credits_dialog" in story:
+        story["credits_dialog_index"] = dialog_map[story["credits_dialog"]]
 
 def pack_engineinfo(engineinfo):
     binarydata = pack_integer(engineinfo["image_index"]["title_image"])
