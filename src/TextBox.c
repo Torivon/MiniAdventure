@@ -42,8 +42,9 @@ void TextBoxSetText(TextBox *textBox, const char *text)
         GPoint offset = GPointZero;
         scroll_layer_set_content_offset(textBox->scrollLayer, offset, false);
         GSize max_size = text_layer_get_content_size(textBox->textLayer);
+        max_size.h += 4;
         text_layer_set_size(textBox->textLayer, max_size);
-        scroll_layer_set_content_size(textBox->scrollLayer, GSize(bounds.size.w, max_size.h + 4));
+        scroll_layer_set_content_size(textBox->scrollLayer, GSize(bounds.size.w, max_size.h));
     }
 }
 
