@@ -7,3 +7,5 @@ const char *ExtraMenu_GetCellName(uint16_t row);
 void ExtraMenu_SelectAction(uint16_t row);
 
 void TriggerTutorialDialog(bool now);
+void ExtraMenu_SubMenu_Trigger(void);
+

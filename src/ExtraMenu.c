@@ -1,9 +1,12 @@
 #include "pebble.h"
 
+#include "BaseWindow.h"
 #include "BinaryResourceLoading.h"
 #include "DialogFrame.h"
 #include "EngineInfo.h"
 #include "ExtraMenu.h"
+#include "GlobalState.h"
+#include "Menu.h"
 #include "ImageMap.h"
 #include "LargeImage.h"
 #include "OptionsMenu.h"
@@ -77,4 +80,10 @@ void ExtraMenu_SelectAction(uint16_t row)
             break;
         }
     }
+}
+
+void ExtraMenu_SubMenu_Trigger(void)
+{
+    QueueRegisterMenuState(GetMainMenu(), STATE_EXTRA_MENU);
+    QueueMenu(GetMainMenu());
 }

@@ -35,6 +35,11 @@ void GlobalState_RunPushCallback(GlobalStateInstance *instance)
 {
     switch(instance->state)
     {
+        case STATE_REGISTER_MENU_STATE:
+        {
+            RegisterMenuState_Push(instance->data);
+            break;
+        }
         case STATE_UPDATE_GAME_STATE:
         {
             ResourceEvent_UpdateGameState_Push(instance->data);
