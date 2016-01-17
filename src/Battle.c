@@ -25,18 +25,6 @@ typedef struct BattleState
     BattleActorWrapper monster;
 } BattleState;
 
-#if defined(PBL_ROUND)
-#define PLAYER_HEALTH_FRAME {.origin = {.x = 50, .y = 90}, .size = {.w = 16, .h = 40}}
-#define PLAYER_TIME_FRAME  {.origin = {.x = 67, .y = 90}, .size = {.w = 8, .h = 40}}
-#define MONSTER_HEALTH_FRAME {.origin = {.x = 50, .y = 48}, .size = {.w = 16, .h = 40}}
-#define MONSTER_TIME_FRAME {.origin = {.x = 67, .y = 48}, .size = {.w = 8, .h = 40}}
-#else
-#define PLAYER_HEALTH_FRAME {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 40}}
-#define PLAYER_TIME_FRAME  {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 40}}
-#define MONSTER_HEALTH_FRAME {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 40}}
-#define MONSTER_TIME_FRAME {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 40}}
-#endif
-
 static ProgressBar *playerHealthBar = NULL;
 static ProgressBar *playerTimeBar = NULL;
 
@@ -425,7 +413,9 @@ void BattleInit(void)
     InitializeProgressBar(monsterHealthBar, GetBaseWindow());
     InitializeProgressBar(monsterTimeBar, GetBaseWindow());
     
+#if defined(PBL_ROUND)
     HideDateLayer();
+#endif
     
     // Force the main menu to the front
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());

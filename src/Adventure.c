@@ -21,12 +21,6 @@
 #include "Utils.h"
 #include "WorkerControl.h"
 
-#if defined(PBL_ROUND)
-#define LOCATION_PROGRESS_FRAME {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}}
-#else
-#define LOCATION_PROGRESS_FRAME {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}}
-#endif
-
 static ProgressBar *locationProgress = NULL;
 static uint16_t currentProgress = 0;
 static uint16_t maxProgress = 1;

@@ -26,7 +26,7 @@ static uint16_t maxBatteryLevel = 100;
 #if defined(PBL_ROUND)
 #define BATTERY_FRAME {.origin = {.x = 122, .y = 134}, .size = {.w = 10, .h = 30}}
 #else
-#define BATTERY_FRAME {.origin = {.x = 20, .y = 61}, .size = {.w = 16, .h = 36}}
+#define BATTERY_FRAME {.origin = {.x = DATE_FRAME_WIDTH + CLOCK_FRAME_WIDTH + 4, .y = 168 - CLOCK_FRAME_HEIGHT}, .size = {.w = 144 - (DATE_FRAME_WIDTH + CLOCK_FRAME_WIDTH + 4), .h = CLOCK_FRAME_HEIGHT}}
 #endif
 
 Menu *GetMainMenu(void)
@@ -261,17 +261,17 @@ Window * InitializeBaseWindow(void)
 	Window *window = window_create();
 	window_set_background_color(window, GColorBlack);
 	SetWindowHandlers(window);
-	slaveMenu = CreateMenuLayer(15,
-								48,
-								80,
-								84,
+	slaveMenu = CreateMenuLayer(SLAVE_MENU_FRAME_ON_SCREEN_X,
+								SLAVE_MENU_FRAME_Y_POS,
+								SLAVE_MENU_FRAME_WIDTH,
+								SLAVE_MENU_FRAME_HEIGHT,
 								4,
 								false,
 								false);
-	mainMenu = CreateMenuLayer(95,
-							   48,
-							   75,
-							   84,
+	mainMenu = CreateMenuLayer(MAIN_MENU_FRAME_ON_SCREEN_X,
+							   MAIN_MENU_FRAME_Y_POS,
+							   MAIN_MENU_FRAME_WIDTH,
+							   MAIN_MENU_FRAME_HEIGHT,
 							   4,
 							   true,
 							   true);

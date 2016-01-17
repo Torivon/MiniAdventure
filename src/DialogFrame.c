@@ -16,20 +16,18 @@ bool currentDialogAllowsCancel = false;
 
 #define DIALOG_FRAME_WIDTH 100
 #define DIALOG_FRAME_HEIGHT 80
-#define OK_FRAME_WIDTH 25
-#define OK_FRAME_HEIGHT 22
-#define CANCEL_FRAME_WIDTH 25
+#define CANCEL_FRAME_WIDTH 20
 #define CANCEL_FRAME_HEIGHT 22
 #define DIALOG_TEXT_X_OFFSET 2
 #define DIALOG_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
-static GRect dialogFrame = {.origin = {.x = 0, .y = 168 / 2 - DIALOG_FRAME_HEIGHT / 2}, .size = {.w = DIALOG_FRAME_WIDTH, .h = DIALOG_FRAME_HEIGHT}};
-static GRect okFrame = {.origin = {.x = 144 - 30, .y = 168 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
-static GRect cancelFrame = {.origin = {.x = 0, .y = 168 / 2 - CANCEL_FRAME_HEIGHT / 2}, .size = {.w = CANCEL_FRAME_WIDTH, .h = CANCEL_FRAME_HEIGHT}};
+static GRect dialogFrame = {.origin = {.x = 144 / 2 - DIALOG_FRAME_WIDTH / 2, .y = 168 / 2 - DIALOG_FRAME_HEIGHT / 2}, .size = {.w = DIALOG_FRAME_WIDTH, .h = DIALOG_FRAME_HEIGHT}};
+static GRect okFrame = {.origin = {.x = 144 - OK_FRAME_WIDTH, .y = 168 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
+static GRect cancelFrame = {.origin = {.x = 0, .y = 168 / 4 - CANCEL_FRAME_HEIGHT / 2}, .size = {.w = CANCEL_FRAME_WIDTH, .h = CANCEL_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
 #define VERTICAL_OFFSET 20
 static GRect dialogFrame = {.origin = {.x = 180 / 2 - DIALOG_FRAME_WIDTH / 2, .y = 180 / 2 - DIALOG_FRAME_HEIGHT / 2}, .size = {.w = DIALOG_FRAME_WIDTH, .h = DIALOG_FRAME_HEIGHT}};
-static GRect okFrame = {.origin = {.x = 180 - 30, .y = 180 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
+static GRect okFrame = {.origin = {.x = 180 - OK_FRAME_WIDTH - 5, .y = 180 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
 static GRect cancelFrame = {.origin = {.x = 10, .y = 180 / 2 - CANCEL_FRAME_HEIGHT / 2}, .size = {.w = CANCEL_FRAME_WIDTH, .h = CANCEL_FRAME_HEIGHT}};
 #endif
 
