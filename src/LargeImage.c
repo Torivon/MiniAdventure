@@ -39,7 +39,6 @@ void InitializeLargeImageLayer(Window *window)
 {
 	if(!largeImageInitialized)
 	{
-		GRect screen_bounds = layer_get_bounds(window_get_root_layer(window));
 		largeImageTopLayer = layer_create(largeImagePosition);
 		
 		GRect image_bounds = layer_get_bounds(largeImageTopLayer);
@@ -56,7 +55,7 @@ void InitializeLargeImageLayer(Window *window)
 		layer_set_update_proc(largeImageTopLayer, LargeImageUpdateProc);
 		layer_add_child(largeImageTopLayer, (Layer*)largeImageLayer);
 
-		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame, GTextAlignmentCenter, false);
+		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame, GTextAlignmentCenter, false, false);
 
 		largeImageInitialized = true;
 	}

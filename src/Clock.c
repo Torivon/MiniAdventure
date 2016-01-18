@@ -93,10 +93,10 @@ void InitializeClockLayer(Window *window)
 {
     if(!clockTextBox)
     {
-        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame, GTextAlignmentCenter, false);
+        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame, GTextAlignmentCenter, false, false);
         GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-        dayTextBox = CreateTextBox(0, 0, font, dayFrame, GTextAlignmentCenter, false);
-        dateTextBox = CreateTextBox(0, 0, font, dateFrame, GTextAlignmentCenter, false);
+        dayTextBox = CreateTextBox(0, 0, font, dayFrame, GTextAlignmentCenter, false, false);
+        dateTextBox = CreateTextBox(0, 0, font, dateFrame, GTextAlignmentCenter, false, false);
         if (clock_is_24h_style())
         {
             formatData[2].format = "%R";

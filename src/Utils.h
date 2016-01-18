@@ -21,5 +21,6 @@ typedef struct GContext GContext;
 typedef struct GRect GRect;
 
 void DrawContentFrame(GContext *ctx, GRect *rect);
+void DrawBoundaryArcs(GContext * ctx, GRect *rect);
 void ShowLayer(Layer *layer);
 void HideLayer(Layer *layer);

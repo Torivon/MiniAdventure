@@ -34,6 +34,13 @@ void DrawContentFrame(GContext * ctx, GRect *rect)
 	graphics_fill_rect(ctx, inner_frame, 0, GCornerNone);	
 }
 
+void DrawBoundaryArcs(GContext * ctx, GRect *rect)
+{
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    GRect screenBounds = {.origin = {.x = -rect->origin.x, .y = -rect->origin.y}, .size = {.w = 180, .h = 180}};
+    graphics_fill_radial(ctx, grect_inset(screenBounds, GEdgeInsets(1, 3, 1, 1)), GOvalScaleModeFillCircle, 3, 0, TRIG_MAX_ANGLE);
+}
+
 void ShowLayer(Layer *layer)
 {
     layer_set_hidden(layer, false);

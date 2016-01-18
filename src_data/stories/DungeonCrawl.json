@@ -2,7 +2,7 @@
     "id": 567,
     "version": 4,
     "name": "Dungeon Crawl",
-    "description": "20 floor dungeon",
+    "description": "A 20 floor dungeon with a dragon at the bottom.",
     "start_location": "entrance",
     "xp_monsters_per_level": 3,
     "xp_difference_scale": 50,
