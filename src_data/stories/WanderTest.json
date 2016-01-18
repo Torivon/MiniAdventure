@@ -174,11 +174,13 @@
     "dialog": [
         {
             "id": "bob1",
+            "name": "Bob",
             "text": "You need a key to leave town. Would you like mine?",
             "allow_cancel": true
         },
         {
             "id": "bob2",
+            "name": "Bob",
             "text": "You already have my key. Get going."
         },    
         {
@@ -187,14 +189,17 @@
         },    
         {
             "id": "fred1",
+            "name": "Fred",
             "text": "If you are heading back home, take this rat repellent."
         },
         {
             "id": "fred2",
+            "name": "Fred",
             "text": "You should get home before it gets dark."
         },  
         {
             "id": "wife1",
+            "name": "Joan",
             "text": "You say you fought a rat on your way here?"
         },  
         {
@@ -203,6 +208,7 @@
         },
         {
             "id": "game_end",
+            "name": "The End",
             "text": "You head to bed."
         },
         {
@@ -211,41 +217,48 @@
         },
         {
             "id": "shop1",
+            "name": "George",
             "text": "What kind of cheese do you want?\n\nCheddar, eh?\n\nHere you go."
         },
         {
             "id": "shop2",
+            "name": "George",
             "text": "I'm a bit short, so I can't sell you any more cheese right now."
         },
         {
             "id": "shop_enter",
+            "name": "George",
             "text": "Welcome, how can I help you?"
         }
     ],
     "events": [
         {
             "id": "bob1",
-            "name": "Bob",
+            "name": "Talk to Bob",
+            "menu_description": "Ask Bob for permission to leave town.",
             "dialog": "bob1",
             "negative_prerequisites": ["talk_to_bob"],
             "state_changes": ["talk_to_bob", "villagekey"]
         },
         {
             "id": "bob2",
-            "name": "Bob",
+            "name": "Talk to Bob",
+            "menu_description": "Bug Bob some more.",
             "dialog": "bob2",
             "positive_prerequisites": ["talk_to_bob"]
         },
         {
             "id": "shop1",
-            "name": "George",
+            "name": "Talk to George",
+            "menu_description": "Buy some cheese.",
             "dialog": "shop1",
             "negative_prerequisites": ["bought_cheese"],
             "state_changes": ["bought_cheese"]
         },
         {
             "id": "shop2",
-            "name": "George",
+            "name": "Talk to George",
+            "menu_description": "Try to buy more cheese.",
             "dialog": "shop2",
             "positive_prerequisites": ["bought_cheese"]
         },
@@ -273,20 +286,23 @@
         },
         {
             "id": "fred1",
-            "name": "Fred",
+            "name": "Talk to Fred",
+            "menu_description": "Discuss your day.",
             "dialog": "fred1",
             "negative_prerequisites": ["talk_to_fred"],
             "state_changes": ["rat_repellent", "talk_to_fred"]
         },
         {
             "id": "fred2",
-            "name": "Fred",
+            "name": "Talk to Fred",
+            "menu_description": "Discuss your day.",
             "dialog": "fred2",
             "positive_prerequisites": ["talk_to_fred"]
         },
         {
             "id": "wife1",
-            "name": "Joan",
+            "name": "Talk to Joan",
+            "menu_description": "Discuss your day.",
             "dialog": "wife1",
             "positive_prerequisites": ["beat_rat"]
         },

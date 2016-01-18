@@ -163,7 +163,8 @@ def pack_skill(skill):
     return binarydata
 
 def pack_dialog(dialog):
-    binarydata = pack_string(dialog["text"], g_size_constants["MAX_DIALOG_LENGTH"])
+    binarydata = pack_string_with_default(dialog, "name", "", g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string(dialog["text"], g_size_constants["MAX_DIALOG_LENGTH"])
     binarydata += pack_bool_with_default(dialog, "allow_cancel", False);
     binarydata += pack_bool(True);
     return binarydata
@@ -184,6 +185,7 @@ def pack_gamestate(dict, listkey):
 
 def pack_event(event):
     binarydata = pack_string_with_default(event, "name", "", g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string_with_default(event, "menu_description", "", g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer_with_default(event, "dialog_index", 0)
     binarydata += pack_bool_with_default(event, "use_prerequisites", False)
     binarydata += pack_gamestate(event, "positive_prerequisites_values")
@@ -346,6 +348,10 @@ def process_dialog(story, dialog_map, data_index):
     for index in range(len(story["dialog"])):
         dialog = story["dialog"][index]
         
+        if "name" in dialog:
+            if len(dialog["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+                quit("Name is too long: " + dialog["name"])
+        
         if len(dialog["text"]) >= g_size_constants["MAX_DIALOG_LENGTH"]:
             quit("Text is too long: " + dialog["text"])
         
@@ -390,6 +396,10 @@ def process_events(story, event_map, dialog_map, gamestate_list, data_index):
         if "name" in event:
             if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
                 quit("Event name is too long: " + event["name"])
+
+        if "menu_description" in event:
+            if len(event["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+                quit("Event description is too long: " + event["menu_description"])
 
         event_map[event["id"]] = data_index
         data_index += 1
@@ -469,6 +479,12 @@ def process_locations(story, battler_map, imagelist, event_map, gamestate_list, 
         
         if len(location["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
             quit("Name is too long: " + location["name"])
+        if "menu_name" in location:
+            if len(location["menu_name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+                quit("Menu name is too long: " + location["menu_name"])
+        if "menu_description" in location:
+            if len(location["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+                quit("Menu description is too long: " + location["menu_description"])
         if len(location["adjacent_locations"]) > g_size_constants["MAX_ADJACENT_LOCATIONS"]:
             quit("Too many adjacent locations for " + location["name"])
         if len(location["background_images"]) > g_size_constants["MAX_BACKGROUND_IMAGES"]:

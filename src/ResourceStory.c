@@ -79,6 +79,7 @@ static ResourceEvent *localEvents[MAX_EVENTS] = {0};
 typedef struct ResourceEvent
 {
     char name[MAX_STORY_NAME_LENGTH];
+    char menuDescription[MAX_STORY_DESC_LENGTH];
     uint16_t dialog;
     uint16_t usePrerequisites;
     uint16_t positivePrerequisites[MAX_GAME_STATE_VARIABLES];
@@ -442,6 +443,22 @@ const char *ResourceStory_GetLocalEventName(uint16_t index)
         {
             if(currentIndex == index)
                 return localEvents[i]->name;
+            ++currentIndex;
+        }
+    }
+    
+    return "None";
+}
+
+const char *ResourceStory_GetLocalEventDescription(uint16_t index)
+{
+    uint16_t currentIndex = 0;
+    for(int i = 0; i < currentLocation->localEventCount; ++i)
+    {
+        if(ResourceEvent_CheckPrerequisites(localEvents[i]))
+        {
+            if(currentIndex == index)
+                return localEvents[i]->menuDescription;
             ++currentIndex;
         }
     }

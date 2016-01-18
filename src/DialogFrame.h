@@ -3,6 +3,7 @@
 
 typedef struct DialogData
 {
+    char name[MAX_STORY_NAME_LENGTH];
     char text[MAX_DIALOG_LENGTH];
     uint16_t allowCancel;
     uint16_t heap;

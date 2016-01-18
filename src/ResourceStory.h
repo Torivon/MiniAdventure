@@ -58,6 +58,7 @@ uint16_t ResourceStory_GetWinDialogIndex(void);
 uint16_t ResourceStory_GetCurrentLocalEvents(void);
 uint16_t ResourceStory_GetCreditsDialogIndex(void);
 const char *ResourceStory_GetLocalEventName(uint16_t index);
+const char *ResourceStory_GetLocalEventDescription(uint16_t index);
 void ResourceEvent_Trigger(uint16_t index);
 void ResourceEvent_Queue(uint16_t index);
 void ResourceEvent_TriggerEvent(ResourceEvent *event, bool now);

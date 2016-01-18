@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "Clock.h"
+#include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "GlobalState.h"
 #include "Logging.h"
@@ -100,6 +101,7 @@ void DialogAppear(void *data)
     DialogData *dialogData = (DialogData*) data;
     SetDialog(dialogData->text);
 	ShowDialogLayer(dialogData->allowCancel);
+    SetDescription(dialogData->name);
 }
 
 void DialogDisappear(void *data)

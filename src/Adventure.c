@@ -154,7 +154,7 @@ const char *Adventure_MenuCellDescription(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetLocalEventName(index->row);
+            return ResourceStory_GetLocalEventDescription(index->row);
         case 1:
             return ResourceStory_GetAdjacentLocationDescription(index->row);
         case 2:
