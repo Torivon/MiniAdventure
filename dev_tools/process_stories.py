@@ -524,6 +524,9 @@ def process_dungeons(story):
         floor_word = "Floor"
         if "floor_word" in dungeon:
             floor_word = dungeon["floor_word"]
+        traversal_word = "Traverse"
+        if "traversal_word" in dungeon:
+            traversal_word = dungeon["traversal_word"]
         idlist = []
         namelist = []
         menu_namelist = []
@@ -539,7 +542,7 @@ def process_dungeons(story):
             idlist.append(dungeon["id"] + idsuffix)
             namelist.append(dungeon["name"] + " " + floor_word + " " + str(floor + 1))
             menu_namelist.append(floor_word + " " + str(floor + 1))
-            menu_descriptionlist.append("Traverse " + floor_word + " " + str(floor + 1))
+            menu_descriptionlist.append(traversal_word + " " + floor_word + " " + str(floor + 1))
             if floor < floors - 1:
                 idlist.append(dungeon["id"] + idsuffix + "_end")
                 namelist.append(dungeon["name"] + " " + floor_word + " " + str(floor + 1) + " End")
