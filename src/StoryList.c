@@ -11,7 +11,6 @@ int GetStoryResourceIdByIndex(int index)
 {
     if(index >= GetStoryCount())
         return -1;
-    
     else
         return autoStoryList[index];
 }
