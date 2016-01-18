@@ -2,7 +2,6 @@
 
 #include "Adventure.h"
 #include "BinaryResourceLoading.h"
-#include "Credits.h"
 #include "Character.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
