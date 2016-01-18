@@ -51,6 +51,8 @@ static ResourceStoryState currentResourceStoryState = {0};
 typedef struct ResourceLocation
 {
     char name[MAX_STORY_NAME_LENGTH];
+    char menuName[MAX_STORY_NAME_LENGTH];
+    char menuDescription[MAX_STORY_DESC_LENGTH];
     uint16_t adjacentLocationCount;
     uint16_t adjacentLocations[MAX_ADJACENT_LOCATIONS];
     uint16_t backgroundImageCount;
@@ -389,7 +391,23 @@ const char *ResourceStory_GetAdjacentLocationName(uint16_t index)
         if(ResourceEvent_CheckPrerequisites(adjacentLocationInitialEvents[i]))
         {
             if(currentIndex == index)
-                return adjacentLocations[i]->name;
+                return adjacentLocations[i]->menuName;
+            ++currentIndex;
+        }
+    }
+    
+    return "None";
+}
+
+const char *ResourceStory_GetAdjacentLocationDescription(uint16_t index)
+{
+    uint16_t currentIndex = 0;
+    for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
+    {
+        if(ResourceEvent_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        {
+            if(currentIndex == index)
+                return adjacentLocations[i]->menuDescription;
             ++currentIndex;
         }
     }

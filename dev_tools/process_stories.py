@@ -104,6 +104,8 @@ def pack_location(location):
     Write out all information needed for a location into a packed binary file
     '''
     binarydata = pack_string(location["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string_with_default(location, "menu_name", location["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string_with_default(location, "menu_description", location["name"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(len(location["adjacent_locations_index"]))
     for index in range(g_size_constants["MAX_ADJACENT_LOCATIONS"]):
         if index < len(location["adjacent_locations_index"]):
@@ -519,8 +521,13 @@ def process_dungeons(story):
 
     for dungeonindex in range(len(story["dungeons"])):
         dungeon = story["dungeons"][dungeonindex]
+        floor_word = "Floor"
+        if "floor_word" in dungeon:
+            floor_word = dungeon["floor_word"]
         idlist = []
         namelist = []
+        menu_namelist = []
+        menu_descriptionlist = []
         floors = dungeon["floors"]
         for floor in range(floors):
             if floor == 0:
@@ -530,15 +537,21 @@ def process_dungeons(story):
             else:
                 idsuffix = "_" + str(floor + 1)
             idlist.append(dungeon["id"] + idsuffix)
-            namelist.append(dungeon["name"] + " Floor " + str(floor + 1))
+            namelist.append(dungeon["name"] + " " + floor_word + " " + str(floor + 1))
+            menu_namelist.append(floor_word + " " + str(floor + 1))
+            menu_descriptionlist.append("Traverse " + floor_word + " " + str(floor + 1))
             if floor < floors - 1:
                 idlist.append(dungeon["id"] + idsuffix + "_end")
-                namelist.append(dungeon["name"] + " Floor " + str(floor + 1) + " End")
+                namelist.append(dungeon["name"] + " " + floor_word + " " + str(floor + 1) + " End")
+                menu_namelist.append(floor_word + " " + str(floor + 1) + " End")
+                menu_descriptionlist.append("The end of " + floor_word + " " + str(floor + 1))
         
         for index in range(len(idlist)):
             location = {}
             location["id"] = idlist[index]
             location["name"] = namelist[index]
+            location["menu_name"] = menu_namelist[index]
+            location["menu_description"] = menu_descriptionlist[index]
             location["adjacent_locations"] = []
             if index == 0:
                 location["adjacent_locations"].append(dungeon["adjacent_locations"][0])

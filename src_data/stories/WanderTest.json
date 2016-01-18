@@ -11,12 +11,14 @@
         {
             "id": "village2",
             "name": "Haven",
+            "menu_description": "Well known for its cheese.",
             "adjacent_locations": ["road1", "house2", "shop1"],
             "background_images": ["images/VillageExterior.png"]
         },
         {
             "id": "shop1",
             "name": "Cheese shop",
+            "menu_description": "Visit the cheese shop",
             "adjacent_locations": ["village2"],
             "background_images": ["images/shop.png"],
             "initial_event": "shop_enter",
@@ -25,12 +27,15 @@
         {
             "id": "village1",
             "name": "Asgard",
+            "menu_description": "Your home town.",
             "adjacent_locations": ["road1", "house1", "house3", "house3-bed"],
             "background_images": ["images/VillageExterior.png"]
         },
         {
             "id": "house1",
             "name": "Bob's House",
+            "menu_name": "Visit Bob",
+            "menu_description": "Bob is in charge of village security.",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
             "initial_event": "bobs_house_enter",
@@ -39,6 +44,8 @@
         {
             "id": "house2",
             "name": "Fred's House",
+            "menu_name": "Visit Fred",
+            "menu_description": "Fred and his wife are friendly.",
             "adjacent_locations": ["village2"],
             "background_images": ["images/VillageInterior.png"],
             "events": ["fred1", "fred2", "wife1"]
@@ -46,6 +53,8 @@
         {
             "id": "house3",
             "name": "Jon's House",
+            "menu_name": "Go home",
+            "menu_description": "Your home",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
             "initial_event": "daytime",
@@ -54,6 +63,8 @@
         {
             "id": "house3-bed",
             "name": "Jon's House",
+            "menu_name": "Go home",
+            "menu_description": "Your home",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
             "initial_event": "bedtime",
@@ -62,6 +73,7 @@
         {
             "id": "road1",
             "name": "Poplar Avenue",
+            "menu_description": "Travel between Asgard and Haven.",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
             "length": 5,

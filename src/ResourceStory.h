@@ -74,6 +74,7 @@ const char *ResourceStory_GetCurrentLocationName(void);
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void);
 ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index);
 const char *ResourceStory_GetAdjacentLocationName(uint16_t index);
+const char *ResourceStory_GetAdjacentLocationDescription(uint16_t index);
 uint16_t ResourceStory_GetCurrentLocationLength(void);
 bool ResourceStory_CurrentLocationIsPath(void);
 uint16_t ResourceStory_GetCurrentLocationBaseLevel(void);

@@ -258,7 +258,7 @@ const char *GetMenuDescription(Menu *menu, MenuIndex *index)
         }
         case STATE_ADVENTURE:
         {
-            return Adventure_MenuCellName(index);
+            return Adventure_MenuCellDescription(index);
             break;
         }
         case STATE_OPTIONS:

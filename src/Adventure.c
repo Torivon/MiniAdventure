@@ -149,6 +149,37 @@ const char *Adventure_MenuCellName(MenuIndex *index)
     return "None";
 }
 
+const char *Adventure_MenuCellDescription(MenuIndex *index)
+{
+    switch(index->section)
+    {
+        case 0:
+            return ResourceStory_GetLocalEventName(index->row);
+        case 1:
+            return ResourceStory_GetAdjacentLocationDescription(index->row);
+        case 2:
+        {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Credits";
+                case 4:
+                    return "Reset";
+            }
+            break;
+        }
+        case 3:
+            return ExtraMenu_GetCellName(index->row);
+    }
+    return "None";
+}
+
 void ResetGamePush(void *data)
 {
     GlobalState_Pop();
