@@ -1,7 +1,7 @@
 
 ======build/basalt/pebble-app.elf======
-.bss: count 70 size 878
-  src/ResourceStory.c: size 551
+.bss: count 73 size 1010
+  src/ResourceStory.c: size 683
   src/Battle.c: size 129
   Unknown: size 30
   src/EngineInfo.c: size 29
@@ -17,56 +17,56 @@
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 25 size 367
-  src/AutoImageMap.h: size 188
+.data: count 24 size 359
+  src/AutoImageMap.h: size 192
   src/Clock.c: size 48
   src/Character.c: size 44
   src/MenuArrow.c: size 16
-  src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
-  src/LargeImage.c: size 12
-  src/Adventure.c: size 11
+  src/Adventure.c: size 15
+  src/MainImage.c: size 8
   src/Battle.c: size 7
+  src/LargeImage.c: size 4
   src/BaseWindow.c: size 3
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/TitleScreen.c: size 1
   src/MiniAdventure.c: size 1
-.text: count 347 size 18500
-  src/Battle.c: size 2208
-  src/ResourceStory.c: size 1864
-  src/Menu.c: size 1750
-  Unknown: size 1198
-  src/Adventure.c: size 1102
+.text: count 370 size 20286
+  src/ResourceStory.c: size 3006
+  src/Battle.c: size 2280
+  src/Menu.c: size 1780
+  Unknown: size 1326
+  src/Adventure.c: size 1318
   src/Persistence.c: size 850
-  src/Character.c: size 828
+  src/Character.c: size 848
   src/BaseWindow.c: size 796
+  src/TextBox.c: size 780
   src/MenuArrow.c: size 732
-  src/MainImage.c: size 724
-  src/TextBox.c: size 680
-  src/Clock.c: size 644
-  src/LargeImage.c: size 624
-  src/DialogFrame.c: size 612
-  src/GlobalState.c: size 608
+  src/MainImage.c: size 684
+  src/DialogFrame.c: size 634
+  src/GlobalState.c: size 624
+  src/Clock.c: size 616
+  src/LargeImage.c: size 572
   src/Skills.c: size 524
   src/OptionsMenu.c: size 518
   src/ProgressBar.c: size 486
   src/TitleScreen.c: size 348
   src/ExtraMenu.c: size 280
+  src/Utils.c: size 254
   src/MiniAdventure.c: size 254
-  src/DescriptionFrame.c: size 160
+  src/DescriptionFrame.c: size 164
   src/WorkerControl.c: size 160
-  src/Utils.c: size 150
+  src/BinaryResourceLoading.c: size 142
   build/basalt/appinfo.auto.c: size 130
-  src/BinaryResourceLoading.c: size 90
   src/EngineInfo.c: size 82
   src/CombatantClass.c: size 58
   src/StoryList.c: size 24
   src/ImageMap.c: size 16
 
 ======build/chalk/pebble-app.elf======
-.bss: count 70 size 878
-  src/ResourceStory.c: size 551
+.bss: count 73 size 1010
+  src/ResourceStory.c: size 683
   src/Battle.c: size 129
   Unknown: size 30
   src/EngineInfo.c: size 29
@@ -82,48 +82,48 @@
   src/MiniAdventure.c: size 4
   src/OptionsMenu.c: size 2
   src/TitleScreen.c: size 1
-.data: count 25 size 367
-  src/AutoImageMap.h: size 188
+.data: count 24 size 359
+  src/AutoImageMap.h: size 192
   src/Clock.c: size 48
   src/Character.c: size 44
   src/MenuArrow.c: size 16
-  src/MainImage.c: size 16
   src/AutoStoryList.h: size 16
-  src/LargeImage.c: size 12
-  src/Adventure.c: size 11
+  src/Adventure.c: size 15
+  src/MainImage.c: size 8
   src/Battle.c: size 7
+  src/LargeImage.c: size 4
   src/BaseWindow.c: size 3
   src/OptionsMenu.c: size 2
   src/ResourceStory.c: size 2
   src/TitleScreen.c: size 1
   src/MiniAdventure.c: size 1
-.text: count 347 size 18504
-  src/Battle.c: size 2208
-  src/ResourceStory.c: size 1864
-  src/Menu.c: size 1750
-  Unknown: size 1198
-  src/Adventure.c: size 1102
+.text: count 371 size 20326
+  src/ResourceStory.c: size 3006
+  src/Battle.c: size 2284
+  src/Menu.c: size 1780
+  Unknown: size 1326
+  src/Adventure.c: size 1318
   src/Persistence.c: size 850
-  src/Character.c: size 828
+  src/Character.c: size 848
   src/BaseWindow.c: size 796
+  src/TextBox.c: size 780
   src/MenuArrow.c: size 732
-  src/MainImage.c: size 728
-  src/TextBox.c: size 680
-  src/Clock.c: size 644
-  src/LargeImage.c: size 624
-  src/DialogFrame.c: size 612
-  src/GlobalState.c: size 608
+  src/MainImage.c: size 684
+  src/Clock.c: size 652
+  src/DialogFrame.c: size 634
+  src/GlobalState.c: size 624
+  src/LargeImage.c: size 572
   src/Skills.c: size 524
   src/OptionsMenu.c: size 518
   src/ProgressBar.c: size 486
   src/TitleScreen.c: size 348
   src/ExtraMenu.c: size 280
+  src/Utils.c: size 254
   src/MiniAdventure.c: size 254
-  src/DescriptionFrame.c: size 160
+  src/DescriptionFrame.c: size 164
   src/WorkerControl.c: size 160
-  src/Utils.c: size 150
+  src/BinaryResourceLoading.c: size 142
   build/chalk/appinfo.auto.c: size 130
-  src/BinaryResourceLoading.c: size 90
   src/EngineInfo.c: size 82
   src/CombatantClass.c: size 58
   src/StoryList.c: size 24
