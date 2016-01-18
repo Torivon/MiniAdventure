@@ -89,8 +89,7 @@
             "base_level": 20
         }
     ],
-    "skill_files": ["DungeonCrawl_MonsterSkills.json", "DungeonCrawl_AdventurerSkills.json"],
-    "battler_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"],
+    "external_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"],
     "dialog": [
         {
             "id": "intro_text",

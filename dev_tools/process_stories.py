@@ -603,21 +603,19 @@ def process_dungeons(story):
 
             story["locations"].append(location)
 
-def process_included_files(story, file_list_key, object_key):
+def process_external_files(story, file_list_key):
     if file_list_key in story:
         for filename in story[file_list_key]:
             with open("src_data/stories/" + filename) as object_file:
-                try:
-                    object_list = json.load(object_file)
-                except ValueError as e:
-                    quit("Failed to parse file " + filename + ". Probably an extraneous ','.")
-                if not object_key in story:
-                    story[object_key] = []
-                for newobject in object_list[object_key]:
-                    for oldobject in story[object_key]:
-                        if newobject["id"] == oldobject["id"]:
-                            quit("Duplicate id, " + oldobject["id"] + " in list of " + object_key)
-                story[object_key].extend(object_list[object_key])
+                object_list = json.load(object_file)
+                for k, v in object_list.items():
+                    if not k in story:
+                        story[k] = []
+                    for newobject in object_list[k]:
+                        for oldobject in story[k]:
+                            if newobject["id"] == oldobject["id"]:
+                                quit("Duplicate id, " + oldobject["id"] + " in list of " + object_key)
+                    story[k].extend(object_list[k])
 
 def process_story(story, imagelist):
     '''
@@ -627,10 +625,9 @@ def process_story(story, imagelist):
     '''
     
     # In order to allow stories to share skills and battlers, allow the user to
-    # have a list of skill and battler files to include. process_includedfiles appends
-    # the contents into the appropriate list.
-    process_included_files(story, "skill_files", "skills")
-    process_included_files(story, "battler_files", "battlers")
+    # have a list of external files to include. process_external_files appends
+    # the contents into the appropriate lists.
+    process_external_files(story, "external_files")
     
     # This just unrolls the dungeon definitions into the appropriate
     # number of locations. Actual writing to the file happens when
