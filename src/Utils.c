@@ -38,7 +38,7 @@ void DrawBoundaryArcs(GContext * ctx, GRect *rect)
 {
     graphics_context_set_fill_color(ctx, GColorWhite);
     GRect screenBounds = {.origin = {.x = -rect->origin.x, .y = -rect->origin.y}, .size = {.w = 180, .h = 180}};
-    graphics_fill_radial(ctx, grect_inset(screenBounds, GEdgeInsets(1, 2, 1, 1)), GOvalScaleModeFillCircle, 3, 0, TRIG_MAX_ANGLE);
+    graphics_fill_radial(ctx, grect_inset(screenBounds, GEdgeInsets(1, 2, 1, 1)), GOvalScaleModeFillCircle, 4, 0, TRIG_MAX_ANGLE);
 }
 
 void ShowLayer(Layer *layer)

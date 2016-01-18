@@ -11,10 +11,10 @@ static TextBox *dayTextBox = NULL;
 
 #if defined(PBL_RECT)
 static GRect clockFrame = {.origin = {.x = DATE_FRAME_WIDTH + 2, .y = 168 - CLOCK_FRAME_HEIGHT}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
-static GRect dayFrame = {.origin = {.x = 0, .y = 168 - DATE_FRAME_HEIGHT - DAY_FRAME_HEIGHT}, .size = {.w = DAY_FRAME_WIDTH, .h = DAY_FRAME_HEIGHT}};
+static GRect dayFrame = {.origin = {.x = 0, .y = 168 - DATE_FRAME_HEIGHT - DAY_FRAME_HEIGHT - 2}, .size = {.w = DAY_FRAME_WIDTH, .h = DAY_FRAME_HEIGHT}};
 static GRect dateFrame = {.origin = {.x = 0, .y = 168 - DATE_FRAME_HEIGHT}, .size = {.w = DATE_FRAME_WIDTH, .h = DATE_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-#define CLOCK_VERTICAL_OFFSET 10
+#define CLOCK_VERTICAL_OFFSET 8
 static GRect clockFrame = {.origin = {.x = 180 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 180 - CLOCK_FRAME_HEIGHT - CLOCK_VERTICAL_OFFSET}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
 static GRect dayFrame = {.origin = {.x = 15, .y = 48}, .size = {.w = DAY_FRAME_WIDTH, .h = DAY_FRAME_HEIGHT}};
 static GRect dateFrame = {.origin = {.x = 15, .y = 114}, .size = {.w = DATE_FRAME_WIDTH, .h = DATE_FRAME_HEIGHT}};
