@@ -482,7 +482,7 @@ void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_inde
 {
 	Menu *menu = (Menu*)callback_context;
 	const char *newDescription = GetMenuDescription(menu, &new_index);
-	if(menu->mainMenu)
+	if(menu->mainMenu && !IsMenuHidden(menu))
 		SetDescription(newDescription ? newDescription : "");
 }
 
