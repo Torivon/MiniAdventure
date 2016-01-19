@@ -170,7 +170,7 @@ def pack_dialog(dialog):
     return binarydata
 
 def pack_gamestate(dict, listkey):
-    binarydata = ""
+    binarydata = b""
     if listkey in dict:
         for i in range(g_size_constants["MAX_GAME_STATE_VARIABLES"]):
             if i < len(dict[listkey]):
