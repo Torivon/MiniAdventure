@@ -31,7 +31,7 @@ void SetVibration(bool enable)
 void SetWorkerApp(bool enable)
 {
 	useWorkerApp = enable;
-    ReloadMenu(GetMainMenu());
+    ReloadOptionsMenu();
 }
 
 void ToggleWorkerApp(void)
