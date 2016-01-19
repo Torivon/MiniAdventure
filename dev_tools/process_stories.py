@@ -603,9 +603,12 @@ def process_dungeons(story):
 
             story["locations"].append(location)
 
-def process_external_files(story, file_list_key):
+def process_external_files(story, file_list_key, m):
     if file_list_key in story:
         for filename in story[file_list_key]:
+            with open("src_data/stories/" + filename) as object_file:
+                for line in object_file.readlines():
+                    m.update(line.encode("ascii"))
             with open("src_data/stories/" + filename) as object_file:
                 object_list = json.load(object_file)
                 for k, v in object_list.items():
@@ -617,7 +620,7 @@ def process_external_files(story, file_list_key):
                                 quit("Duplicate id, " + oldobject["id"] + " in list of " + object_key)
                     story[k].extend(object_list[k])
 
-def process_story(story, imagelist):
+def process_story(story, imagelist, m):
     '''
     Here we prepare the story for being written to a packed binary file.
     We have to turn each reference to an object into what will become the 
@@ -627,7 +630,7 @@ def process_story(story, imagelist):
     # In order to allow stories to share skills and battlers, allow the user to
     # have a list of external files to include. process_external_files appends
     # the contents into the appropriate lists.
-    process_external_files(story, "external_files")
+    process_external_files(story, "external_files", m)
     
     # This just unrolls the dungeon definitions into the appropriate
     # number of locations. Actual writing to the file happens when
@@ -718,15 +721,15 @@ def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
         print("Processing story in " + story_name)
         story_filename = "src_data/stories/" + story_name
         story_datafile = "Auto" + os.path.splitext(story_name)[0]+'.dat'
+        m = hashlib.md5()
         with open(story_filename) as story_file:
-            m = hashlib.md5()
             for line in story_file.readlines():
                 m.update(line.encode("ascii"))
-            hash = struct.unpack("<H", m.digest()[-2:])
         with open(story_filename) as story_file:
             story = json.load(story_file)
-            process_story(story, imagelist)
+            process_story(story, imagelist, m)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
+                hash = struct.unpack("<H", m.digest()[-2:])
                 write_story(story, datafile, hash[0])
             newobject = {"file": "data/" + story_datafile, "name": STORY_DATA_STRING + os.path.splitext(story_datafile)[0].upper(), "type": "raw"}
             data_objects.append(newobject)
