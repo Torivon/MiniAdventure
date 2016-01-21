@@ -26,11 +26,14 @@ typedef struct Skill
 {
     char name[MAX_STORY_NAME_LENGTH];
     char description[MAX_STORY_DESC_LENGTH];
-    uint16_t type;
+    uint16_t target;
     uint16_t speed;
     uint16_t damageType;
     uint16_t potency;
     uint16_t cooldown;
+    uint16_t skillProperties;
+    uint16_t propertyDuration;
+    uint16_t counterDamageType;
 } Skill;
 
 typedef struct SkillListEntry
@@ -55,6 +58,7 @@ typedef struct BattleActor
     uint16_t activeSkill;
     uint16_t counterSkill;
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
+    uint16_t statusEffectDurations[MAX_STATUS_EFFECTS];
 } BattleActor;
 
 typedef struct BattleActorWrapper
@@ -64,4 +68,5 @@ typedef struct BattleActorWrapper
 } BattleActorWrapper;
 
 const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender);
+void DealDamage(int potency, BattleActor *defender);
 void UpdateSkillCooldowns(uint16_t *skillCooldowns);

@@ -27,6 +27,7 @@ typedef struct ResourceBattler
     uint16_t resistant;
     uint16_t immune;
     uint16_t absorb;
+    uint16_t statusImmunities;
 } ResourceBattler;
 
 typedef struct BattlerWrapper

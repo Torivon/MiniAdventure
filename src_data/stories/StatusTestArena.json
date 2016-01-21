@@ -1,0 +1,138 @@
+{
+    "id": 7,
+    "version": 0,
+    "name": "Status Arena",
+    "description": "Train against monsters",
+    "start_location": "restarea",
+    "xp_monsters_per_level": 4,
+    "xp_difference_scale": 20,
+    "classes": ["mimic"],
+    "opening_dialog": "intro_text",
+    "win_dialog": "end_text",
+    "credits_dialog": "credits",
+    "locations": [
+        {
+            "id": "restarea",
+            "name": "Rest Area 1",
+            "adjacent_locations": ["training", "win", "restarea2", "physical_room", "magic_room", "stunner_room", "passify_room", "silence_room"],
+            "background_images": ["images/dungeonstraight.png"],
+            "location_properties": ["rest_area"]
+        },
+        {
+            "id": "restarea2",
+            "name": "Rest Area 2",
+            "adjacent_locations": ["training", "win", "restarea", "haste_room", "slow_room", "poison_room", "shield_room", "reflect_room"],
+            "background_images": ["images/dungeonstraight.png"],
+            "location_properties": ["rest_area"]
+        },
+        {
+            "id": "training",
+            "name": "Training Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "location_properties": ["level_up"]
+        },
+        {
+            "id": "win",
+            "name": "Exit arena",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "location_properties": ["game_win"]
+        },
+        {
+            "id": "physical_room",
+            "name": "Physical Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["physical"],
+            "base_level": 1
+        },
+        {
+            "id": "magic_room",
+            "name": "Magic Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["magic"],
+            "base_level": 1
+        },
+        {
+            "id": "stunner_room",
+            "name": "Stunner Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["stunner"],
+            "base_level": 1
+        },
+        {
+            "id": "passify_room",
+            "name": "Passify Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["passifier"],
+            "base_level": 1
+        },
+        {
+            "id": "silence_room",
+            "name": "Silence Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["silencer"],
+            "base_level": 1
+        },
+        {
+            "id": "haste_room",
+            "name": "Haste Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["haster"],
+            "base_level": 1
+        },
+        {
+            "id": "slow_room",
+            "name": "Slow Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["slower"],
+            "base_level": 1
+        },
+        {
+            "id": "poison_room",
+            "name": "Poison Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["poisoner"],
+            "base_level": 1
+        },
+        {
+            "id": "shield_room",
+            "name": "Shield Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["shield"],
+            "base_level": 1
+        },
+        {
+            "id": "reflect_room",
+            "name": "Reflect Room",
+            "adjacent_locations": ["restarea"],
+            "background_images": ["images/dungeondeadend.png"],
+            "monsters": ["reflect"],
+            "base_level": 1
+        }
+    ],
+    "external_files": ["MimicClass.json", "TestSkills.json", "TestMonsters.json"],
+    "dialog": [
+        {
+            "id": "intro_text",
+            "text": "Welcome to the battle arena. Here you can face off against a collection of monsters. This is a debug story, used to help tune the monster and character stats."
+        },
+        {
+            "id": "end_text",
+            "text": "You have had enough of fighting monsters in the arena. Time to go do something else."
+        },
+        {
+            "id": "credits",
+            "text": "Design and art by Jonathan Panttaja."
+        }
+    ]
+}

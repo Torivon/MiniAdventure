@@ -61,7 +61,7 @@ static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, Battl
     
     int damage = (baseDamage * (100 - defensePower)) / 100;
     
-    if(damage <= 0)
+    if(damage <= 0 && skill->potency > 0)
         damage = 1;
     
     if(defender && skill->damageType & defender->battlerWrapper->battler.vulnerable)
@@ -76,7 +76,7 @@ static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, Battl
     return damage;
 }
 
-static void DealDamage(int potency, BattleActor *defender)
+void DealDamage(int potency, BattleActor *defender)
 {
     if(!defender)
         return;
@@ -88,43 +88,70 @@ static void DealDamage(int potency, BattleActor *defender)
         defender->currentHealth = defender->maxHealth;
 }
 
+void ApplyStatus(Skill *skill, BattleActorWrapper *target)
+{
+    if(skill->skillProperties > 0)
+    {
+        for(int i = 0; i < MAX_STATUS_EFFECTS; ++i)
+        {
+            uint16_t bit = 1 << i;
+            if(skill->skillProperties & bit && (!(target->battlerWrapper->battler.statusImmunities & bit)))
+            {
+                target->actor.statusEffectDurations[i] = skill->propertyDuration;
+                if(i == STATUS_EFFECT_STUN)
+                {
+                    target->actor.skillQueued = false;
+                    target->actor.currentTime = 0;
+                }
+            }
+        }
+    }
+}
+
 const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
     static char description[30];
     DEBUG_VERBOSE_LOG("ExecuteSkill");
     
-    switch(skill->type)
+    switch(skill->target)
     {
-        case SKILL_TYPE_ATTACK:
+        case SKILL_TARGET_ENEMY:
         {
+            bool countered = false;
             if(defender->actor.counterSkill != INVALID_SKILL)
             {
-                //TODO: Add an attack type to counters, so that we can differentiate between counters to magic attacks and counters to physical attacks
                 Skill *counterSkill = BattlerWrapper_GetSkillByIndex(defender->battlerWrapper, defender->actor.counterSkill);
-                int potency = ComputeSkillPotency(counterSkill, defender, attacker);
-                DealDamage(potency, &attacker->actor);
-                snprintf(description, sizeof(description), "%s counters for %d damage", defender->battlerWrapper->battler.name, potency);
-
+                if(counterSkill->counterDamageType & skill->damageType)
+                {
+                    int potency = ComputeSkillPotency(counterSkill, defender, attacker);
+                    DealDamage(potency, &attacker->actor);
+                    snprintf(description, sizeof(description), "%s counters for %d damage", defender->battlerWrapper->battler.name, potency);
+                    countered = true;
+                    ApplyStatus(counterSkill, attacker);
+                }
                 defender->actor.counterSkill = INVALID_SKILL;
             }
-            else
+            
+            if(!countered)
             {
                 int potency = ComputeSkillPotency(skill, attacker, defender);
                 DealDamage(potency, &defender->actor);
                 snprintf(description, sizeof(description), "%s takes %d damage", defender->battlerWrapper->battler.name, potency);
+                ApplyStatus(skill, defender);
             }
             break;
         }
-        case SKILL_TYPE_COUNTER:
+        case SKILL_TARGET_COUNTER:
         {
             attacker->actor.counterSkill = attacker->actor.activeSkill;
             snprintf(description, sizeof(description), "%s prepares %s", attacker->battlerWrapper->battler.name, skill->name);
             break;
         }
-        case SKILL_TYPE_HEAL:
+        case SKILL_TARGET_SELF:
         {
             int potency = ComputeSkillPotency(skill, attacker, NULL);
             DealDamage(-potency, &attacker->actor);
+            ApplyStatus(skill, attacker);
             snprintf(description, sizeof(description), "%s heals %d damage", attacker->battlerWrapper->battler.name, potency);
             break;
         }

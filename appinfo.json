@@ -9,6 +9,26 @@
     "resources": {
         "media": [
             {
+                "file": "images/Title.png",
+                "name": "IMAGE_TITLE",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/turtle.png",
+                "name": "IMAGE_TURTLE",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/dungeonstraight.png",
+                "name": "IMAGE_DUNGEONSTRAIGHT",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/dungeondeadend.png",
+                "name": "IMAGE_DUNGEONDEADEND",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/rat.png",
                 "name": "IMAGE_RAT",
                 "type": "bitmap"
@@ -29,11 +49,6 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/turtle.png",
-                "name": "IMAGE_TURTLE",
-                "type": "bitmap"
-            },
-            {
                 "file": "images/lich.png",
                 "name": "IMAGE_LICH",
                 "type": "bitmap"
@@ -41,21 +56,6 @@
             {
                 "file": "images/dragon.png",
                 "name": "IMAGE_DRAGON",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Title.png",
-                "name": "IMAGE_TITLE",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/dungeonstraight.png",
-                "name": "IMAGE_DUNGEONSTRAIGHT",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/dungeondeadend.png",
-                "name": "IMAGE_DUNGEONDEADEND",
                 "type": "bitmap"
             },
             {
@@ -248,6 +248,11 @@
                 "menuIcon": true,
                 "name": "IMAGE_ICON",
                 "type": "bitmap"
+            },
+            {
+                "file": "data/AutoStatusTestArena.dat",
+                "name": "STORY_DATA_AUTOSTATUSTESTARENA",
+                "type": "raw"
             },
             {
                 "file": "data/AutoBattleArena.dat",

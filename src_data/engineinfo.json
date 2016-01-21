@@ -16,7 +16,7 @@
     "engine_credits_dialog": "credits",
     "reset_dialog": "reset_prompt",
     "exit_dialog": "exit_prompt",
-    "stories": ["BattleArena.json", "DungeonCrawl.json", "DragonQuest.json", "WanderTest.json"],
+    "stories": ["StatusTestArena.json", "BattleArena.json", "DungeonCrawl.json", "DragonQuest.json", "WanderTest.json"],
     "dialog": [
         {
             "id": "tutorial",

@@ -19,12 +19,22 @@ g_size_constants["MAX_DIALOG_LENGTH"] = 256
 g_size_constants["MAX_GAME_STATE_VARIABLES"] = 16
 g_size_constants["MAX_EVENTS"] = 10
 
-g_skill_types = {}
-g_skill_types["attack"] = 0
-g_skill_types["heal"] = 1
-g_skill_types["counter"] = 2
-g_skill_types["buff"] = 3
-g_skill_types["debuff"] = 4
+g_skill_target = {}
+g_skill_target["enemy"] = 0
+g_skill_target["self"] = 1
+g_skill_target["counter"] = 2
+
+g_skill_properties = {}
+g_skill_properties["stun"] = 0
+g_skill_properties["poison"] = 1
+g_skill_properties["slow"] = 2
+g_skill_properties["haste"] = 3
+g_skill_properties["silence"] = 4
+g_skill_properties["passify"] = 5
+
+g_skill_properties_bits = {k: 1 << v for (k, v) in g_skill_properties.items()}
+
+g_size_constants["MAX_STATUS_EFFECTS"] = len(g_skill_properties)
 
 g_damage_types = {}
 g_damage_types["physical"] = 1 << 0
@@ -155,11 +165,14 @@ def pack_skill(skill):
     '''
     binarydata = pack_string(skill["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string(skill["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
-    binarydata += pack_integer(skill["type_value"])
+    binarydata += pack_integer(skill["target_value"])
     binarydata += pack_integer(skill["speed"])
     binarydata += pack_integer(skill["damage_types_value"])
     binarydata += pack_integer(skill["potency"])
     binarydata += pack_integer(skill["cooldown"])
+    binarydata += pack_integer_with_default(skill, "skill_properties_value", 0)
+    binarydata += pack_integer_with_default(skill, "property_duration", 0)
+    binarydata += pack_integer_with_default(skill, "counter_damage_types_value", 0)
     return binarydata
 
 def pack_dialog(dialog):
@@ -220,6 +233,7 @@ def pack_battler(battler):
     binarydata += pack_integer_with_default(battler, "resistant_value", 0)
     binarydata += pack_integer_with_default(battler, "immune_value", 0)
     binarydata += pack_integer_with_default(battler, "absorb_value", 0)
+    binarydata += pack_integer_with_default(battler, "status_immunities_value", 0)
 
     return binarydata
 
@@ -338,8 +352,8 @@ def process_bit_field(dict, field, global_dict):
 
     new_field_name = field + "_value"
     dict[new_field_name] = 0
-    for damage_type in dict[field]:
-        dict[new_field_name] = dict[new_field_name] | global_dict[damage_type]
+    for bit_type in dict[field]:
+        dict[new_field_name] = dict[new_field_name] | global_dict[bit_type]
 
 def process_dialog(story, dialog_map, data_index):
     if not "dialog" in story:
@@ -430,8 +444,10 @@ def process_skills(story, skill_map, data_index):
         skill_map[skill["id"]] = data_index
         data_index += 1
 
-        skill["type_value"] = g_skill_types[skill["type"]]
+        skill["target_value"] = g_skill_target[skill["target"]]
         process_bit_field(skill, "damage_types", g_damage_types)
+        process_bit_field(skill, "counter_damage_types", g_damage_types)
+        process_bit_field(skill, "skill_properties", g_skill_properties_bits)
 
     return data_index
 
@@ -466,6 +482,7 @@ def process_battlers(story, battler_map, skill_map, imagelist, event_map, data_i
         process_bit_field(battler, "resistant", g_damage_types)
         process_bit_field(battler, "immune", g_damage_types)
         process_bit_field(battler, "absorb", g_damage_types)
+        process_bit_field(battler, "status_immunities", g_skill_properties_bits)
 
     return data_index
 
@@ -606,6 +623,7 @@ def process_dungeons(story):
 def process_external_files(story, file_list_key, m):
     if file_list_key in story:
         for filename in story[file_list_key]:
+            print "\tProcessing " + filename
             with open("src_data/stories/" + filename) as object_file:
                 for line in object_file.readlines():
                     m.update(line.encode("ascii"))
@@ -717,6 +735,9 @@ def write_engineinfo(engineinfo, datafile):
 def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
     # Process the stories to include. This includes generating the data files,
     # adding them to the appinfo, and storing a list of images used.
+    
+    story_map = {}
+    
     for story_name in engineinfo["stories"]:
         print("Processing story in " + story_name)
         story_filename = "src_data/stories/" + story_name
@@ -727,6 +748,10 @@ def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
                 m.update(line.encode("ascii"))
         with open(story_filename) as story_file:
             story = json.load(story_file)
+            if story["id"] in story_map:
+                quit("Two stories with the same id: " + story_map[story["id"]] + ", " + story["name"])
+            else:
+                story_map[story["id"]] = story["name"]
             process_story(story, imagelist, m)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
                 hash = struct.unpack("<H", m.digest()[-2:])
@@ -790,15 +815,22 @@ def write_headers(imagemap, data_objects):
     # Write out skill constants in a header file so they match at both process time and load time
     with open("src/AutoSkillConstants.h", 'w') as skill_file:
         skill_file.write("#pragma once\n\n")
-        for k, v in g_skill_types.items():
-            skill_file.write("#define SKILL_TYPE_" + k.upper() + " " + str(v) + "\n")
-
+        for k, v in g_skill_target.items():
+            skill_file.write("#define SKILL_TARGET_" + k.upper() + " " + str(v) + "\n")
         skill_file.write("\n")
 
         for k, v in g_damage_types.items():
             skill_file.write("#define DAMAGE_TYPE_" + k.upper() + " " + str(v) + "\n")
         skill_file.write("\n")
 
+        for k, v in g_skill_properties.items():
+            skill_file.write("#define STATUS_EFFECT_" + k.upper() + " " + str(v) + "\n")
+        skill_file.write("\n")
+
+        for k, v in g_skill_properties_bits.items():
+            skill_file.write("#define SKILL_PROPERTIES_" + k.upper() + " " + str(v) + "\n")
+        skill_file.write("\n")
+            
     # Write out combatant constants in a header file so they match at both process time and load time
     with open("src/AutoCombatantConstants.h", 'w') as skill_file:
         skill_file.write("#pragma once\n\n")

@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "AutoSizeConstants.h"
+#include "AutoSkillConstants.h"
 #include "BaseWindow.h"
 #include "Battle.h"
 #include "BinaryResourceLoading.h"
@@ -255,6 +256,15 @@ void BattleScreen_MenuSelect(MenuIndex *index)
             
             if(gBattleState.player.actor.skillCooldowns[index->row] > 0)
                 return;
+            if(gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
+               gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
+            {
+                Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, index->row);
+                if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
+                    return;
+                if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
+                    return;
+            }
             gBattleState.player.actor.skillQueued = true ;
             gBattleState.player.actor.activeSkill = index->row;
             gPlayerActed = true;
@@ -349,6 +359,10 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
     actorWrapper->actor.activeSkill = INVALID_SKILL;
     actorWrapper->actor.counterSkill = INVALID_SKILL;
     actorWrapper->actor.currentTime = 0;
+    for(int i = 0; i < MAX_STATUS_EFFECTS; ++i)
+    {
+        actorWrapper->actor.statusEffectDurations[i] = 0;
+    }
     if(currentHealth == 0)
         actorWrapper->actor.currentHealth = actorWrapper->actor.maxHealth;
     else
@@ -444,15 +458,48 @@ static void DoSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapp
     attacker->actor.skillQueued = false;
 }
 
-static void UpdateActorCurrentTime(BattleActorWrapper *wrapper)
+static void UpdateActor(BattleActorWrapper *wrapper)
 {
+    uint16_t currentSpeed = 1;
     if(wrapper->actor.skillQueued)
     {
-        wrapper->actor.currentTime += BattlerWrapper_GetSkillByIndex(wrapper->battlerWrapper, wrapper->actor.activeSkill)->speed;
+        currentSpeed = BattlerWrapper_GetSkillByIndex(wrapper->battlerWrapper, wrapper->actor.activeSkill)->speed;
     }
     else
     {
-        wrapper->actor.currentTime += CombatantClass_GetSpeed(&wrapper->battlerWrapper->battler.combatantClass, wrapper->actor.level);
+        currentSpeed = CombatantClass_GetSpeed(&wrapper->battlerWrapper->battler.combatantClass, wrapper->actor.level);
+    }
+    
+    if(wrapper->actor.statusEffectDurations[STATUS_EFFECT_SLOW] > 0)
+    {
+        currentSpeed /= 2;
+        if(currentSpeed <= 0)
+            currentSpeed = 1;
+    }
+    
+    if(wrapper->actor.statusEffectDurations[STATUS_EFFECT_HASTE] > 0)
+    {
+        currentSpeed *= 2;
+    }
+    
+    wrapper->actor.currentTime += currentSpeed;
+}
+
+static void UpdateStatusEffects(BattleActorWrapper *wrapper)
+{
+    for(int i = 0; i < MAX_STATUS_EFFECTS; ++i)
+    {
+        if(wrapper->actor.statusEffectDurations[i] > 0)
+        {
+            if(i == STATUS_EFFECT_POISON)
+            {
+                int damage = wrapper->actor.maxHealth * (POISON_DAMAGE_PERCENT) / 100;
+                if(damage < 1)
+                    damage = 1;
+                DealDamage(damage, &wrapper->actor);
+            }
+            wrapper->actor.statusEffectDurations[i]--;
+        }
     }
 }
 
@@ -494,13 +541,25 @@ void UpdateBattle(void *unused)
             }
             else
             {
-                UpdateSkillCooldowns(gBattleState.player.actor.skillCooldowns);
-                gPlayerTurn = true;
-                gPlayerActed = false;
-                RegisterMenuState(GetMainMenu(), STATE_BATTLE);
-                RegisterMenuState(GetSlaveMenu(), STATE_NONE);
-                Menu_ResetSelection(GetMainMenu());
-                SetDescription("Your turn");
+                if(gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_STUN] == 0)
+                {
+                    UpdateSkillCooldowns(gBattleState.player.actor.skillCooldowns);
+                    gPlayerTurn = true;
+                    gPlayerActed = false;
+                    RegisterMenuState(GetMainMenu(), STATE_BATTLE);
+                    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+                    Menu_ResetSelection(GetMainMenu());
+                    SetDescription("Your turn");
+                }
+                else
+                {
+                    SetDescription("You are stunned");
+                    gSkillDelay = SKILL_DELAY;
+                    gBattleState.player.actor.currentTime = 0;
+                    MarkProgressBarDirty(playerTimeBar);
+                    MarkProgressBarDirty(monsterTimeBar);
+                }
+                UpdateStatusEffects(&gBattleState.player);
             }
             actionPerformed = true;
         }
@@ -511,15 +570,41 @@ void UpdateBattle(void *unused)
         {
             if(gBattleState.monster.actor.skillQueued)
             {
+                bool act = true;
                 Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.monster.battlerWrapper, gBattleState.monster.actor.activeSkill);
-                DoSkill(skill, &gBattleState.monster, &gBattleState.player);
+                if(gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
+                   gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
+                {
+                    if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
+                        act = false;
+                    if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
+                        act = false;
+                }
+                if(act)
+                    DoSkill(skill, &gBattleState.monster, &gBattleState.player);
             }
             else
             {
                 UpdateSkillCooldowns(gBattleState.monster.actor.skillCooldowns);
-                gBattleState.monster.actor.activeSkill = 0;
-                gBattleState.monster.actor.skillQueued = true;
                 gBattleState.monster.actor.currentTime = 0;
+                bool act = true;
+                if(gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_STUN] > 0)
+                    act = false;
+                if(gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
+                   gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
+                {
+                    Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.monster.battlerWrapper, 0);
+                    if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
+                        act = false;
+                    if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
+                        act = false;
+                }
+                if(act)
+                {
+                    gBattleState.monster.actor.activeSkill = 0;
+                    gBattleState.monster.actor.skillQueued = true;
+                }
+                UpdateStatusEffects(&gBattleState.monster);
             }
             actionPerformed = true;
         }
@@ -527,8 +612,8 @@ void UpdateBattle(void *unused)
 
     if(!actionPerformed)
     {
-        UpdateActorCurrentTime(&gBattleState.player);
-        UpdateActorCurrentTime(&gBattleState.monster);
+        UpdateActor(&gBattleState.player);
+        UpdateActor(&gBattleState.monster);
 
         MarkProgressBarDirty(playerTimeBar);
         MarkProgressBarDirty(monsterTimeBar);

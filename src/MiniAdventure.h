@@ -36,6 +36,9 @@
 
 #define TIME_TO_ACT 100
 
+// TODO: consider making this tunable
+#define POISON_DAMAGE_PERCENT 10
+
 #define ALLOW_WORKER_APP 1
 #define ALLOW_WORKER_APP_MESSAGES 1
 #define ALLOW_WORKER_APP_LISTENING 1
