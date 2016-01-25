@@ -1,11 +1,15 @@
 #include <pebble.h>
 #include "AutoSizeConstants.h"
+#include "AutoSkillConstants.h"
 #include "BaseWindow.h"
 #include "Battle.h"
+#include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "Clock.h"
 #include "CombatantClass.h"
 #include "DescriptionFrame.h"
+#include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
@@ -21,18 +25,6 @@ typedef struct BattleState
     BattleActorWrapper player;
     BattleActorWrapper monster;
 } BattleState;
-
-#if defined(PBL_ROUND)
-#define PLAYER_HEALTH_FRAME {.origin = {.x = 50, .y = 90}, .size = {.w = 16, .h = 40}}
-#define PLAYER_TIME_FRAME  {.origin = {.x = 67, .y = 90}, .size = {.w = 8, .h = 40}}
-#define MONSTER_HEALTH_FRAME {.origin = {.x = 50, .y = 48}, .size = {.w = 16, .h = 40}}
-#define MONSTER_TIME_FRAME {.origin = {.x = 67, .y = 48}, .size = {.w = 8, .h = 40}}
-#else
-#define PLAYER_HEALTH_FRAME {.origin = {.x = 20, .y = 65}, .size = {.w = 16, .h = 40}}
-#define PLAYER_TIME_FRAME  {.origin = {.x = 36, .y = 65}, .size = {.w = 8, .h = 40}}
-#define MONSTER_HEALTH_FRAME {.origin = {.x = 148, .y = 65}, .size = {.w = 16, .h = 40}}
-#define MONSTER_TIME_FRAME {.origin = {.x = 140, .y = 65}, .size = {.w = 8, .h = 40}}
-#endif
 
 static ProgressBar *playerHealthBar = NULL;
 static ProgressBar *playerTimeBar = NULL;
@@ -107,16 +99,26 @@ void CloseBattleWindow(void)
 {
     INFO_LOG("Ending battle.");
     battleCleanExit = true;
-    GlobalState_Pop();
     Character_SetHealth(gBattleState.player.actor.currentHealth);
     if(gBattleState.player.actor.currentHealth > 0)
     {
         // The player won, so grant xp.
-        Character_GrantXP(gBattleState.monster.actor.level);
+        bool leveledUp = Character_GrantXP(gBattleState.monster.actor.level);
+        if(gBattleState.monster.battlerWrapper && gBattleState.monster.battlerWrapper->event)
+            ResourceEvent_TriggerEvent(gBattleState.monster.battlerWrapper->event, false);
+        DialogData *dialog = calloc(sizeof(DialogData), 1);
+        ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->battleWinDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+        QueueDialog(dialog);
+        if(leveledUp)
+        {
+            dialog = calloc(sizeof(DialogData), 1);
+            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->levelUpDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+            QueueDialog(dialog);
+        }
     }
     
+    GlobalState_Pop();
     Character_SetCooldowns(gBattleState.player.actor.skillCooldowns);
-    ShowDateLayer();
 }
 
 bool ClosingWhileInBattle(void)
@@ -124,9 +126,14 @@ bool ClosingWhileInBattle(void)
     return !battleCleanExit;
 }
 
+void Battle_SetCleanExit(void)
+{
+    battleCleanExit = true;
+}
+
 uint16_t BattleScreen_MenuSectionCount(void)
 {
-    return 1 + ExtraMenu_GetSectionCount();
+    return 2 + ExtraMenu_GetSectionCount();
 }
 
 const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
@@ -136,6 +143,8 @@ const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
         case 0:
             return "Skills";
         case 1:
+            return "Battle";
+        case 2:
             return ExtraMenu_GetSectionName();
     }
     return "None";
@@ -147,14 +156,16 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
     {
         case 0:
         {
-            DEBUG_LOG("BattleScreenCount");
             if(!gPlayerTurn)
                 return 0;
             
-            DEBUG_LOG("Returning good value");
             return BattlerWrapper_GetUsableSkillCount(gBattleState.player.battlerWrapper, gBattleState.player.actor.level);
         }
         case 1:
+        {
+            return 4;
+        }
+        case 2:
         {
             return ExtraMenu_GetCellCount();
         }
@@ -175,6 +186,21 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
             return skill->name;
         }
         case 1:
+        {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Reset";
+            }
+            break;
+        }
+        case 2:
         {
             return ExtraMenu_GetCellName(index->row);
         }
@@ -198,6 +224,21 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
         }
         case 1:
         {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Reset";
+            }
+            break;
+        }
+        case 2:
+        {
             return ExtraMenu_GetCellName(index->row);
         }
     }
@@ -215,12 +256,53 @@ void BattleScreen_MenuSelect(MenuIndex *index)
             
             if(gBattleState.player.actor.skillCooldowns[index->row] > 0)
                 return;
-            gBattleState.player.actor.skillQueued = true;
+            if(gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
+               gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
+            {
+                Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, index->row);
+                if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
+                    return;
+                if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
+                    return;
+            }
+            gBattleState.player.actor.skillQueued = true ;
             gBattleState.player.actor.activeSkill = index->row;
             gPlayerActed = true;
             break;
         }
         case 1:
+        {
+            switch(index->row)
+            {
+                case 0:
+                {
+                    Character_ShowStatus();
+                    break;
+                }
+                case 1:
+                {
+                    Character_ShowClass();
+                    break;
+                }
+                case 2:
+                {
+                    Character_ShowSkills();
+                    break;
+                }
+                case 3:
+                {
+                    DialogData *dialog = calloc(sizeof(DialogData), 1);
+                    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+                    dialog->allowCancel = true;
+                    QueueDialog(dialog);
+                    GlobalState_QueueStatePop();
+                    GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
+                    break;
+                }
+            }
+            break;
+        }
+        case 2:
         {
             ExtraMenu_SelectAction(index->row);
         }
@@ -229,6 +311,9 @@ void BattleScreen_MenuSelect(MenuIndex *index)
 
 void BattleScreenAppear(void *data)
 {
+    if(!gBattleState.monster.battlerWrapper)
+        return;
+    
     if(gPlayerActed)
     {
         gPlayerTurn = false;
@@ -238,7 +323,8 @@ void BattleScreenAppear(void *data)
     SetDescription(ResourceMonster_GetCurrentName());
     RegisterMenuState(GetMainMenu(), STATE_BATTLE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
-    SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
+    if(gBattleState.monster.battlerWrapper && gBattleState.monster.battlerWrapper->loaded)
+        SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
 #endif
@@ -273,6 +359,10 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
     actorWrapper->actor.activeSkill = INVALID_SKILL;
     actorWrapper->actor.counterSkill = INVALID_SKILL;
     actorWrapper->actor.currentTime = 0;
+    for(int i = 0; i < MAX_STATUS_EFFECTS; ++i)
+    {
+        actorWrapper->actor.statusEffectDurations[i] = 0;
+    }
     if(currentHealth == 0)
         actorWrapper->actor.currentHealth = actorWrapper->actor.maxHealth;
     else
@@ -285,11 +375,14 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
 
 void BattleInit(void)
 {
+    DEBUG_LOG("BattleInit");
     ResourceMonster_UnloadCurrent();
+    gBattleState.monster.battlerWrapper = NULL;
+    bool loaded = false;
     
     if(forcedBattle && forcedBattleMonsterType > -1)
     {
-        ResourceMonster_LoadCurrent(forcedBattleMonsterType);
+        loaded = ResourceMonster_LoadCurrent(forcedBattleMonsterType);
         gBattleState.monster.battlerWrapper = BattlerWrapper_GetMonsterWrapper();
         gBattleState.player.battlerWrapper = BattlerWrapper_GetPlayerWrapper();
         currentMonsterIndex = forcedBattleMonsterType;
@@ -301,11 +394,22 @@ void BattleInit(void)
         if(!ResourceMonster_Loaded())
         {
             currentMonsterIndex = ResourceStory_GetCurrentLocationMonster();
-            ResourceMonster_LoadCurrent(currentMonsterIndex);
+            loaded = ResourceMonster_LoadCurrent(currentMonsterIndex);
         }
-        InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
-        uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
-        InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
+        if(loaded)
+        {
+            InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
+            uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
+            InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
+        }
+    }
+    
+    if(!loaded)
+    {
+        DEBUG_LOG("Aborting battle");
+        // Monster prereqs failed
+        GlobalState_Pop();
+        return;
     }
     
     GRect playerHealthFrame = PLAYER_HEALTH_FRAME;
@@ -323,12 +427,17 @@ void BattleInit(void)
     InitializeProgressBar(monsterHealthBar, GetBaseWindow());
     InitializeProgressBar(monsterTimeBar, GetBaseWindow());
     
+#if defined(PBL_ROUND)
     HideDateLayer();
+#endif
     
     // Force the main menu to the front
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
     InitializeMenuLayer(GetSlaveMenu(), GetBaseWindow());
     
+    // Force dialog layer to the top
+    InitializeDialogLayer(GetBaseWindow());
+
     RegisterMenuState(GetMainMenu(), STATE_BATTLE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     
@@ -349,15 +458,48 @@ static void DoSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapp
     attacker->actor.skillQueued = false;
 }
 
-static void UpdateActorCurrentTime(BattleActorWrapper *wrapper)
+static void UpdateActor(BattleActorWrapper *wrapper)
 {
+    uint16_t currentSpeed = 1;
     if(wrapper->actor.skillQueued)
     {
-        wrapper->actor.currentTime += BattlerWrapper_GetSkillByIndex(wrapper->battlerWrapper, wrapper->actor.activeSkill)->speed;
+        currentSpeed = BattlerWrapper_GetSkillByIndex(wrapper->battlerWrapper, wrapper->actor.activeSkill)->speed;
     }
     else
     {
-        wrapper->actor.currentTime += CombatantClass_GetSpeed(&wrapper->battlerWrapper->battler.combatantClass, wrapper->actor.level);
+        currentSpeed = CombatantClass_GetSpeed(&wrapper->battlerWrapper->battler.combatantClass, wrapper->actor.level);
+    }
+    
+    if(wrapper->actor.statusEffectDurations[STATUS_EFFECT_SLOW] > 0)
+    {
+        currentSpeed /= 2;
+        if(currentSpeed <= 0)
+            currentSpeed = 1;
+    }
+    
+    if(wrapper->actor.statusEffectDurations[STATUS_EFFECT_HASTE] > 0)
+    {
+        currentSpeed *= 2;
+    }
+    
+    wrapper->actor.currentTime += currentSpeed;
+}
+
+static void UpdateStatusEffects(BattleActorWrapper *wrapper)
+{
+    for(int i = 0; i < MAX_STATUS_EFFECTS; ++i)
+    {
+        if(wrapper->actor.statusEffectDurations[i] > 0)
+        {
+            if(i == STATUS_EFFECT_POISON)
+            {
+                int damage = wrapper->actor.maxHealth * (POISON_DAMAGE_PERCENT) / 100;
+                if(damage < 1)
+                    damage = 1;
+                DealDamage(damage, &wrapper->actor);
+            }
+            wrapper->actor.statusEffectDurations[i]--;
+        }
     }
 }
 
@@ -399,13 +541,25 @@ void UpdateBattle(void *unused)
             }
             else
             {
-                UpdateSkillCooldowns(gBattleState.player.actor.skillCooldowns);
-                gPlayerTurn = true;
-                gPlayerActed = false;
-                RegisterMenuState(GetMainMenu(), STATE_BATTLE);
-                RegisterMenuState(GetSlaveMenu(), STATE_NONE);
-                Menu_ResetSelection(GetMainMenu());
-                SetDescription("Your turn");
+                if(gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_STUN] == 0)
+                {
+                    UpdateSkillCooldowns(gBattleState.player.actor.skillCooldowns);
+                    gPlayerTurn = true;
+                    gPlayerActed = false;
+                    RegisterMenuState(GetMainMenu(), STATE_BATTLE);
+                    RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+                    Menu_ResetSelection(GetMainMenu());
+                    SetDescription("Your turn");
+                }
+                else
+                {
+                    SetDescription("You are stunned");
+                    gSkillDelay = SKILL_DELAY;
+                    gBattleState.player.actor.currentTime = 0;
+                    MarkProgressBarDirty(playerTimeBar);
+                    MarkProgressBarDirty(monsterTimeBar);
+                }
+                UpdateStatusEffects(&gBattleState.player);
             }
             actionPerformed = true;
         }
@@ -416,15 +570,41 @@ void UpdateBattle(void *unused)
         {
             if(gBattleState.monster.actor.skillQueued)
             {
+                bool act = true;
                 Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.monster.battlerWrapper, gBattleState.monster.actor.activeSkill);
-                DoSkill(skill, &gBattleState.monster, &gBattleState.player);
+                if(gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
+                   gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
+                {
+                    if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
+                        act = false;
+                    if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
+                        act = false;
+                }
+                if(act)
+                    DoSkill(skill, &gBattleState.monster, &gBattleState.player);
             }
             else
             {
                 UpdateSkillCooldowns(gBattleState.monster.actor.skillCooldowns);
-                gBattleState.monster.actor.activeSkill = 0;
-                gBattleState.monster.actor.skillQueued = true;
                 gBattleState.monster.actor.currentTime = 0;
+                bool act = true;
+                if(gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_STUN] > 0)
+                    act = false;
+                if(gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
+                   gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
+                {
+                    Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.monster.battlerWrapper, 0);
+                    if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
+                        act = false;
+                    if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.monster.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
+                        act = false;
+                }
+                if(act)
+                {
+                    gBattleState.monster.actor.activeSkill = 0;
+                    gBattleState.monster.actor.skillQueued = true;
+                }
+                UpdateStatusEffects(&gBattleState.monster);
             }
             actionPerformed = true;
         }
@@ -432,8 +612,8 @@ void UpdateBattle(void *unused)
 
     if(!actionPerformed)
     {
-        UpdateActorCurrentTime(&gBattleState.player);
-        UpdateActorCurrentTime(&gBattleState.monster);
+        UpdateActor(&gBattleState.player);
+        UpdateActor(&gBattleState.monster);
 
         MarkProgressBarDirty(playerTimeBar);
         MarkProgressBarDirty(monsterTimeBar);
@@ -447,14 +627,19 @@ void BattleScreenPush(void *data)
 
 void BattleScreenPop(void *data)
 {
+    DEBUG_LOG("BattleScreenPop");
     RemoveProgressBar(playerHealthBar);
     RemoveProgressBar(playerTimeBar);
     RemoveProgressBar(monsterHealthBar);
     RemoveProgressBar(monsterTimeBar);
     FreeProgressBar(playerHealthBar);
+    playerHealthBar = NULL;
     FreeProgressBar(playerTimeBar);
+    playerTimeBar = NULL;
     FreeProgressBar(monsterHealthBar);
+    monsterHealthBar = NULL;
     FreeProgressBar(monsterTimeBar);
+    monsterTimeBar = NULL;
     ResourceMonster_UnloadCurrent();
 }
 

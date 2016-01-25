@@ -2,7 +2,7 @@
 
 typedef struct TextBox TextBox;
 
-TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll);
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll, bool roundedEdges);
 void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText);
 void RemoveTextBox(TextBox *textBox);
 void FreeTextBox(TextBox *textBox);

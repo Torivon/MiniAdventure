@@ -8,20 +8,13 @@
 static TextBox *okTextBox = NULL;
 static bool largeImageForceBacklight = false;
 
-#define OK_FRAME_WIDTH 25
-#define OK_FRAME_HEIGHT 22
 #define DIALOG_TEXT_X_OFFSET 2
 #define DIALOG_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
-static GRect okFrame = {.origin = {.x = 144 - 40, .y = 168 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
+static GRect okFrame = {.origin = {.x = 144 - OK_FRAME_WIDTH, .y = 168 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-static GRect okFrame = {.origin = {.x = 180 - 30, .y = 180 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
+static GRect okFrame = {.origin = {.x = 180 - OK_FRAME_WIDTH - 5, .y = 180 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
 #endif
-
-#define LARGE_IMAGE_LAYER_X 20
-#define LARGE_IMAGE_LAYER_Y 20
-#define LARGE_IMAGE_LAYER_W 104
-#define LARGE_IMAGE_LAYER_H 104
 
 #define INTERNAL_LARGE_IMAGE_OFFSET 2
 
@@ -46,9 +39,6 @@ void InitializeLargeImageLayer(Window *window)
 {
 	if(!largeImageInitialized)
 	{
-		GRect screen_bounds = layer_get_bounds(window_get_root_layer(window));
-		largeImagePosition.origin.x = screen_bounds.size.w / 2 - largeImagePosition.size.w / 2;
-		largeImagePosition.origin.y = screen_bounds.size.h / 2 - largeImagePosition.size.h / 2;
 		largeImageTopLayer = layer_create(largeImagePosition);
 		
 		GRect image_bounds = layer_get_bounds(largeImageTopLayer);
@@ -65,7 +55,7 @@ void InitializeLargeImageLayer(Window *window)
 		layer_set_update_proc(largeImageTopLayer, LargeImageUpdateProc);
 		layer_add_child(largeImageTopLayer, (Layer*)largeImageLayer);
 
-		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame, GTextAlignmentCenter, false);
+		okTextBox = CreateTextBox(DIALOG_TEXT_X_OFFSET, DIALOG_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), okFrame, GTextAlignmentCenter, false, false);
 
 		largeImageInitialized = true;
 	}

@@ -16,6 +16,7 @@ typedef struct TextBox
 	TextLayer *textLayer;
     ScrollLayer *scrollLayer;
 	bool initialized;
+    bool roundedEdges;
 } TextBox;
 
 bool TextBoxInitialized(TextBox *textBox)
@@ -42,8 +43,9 @@ void TextBoxSetText(TextBox *textBox, const char *text)
         GPoint offset = GPointZero;
         scroll_layer_set_content_offset(textBox->scrollLayer, offset, false);
         GSize max_size = text_layer_get_content_size(textBox->textLayer);
+        max_size.h += 4;
         text_layer_set_size(textBox->textLayer, max_size);
-        scroll_layer_set_content_size(textBox->scrollLayer, GSize(bounds.size.w, max_size.h + 4));
+        scroll_layer_set_content_size(textBox->scrollLayer, GSize(bounds.size.w, max_size.h));
     }
 }
 
@@ -63,7 +65,7 @@ void RemoveTextBox(TextBox *textBox)
 	layer_remove_from_parent(textBox->mainLayer);
 }
 
-TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll)
+TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextAlignment align, bool scroll, bool roundedEdges)
 {
 	TextBox *textBox = calloc(sizeof(TextBox), 1);
 	textBox->font = font;
@@ -72,6 +74,7 @@ TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextA
 	textBox->yoffset = yoffset;
     textBox->allowScroll = scroll;
     textBox->align = align;
+    textBox->roundedEdges = roundedEdges;
 	return textBox;
 }
 
@@ -79,6 +82,14 @@ void TextBoxUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
 	DrawContentFrame(ctx, &bounds);
+}
+
+void TextBoxRoundedUpdateProc(struct Layer *layer, GContext *ctx)
+{
+    GRect bounds = layer_get_bounds(layer);
+    DrawContentFrame(ctx, &bounds);
+    bounds = layer_get_frame(layer);
+    DrawBoundaryArcs(ctx, &bounds);
 }
 
 void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText)
@@ -108,9 +119,15 @@ void InitializeTextBox(Layer *layer, TextBox *textBox, char *initialText)
 		text_layer_set_text(textBox->textLayer, initialText);
 		textBox->initialized = true;
 
-		layer_set_update_proc(textBox->mainLayer, TextBoxUpdateProc);
+        if(textBox->roundedEdges)
+            layer_set_update_proc(textBox->mainLayer, TextBoxRoundedUpdateProc);
+        else
+            layer_set_update_proc(textBox->mainLayer, TextBoxUpdateProc);
 	}
 	layer_add_child(layer, textBox->mainLayer);
+    
+    if(textBox->roundedEdges)
+        text_layer_enable_screen_text_flow_and_paging(textBox->textLayer, 5);
 }
 
 void FreeTextBox(TextBox *textBox)

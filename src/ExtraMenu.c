@@ -1,11 +1,25 @@
 #include "pebble.h"
 
+#include "BaseWindow.h"
+#include "BinaryResourceLoading.h"
 #include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "ExtraMenu.h"
+#include "GlobalState.h"
+#include "Menu.h"
+#include "ImageMap.h"
 #include "LargeImage.h"
 #include "OptionsMenu.h"
 
-
+void TriggerTutorialDialog(bool now)
+{
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->tutorialDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+    if(now)
+        TriggerDialog(dialog);
+    else
+        QueueDialog(dialog);
+}
 
 uint16_t ExtraMenu_GetSectionCount(void)
 {
@@ -19,7 +33,7 @@ const char *ExtraMenu_GetSectionName(void)
 
 uint16_t ExtraMenu_GetCellCount(void)
 {
-    return 3;
+    return 4;
 }
 
 const char *ExtraMenu_GetCellName(uint16_t row)
@@ -29,29 +43,15 @@ const char *ExtraMenu_GetCellName(uint16_t row)
         case 0:
             return "Options";
         case 1:
-            return "Credits";
+            return "Tutorial";
         case 2:
+            return "Credits";
+        case 3:
             return "Repository";
         default:
             return "None";
     }
 }
-
-static DialogData credits[] =
-{
-    {
-        .text = "Engine Programming by Jonathan Panttaja",
-        .allowCancel = false
-    },
-    {
-        .text = "Additional Contributors: Belphemur and BlackLamb",
-        .allowCancel = false
-    },
-    {
-        .text = "Code located at https://Github.com/Torivon/MiniAdventure",
-        .allowCancel = false
-    },
-};
 
 void ExtraMenu_SelectAction(uint16_t row)
 {
@@ -64,15 +64,26 @@ void ExtraMenu_SelectAction(uint16_t row)
         }
         case 1:
         {
-            QueueDialog(&credits[0]);
-            QueueDialog(&credits[1]);
-            QueueDialog(&credits[2]);
+            TriggerTutorialDialog(false);
             break;
         }
         case 2:
         {
-            QueueLargeImage(RESOURCE_ID_IMAGE_REPOSITORYCODE, true);
+            DialogData *dialog = calloc(sizeof(DialogData), 1);
+            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->engineCreditsDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+            QueueDialog(dialog);
+            break;
+        }
+        case 3:
+        {
+            QueueLargeImage(ImageMap_GetIdByIndex(EngineInfo_GetInfo()->engineRepositoryImage), true);
             break;
         }
     }
+}
+
+void ExtraMenu_SubMenu_Trigger(void)
+{
+    QueueRegisterMenuState(GetMainMenu(), STATE_EXTRA_MENU);
+    QueueMenu(GetMainMenu());
 }

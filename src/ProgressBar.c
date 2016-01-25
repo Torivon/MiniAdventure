@@ -48,8 +48,12 @@ void ProgressBarUpdateProc(struct Layer *layer, GContext *ctx)
 	if(progressBar->fillDirection == FILL_UP || progressBar->fillDirection == FILL_DOWN)
 	{
 		int newHeight = innerFrame.size.h * (*(progressBar->current)) / (*(progressBar->max));
-        if(newHeight < 0)
+        if(newHeight <= 0)
+        {
             newHeight = 0;
+            if(*(progressBar->current) > 0)
+                newHeight = 1;
+        }
         if(newHeight >= innerFrame.size.h)
             newHeight = innerFrame.size.h;
 		if(progressBar->fillDirection == FILL_UP)
@@ -62,8 +66,12 @@ void ProgressBarUpdateProc(struct Layer *layer, GContext *ctx)
 	if(progressBar->fillDirection == FILL_RIGHT || progressBar->fillDirection == FILL_LEFT)
 	{
 		int newWidth = innerFrame.size.w * (*(progressBar->current)) / (*(progressBar->max));
-        if(newWidth < 0)
+        if(newWidth <= 0)
+        {
             newWidth = 0;
+            if(*(progressBar->current) > 0)
+                newWidth = 1;
+        }
         if(newWidth >= innerFrame.size.w)
             newWidth = innerFrame.size.w;
 		if(progressBar->fillDirection == FILL_LEFT)

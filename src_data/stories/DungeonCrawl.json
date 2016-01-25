@@ -2,7 +2,7 @@
     "id": 567,
     "version": 4,
     "name": "Dungeon Crawl",
-    "description": "20 floor dungeon",
+    "description": "A 20 floor dungeon with a dragon at the bottom.",
     "start_location": "entrance",
     "xp_monsters_per_level": 3,
     "xp_difference_scale": 50,
@@ -13,6 +13,8 @@
         {
             "id": "entrance",
             "name": "Dungeon Entrance",
+            "menu_name": "Enter",
+            "menu_description": "Enter the dungeon",
             "adjacent_locations": ["dungeon_start"],
             "background_images": ["images/newfloor.png"]
         },
@@ -26,6 +28,8 @@
         {
             "id": "dragon_room",
             "name": "Dragon's Room",
+            "menu_name": "Dragon's Room",
+            "menu_description": "Fight the dragon.",
             "adjacent_locations": ["treasure"],
             "background_images": ["images/dungeonstraight.png"],
             "monsters": ["dragon"],
@@ -34,6 +38,7 @@
         {
             "id": "treasure",
             "name": "Treasure Room",
+            "menu_description": "Investigate the dragon's hoard.",
             "adjacent_locations": [],
             "background_images": ["images/dungeondeadend.png"],
             "location_properties": ["game_win"]
@@ -43,6 +48,7 @@
         {
             "id": "dungeon",
             "name": "Dungeon",
+            "floor_word": "Floor",
             "adjacent_locations": ["entrance", "dungeon_floor_20"],
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
@@ -55,8 +61,7 @@
             "monster_scaling": 2       
         }
     ],
-    "skill_files": ["DungeonCrawl_MonsterSkills.json", "DungeonCrawl_AdventurerSkills.json"],
-    "battler_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"],
+    "external_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"],
     "dialog": [
         {
             "id": "intro_text",

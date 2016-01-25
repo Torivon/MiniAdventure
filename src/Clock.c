@@ -9,19 +9,15 @@ static TextBox *clockTextBox = NULL;
 static TextBox *dateTextBox = NULL;
 static TextBox *dayTextBox = NULL;
 
-#define CLOCK_FRAME_WIDTH 62
-#define CLOCK_FRAME_HEIGHT 36
-#define CLOCK_TEXT_X_OFFSET 6
-#define CLOCK_TEXT_Y_OFFSET -1
 #if defined(PBL_RECT)
-static GRect clockFrame = {.origin = {.x = 144 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 168 - CLOCK_FRAME_HEIGHT}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
-static GRect dayFrame = {.origin = {.x = 0, .y = 60}, .size = {.w = 30, .h = 18}};
-static GRect dateFrame = {.origin = {.x = 0, .y = 100}, .size = {.w = 60, .h = 18}};
+static GRect clockFrame = {.origin = {.x = DATE_FRAME_WIDTH + 2, .y = 168 - CLOCK_FRAME_HEIGHT}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
+static GRect dayFrame = {.origin = {.x = 0, .y = 168 - DATE_FRAME_HEIGHT - DAY_FRAME_HEIGHT - 2}, .size = {.w = DAY_FRAME_WIDTH, .h = DAY_FRAME_HEIGHT}};
+static GRect dateFrame = {.origin = {.x = 0, .y = 168 - DATE_FRAME_HEIGHT}, .size = {.w = DATE_FRAME_WIDTH, .h = DATE_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-#define CLOCK_VERTICAL_OFFSET 10
+#define CLOCK_VERTICAL_OFFSET 8
 static GRect clockFrame = {.origin = {.x = 180 / 2 - CLOCK_FRAME_WIDTH / 2, .y = 180 - CLOCK_FRAME_HEIGHT - CLOCK_VERTICAL_OFFSET}, .size = {.w = CLOCK_FRAME_WIDTH, .h = CLOCK_FRAME_HEIGHT}};
-static GRect dayFrame = {.origin = {.x = 45, .y = 48}, .size = {.w = 30, .h = 18}};
-static GRect dateFrame = {.origin = {.x = 15, .y = 114}, .size = {.w = 60, .h = 18}};
+static GRect dayFrame = {.origin = {.x = 15, .y = 48}, .size = {.w = DAY_FRAME_WIDTH, .h = DAY_FRAME_HEIGHT}};
+static GRect dateFrame = {.origin = {.x = 15, .y = 114}, .size = {.w = DATE_FRAME_WIDTH, .h = DATE_FRAME_HEIGHT}};
 #endif
 
 typedef struct TimeFormatData
@@ -97,10 +93,10 @@ void InitializeClockLayer(Window *window)
 {
     if(!clockTextBox)
     {
-        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame, GTextAlignmentCenter, false);
+        clockTextBox = CreateTextBox(CLOCK_TEXT_X_OFFSET, CLOCK_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD), clockFrame, GTextAlignmentCenter, false, false);
         GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-        dayTextBox = CreateTextBox(0, 0, font, dayFrame, GTextAlignmentCenter, false);
-        dateTextBox = CreateTextBox(0, 0, font, dateFrame, GTextAlignmentCenter, false);
+        dayTextBox = CreateTextBox(0, 0, font, dayFrame, GTextAlignmentCenter, false, false);
+        dateTextBox = CreateTextBox(0, 0, font, dateFrame, GTextAlignmentCenter, false, false);
         if (clock_is_24h_style())
         {
             formatData[2].format = "%R";

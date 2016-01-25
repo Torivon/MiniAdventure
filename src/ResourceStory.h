@@ -4,6 +4,8 @@
 #include "Skills.h"
 #include "CombatantClass.h"
 
+typedef struct ResourceEvent ResourceEvent;
+
 typedef enum
 {
     STORYUPDATE_COMPUTERANDOM = 0,
@@ -20,16 +22,19 @@ typedef struct ResourceBattler
     uint16_t image;
     CombatantClass combatantClass;
     SkillList skillList;
+    uint16_t event;
     uint16_t vulnerable; // These are bit fields that use the damage type enums
     uint16_t resistant;
     uint16_t immune;
     uint16_t absorb;
+    uint16_t statusImmunities;
 } ResourceBattler;
 
 typedef struct BattlerWrapper
 {
     bool loaded;
     Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+    ResourceEvent *event;
     ResourceBattler battler;
 } BattlerWrapper;
 
@@ -40,13 +45,24 @@ typedef struct PersistedResourceStoryState
     uint16_t destinationIndex;
     uint16_t pathLength;
     uint16_t encounterChance;
+    uint16_t gameState[MAX_GAME_STATE_VARIABLES];
 } PersistedResourceStoryState;
 
 void ResourceStory_InitializeCurrent(void);
 
+void ResourceEvent_UpdateGameState_Push(void *data);
+
 void ResourceStory_TriggerDialog(uint16_t dialogIndex);
+void ResourceStory_QueueDialog(uint16_t dialogIndex);
 uint16_t ResourceStory_GetOpeningDialogIndex(void);
 uint16_t ResourceStory_GetWinDialogIndex(void);
+uint16_t ResourceStory_GetCurrentLocalEvents(void);
+uint16_t ResourceStory_GetCreditsDialogIndex(void);
+const char *ResourceStory_GetLocalEventName(uint16_t index);
+const char *ResourceStory_GetLocalEventDescription(uint16_t index);
+void ResourceEvent_Trigger(uint16_t index);
+void ResourceEvent_Queue(uint16_t index);
+void ResourceEvent_TriggerEvent(ResourceEvent *event, bool now);
 
 
 uint16_t ResourceStory_GetCurrentLocationIndex(void);
@@ -60,6 +76,7 @@ const char *ResourceStory_GetCurrentLocationName(void);
 uint16_t ResourceStory_GetCurrentAdjacentLocations(void);
 ResourceStoryUpdateReturnType ResourceStory_MoveToLocation(uint16_t index);
 const char *ResourceStory_GetAdjacentLocationName(uint16_t index);
+const char *ResourceStory_GetAdjacentLocationDescription(uint16_t index);
 uint16_t ResourceStory_GetCurrentLocationLength(void);
 bool ResourceStory_CurrentLocationIsPath(void);
 uint16_t ResourceStory_GetCurrentLocationBaseLevel(void);
@@ -96,7 +113,7 @@ void ResourceBattler_LoadPlayer(uint16_t classId);
 
 char *ResourceMonster_GetCurrentName(void);
 void ResourceMonster_UnloadCurrent(void);
-void ResourceMonster_LoadCurrent(uint16_t index);
+bool ResourceMonster_LoadCurrent(uint16_t index);
 bool ResourceMonster_Loaded(void);
 void ResourceBattler_UnloadPlayer(void);
 void ResourceMonster_UnloadCurrent(void);

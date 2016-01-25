@@ -12,7 +12,7 @@ void Character_SetHealth(int health);
 int Character_GetHealth(void);
 int Character_GetLevel(void);
 void Character_GrantLevel(void);
-void Character_GrantXP(uint16_t monsterLevel);
+bool Character_GrantXP(uint16_t monsterLevel);
 Character *Character_GetData(void);
 void Character_SetCooldowns(uint16_t *cooldowns);
 uint16_t *Character_GetCooldowns(void);

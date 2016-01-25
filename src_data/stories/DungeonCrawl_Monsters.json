@@ -1,4 +1,56 @@
 {
+    "skills": [
+        {
+            "id": "attack",
+            "name": "Attack",
+            "description": "Basic sword attack",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "bite",
+            "name": "Rat Bite",
+            "description": "Quick bite",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 5,
+            "cooldown": 0
+        },
+        {
+            "id": "gnaw",
+            "name": "Zombie Gnaw",
+            "description": "Going for brains",
+            "target": "enemy",
+            "speed": 10,
+            "damage_types": ["physical", "piercing"],
+            "potency": 15,
+            "cooldown": 0
+        },
+        {
+            "id": "bash",
+            "name": "Shell Bash",
+            "description": "Body slam",
+            "target": "enemy",
+            "speed": 35,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "fireball",
+            "name": "Fireball",
+            "description": "Blast of fire",
+            "target": "enemy",
+            "speed": 20,
+            "damage_types": ["magic", "fire"],
+            "potency": 20,
+            "cooldown": 0
+        }
+    ],
     "battlers": [
         {
             "id": "rat",

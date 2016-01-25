@@ -16,6 +16,9 @@ typedef enum
 	STATE_LARGE_IMAGE,
     STATE_STATE_POP,
     STATE_RESET_GAME,
+    STATE_UPDATE_GAME_STATE,
+    STATE_EXTRA_MENU,
+    STATE_REGISTER_MENU_STATE,
 } GlobalState;
 
 typedef void(*GlobalStateQueueFunction)(void);
@@ -38,6 +41,7 @@ void GlobalState_ClearQueue(void);
 
 void GlobalState_Update(TimeUnits units_changed);
 void GlobalState_Pop(void);
+void GlobalState_PopIgnoreQueue(void);
 GlobalState GlobalState_GetCurrent(void);
 void GlobalState_PopAll(void);
 void GlobalState_Initialize(void);

@@ -86,13 +86,14 @@ void Character_GrantLevel(void)
     character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
 }
 
-void Character_GrantXP(uint16_t monsterLevel)
+bool Character_GrantXP(uint16_t monsterLevel)
 {
+    bool leveledUp = false;
     uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();
     uint16_t xpDifferenceScale = ResourceStory_GetCurrentStoryXPDifferenceScale();
     
     if(xpMonstersPerLevel == 0)
-        return;
+        return leveledUp;
     
     // We add 1 to work around truncation issues.
     uint16_t xpGain = (XP_TO_LEVEL_UP * (100 + (monsterLevel - character.level) * xpDifferenceScale)) / (xpMonstersPerLevel * 100) + 1;
@@ -103,7 +104,10 @@ void Character_GrantXP(uint16_t monsterLevel)
         character.level++;
         character.currentXP -= XP_TO_LEVEL_UP;
         character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+        leveledUp = true;
     }
+    
+    return leveledUp;
 }
 
 void Character_ReadPersistedData(int index)

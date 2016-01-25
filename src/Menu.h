@@ -15,6 +15,7 @@ bool IsMenuVisible(Menu *menu);
 void ShowMenu(void *menu);
 void HideMenu(Menu *menu);
 void TriggerMenu(Menu *menu);
+void QueueMenu(Menu *menu);
 
 void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *window);
 
@@ -26,6 +27,8 @@ MenuLayer *GetMenuLayer(Menu *menu);
 
 void CleanupMenu(Menu *menu);
 
+void RegisterMenuState_Push(void *data);
+void QueueRegisterMenuState(Menu *menu, int state);
 void RegisterMenuState(Menu *menu, int state);
 void ClearMenuCellList(Menu *menu);
 uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index);

@@ -3,48 +3,84 @@
     "version": 4,
     "name": "Wander Test",
     "description": "A test of path traveling",
-    "start_location": "village1",
+    "start_location": "house3",
     "classes": ["adventurer"],
+    "opening_dialog": "wake_up",
+    "win_dialog": "game_end",
     "locations": [
         {
             "id": "village2",
             "name": "Haven",
-            "adjacent_locations": ["road1", "house2"],
+            "menu_description": "Well known for its cheese.",
+            "adjacent_locations": ["road1", "house2", "shop1"],
             "background_images": ["images/VillageExterior.png"]
+        },
+        {
+            "id": "shop1",
+            "name": "Cheese shop",
+            "menu_description": "Visit the cheese shop",
+            "adjacent_locations": ["village2"],
+            "background_images": ["images/shop.png"],
+            "initial_event": "shop_enter",
+            "events": ["shop1", "shop2"]
         },
         {
             "id": "village1",
             "name": "Asgard",
-            "adjacent_locations": ["road1", "house1", "house3"],
+            "menu_description": "Your home town.",
+            "adjacent_locations": ["road1", "house1", "house3", "house3-bed"],
             "background_images": ["images/VillageExterior.png"]
         },
         {
             "id": "house1",
             "name": "Bob's House",
+            "menu_name": "Visit Bob",
+            "menu_description": "Bob is in charge of village security.",
             "adjacent_locations": ["village1"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "initial_event": "bobs_house_enter",
+            "events": ["bob1", "bob2"]
         },
         {
             "id": "house2",
             "name": "Fred's House",
+            "menu_name": "Visit Fred",
+            "menu_description": "Fred and his wife are friendly.",
             "adjacent_locations": ["village2"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "events": ["fred1", "fred2", "wife1"]
         },
         {
             "id": "house3",
             "name": "Jon's House",
+            "menu_name": "Go home",
+            "menu_description": "Your home",
             "adjacent_locations": ["village1"],
-            "background_images": ["images/VillageInterior.png"]
+            "background_images": ["images/VillageInterior.png"],
+            "initial_event": "daytime",
+            "location_properties": ["rest_area"]
+        },
+        {
+            "id": "house3-bed",
+            "name": "Jon's House",
+            "menu_name": "Go home",
+            "menu_description": "Your home",
+            "adjacent_locations": ["village1"],
+            "background_images": ["images/VillageInterior.png"],
+            "initial_event": "bedtime",
+            "location_properties": ["game_win"]
         },
         {
             "id": "road1",
             "name": "Poplar Avenue",
+            "menu_description": "Travel between Asgard and Haven.",
             "adjacent_locations": ["village1", "village2"],
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
             "length": 5,
-            "base_level": 2,
+            "base_level": 1,
             "encounter_chance": 25,
-            "monsters": ["rat"]
+            "monsters": ["rat"],
+            "initial_event": "poplar_enter"
         }
     ],
     "skills": [
@@ -52,17 +88,17 @@
             "id": "fastattack",
             "name": "Fast Attack",
             "description": "Lightning quick strike",
-            "type": "attack",
+            "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
-            "potency": 1,
+            "potency": 10,
             "cooldown": 0
         },
         {
             "id": "slowattack",
             "name": "Slow Attack",
             "description": "Heavy Slash",
-            "type": "attack",
+            "target": "enemy",
             "speed": 20,
             "damage_types": ["physical", "slashing"],
             "potency": 5,
@@ -72,7 +108,7 @@
             "id": "shieldbash",
             "name": "Shield Bash",
             "description": "Counter with a shield",
-            "type": "counter",
+            "target": "counter",
             "speed": 100,
             "damage_types": ["physical", "bludgeoning"],
             "potency": 10,
@@ -82,9 +118,9 @@
             "id": "potion",
             "name": "Potion",
             "description": "Heal with a potion",
-            "type": "heal",
+            "target": "self",
             "speed": 100,
-            "damage_types": [],
+            "damage_types": ["magic"],
             "potency": 10,
             "cooldown": 4
         }
@@ -95,19 +131,20 @@
             "name": "Rat",
             "image": "images/rat.png",
             "combatantclass": {
-                "strength": "rankc",
+                "strength": "rankf",
                 "magic": "rankf",
                 "defense": "rankf",
                 "magic_defense": "rankf",
-                "speed": "ranks",
-                "health": "rankc"
+                "speed": "rankf",
+                "health": "rankf"
             },
             "skill_list": [
                 {
                     "id": "fastattack",
                     "min_level": 1
                 }
-            ]
+            ],
+            "event": "no_rats"
         },
         {
             "id": "adventurer",
@@ -115,12 +152,12 @@
             "description": "A basic adventurer",
             "image": "images/Title.png",
             "combatantclass": {
-                "strength": "rankb",
-                "magic": "rankb",
-                "defense": "rankb",
-                "magic_defense": "rankb",
-                "speed": "rankb",
-                "health": "rankb"
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
             },
             "skill_list": [
                 {
@@ -132,6 +169,150 @@
                     "min_level": 1
                 }
             ]          
+        }
+    ],
+    "dialog": [
+        {
+            "id": "bob1",
+            "name": "Bob",
+            "text": "You need a key to leave town. Would you like mine?",
+            "allow_cancel": true
+        },
+        {
+            "id": "bob2",
+            "name": "Bob",
+            "text": "You already have my key. Get going."
+        },    
+        {
+            "id": "bob_desc",
+            "text": "Bob is sitting in the corner."
+        },    
+        {
+            "id": "fred1",
+            "name": "Fred",
+            "text": "If you are heading back home, take this rat repellent."
+        },
+        {
+            "id": "fred2",
+            "name": "Fred",
+            "text": "You should get home before it gets dark."
+        },  
+        {
+            "id": "wife1",
+            "name": "Joan",
+            "text": "You say you fought a rat on your way here?"
+        },  
+        {
+            "id": "poplar",
+            "text": "You enter Poplar Avenue and hope for an uneventful walk to the next village."
+        },
+        {
+            "id": "game_end",
+            "name": "The End",
+            "text": "You head to bed."
+        },
+        {
+            "id": "wake_up",
+            "text": "You wake up and realize that you need to head down to Haven to get some cheese."
+        },
+        {
+            "id": "shop1",
+            "name": "George",
+            "text": "What kind of cheese do you want?\n\nCheddar, eh?\n\nHere you go."
+        },
+        {
+            "id": "shop2",
+            "name": "George",
+            "text": "I'm a bit short, so I can't sell you any more cheese right now."
+        },
+        {
+            "id": "shop_enter",
+            "name": "George",
+            "text": "Welcome, how can I help you?"
+        }
+    ],
+    "events": [
+        {
+            "id": "bob1",
+            "name": "Talk to Bob",
+            "menu_description": "Ask Bob for permission to leave town.",
+            "dialog": "bob1",
+            "negative_prerequisites": ["talk_to_bob"],
+            "state_changes": ["talk_to_bob", "villagekey"]
+        },
+        {
+            "id": "bob2",
+            "name": "Talk to Bob",
+            "menu_description": "Bug Bob some more.",
+            "dialog": "bob2",
+            "positive_prerequisites": ["talk_to_bob"]
+        },
+        {
+            "id": "shop1",
+            "name": "Talk to George",
+            "menu_description": "Buy some cheese.",
+            "dialog": "shop1",
+            "negative_prerequisites": ["bought_cheese"],
+            "state_changes": ["bought_cheese"]
+        },
+        {
+            "id": "shop2",
+            "name": "Talk to George",
+            "menu_description": "Try to buy more cheese.",
+            "dialog": "shop2",
+            "positive_prerequisites": ["bought_cheese"]
+        },
+        {
+            "id": "poplar_enter",
+            "name": "Poplar",
+            "dialog": "poplar",
+            "positive_prerequisites": ["villagekey"]
+        },
+        {
+            "id": "bobs_house_enter",
+            "name": "Bob's House",
+            "dialog": "bob_desc",
+            "negative_prerequisites": ["talk_to_bob"]
+        },
+        {
+            "id": "shop_enter",
+            "name": "Cheese Shop",
+            "dialog": "shop_enter"
+        },
+        {
+            "id": "no_rats",
+            "negative_prerequisites": ["rat_repellent"],
+            "state_changes": ["beat_rat"]
+        },
+        {
+            "id": "fred1",
+            "name": "Talk to Fred",
+            "menu_description": "Discuss your day.",
+            "dialog": "fred1",
+            "negative_prerequisites": ["talk_to_fred"],
+            "state_changes": ["rat_repellent", "talk_to_fred"]
+        },
+        {
+            "id": "fred2",
+            "name": "Talk to Fred",
+            "menu_description": "Discuss your day.",
+            "dialog": "fred2",
+            "positive_prerequisites": ["talk_to_fred"]
+        },
+        {
+            "id": "wife1",
+            "name": "Talk to Joan",
+            "menu_description": "Discuss your day.",
+            "dialog": "wife1",
+            "positive_prerequisites": ["beat_rat"]
+        },
+        {
+            "id": "bedtime",
+            "positive_prerequisites": ["bought_cheese"]
+        },
+        {
+            "id": "daytime",
+            "negative_prerequisites": ["bought_cheese"]
         }
     ]
 }

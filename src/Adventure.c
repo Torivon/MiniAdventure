@@ -1,9 +1,12 @@
 #include "pebble.h"
 
 #include "Adventure.h"
+#include "BinaryResourceLoading.h"
 #include "Character.h"
+#include "Clock.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
+#include "EngineInfo.h"
 #include "ExtraMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
@@ -18,12 +21,6 @@
 #include "Utils.h"
 #include "WorkerControl.h"
 
-#if defined(PBL_ROUND)
-#define LOCATION_PROGRESS_FRAME {.origin = {.x = 59, .y = 67}, .size = {.w = 16, .h = 46}}
-#else
-#define LOCATION_PROGRESS_FRAME {.origin = {.x = 133, .y = 48}, .size = {.w = 16, .h = 84}}
-#endif
-
 static ProgressBar *locationProgress = NULL;
 static uint16_t currentProgress = 0;
 static uint16_t maxProgress = 1;
@@ -32,13 +29,15 @@ bool gUpdateAdventure = false;
 
 static int updateDelay = 0;
 
-static int adventureImageId = RESOURCE_ID_IMAGE_DUNGEONRIGHT;
+static int adventureImageId = -1;
 
+static int newEvent = -1;
 static int newLocation = -1;
 
 static bool firstLaunch = true;
 static bool playOpeningDialog = false;
 static bool skipFinalSave = false;
+static bool dead = false;
 
 void SetUpdateDelay(void)
 {
@@ -62,11 +61,13 @@ void ResetGame(void)
     SaveStoryPersistedData();
     playOpeningDialog = true;
     skipFinalSave = false;
+    dead = false;
+    Battle_SetCleanExit();
 }
 
 uint16_t Adventure_MenuSectionCount(void)
 {
-    return 2 + ExtraMenu_GetSectionCount();
+    return 3 + ExtraMenu_GetSectionCount();
 }
 
 const char *Adventure_MenuSectionName(uint16_t sectionIndex)
@@ -74,10 +75,12 @@ const char *Adventure_MenuSectionName(uint16_t sectionIndex)
     switch(sectionIndex)
     {
         case 0:
-            return "Locations";
+            return "Events";
         case 1:
-            return "Story";
+            return "Locations";
         case 2:
+            return "Story";
+        case 3:
             return ExtraMenu_GetSectionName();
     }
     return "None";
@@ -92,14 +95,22 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
             if(ResourceStory_CurrentLocationIsPath())
                 return 0;
             
-            return ResourceStory_GetCurrentAdjacentLocations();
+            return ResourceStory_GetCurrentLocalEvents();
             break;
         }
         case 1:
         {
-            return 4;
+            if(ResourceStory_CurrentLocationIsPath())
+                return 0;
+            
+            return ResourceStory_GetCurrentAdjacentLocations();
+            break;
         }
         case 2:
+        {
+            return 5;
+        }
+        case 3:
         {
             return ExtraMenu_GetCellCount();
         }
@@ -112,8 +123,10 @@ const char *Adventure_MenuCellName(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetAdjacentLocationName(index->row);
+            return ResourceStory_GetLocalEventName(index->row);
         case 1:
+            return ResourceStory_GetAdjacentLocationName(index->row);
+        case 2:
         {
             switch(index->row)
             {
@@ -124,21 +137,48 @@ const char *Adventure_MenuCellName(MenuIndex *index)
                 case 2:
                     return "Skills";
                 case 3:
+                    return "Credits";
+                case 4:
                     return "Reset";
             }
             break;
         }
-        case 2:
+        case 3:
             return ExtraMenu_GetCellName(index->row);
     }
     return "None";
 }
 
-static DialogData resetPrompt =
+const char *Adventure_MenuCellDescription(MenuIndex *index)
 {
-    .text = "Are you sure you want to reset the game?",
-    .allowCancel = true
-};
+    switch(index->section)
+    {
+        case 0:
+            return ResourceStory_GetLocalEventDescription(index->row);
+        case 1:
+            return ResourceStory_GetAdjacentLocationDescription(index->row);
+        case 2:
+        {
+            switch(index->row)
+            {
+                case 0:
+                    return "Status";
+                case 1:
+                    return "Class";
+                case 2:
+                    return "Skills";
+                case 3:
+                    return "Credits";
+                case 4:
+                    return "Reset";
+            }
+            break;
+        }
+        case 3:
+            return ExtraMenu_GetCellName(index->row);
+    }
+    return "None";
+}
 
 void ResetGamePush(void *data)
 {
@@ -156,10 +196,15 @@ void Adventure_MenuSelect(MenuIndex *index)
     {
         case 0:
         {
-            newLocation = index->row;
+            newEvent = index->row;
             break;
         }
         case 1:
+        {
+            newLocation = index->row;
+            break;
+        }
+        case 2:
         {
             switch(index->row)
             {
@@ -180,14 +225,22 @@ void Adventure_MenuSelect(MenuIndex *index)
                 }
                 case 3:
                 {
-                    QueueDialog(&resetPrompt);
+                    ResourceStory_QueueDialog(ResourceStory_GetCreditsDialogIndex());
+                    break;
+                }
+                case 4:
+                {
+                    DialogData *dialog = calloc(sizeof(DialogData), 1);
+                    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+                    dialog->allowCancel = true;
+                    QueueDialog(dialog);
                     GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
                     break;
                 }
             }
             break;
         }
-        case 2:
+        case 3:
         {
             ExtraMenu_SelectAction(index->row);
             break;
@@ -316,19 +369,17 @@ void AdventureScreenPush(void *data)
 
     InitializeGameData();
     UpdateLocationProgress();
+    dead = false;
 }
 
 void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
-    if(Character_GetHealth() <= 0)
-    {
-        ResetGame();
-    }
 
     UpdateLocationProgress();
     RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
+    ShowDateLayer();
     
     if(IsBattleForced())
     {
@@ -346,13 +397,31 @@ void AdventureScreenAppear(void *data)
     }
     firstLaunch = false;
 
+    if(newEvent > -1)
+    {
+        ResourceEvent_Trigger(newEvent);
+    }
+    newEvent = -1;
     ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
-        returnVal = ResourceStory_MoveToLocation(newLocation);
+        int temp = newLocation;
+        newLocation = -1;
+        returnVal = ResourceStory_MoveToLocation(temp);
     }
-    newLocation = -1;
     StoryUpdateResponse(returnVal, false);
+
+    if(!dead && Character_GetHealth() <= 0)
+    {
+        DialogData *dialog = calloc(sizeof(DialogData), 1);
+        ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->gameOverDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+        TriggerDialog(dialog);
+        ClearCurrentStoryPersistedData();
+        skipFinalSave = true;
+        GlobalState_QueueStatePop();
+        dead = true;
+        return;
+    }
 
     if(playOpeningDialog)
     {
