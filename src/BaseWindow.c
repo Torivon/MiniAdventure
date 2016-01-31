@@ -163,20 +163,14 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 		}
 		case STATE_BATTLE:
 		{
-            DialogData *dialog = calloc(sizeof(DialogData), 1);
-            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-            dialog->allowCancel = true;
-            TriggerDialog(dialog);
+            Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog);
             GlobalState_QueueStatePop();
             GlobalState_QueueStatePop();
 			break;
 		}
         case STATE_ADVENTURE:
         {
-            DialogData *dialog = calloc(sizeof(DialogData), 1);
-            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-            dialog->allowCancel = true;
-            TriggerDialog(dialog);
+            Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog);
             GlobalState_QueueStatePop();
             break;
         }

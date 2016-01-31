@@ -4,12 +4,11 @@
 
 #include "../src/Persistence.h"
 #include "Worker_Persistence.h"
-#include "../src/ResourceStory.h"
 
 #if ALLOW_WORKER_APP
 static bool closedInBattle = false;
 static bool workerCanLaunch = false;
-PersistedResourceStoryState persistedState = {0};
+PersistedStoryState persistedState = {0};
 static bool currentStoryValid = false;
 static int currentStoryId = 0;
 static bool forceRandomBattle = false;
@@ -34,7 +33,7 @@ void ForceRandomBattle(void)
     forceRandomBattle = true;
 }
 
-PersistedResourceStoryState *GetPersistedStoryState(void)
+PersistedStoryState *GetPersistedStoryState(void)
 {
     return &persistedState;
 }
@@ -64,7 +63,7 @@ bool LoadWorkerData(void)
         }
         
         closedInBattle = persist_read_bool(offset + PERSISTED_STORY_IN_COMBAT);
-        persist_read_data(offset + PERSISTED_STORY_STORY_DATA, (uint8_t*)&persistedState, sizeof(PersistedResourceStoryState));
+        persist_read_data(offset + PERSISTED_STORY_STORY_DATA, (uint8_t*)&persistedState, sizeof(PersistedStoryState));
 
         forceRandomBattle = persist_read_bool(offset + PERSISTED_STORY_FORCE_RANDOM_BATTLE);
     }
@@ -77,7 +76,7 @@ bool SaveWorkerData(void)
     if(currentStoryValid)
     {
         int offset = ComputeStoryPersistedDataOffset(currentStoryId);
-        persist_write_data(offset + PERSISTED_STORY_STORY_DATA, (uint8_t*)&persistedState, sizeof(PersistedResourceStoryState));
+        persist_write_data(offset + PERSISTED_STORY_STORY_DATA, (uint8_t*)&persistedState, sizeof(PersistedStoryState));
         persist_write_bool(offset + PERSISTED_STORY_FORCE_RANDOM_BATTLE, forceRandomBattle);
     }
     

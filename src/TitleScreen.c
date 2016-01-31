@@ -1,4 +1,4 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Adventure.h"
 #include "BinaryResourceLoading.h"
@@ -6,7 +6,7 @@
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "EngineInfo.h"
-#include "ExtraMenu.h"
+#include "EngineMenu.h"
 #include "GlobalState.h"
 #include "ImageMap.h"
 #include "LargeImage.h"
@@ -16,8 +16,8 @@
 #include "MiniAdventure.h"
 #include "OptionsMenu.h"
 #include "BaseWindow.h"
+#include "Story.h"
 #include "StoryList.h"
-#include "ResourceStory.h"
 
 static bool tutorialSeen = false;
 static bool firstLaunch = true;
@@ -32,18 +32,18 @@ bool GetTutorialSeen(void)
     return tutorialSeen;
 }
 
-void LaunchResourceStory(uint16_t index, bool now)
+void LaunchStory(uint16_t index, bool now)
 {
-    ResourceStory_SetCurrentStory(index);
+    Story_SetCurrentStory(index);
     if(now)
-        TriggerAdventureScreen();
+        Adventure_Trigger();
     else
-        QueueAdventureScreen();
+        Adventure_Queue();
 }
 
 uint16_t TitleScreen_MenuSectionCount(void)
 {
-    return 1 + ExtraMenu_GetSectionCount();
+    return 1 + EngineMenu_GetSectionCount();
 }
 
 const char *TitleScreen_MenuSectionName(uint16_t sectionIndex)
@@ -53,7 +53,7 @@ const char *TitleScreen_MenuSectionName(uint16_t sectionIndex)
         case 0:
             return "Stories";
         case 1:
-            return ExtraMenu_GetSectionName();
+            return EngineMenu_GetSectionName();
     }
     return "None";
 }
@@ -65,7 +65,7 @@ uint16_t TitleScreen_MenuCellCount(uint16_t sectionIndex)
         case 0:
             return GetStoryCount();
         case 1:
-            return ExtraMenu_GetCellCount();
+            return EngineMenu_GetCellCount();
     }
     return 0;
 }
@@ -75,9 +75,9 @@ const char *TitleScreen_MenuCellName(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetNameByIndex(index->row);
+            return Story_GetNameByIndex(index->row);
         case 1:
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
     }
     return "None";
 }
@@ -87,9 +87,9 @@ const char *TitleScreen_MenuCellDescription(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetDescriptionByIndex(index->row);
+            return Story_GetDescriptionByIndex(index->row);
         case 1:
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
     }
     return "None";
 }
@@ -99,9 +99,9 @@ void TitleScreen_MenuSelect(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return LaunchResourceStory(index->row, false);
+            return LaunchStory(index->row, false);
         case 1:
-            return ExtraMenu_SelectAction(index->row);
+            return EngineMenu_SelectAction(index->row);
     }
 }
 
@@ -112,9 +112,9 @@ void TitleScreen_Appear(void *data)
 	SetForegroundImage(ImageMap_GetIdByIndex(EngineInfo_GetInfo()->titleImage));
 	SetMainImageVisibility(true, true, false);
 	SetDescription("MiniAdventure");
-    if(launch_reason() == APP_LAUNCH_WORKER && ResourceStory_IsLastResourceStoryIdValid() && firstLaunch)
+    if(launch_reason() == APP_LAUNCH_WORKER && Story_IsLastStoryIdValid() && firstLaunch)
     {
-        LaunchResourceStory(ResourceStory_GetStoryIndexById(ResourceStory_GetLastResourceStoryId()), true);
+        LaunchStory(Story_GetStoryIndexById(Story_GetLastStoryId()), true);
         firstLaunch = false;
     }
 }

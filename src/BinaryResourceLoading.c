@@ -1,4 +1,4 @@
-#include "pebble.h"
+#include <pebble.h>
 #include "MiniAdventure.h"
 #include "BinaryResourceLoading.h"
 #include "Logging.h"

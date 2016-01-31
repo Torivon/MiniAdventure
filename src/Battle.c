@@ -3,6 +3,7 @@
 #include "AutoSkillConstants.h"
 #include "BaseWindow.h"
 #include "Battle.h"
+#include "Battler.h"
 #include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "Clock.h"
@@ -10,14 +11,14 @@
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "EngineInfo.h"
-#include "ExtraMenu.h"
+#include "EngineMenu.h"
 #include "GlobalState.h"
+#include "Location.h"
 #include "Logging.h"
 #include "MainImage.h"
 #include "Menu.h"
 #include "Persistence.h"
 #include "ProgressBar.h"
-#include "ResourceStory.h"
 #include "Skills.h"
 
 typedef struct BattleState
@@ -104,16 +105,11 @@ void CloseBattleWindow(void)
     {
         // The player won, so grant xp.
         bool leveledUp = Character_GrantXP(gBattleState.monster.actor.level);
-        if(gBattleState.monster.battlerWrapper && gBattleState.monster.battlerWrapper->event)
-            ResourceEvent_TriggerEvent(gBattleState.monster.battlerWrapper->event, false);
-        DialogData *dialog = calloc(sizeof(DialogData), 1);
-        ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->battleWinDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-        QueueDialog(dialog);
+        BattlerWrapper_TriggerEvent(gBattleState.monster.battlerWrapper);
+        EngineInfo_QueueWinDialog();
         if(leveledUp)
         {
-            dialog = calloc(sizeof(DialogData), 1);
-            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->levelUpDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-            QueueDialog(dialog);
+            EngineInfo_QueueLevelUpDialog();
         }
     }
     
@@ -133,7 +129,7 @@ void Battle_SetCleanExit(void)
 
 uint16_t BattleScreen_MenuSectionCount(void)
 {
-    return 2 + ExtraMenu_GetSectionCount();
+    return 2 + EngineMenu_GetSectionCount();
 }
 
 const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
@@ -145,7 +141,7 @@ const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
         case 1:
             return "Battle";
         case 2:
-            return ExtraMenu_GetSectionName();
+            return EngineMenu_GetSectionName();
     }
     return "None";
 }
@@ -167,7 +163,7 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
         }
         case 2:
         {
-            return ExtraMenu_GetCellCount();
+            return EngineMenu_GetCellCount();
         }
     }
     return 0;
@@ -202,7 +198,7 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
         }
         case 2:
         {
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
         }
     }
     return "None";
@@ -239,7 +235,7 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
         }
         case 2:
         {
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
         }
     }
     return "None";
@@ -291,10 +287,7 @@ void BattleScreen_MenuSelect(MenuIndex *index)
                 }
                 case 3:
                 {
-                    DialogData *dialog = calloc(sizeof(DialogData), 1);
-                    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-                    dialog->allowCancel = true;
-                    QueueDialog(dialog);
+                    EngineInfo_QueueResetDialog();
                     GlobalState_QueueStatePop();
                     GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
                     break;
@@ -304,7 +297,7 @@ void BattleScreen_MenuSelect(MenuIndex *index)
         }
         case 2:
         {
-            ExtraMenu_SelectAction(index->row);
+            EngineMenu_SelectAction(index->row);
         }
     }
 }
@@ -320,11 +313,10 @@ void BattleScreenAppear(void *data)
         gPlayerActed = false;
         gBattleState.player.actor.currentTime = 0;
     }
-    SetDescription(ResourceMonster_GetCurrentName());
+    SetDescription(Monster_GetCurrentName());
     RegisterMenuState(GetMainMenu(), STATE_BATTLE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
-    if(gBattleState.monster.battlerWrapper && gBattleState.monster.battlerWrapper->loaded)
-        SetForegroundImage(gBattleState.monster.battlerWrapper->battler.image);
+    SetForegroundImage(Monster_GetCurrentImage());
 #if defined(PBL_COLOR)
     SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
 #endif
@@ -350,11 +342,11 @@ bool IsBattleForced(void)
     return forcedBattle;
 }
 
-static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, BattlerWrapper *battlerWrapper,uint16_t level, uint16_t currentHealth, uint16_t *skillCooldowns)
+static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, BattlerWrapper *battlerWrapper, uint16_t level, uint16_t currentHealth, uint16_t *skillCooldowns)
 {
     actorWrapper->battlerWrapper = battlerWrapper;
     actorWrapper->actor.level = level;
-    actorWrapper->actor.maxHealth = CombatantClass_GetHealth(&battlerWrapper->battler.combatantClass, level);
+    actorWrapper->actor.maxHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(battlerWrapper), level);
     actorWrapper->actor.skillQueued = false;
     actorWrapper->actor.activeSkill = INVALID_SKILL;
     actorWrapper->actor.counterSkill = INVALID_SKILL;
@@ -376,13 +368,13 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
 void BattleInit(void)
 {
     DEBUG_LOG("BattleInit");
-    ResourceMonster_UnloadCurrent();
+    Monster_UnloadCurrent();
     gBattleState.monster.battlerWrapper = NULL;
     bool loaded = false;
     
     if(forcedBattle && forcedBattleMonsterType > -1)
     {
-        loaded = ResourceMonster_LoadCurrent(forcedBattleMonsterType);
+        loaded = Monster_LoadCurrent(forcedBattleMonsterType);
         gBattleState.monster.battlerWrapper = BattlerWrapper_GetMonsterWrapper();
         gBattleState.player.battlerWrapper = BattlerWrapper_GetPlayerWrapper();
         currentMonsterIndex = forcedBattleMonsterType;
@@ -391,16 +383,16 @@ void BattleInit(void)
     else
     {
         forcedBattle = false;
-        if(!ResourceMonster_Loaded())
+        if(!Monster_Loaded())
         {
-            currentMonsterIndex = ResourceStory_GetCurrentLocationMonster();
-            loaded = ResourceMonster_LoadCurrent(currentMonsterIndex);
+            currentMonsterIndex = Location_GetCurrentMonster();
+            loaded = Monster_LoadCurrent(currentMonsterIndex);
         }
         if(loaded)
         {
             InitializeBattleActorWrapper(&gBattleState.player, BattlerWrapper_GetPlayerWrapper(), Character_GetLevel(), Character_GetHealth(), Character_GetCooldowns());
             uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
-            InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), ResourceStory_GetCurrentLocationBaseLevel(), 0, skillCooldowns);
+            InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), Location_GetCurrentBaseLevel(), 0, skillCooldowns);
         }
     }
     
@@ -467,7 +459,7 @@ static void UpdateActor(BattleActorWrapper *wrapper)
     }
     else
     {
-        currentSpeed = CombatantClass_GetSpeed(&wrapper->battlerWrapper->battler.combatantClass, wrapper->actor.level);
+        currentSpeed = CombatantClass_GetSpeed(BattlerWrapper_GetCombatantClass(wrapper->battlerWrapper), wrapper->actor.level);
     }
     
     if(wrapper->actor.statusEffectDurations[STATUS_EFFECT_SLOW] > 0)
@@ -514,7 +506,7 @@ void UpdateBattle(void *unused)
     {
         --gSkillDelay;
         if(gSkillDelay == 0)
-            SetDescription(ResourceMonster_GetCurrentName());
+            SetDescription(Monster_GetCurrentName());
         return;
     }
     
@@ -640,11 +632,11 @@ void BattleScreenPop(void *data)
     monsterHealthBar = NULL;
     FreeProgressBar(monsterTimeBar);
     monsterTimeBar = NULL;
-    ResourceMonster_UnloadCurrent();
+    Monster_UnloadCurrent();
 }
 
 void TriggerBattleScreen(void)
 {
-    if(ResourceStory_CurrentLocationHasMonster())
+    if(Location_CurrentLocationHasMonster())
         GlobalState_Push(STATE_BATTLE, SECOND_UNIT, NULL);
 }

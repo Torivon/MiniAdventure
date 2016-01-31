@@ -1,23 +1,25 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Adventure.h"
+#include "BaseWindow.h"
 #include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "Clock.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
 #include "EngineInfo.h"
-#include "ExtraMenu.h"
+#include "EngineMenu.h"
+#include "Events.h"
 #include "GlobalState.h"
+#include "Location.h"
 #include "Logging.h"
 #include "MainImage.h"
 #include "Battle.h"
 #include "Menu.h"
-#include "BaseWindow.h"
+#include "OptionsMenu.h"
 #include "Persistence.h"
 #include "ProgressBar.h"
-#include "OptionsMenu.h"
-#include "ResourceStory.h"
+#include "Story.h"
 #include "Utils.h"
 #include "WorkerControl.h"
 
@@ -55,7 +57,7 @@ void InitializeGameData(void)
 void ResetGame(void)
 {
     INFO_LOG("Resetting game.");
-    ResourceStory_InitializeCurrent();
+    Story_InitializeCurrent();
     Character_Initialize();
     
     SaveStoryPersistedData();
@@ -67,7 +69,7 @@ void ResetGame(void)
 
 uint16_t Adventure_MenuSectionCount(void)
 {
-    return 3 + ExtraMenu_GetSectionCount();
+    return 3 + EngineMenu_GetSectionCount();
 }
 
 const char *Adventure_MenuSectionName(uint16_t sectionIndex)
@@ -81,7 +83,7 @@ const char *Adventure_MenuSectionName(uint16_t sectionIndex)
         case 2:
             return "Story";
         case 3:
-            return ExtraMenu_GetSectionName();
+            return EngineMenu_GetSectionName();
     }
     return "None";
 }
@@ -92,18 +94,18 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
     {
         case 0:
         {
-            if(ResourceStory_CurrentLocationIsPath())
+            if(Location_CurrentLocationIsPath())
                 return 0;
             
-            return ResourceStory_GetCurrentLocalEvents();
+            return Event_GetCurrentLocalEvents();
             break;
         }
         case 1:
         {
-            if(ResourceStory_CurrentLocationIsPath())
+            if(Location_CurrentLocationIsPath())
                 return 0;
             
-            return ResourceStory_GetCurrentAdjacentLocations();
+            return Location_GetCurrentAdjacentLocations();
             break;
         }
         case 2:
@@ -112,7 +114,7 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
         }
         case 3:
         {
-            return ExtraMenu_GetCellCount();
+            return EngineMenu_GetCellCount();
         }
     }
     return 0;
@@ -123,9 +125,9 @@ const char *Adventure_MenuCellName(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetLocalEventName(index->row);
+            return Event_GetLocalEventName(index->row);
         case 1:
-            return ResourceStory_GetAdjacentLocationName(index->row);
+            return Location_GetAdjacentLocationName(index->row);
         case 2:
         {
             switch(index->row)
@@ -144,7 +146,7 @@ const char *Adventure_MenuCellName(MenuIndex *index)
             break;
         }
         case 3:
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
     }
     return "None";
 }
@@ -154,9 +156,9 @@ const char *Adventure_MenuCellDescription(MenuIndex *index)
     switch(index->section)
     {
         case 0:
-            return ResourceStory_GetLocalEventDescription(index->row);
+            return Event_GetLocalEventDescription(index->row);
         case 1:
-            return ResourceStory_GetAdjacentLocationDescription(index->row);
+            return Location_GetAdjacentLocationDescription(index->row);
         case 2:
         {
             switch(index->row)
@@ -175,7 +177,7 @@ const char *Adventure_MenuCellDescription(MenuIndex *index)
             break;
         }
         case 3:
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
     }
     return "None";
 }
@@ -225,15 +227,12 @@ void Adventure_MenuSelect(MenuIndex *index)
                 }
                 case 3:
                 {
-                    ResourceStory_QueueDialog(ResourceStory_GetCreditsDialogIndex());
+                    Story_QueueCreditsDialog();
                     break;
                 }
                 case 4:
                 {
-                    DialogData *dialog = calloc(sizeof(DialogData), 1);
-                    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-                    dialog->allowCancel = true;
-                    QueueDialog(dialog);
+                    Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog);
                     GlobalState_Queue(STATE_RESET_GAME, 0, NULL);
                     break;
                 }
@@ -242,7 +241,7 @@ void Adventure_MenuSelect(MenuIndex *index)
         }
         case 3:
         {
-            ExtraMenu_SelectAction(index->row);
+            EngineMenu_SelectAction(index->row);
             break;
         }
     }
@@ -250,11 +249,11 @@ void Adventure_MenuSelect(MenuIndex *index)
 
 void UpdateLocationProgress(void)
 {
-    if(ResourceStory_CurrentLocationIsPath())
+    if(Location_CurrentLocationIsPath())
     {
         ShowProgressBar(locationProgress);
-        currentProgress = ResourceStory_GetTimeOnPath();
-        maxProgress = ResourceStory_GetCurrentLocationLength();
+        currentProgress = Story_GetTimeOnPath();
+        maxProgress = Location_GetCurrentLength();
         MarkProgressBarDirty(locationProgress);
     }
     else
@@ -271,13 +270,13 @@ void RefreshAdventure(void)
     updateDelay = 1;
     LoadLocationImage();
     ReloadMenu(GetMainMenu());
-    SetDescription(ResourceStory_GetCurrentLocationName()); //Add floor back in somehow
+    SetDescription(Location_GetCurrentName());
     UpdateLocationProgress();
 }
 
 void LoadLocationImage(void)
 {
-    adventureImageId = ResourceStory_GetCurrentLocationBackgroundImageId();
+    adventureImageId = Location_GetCurrentBackgroundImageId();
     SetBackgroundImage(adventureImageId);
     SetMainImageVisibility(true, false, true);
 }
@@ -285,7 +284,7 @@ void LoadLocationImage(void)
 bool ComputeRandomEvent(void)
 {
     int result = Random(100) + 1;
-    int chanceOfEvent = ResourceStory_GetCurrentLocationEncounterChance();
+    int chanceOfEvent = Location_GetCurrentEncounterChance();
     
     if(result > chanceOfEvent)
         return false;
@@ -298,7 +297,7 @@ bool ComputeRandomEvent(void)
     return true;
 }
 
-static void StoryUpdateResponse(ResourceStoryUpdateReturnType returnVal, bool vibration)
+static void StoryUpdateResponse(StoryUpdateReturnType returnVal, bool vibration)
 {
     switch(returnVal)
     {
@@ -328,7 +327,7 @@ static void StoryUpdateResponse(ResourceStoryUpdateReturnType returnVal, bool vi
         {
             RefreshAdventure();
             Menu_ResetSelection(GetMainMenu());
-            ResourceStory_TriggerDialog(ResourceStory_GetWinDialogIndex());
+            Story_TriggerWinDialog();
             ClearCurrentStoryPersistedData();
             skipFinalSave = true;
             GlobalState_QueueStatePop();
@@ -342,7 +341,7 @@ static void StoryUpdateResponse(ResourceStoryUpdateReturnType returnVal, bool vi
 
 void UpdateAdventure(void *data)
 {
-    ResourceStoryUpdateReturnType returnVal;
+    StoryUpdateReturnType returnVal;
     
     if(updateDelay)
     {
@@ -350,7 +349,7 @@ void UpdateAdventure(void *data)
         return;
     }
 
-    returnVal = ResourceStory_UpdateCurrentLocation();
+    returnVal = Story_UpdateCurrentLocation();
     
     StoryUpdateResponse(returnVal, true);
 }
@@ -399,23 +398,21 @@ void AdventureScreenAppear(void *data)
 
     if(newEvent > -1)
     {
-        ResourceEvent_Trigger(newEvent);
+        Event_Trigger(newEvent);
     }
     newEvent = -1;
-    ResourceStoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
+    StoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
         int temp = newLocation;
         newLocation = -1;
-        returnVal = ResourceStory_MoveToLocation(temp);
+        returnVal = Story_MoveToLocation(temp);
     }
     StoryUpdateResponse(returnVal, false);
 
     if(!dead && Character_GetHealth() <= 0)
     {
-        DialogData *dialog = calloc(sizeof(DialogData), 1);
-        ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->gameOverDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-        TriggerDialog(dialog);
+        Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->gameOverDialog);
         ClearCurrentStoryPersistedData();
         skipFinalSave = true;
         GlobalState_QueueStatePop();
@@ -425,7 +422,7 @@ void AdventureScreenAppear(void *data)
 
     if(playOpeningDialog)
     {
-        ResourceStory_TriggerDialog(ResourceStory_GetOpeningDialogIndex());
+        Story_TriggerOpeningDialog();
         playOpeningDialog = false;
     }
 }
@@ -440,17 +437,17 @@ void AdventureScreenPop(void *data)
 {
     if(!skipFinalSave)
         SaveStoryPersistedData();
-    ResourceStory_ClearCurrentStory();
+    Story_ClearCurrentStory();
     RemoveProgressBar(locationProgress);
     FreeProgressBar(locationProgress);
 }
 
-void TriggerAdventureScreen(void)
+void Adventure_Trigger(void)
 {
     GlobalState_Push(STATE_ADVENTURE, MINUTE_UNIT, NULL);
 }
 
-void QueueAdventureScreen(void)
+void Adventure_Queue(void)
 {
     GlobalState_Queue(STATE_ADVENTURE, MINUTE_UNIT, NULL);
 }
