@@ -70,3 +70,7 @@ typedef struct BattleActorWrapper
 const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender);
 void DealDamage(int potency, BattleActor *defender);
 void UpdateSkillCooldowns(uint16_t *skillCooldowns);
+
+Skill *Skill_Load(uint16_t logical_index);
+void Skill_Free(Skill *skill);
+

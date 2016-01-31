@@ -1,4 +1,4 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Adventure.h"
 #include "BaseWindow.h"
@@ -7,10 +7,10 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "Battle.h"
+#include "Battler.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
-#include "ResourceStory.h"
-#include "StoryList.h"
+#include "Story.h"
 #include "TitleScreen.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -65,7 +65,7 @@ void focus_handler(bool in_focus) {
 
 void handle_init() {
 	
-    ResourceStory_LoadAll();
+    Story_LoadAll();
 
     INFO_LOG("Starting MiniAdventure");
     GlobalState_Initialize();
@@ -116,9 +116,9 @@ void handle_deinit()
 #endif
 	if(baseWindow)
 		window_destroy(baseWindow);
-    ResourceBattler_UnloadPlayer();
-    ResourceMonster_UnloadCurrent();
-    ResourceStory_FreeAll();
+    Battler_UnloadPlayer();
+    Monster_UnloadCurrent();
+    Story_FreeAll();
 }
 
 // The main event/run loop for our app

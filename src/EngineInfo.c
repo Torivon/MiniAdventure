@@ -1,5 +1,6 @@
-#include "pebble.h"
+#include <pebble.h>
 #include "BinaryResourceLoading.h"
+#include "DialogFrame.h"
 #include "ImageMap.h"
 #include "EngineInfo.h"
 
@@ -25,3 +26,17 @@ EngineInfo *EngineInfo_GetInfo(void)
     return &engineInfo;
 }
 
+void EngineInfo_QueueWinDialog(void)
+{
+    Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->battleWinDialog);
+}
+
+void EngineInfo_QueueLevelUpDialog(void)
+{
+    Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->levelUpDialog);
+}
+
+void EngineInfo_QueueResetDialog(void)
+{
+    Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog);
+}
