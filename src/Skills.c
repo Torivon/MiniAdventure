@@ -50,15 +50,15 @@ int GetSkillCooldown(Skill *skill)
 
 static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
-    int attackPower = 1;
-    int defensePower = 1;
+    int attackPower = 0;
+    int defensePower = 0;
     
     // Compute immunity first. If the defender is immune, return 0
     if(defender && BattlerWrapper_CheckImmunity(defender->battlerWrapper, skill->damageType))
         return 0;
     
     CombatantClass *attackerCombatantClass = BattlerWrapper_GetCombatantClass(attacker->battlerWrapper);
-    CombatantClass *defenderCombatantClass = BattlerWrapper_GetCombatantClass(defender->battlerWrapper);
+    CombatantClass *defenderCombatantClass = defender ? BattlerWrapper_GetCombatantClass(defender->battlerWrapper) : NULL;
     
     if(skill->damageType & PHYSICAL)
     {
@@ -72,9 +72,6 @@ static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, Battl
         if(defender)
             defensePower = CombatantClass_GetMagicDefense(defenderCombatantClass, defender->actor.level);
     }
-    
-    if(defensePower == 0)
-        defensePower = 1;
     
     int baseDamage = (skill->potency + (attackPower * skill->potency)) / 10;
     
@@ -181,7 +178,6 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
         }
     }
     DEBUG_VERBOSE_LOG("Setting description: %s", description);
-    attacker->actor.skillCooldowns[attacker->actor.activeSkill] = GetSkillCooldown(skill);
     attacker->actor.activeSkill = INVALID_SKILL;
     return description;
 }

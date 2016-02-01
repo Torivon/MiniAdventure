@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "AI.h"
 #include "AutoSizeConstants.h"
 #include "AutoSkillConstants.h"
 #include "BaseWindow.h"
@@ -252,10 +253,10 @@ void BattleScreen_MenuSelect(MenuIndex *index)
             
             if(gBattleState.player.actor.skillCooldowns[index->row] > 0)
                 return;
+            Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, index->row);
             if(gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_SILENCE] > 0 ||
                gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY] > 0)
             {
-                Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.player.battlerWrapper, index->row);
                 if((skill->damageType & DAMAGE_TYPE_MAGIC) && gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_SILENCE])
                     return;
                 if((skill->damageType & DAMAGE_TYPE_PHYSICAL) && gBattleState.player.actor.statusEffectDurations[STATUS_EFFECT_PASSIFY])
@@ -263,6 +264,7 @@ void BattleScreen_MenuSelect(MenuIndex *index)
             }
             gBattleState.player.actor.skillQueued = true ;
             gBattleState.player.actor.activeSkill = index->row;
+            gBattleState.player.actor.skillCooldowns[gBattleState.player.actor.activeSkill] = GetSkillCooldown(skill);
             gPlayerActed = true;
             break;
         }
@@ -363,6 +365,8 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
     {
         actorWrapper->actor.skillCooldowns[i] = skillCooldowns[i];
     }
+    actorWrapper->actor.aiState.stage = 0;
+    actorWrapper->actor.aiState.skillIndex = 0;
 }
 
 void BattleInit(void)
@@ -593,8 +597,7 @@ void UpdateBattle(void *unused)
                 }
                 if(act)
                 {
-                    gBattleState.monster.actor.activeSkill = 0;
-                    gBattleState.monster.actor.skillQueued = true;
+                    ExecuteAI(&gBattleState.monster, &gBattleState.player);
                 }
                 UpdateStatusEffects(&gBattleState.monster);
             }
