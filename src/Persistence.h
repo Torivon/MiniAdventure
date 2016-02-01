@@ -1,5 +1,7 @@
 #pragma once
 
+#include "AutoSizeConstants.h"
+
 #define CURRENT_DATA_VERSION 10
 
 #define PERSISTED_DATA_GAP 1000
@@ -38,6 +40,16 @@ enum
 	// This needs to always be last
 	PERSISTED_STORY_DATA_COUNT
 };
+
+typedef struct PersistedStoryState
+{
+    uint16_t currentLocationIndex;
+    uint16_t timeOnPath;
+    uint16_t destinationIndex;
+    uint16_t pathLength;
+    uint16_t encounterChance;
+    uint16_t gameState[MAX_GAME_STATE_VARIABLES];
+} PersistedStoryState;
 
 inline bool IsGlobalPersistedDataCurrent(void)
 {

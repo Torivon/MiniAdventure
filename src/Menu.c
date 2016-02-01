@@ -3,7 +3,7 @@
 #include "BaseWindow.h"
 #include "Battle.h"
 #include "DescriptionFrame.h"
-#include "ExtraMenu.h"
+#include "EngineMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MenuArrow.h"
@@ -49,9 +49,9 @@ uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index)
     {
         switch(state)
         {
-            case STATE_EXTRA_MENU:
+            case STATE_ENGINE_MENU:
             {
-                return ExtraMenu_GetCellCount();
+                return EngineMenu_GetCellCount();
                 break;
             }
             case STATE_ADVENTURE:
@@ -104,9 +104,9 @@ uint16_t GetMenuSectionCount(Menu *menu)
     {
         switch(state)
         {
-            case STATE_EXTRA_MENU:
+            case STATE_ENGINE_MENU:
             {
-                return ExtraMenu_GetSectionCount();
+                return EngineMenu_GetSectionCount();
                 break;
             }
             case STATE_ADVENTURE:
@@ -167,9 +167,9 @@ const char *GetMenuName(Menu *menu, MenuIndex *index)
     GlobalState state = menu->menuState;
     switch(state)
     {
-        case STATE_EXTRA_MENU:
+        case STATE_ENGINE_MENU:
         {
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
             break;
         }
         case STATE_ADVENTURE:
@@ -211,9 +211,9 @@ const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
     GlobalState state = menu->menuState;
     switch(state)
     {
-        case STATE_EXTRA_MENU:
+        case STATE_ENGINE_MENU:
         {
-            return ExtraMenu_GetSectionName();
+            return EngineMenu_GetSectionName();
             break;
         }
         case STATE_ADVENTURE:
@@ -251,9 +251,9 @@ const char *GetMenuDescription(Menu *menu, MenuIndex *index)
     GlobalState state = menu->menuState;
     switch(state)
     {
-        case STATE_EXTRA_MENU:
+        case STATE_ENGINE_MENU:
         {
-            return ExtraMenu_GetCellName(index->row);
+            return EngineMenu_GetCellName(index->row);
             break;
         }
         case STATE_ADVENTURE:
@@ -295,9 +295,9 @@ void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *w
         GlobalState state = menu->menuState;
         switch(state)
         {
-            case STATE_EXTRA_MENU:
+            case STATE_ENGINE_MENU:
             {
-                return ExtraMenu_SelectAction(index.row);
+                return EngineMenu_SelectAction(index.row);
                 break;
             }
             case STATE_ADVENTURE:

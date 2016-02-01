@@ -18,6 +18,12 @@ g_size_constants["MAX_CLASSES"] = 5
 g_size_constants["MAX_DIALOG_LENGTH"] = 256
 g_size_constants["MAX_GAME_STATE_VARIABLES"] = 16
 g_size_constants["MAX_EVENTS"] = 10
+g_size_constants["MAX_SKILLS_PER_AI_STAGE"] = 10
+g_size_constants["MAX_AI_STAGES"] = 4
+g_size_constants["MAX_AI_INTERRUPTS"] = 10
+g_size_constants["MAX_BATTLE_EVENT_PREREQS"] = 5
+
+g_ai_stage_types = ["sequential", "random"]
 
 g_skill_target = {}
 g_skill_target["enemy"] = 0
@@ -846,6 +852,14 @@ def write_headers(imagemap, data_objects):
             location_file.write("#define LOCATION_PROPERTY_" + k.upper() + " " + str(v) + "\n")
         
         location_file.write("\n")
+
+    with open("src/AutoAIConstants.h", 'w') as ai_file:
+        ai_file.write("#pragma once\n\n")
+        for index in range(len(g_ai_stage_types)):
+            type = g_ai_stage_types[index]
+            ai_file.write("#define AI_STAGE_TYPE_" + type.upper() + " " + str(index) + "\n")
+
+        ai_file.write("\n")
 
 def create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index):
     # Prep the appinfo for resources

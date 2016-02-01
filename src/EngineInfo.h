@@ -21,3 +21,7 @@ typedef struct EngineInfo
 
 ResHandle EngineInfo_GetResHandle(void);
 EngineInfo *EngineInfo_GetInfo(void);
+
+void EngineInfo_QueueWinDialog(void);
+void EngineInfo_QueueLevelUpDialog(void);
+void EngineInfo_QueueResetDialog(void);

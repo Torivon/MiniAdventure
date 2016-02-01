@@ -21,6 +21,16 @@
             "cooldown": 0
         },
         {
+            "id": "bigbite",
+            "name": "Rat Bite",
+            "description": "Quick bite",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 25,
+            "cooldown": 3
+        },
+        {
             "id": "gnaw",
             "name": "Zombie Gnaw",
             "description": "Going for brains",
@@ -68,6 +78,14 @@
                 {
                     "id": "bite",
                     "min_level": 1
+                },
+                {
+                    "id": "bigbite",
+                    "min_level": 1
+                },
+                {
+                    "id": "gnaw",
+                    "min_level": 2
                 }
             ]
         },

@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "BinaryResourceLoading.h"
 #include "Clock.h"
 #include "DescriptionFrame.h"
 #include "DialogFrame.h"
@@ -8,6 +9,14 @@
 #include "BaseWindow.h"
 #include "TextBox.h"
 #include "Utils.h"
+
+typedef struct DialogData
+{
+    char name[MAX_STORY_NAME_LENGTH];
+    char text[MAX_DIALOG_LENGTH];
+    uint16_t allowCancel;
+    uint16_t heap;
+} DialogData;
 
 static TextBox *dialogTextBox = NULL;
 static TextBox *okTextBox = NULL;
@@ -31,6 +40,26 @@ static GRect dialogFrame = {.origin = {.x = 180 / 2 - DIALOG_FRAME_WIDTH / 2, .y
 static GRect okFrame = {.origin = {.x = 180 - OK_FRAME_WIDTH - 5, .y = 180 / 2 - OK_FRAME_HEIGHT / 2}, .size = {.w = OK_FRAME_WIDTH, .h = OK_FRAME_HEIGHT}};
 static GRect cancelFrame = {.origin = {.x = 10, .y = 180 / 2 - CANCEL_FRAME_HEIGHT / 2}, .size = {.w = CANCEL_FRAME_WIDTH, .h = CANCEL_FRAME_HEIGHT}};
 #endif
+
+DialogData *DialogData_Load(ResHandle handle, uint16_t dialogIndex)
+{
+    if(dialogIndex == 0)
+        return NULL;
+    
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    ResourceLoadStruct(handle, dialogIndex, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
+    return dialog;
+}
+
+DialogData *DialogData_Create(const char *name, const char *text, uint16_t allowCancel)
+{
+    DialogData *dialog = calloc(sizeof(DialogData), 1);
+    dialog->heap = true;
+    dialog->allowCancel = allowCancel;
+    snprintf(dialog->name, MAX_STORY_NAME_LENGTH, "%s", name);
+    snprintf(dialog->text, MAX_DIALOG_LENGTH, "%s", text);
+    return dialog;
+}
 
 void SetDialog(const char *text)
 {
@@ -128,12 +157,28 @@ void DialogFrame_ScrollDown(void)
     TextBox_ScrollDown(dialogTextBox);
 }
 
-void TriggerDialog(DialogData *data)
+void Dialog_Trigger(DialogData *data)
 {
 	GlobalState_Push(STATE_DIALOG, 0, data);
 }
 
-void QueueDialog(DialogData *data)
+void Dialog_TriggerFromResource(ResHandle handle, uint16_t dialogIndex)
+{
+    DialogData *dialog = DialogData_Load(handle, dialogIndex);
+    if(!dialog)
+        return;
+    Dialog_Trigger(dialog);
+}
+
+void Dialog_Queue(DialogData *data)
 {
     GlobalState_Queue(STATE_DIALOG, 0, data);
+}
+
+void Dialog_QueueFromResource(ResHandle handle, uint16_t dialogIndex)
+{
+    DialogData *dialog = DialogData_Load(handle, dialogIndex);
+    if(!dialog)
+        return;
+    Dialog_Queue(dialog);
 }

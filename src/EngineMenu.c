@@ -1,10 +1,10 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "BaseWindow.h"
 #include "BinaryResourceLoading.h"
 #include "DialogFrame.h"
 #include "EngineInfo.h"
-#include "ExtraMenu.h"
+#include "EngineMenu.h"
 #include "GlobalState.h"
 #include "Menu.h"
 #include "ImageMap.h"
@@ -13,30 +13,28 @@
 
 void TriggerTutorialDialog(bool now)
 {
-    DialogData *dialog = calloc(sizeof(DialogData), 1);
-    ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->tutorialDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
     if(now)
-        TriggerDialog(dialog);
+        Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->tutorialDialog);
     else
-        QueueDialog(dialog);
+        Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->tutorialDialog);
 }
 
-uint16_t ExtraMenu_GetSectionCount(void)
+uint16_t EngineMenu_GetSectionCount(void)
 {
     return 1;
 }
 
-const char *ExtraMenu_GetSectionName(void)
+const char *EngineMenu_GetSectionName(void)
 {
     return "Engine";
 }
 
-uint16_t ExtraMenu_GetCellCount(void)
+uint16_t EngineMenu_GetCellCount(void)
 {
     return 4;
 }
 
-const char *ExtraMenu_GetCellName(uint16_t row)
+const char *EngineMenu_GetCellName(uint16_t row)
 {
     switch(row)
     {
@@ -53,7 +51,7 @@ const char *ExtraMenu_GetCellName(uint16_t row)
     }
 }
 
-void ExtraMenu_SelectAction(uint16_t row)
+void EngineMenu_SelectAction(uint16_t row)
 {
     switch(row)
     {
@@ -69,9 +67,7 @@ void ExtraMenu_SelectAction(uint16_t row)
         }
         case 2:
         {
-            DialogData *dialog = calloc(sizeof(DialogData), 1);
-            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->engineCreditsDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-            QueueDialog(dialog);
+            Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->engineCreditsDialog);
             break;
         }
         case 3:
@@ -82,8 +78,8 @@ void ExtraMenu_SelectAction(uint16_t row)
     }
 }
 
-void ExtraMenu_SubMenu_Trigger(void)
+void EngineMenu_SubMenu_Trigger(void)
 {
-    QueueRegisterMenuState(GetMainMenu(), STATE_EXTRA_MENU);
+    QueueRegisterMenuState(GetMainMenu(), STATE_ENGINE_MENU);
     QueueMenu(GetMainMenu());
 }

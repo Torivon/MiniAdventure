@@ -1,11 +1,13 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Adventure.h"
+#include "Battler.h"
 #include "Character.h"
 #include "CombatantClass.h"
 #include "DialogFrame.h"
 #include "Logging.h"
-#include "ResourceStory.h"
+#include "Skills.h"
+#include "Story.h"
 #include "Utils.h"
 
 typedef struct Character
@@ -71,7 +73,7 @@ size_t Character_GetDataSize(void)
 
 void Character_Rest(void)
 {
-    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
     
     for(int i = 0; i < MAX_SKILLS_IN_LIST; ++i)
     {
@@ -83,14 +85,14 @@ void Character_Rest(void)
 void Character_GrantLevel(void)
 {
     character.level++;
-    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
 }
 
 bool Character_GrantXP(uint16_t monsterLevel)
 {
     bool leveledUp = false;
-    uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();
-    uint16_t xpDifferenceScale = ResourceStory_GetCurrentStoryXPDifferenceScale();
+    uint16_t xpMonstersPerLevel = Story_GetCurrentStoryXPMonstersPerLevel();
+    uint16_t xpDifferenceScale = Story_GetCurrentStoryXPDifferenceScale();
     
     if(xpMonstersPerLevel == 0)
         return leveledUp;
@@ -103,7 +105,7 @@ bool Character_GrantXP(uint16_t monsterLevel)
     {
         character.level++;
         character.currentXP -= XP_TO_LEVEL_UP;
-        character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+        character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
         leveledUp = true;
     }
     
@@ -113,7 +115,7 @@ bool Character_GrantXP(uint16_t monsterLevel)
 void Character_ReadPersistedData(int index)
 {
 	persist_read_data(index, &character, sizeof(Character));	
-    ResourceBattler_LoadPlayer(character.classType);
+    Battler_LoadPlayer(character.classType);
 }
 
 void Character_WritePersistedData(int index)
@@ -125,10 +127,10 @@ void Character_Initialize(void)
 {
     INFO_LOG("Initializing character.");
     character.classType = 0; // Get the first class in the story
-    ResourceBattler_LoadPlayer(character.classType);
+    Battler_LoadPlayer(character.classType);
     character.level = 1;
     character.currentXP = 0;
-    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
 }
 
 char RankToCharacter(int rank)
@@ -141,26 +143,22 @@ char RankToCharacter(int rank)
 
 void Character_ShowClass(void)
 {
-    DialogData *dialog = calloc(sizeof(DialogData), 1);
-    CombatantClass *combatant = &BattlerWrapper_GetPlayerWrapper()->battler.combatantClass;
-    dialog->heap = true;
-    dialog->allowCancel = false;
-    snprintf(dialog->text, 256, "Class: %s\n\nStrength: %c\nMagic: %c\nDefense: %c\nMagDefense: %c\nSpeed: %c\nHealth: %c\n", BattlerWrapper_GetPlayerWrapper()->battler.name, RankToCharacter(combatant->strengthRank),
+    char text[MAX_DIALOG_LENGTH];
+    CombatantClass *combatant = BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper());
+    snprintf(text, MAX_DIALOG_LENGTH, "Class: %s\n\nStrength: %c\nMagic: %c\nDefense: %c\nMagDefense: %c\nSpeed: %c\nHealth: %c\n", BattlerWrapper_GetBattlerName(BattlerWrapper_GetPlayerWrapper()), RankToCharacter(combatant->strengthRank),
              RankToCharacter(combatant->magicRank),
              RankToCharacter(combatant->defenseRank),
              RankToCharacter(combatant->magicDefenseRank),
              RankToCharacter(combatant->speedRank),
              RankToCharacter(combatant->healthRank));
-    QueueDialog(dialog);
+    Dialog_Queue(DialogData_Create("", text, false));
 }
 
 void Character_ShowSkills(void)
 {
-    DialogData *dialog = calloc(sizeof(DialogData), 1);
-    SkillList *skillList = &BattlerWrapper_GetPlayerWrapper()->battler.skillList;
-    dialog->heap = true;
-    dialog->allowCancel = false;
-    snprintf(dialog->text, 256, "Skill: cooldown\n");
+    char text[MAX_DIALOG_LENGTH];
+    SkillList *skillList = BattlerWrapper_GetSkillList(BattlerWrapper_GetPlayerWrapper());
+    snprintf(text, MAX_DIALOG_LENGTH, "Skill: cooldown\n");
     for(int i = 0; i < skillList->count; ++i)
     {
         if(skillList->entries[i].level > character.level)
@@ -175,19 +173,17 @@ void Character_ShowSkills(void)
         {
             snprintf(skillInfo, 20, "%s: %d/%d\n", skill->name, character.skillCooldowns[i],skill->cooldown);
         }
-        strncat(dialog->text, skillInfo, 20);
+        strncat(text, skillInfo, 20);
     }
     
-    QueueDialog(dialog);
+    Dialog_Queue(DialogData_Create("", text, false));
 }
 
 void Character_ShowStatus(void)
 {
-    DialogData *dialog = calloc(sizeof(DialogData), 1);
-    CombatantClass *combatant = &BattlerWrapper_GetPlayerWrapper()->battler.combatantClass;
-    dialog->heap = true;
-    dialog->allowCancel = false;
-    snprintf(dialog->text, MAX_DIALOG_LENGTH, "Status\n\nLevel: %d\nXP: %d/%d, Health: %d/%d", character.level, character.currentXP, XP_TO_LEVEL_UP, character.currentHealth, CombatantClass_GetHealth(combatant, character.level));
+    char text[MAX_DIALOG_LENGTH];
+    CombatantClass *combatant = BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper());
+    snprintf(text, MAX_DIALOG_LENGTH, "Status\n\nLevel: %d\nXP: %d/%d, Health: %d/%d", character.level, character.currentXP, XP_TO_LEVEL_UP, character.currentHealth, CombatantClass_GetHealth(combatant, character.level));
     
-    QueueDialog(dialog);
+    Dialog_Queue(DialogData_Create("", text, false));
 }
