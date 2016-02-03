@@ -8,6 +8,7 @@
 
 #include <pebble.h>
 #include "AutoSizeConstants.h"
+#include "BattleEvents.h"
 #include "Battler.h"
 #include "BinaryResourceLoading.h"
 #include "CombatantClass.h"
@@ -23,6 +24,7 @@ typedef struct Battler
     uint16_t image;
     CombatantClass combatantClass;
     SkillList skillList;
+    uint16_t battleEvents[MAX_BATTLE_EVENTS];
     uint16_t event;
     uint16_t vulnerable; // These are bit fields that use the damage type enums
     uint16_t resistant;
@@ -35,6 +37,7 @@ typedef struct BattlerWrapper
 {
     bool loaded;
     Skill *loadedSkills[MAX_SKILLS_IN_LIST];
+    BattleEvent *loadedBattleEvents[MAX_BATTLE_EVENTS];
     Event *event;
     Battler battler;
 } BattlerWrapper;

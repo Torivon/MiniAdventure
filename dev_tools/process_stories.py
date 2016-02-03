@@ -22,6 +22,7 @@ g_size_constants["MAX_SKILLS_PER_AI_STAGE"] = 10
 g_size_constants["MAX_AI_STAGES"] = 4
 g_size_constants["MAX_AI_INTERRUPTS"] = 10
 g_size_constants["MAX_BATTLE_EVENT_PREREQS"] = 5
+g_size_constants["MAX_BATTLE_EVENTS"] = 5
 
 g_ai_stage_types = ["sequential", "random"]
 
@@ -66,6 +67,11 @@ g_location_properties = {}
 g_location_properties["rest_area"] = 1 << 0
 g_location_properties["game_win"] = 1 << 1
 g_location_properties["level_up"] = 1 << 2
+
+g_battle_event_prereqs = {}
+g_battle_event_prereqs["monster_health_below_percent"] = 0
+g_battle_event_prereqs["player_health_below_percent"] = 1
+g_battle_event_prereqs["time_above"] = 2
 
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
@@ -326,6 +332,12 @@ def write_story(story, datafile, hash):
             event_binary = pack_event(event)
             write_data_block(datafile, write_state, event_binary)
 
+    if "battle_events" in story:
+        for index in range(len(story["battle_events"])):
+            event = story["battle_events"][index]
+            event_binary = pack_battle_event(event)
+            write_data_block(datafile, write_state, event_binary)
+
     if "skills" in story:
         # This loop walks all skills. For each one, we add the packed data to binarydata
         # and write out the skill and size directly to the file.
@@ -434,6 +446,34 @@ def process_events(story, event_map, dialog_map, gamestate_list, data_index):
             event["use_prerequisites"] = True
 
     return data_index
+
+def process_battle_events(story, battle_event_map, dialog_map, data_index)
+    if not "battle_events" in story:
+        return data_index
+
+    for index in range(len(story["battle_events"])):
+        event = story["battle_events"][index]
+
+        if "name" in event:
+            if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+                quit("Event name is too long: " + event["name"])
+        
+        if "menu_description" in event:
+            if len(event["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+                quit("Event description is too long: " + event["menu_description"])
+
+        battle_event_map[event["id"]] = data_index
+        data_index += 1
+
+        if "dialog" in event:
+            event["dialog_index"] = dialog_map[event["dialog"]]
+
+# Prerequisites should be a dictionary. We then turn it into a pair of arrays at packing time. 
+                
+    return data_index
+
+def process_battle_events_phase_2(story, battler_map)
+
 
 def process_skills(story, skill_map, data_index):
     if not "skills" in story:
@@ -671,6 +711,9 @@ def process_story(story, imagelist, m):
     gamestate_list = []
     event_map = {}
     data_index = process_events(story, event_map, dialog_map, gamestate_list, data_index)
+    
+    battle_event_map = {}
+    data_index = process_battle_events(story, battle_event_map, dialog_map, data_index)
 
     skill_map = {}
     data_index = process_skills(story, skill_map, data_index)
@@ -679,6 +722,8 @@ def process_story(story, imagelist, m):
     data_index = process_battlers(story, battler_map, skill_map, imagelist, event_map, data_index)
     
     data_index = process_locations(story, battler_map, imagelist, event_map, gamestate_list, data_index)
+
+    process_battle_events_phase_2(story, battler_map)
 
     if "classes" in story:
         story["classes_index"] = []
