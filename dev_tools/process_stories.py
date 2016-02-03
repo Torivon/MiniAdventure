@@ -623,7 +623,7 @@ def process_dungeons(story):
 def process_external_files(story, file_list_key, m):
     if file_list_key in story:
         for filename in story[file_list_key]:
-            print "\tProcessing " + filename
+            print("\tProcessing " + filename)
             with open("src_data/stories/" + filename) as object_file:
                 for line in object_file.readlines():
                     m.update(line.encode("ascii"))
