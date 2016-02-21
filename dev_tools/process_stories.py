@@ -75,6 +75,7 @@ g_battle_event_prereqs["time_above"] = 2
 
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
+
 def add_image(imagelist, imagename):
     if imagelist.count(imagename) == 0:
         imagelist.append(imagename)
@@ -107,6 +108,20 @@ def pack_integer_with_default(dict, key, default):
         binarydata = pack_integer(default)
     return binarydata
 
+def pack_integerlist_with_default(dict, list_key, max_size, default):
+    if list_key in dict:
+        binarydata = pack_integer(len(dict[list_key]))
+        for index in range(max_size):
+            if index < len(dict[list_key]):
+                binarydata += pack_integer(dict[list_key][index])
+            else:
+                binarydata += pack_integer(default)
+    else:
+        binarydata = pack_integer(0)
+        for index in range(max_size):
+            binarydata += pack_integer(default)
+    return binarydata
+
 def pack_string(s, max_length):
     '''
     Write out a string into a packed binary file
@@ -128,46 +143,15 @@ def pack_location(location):
     binarydata = pack_string(location["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string_with_default(location, "menu_name", location["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
     binarydata += pack_string_with_default(location, "menu_description", location["name"], g_size_constants["MAX_STORY_DESC_LENGTH"])
-    binarydata += pack_integer(len(location["adjacent_locations_index"]))
-    for index in range(g_size_constants["MAX_ADJACENT_LOCATIONS"]):
-        if index < len(location["adjacent_locations_index"]):
-            binarydata += pack_integer(location["adjacent_locations_index"][index])
-        else:
-            binarydata += pack_integer(0)
-    binarydata += pack_integer(len(location["background_images_index"]))
-    for index in range(g_size_constants["MAX_BACKGROUND_IMAGES"]):
-        if index < len(location["background_images_index"]):
-            binarydata += pack_integer(location["background_images_index"][index])
-        else:
-            binarydata += pack_integer(0)
+    binarydata += pack_integerlist_with_default(location, "adjacent_locations_index", g_size_constants["MAX_ADJACENT_LOCATIONS"], 0)
+    binarydata += pack_integerlist_with_default(location, "background_images_index", g_size_constants["MAX_BACKGROUND_IMAGES"], 0)
     binarydata += pack_integer_with_default(location, "location_properties_value", 0)
     binarydata += pack_integer_with_default(location, "length", 0)
     binarydata += pack_integer_with_default(location, "base_level", 0)
     binarydata += pack_integer_with_default(location, "encounter_chance", 0)
-    if "monsters_index" in location:
-        binarydata += pack_integer(len(location["monsters_index"]))
-        for index in range(g_size_constants["MAX_MONSTERS"]):
-            if index < len(location["monsters_index"]):
-                binarydata += pack_integer(location["monsters_index"][index])
-            else:
-                binarydata += pack_integer(0)
-    else:
-        binarydata += pack_integer(0)
-        for index in range(g_size_constants["MAX_MONSTERS"]):
-            binarydata += pack_integer(0)
-
+    binarydata += pack_integerlist_with_default(location, "monsters_index", g_size_constants["MAX_MONSTERS"], 0)
     binarydata += pack_integer_with_default(location, "initial_event_index", 0)
-    if "events_index" in location:
-        binarydata += pack_integer(len(location["events_index"]))
-        for index in range(g_size_constants["MAX_EVENTS"]):
-            if index < len(location["events_index"]):
-                binarydata += pack_integer(location["events_index"][index])
-            else:
-                binarydata += pack_integer(0)
-    else:
-        binarydata += pack_integer(0)
-        for index in range(g_size_constants["MAX_EVENTS"]):
-            binarydata += pack_integer(0)
+    binarydata += pack_integerlist_with_default(location, "events_index", g_size_constants["MAX_EVENTS"], 0)
 
     return binarydata
 
@@ -218,6 +202,18 @@ def pack_event(event):
     binarydata += pack_gamestate(event, "state_changes_values")
     return binarydata
 
+def pack_battle_event(battle_event):
+    binarydata = pack_string_with_default(battle_event, "name", "", g_size_constants["MAX_STORY_NAME_LENGTH"])
+    binarydata += pack_string_with_default(battle_event, "menu_description", "", g_size_constants["MAX_STORY_DESC_LENGTH"])
+    binarydata += pack_bool_with_default(battle_event, "automatic", True)
+    binarydata += pack_integer_with_default(battle_event, "dialog_index", 0)
+    binarydata += pack_integerlist_with_default(battle_event, "prerequisite_types", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0)
+    binarydata += pack_integerlist_with_default(battle_event, "prerequisite_values", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0)
+    binarydata += pack_bool_with_default(battle_event, "battler_switch", False)
+    binarydata += pack_integer_with_default(battle_event, "new_battler_index", 0)
+    binarydata += pack_bool_with_default(battle_event, "full_heal_on_switch", False)
+    return binarydata
+
 def pack_battler(battler):
     '''
     Write out all information needed for a battler into a packed binary file
@@ -261,12 +257,7 @@ def pack_story(story, hash):
     binarydata += pack_integer(story["start_location_index"])
     binarydata += pack_integer_with_default(story, "xp_monsters_per_level", 0)
     binarydata += pack_integer_with_default(story, "xp_difference_scale", 0)
-    binarydata += pack_integer(len(story["classes_index"]))
-    for index in range(g_size_constants["MAX_CLASSES"]):
-        if index < len(story["classes_index"]):
-            binarydata += pack_integer(story["classes_index"][index])
-        else:
-            binarydata += pack_integer(0)
+    binarydata += pack_integerlist_with_default(story, "classes_index", g_size_constants["MAX_CLASSES"], 0)
     binarydata += pack_integer_with_default(story, "opening_dialog_index", 0)
     binarydata += pack_integer_with_default(story, "win_dialog_index", 0)
     binarydata += pack_integer_with_default(story, "credits_dialog_index", 0)
@@ -320,46 +311,7 @@ def write_story(story, datafile, hash):
     datafile.write(pack_integer(len(write_state["binarydata"])))
     write_state["next_write_location"] += len(write_state["binarydata"])
     
-    if "dialog" in story:
-        for index in range(len(story["dialog"])):
-            dialog = story["dialog"][index]
-            dialog_binary = pack_dialog(dialog)
-            write_data_block(datafile, write_state, dialog_binary)
-
-    if "events" in story:
-        for index in range(len(story["events"])):
-            event = story["events"][index]
-            event_binary = pack_event(event)
-            write_data_block(datafile, write_state, event_binary)
-
-    if "battle_events" in story:
-        for index in range(len(story["battle_events"])):
-            event = story["battle_events"][index]
-            event_binary = pack_battle_event(event)
-            write_data_block(datafile, write_state, event_binary)
-
-    if "skills" in story:
-        # This loop walks all skills. For each one, we add the packed data to binarydata
-        # and write out the skill and size directly to the file.
-        for index in range(len(story["skills"])):
-            skill = story["skills"][index]
-            skill_binary = pack_skill(skill)
-            write_data_block(datafile, write_state, skill_binary)
-
-    if "battlers" in story:
-        # This loop walks all skills. For each one, we add the packed data to binarydata
-        # and write out the skill and size directly to the file.
-        for index in range(len(story["battlers"])):
-            battler = story["battlers"][index]
-            battler_binary = pack_battler(battler)
-            write_data_block(datafile, write_state, battler_binary)
-
-    # This loop walks all locations. For each one, we add the packed data to binarydata
-    # and write out the location and size directly to the file.
-    for index in range(len(story["locations"])):
-        location = story["locations"][index]
-        location_binary = pack_location(location)
-        write_data_block(datafile, write_state, location_binary)
+    pack_object_types(story, datafile, write_state)
     
     # Now that all the index and size data has been written, write out the accumulated data
     datafile.write(write_state["binarydata"])
@@ -373,24 +325,13 @@ def process_bit_field(dict, field, global_dict):
     for bit_type in dict[field]:
         dict[new_field_name] = dict[new_field_name] | global_dict[bit_type]
 
-def process_dialog(story, dialog_map, data_index):
-    if not "dialog" in story:
-        return data_index
-
-    for index in range(len(story["dialog"])):
-        dialog = story["dialog"][index]
-        
-        if "name" in dialog:
-            if len(dialog["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-                quit("Name is too long: " + dialog["name"])
-        
-        if len(dialog["text"]) >= g_size_constants["MAX_DIALOG_LENGTH"]:
-            quit("Text is too long: " + dialog["text"])
-        
-        dialog_map[dialog["id"]] = data_index
-        data_index += 1
-
-    return data_index
+def process_dialog(dialog):
+    if "name" in dialog:
+        if len(dialog["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Name is too long: " + dialog["name"])
+    
+    if len(dialog["text"]) >= g_size_constants["MAX_DIALOG_LENGTH"]:
+        quit("Text is too long: " + dialog["text"])
 
 def add_gamestate_to_list(gamestate_list, newstate):
     if gamestate_list.count(newstate) > 0:
@@ -419,174 +360,127 @@ def process_gamestate_list(dict, gamestate_list, local_list_key, newkey):
         i = gamestate_list.index(variable)
         apply_variable(dict[newkey], i)
 
-def process_events(story, event_map, dialog_map, gamestate_list, data_index):
-    if not "events" in story:
-        return data_index
-
-    for index in range(len(story["events"])):
-        event = story["events"][index]
-        if "name" in event:
-            if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-                quit("Event name is too long: " + event["name"])
-
-        if "menu_description" in event:
-            if len(event["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
-                quit("Event description is too long: " + event["menu_description"])
-
-        event_map[event["id"]] = data_index
-        data_index += 1
-
-        if "dialog" in event:
-            event["dialog_index"] = dialog_map[event["dialog"]]
-
-        process_gamestate_list(event, gamestate_list, "positive_prerequisites", "positive_prerequisites_values")
-        process_gamestate_list(event, gamestate_list, "negative_prerequisites", "negative_prerequisites_values")
-        process_gamestate_list(event, gamestate_list, "state_changes", "state_changes_values")
-        if "positive_prerequisites_values" in event or "negative_prerequisites_values" in event:
-            event["use_prerequisites"] = True
-
-    return data_index
-
-def process_battle_events(story, battle_event_map, dialog_map, data_index)
-    if not "battle_events" in story:
-        return data_index
-
-    for index in range(len(story["battle_events"])):
-        event = story["battle_events"][index]
-
-        if "name" in event:
-            if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-                quit("Event name is too long: " + event["name"])
+def process_event(event):
+    if "name" in event:
+        if len(event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Event name is too long: " + event["name"])
         
-        if "menu_description" in event:
-            if len(event["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
-                quit("Event description is too long: " + event["menu_description"])
-
-        battle_event_map[event["id"]] = data_index
-        data_index += 1
-
-        if "dialog" in event:
-            event["dialog_index"] = dialog_map[event["dialog"]]
-
-# Prerequisites should be a dictionary. We then turn it into a pair of arrays at packing time. 
-                
-    return data_index
-
-def process_battle_events_phase_2(story, battler_map)
-
-
-def process_skills(story, skill_map, data_index):
-    if not "skills" in story:
-        return data_index
-   
-    for index in range(len(story["skills"])):
-        skill = story["skills"][index]
-        
-        if len(skill["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-            quit("Name is too long: " + skill["name"])
-        if len(skill["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
-            quit("Description is too long: " + skill["description"])
-
-        skill_map[skill["id"]] = data_index
-        data_index += 1
-
-        skill["target_value"] = g_skill_target[skill["target"]]
-        process_bit_field(skill, "damage_types", g_damage_types)
-        process_bit_field(skill, "counter_damage_types", g_damage_types)
-        process_bit_field(skill, "skill_properties", g_skill_properties_bits)
-
-    return data_index
-
-def process_battlers(story, battler_map, skill_map, imagelist, event_map, data_index):
-    if not "battlers" in story:
-        return data_index
+    if "menu_description" in event:
+        if len(event["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+            quit("Event description is too long: " + event["menu_description"])
     
-    for index in range(len(story["battlers"])):
-        battler = story["battlers"][index]
+    if "dialog" in event:
+        event["dialog_index"] = object_type_data["dialog"]["map"][event["dialog"]]
+
+    process_gamestate_list(event, gamestate_list, "positive_prerequisites", "positive_prerequisites_values")
+    process_gamestate_list(event, gamestate_list, "negative_prerequisites", "negative_prerequisites_values")
+    process_gamestate_list(event, gamestate_list, "state_changes", "state_changes_values")
+    if "positive_prerequisites_values" in event or "negative_prerequisites_values" in event:
+        event["use_prerequisites"] = True
+
+def process_battle_event(battle_event):
+    if "name" in battle_event:
+        if len(battle_event["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Event name is too long: " + battle_event["name"])
         
-        if len(battler["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-            quit("Name is too long: " + battler["name"])
-        if "description" in battler and len(battler["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
-            quit("Description is too long: " + battler["description"])
-        if len(battler["skill_list"]) > g_size_constants["MAX_SKILLS_IN_LIST"]:
-            quit("Too many skills for " + battler["name"])
+    if "menu_description" in battle_event:
+        if len(battle_event["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+            quit("Event description is too long: " + battle_event["menu_description"])
+    
+    if "dialog" in battle_event:
+        battle_event["dialog_index"] = object_type_data["dialog"]["map"][battle_event["dialog"]]
 
-        battler_map[battler["id"]] = data_index
-        data_index += 1
-        battler["image_index"] = add_image(imagelist, battler["image"])
-        battler["combatantclass_values"] = []
-        for stat_name in g_combatant_stats:
-            battler["combatantclass_values"].append(g_combatant_ranks[battler["combatantclass"][stat_name]])
+    if "new_battler" in battle_event:
+        battle_event["new_battler_index"] = object_type_data["battlers"]["map"][battle_event["new_battler"]]
 
-        for skill_index in range(len(battler["skill_list"])):
-            skill = battler["skill_list"][skill_index]
-            skill["index"] = skill_map[skill["id"]]
+    # Prerequisites should be a dictionary. We then turn it into a pair of arrays at packing time.
+    if "prerequisites" in battle_event:
+        if len(battle_event["prerequisites"]) > g_size_constants["MAX_BATTLE_EVENT_PREREQS"]:
+            quit("Too many battle prerequisites")
+        battle_event["prerequisite_types"] = []
+        battle_event["prerequisite_values"] = []
+        for k, v in battle_event["prerequisites"]:
+            if not g_battle_event_prereqs.has_key(k):
+                 quit("Invalid battle event prerequisite " + k)
+            battle_event["prerequisite_types"].append(k)
+            battle_event["prerequisite_values"].append(v)
 
-        if "event" in battler:
-            battler["event_index"] = event_map[battler["event"]]
-        process_bit_field(battler, "vulnerable", g_damage_types)
-        process_bit_field(battler, "resistant", g_damage_types)
-        process_bit_field(battler, "immune", g_damage_types)
-        process_bit_field(battler, "absorb", g_damage_types)
-        process_bit_field(battler, "status_immunities", g_skill_properties_bits)
+def process_skill(skill):
+    if len(skill["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+        quit("Name is too long: " + skill["name"])
+    if len(skill["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+        quit("Description is too long: " + skill["description"])
 
-    return data_index
+    skill["target_value"] = g_skill_target[skill["target"]]
+    process_bit_field(skill, "damage_types", g_damage_types)
+    process_bit_field(skill, "counter_damage_types", g_damage_types)
+    process_bit_field(skill, "skill_properties", g_skill_properties_bits)
 
-def process_locations(story, battler_map, imagelist, event_map, gamestate_list, data_index):
-    if not "locations" in story:
-        return data_index
+def process_battler(battler):
+    if len(battler["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+        quit("Name is too long: " + battler["name"])
+    if "description" in battler and len(battler["description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+        quit("Description is too long: " + battler["description"])
+    if len(battler["skill_list"]) > g_size_constants["MAX_SKILLS_IN_LIST"]:
+        quit("Too many skills for " + battler["name"])
 
-    location_map = {}
-    for index in range(len(story["locations"])):
-        location = story["locations"][index]
-        
-        if len(location["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-            quit("Name is too long: " + location["name"])
-        if "menu_name" in location:
-            if len(location["menu_name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
-                quit("Menu name is too long: " + location["menu_name"])
-        if "menu_description" in location:
-            if len(location["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
-                quit("Menu description is too long: " + location["menu_description"])
-        if len(location["adjacent_locations"]) > g_size_constants["MAX_ADJACENT_LOCATIONS"]:
-            quit("Too many adjacent locations for " + location["name"])
-        if len(location["background_images"]) > g_size_constants["MAX_BACKGROUND_IMAGES"]:
-            quit("Too many background images for " + location["name"])
-        if "monsters" in location and len(location["monsters"]) > g_size_constants["MAX_MONSTERS"]:
-            quit("Too many monsters for " + location["name"])
+    battler["image_index"] = add_image(imagelist, battler["image"])
+    battler["combatantclass_values"] = []
+    for stat_name in g_combatant_stats:
+        battler["combatantclass_values"].append(g_combatant_ranks[battler["combatantclass"][stat_name]])
 
-        process_bit_field(location, "location_properties", g_location_properties)
+    for skill_index in range(len(battler["skill_list"])):
+        skill = battler["skill_list"][skill_index]
+        skill["index"] = object_type_data["skills"]["map"][skill["id"]]
 
-        location_map[location["id"]] = data_index
-        data_index += 1
-        location["background_images_index"] = []
-        for background_image in location["background_images"]:
-            location["background_images_index"].append(add_image(imagelist, background_image))
-        if "monsters" in location:
-            location["monsters_index"] = []
-            for monster in location["monsters"]:
-                location["monsters_index"].append(battler_map[monster])
-        if "initial_event" in location:
-            location["initial_event_index"] = event_map[location["initial_event"]]
-        if "events" in location:
-            location["events_index"] = []
-            for event in location["events"]:
-                location["events_index"].append(event_map[event])
+    if "event" in battler:
+        battler["event_index"] = object_type_data["events"]["map"][battler["event"]]
+    process_bit_field(battler, "vulnerable", g_damage_types)
+    process_bit_field(battler, "resistant", g_damage_types)
+    process_bit_field(battler, "immune", g_damage_types)
+    process_bit_field(battler, "absorb", g_damage_types)
+    process_bit_field(battler, "status_immunities", g_skill_properties_bits)
 
-        process_gamestate_list(location, gamestate_list, "positive_prerequisites", "positive_prerequisites_values")
-        process_gamestate_list(location, gamestate_list, "negative_prerequisites", "negative_prerequisites_values")
-        if "positive_prerequisites_values" in location or "negative_prerequisites_values" in location:
-            location["use_prerequisites"] = True
+def process_location(location):
+    if len(location["name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+        quit("Name is too long: " + location["name"])
+    if "menu_name" in location:
+        if len(location["menu_name"]) >= g_size_constants["MAX_STORY_NAME_LENGTH"]:
+            quit("Menu name is too long: " + location["menu_name"])
+    if "menu_description" in location:
+        if len(location["menu_description"]) >= g_size_constants["MAX_STORY_DESC_LENGTH"]:
+            quit("Menu description is too long: " + location["menu_description"])
+    if len(location["adjacent_locations"]) > g_size_constants["MAX_ADJACENT_LOCATIONS"]:
+        quit("Too many adjacent locations for " + location["name"])
+    if len(location["background_images"]) > g_size_constants["MAX_BACKGROUND_IMAGES"]:
+        quit("Too many background images for " + location["name"])
+    if "monsters" in location and len(location["monsters"]) > g_size_constants["MAX_MONSTERS"]:
+        quit("Too many monsters for " + location["name"])
 
-    story["start_location_index"] = location_map[story["start_location"]]
-    for index in range(len(story["locations"])):
-        location = story["locations"][index]
-        location["adjacent_locations_index"] = []
-        for adjacent in location["adjacent_locations"]:
-            location["adjacent_locations_index"].append(location_map[adjacent])
+    process_bit_field(location, "location_properties", g_location_properties)
 
-    return data_index
+    location["background_images_index"] = []
+    for background_image in location["background_images"]:
+        location["background_images_index"].append(add_image(imagelist, background_image))
+    if "monsters" in location:
+        location["monsters_index"] = []
+        for monster in location["monsters"]:
+            location["monsters_index"].append(object_type_data["battlers"]["map"][monster])
+    if "initial_event" in location:
+        location["initial_event_index"] = object_type_data["events"]["map"][location["initial_event"]]
+    if "events" in location:
+        location["events_index"] = []
+        for event in location["events"]:
+            location["events_index"].append(object_type_data["events"]["map"][event])
 
+    process_gamestate_list(location, gamestate_list, "positive_prerequisites", "positive_prerequisites_values")
+    process_gamestate_list(location, gamestate_list, "negative_prerequisites", "negative_prerequisites_values")
+    if "positive_prerequisites_values" in location or "negative_prerequisites_values" in location:
+        location["use_prerequisites"] = True
+
+    location["adjacent_locations_index"] = []
+    for adjacent in location["adjacent_locations"]:
+        location["adjacent_locations_index"].append(object_type_data["locations"]["map"][adjacent])
 
 def process_dungeons(story):
     '''
@@ -684,7 +578,40 @@ def process_external_files(story, file_list_key, m):
                                 quit("Duplicate id, " + oldobject["id"] + " in list of " + object_key)
                     story[k].extend(object_list[k])
 
-def process_story(story, imagelist, m):
+gamestate_list = []
+object_type_list = ["dialog", "events", "battle_events", "skills", "battlers", "locations"]
+
+object_type_data = {}
+object_type_data["dialog"] = {"process": process_dialog, "pack": pack_dialog, "map": {}}
+object_type_data["events"] = {"process": process_event, "pack": pack_event, "map": {}}
+object_type_data["battle_events"] = {"process": process_battle_event, "pack": pack_battle_event, "map": {}}
+object_type_data["skills"] = {"process": process_skill, "pack": pack_skill, "map": {}}
+object_type_data["battlers"] = {"process": process_battler, "pack": pack_battler, "map": {}}
+object_type_data["locations"] = {"process": process_location, "pack": pack_location, "map": {}}
+
+def assign_object_indexes(story):
+    data_index = 1
+    for object_type in object_type_list:
+        object_type_data[object_type]["map"] = {}
+        if object_type in story:
+            for object in story[object_type]:
+                object_type_data[object_type]["map"][object["id"]] = data_index
+                data_index += 1
+
+def process_object_types(story):
+    for object_type in object_type_list:
+        if object_type in story:
+            for object in story[object_type]:
+                object_type_data[object_type]["process"](object)
+
+def pack_object_types(story, datafile, write_state):
+    for object_type in object_type_list:
+        if object_type in story:
+            for object in story[object_type]:
+                binary_data = object_type_data[object_type]["pack"](object)
+                write_data_block(datafile, write_state, binary_data)
+
+def process_story(story, m):
     '''
     Here we prepare the story for being written to a packed binary file.
     We have to turn each reference to an object into what will become the 
@@ -703,41 +630,24 @@ def process_story(story, imagelist, m):
 
     #processing data objects assigns them an index in the file. They must be
     # written to the file in the same order they were processed.
-    data_index = 1 # 0 is reserved for the main story struct
+    assign_object_indexes(story)
+    process_object_types(story)
 
-    dialog_map = {}
-    data_index = process_dialog(story, dialog_map, data_index)
-    
-    gamestate_list = []
-    event_map = {}
-    data_index = process_events(story, event_map, dialog_map, gamestate_list, data_index)
-    
-    battle_event_map = {}
-    data_index = process_battle_events(story, battle_event_map, dialog_map, data_index)
-
-    skill_map = {}
-    data_index = process_skills(story, skill_map, data_index)
-    
-    battler_map = {}
-    data_index = process_battlers(story, battler_map, skill_map, imagelist, event_map, data_index)
-    
-    data_index = process_locations(story, battler_map, imagelist, event_map, gamestate_list, data_index)
-
-    process_battle_events_phase_2(story, battler_map)
+    story["start_location_index"] = object_type_data["locations"]["map"][story["start_location"]]
 
     if "classes" in story:
         story["classes_index"] = []
         for battler in story["classes"]:
-            story["classes_index"].append(battler_map[battler])
+            story["classes_index"].append(object_type_data["battlers"]["map"][battler])
     else:
         quit("Must have at least one class.")
 
     if "opening_dialog" in story:
-        story["opening_dialog_index"] = dialog_map[story["opening_dialog"]]
+        story["opening_dialog_index"] = object_type_data["dialog"]["map"][story["opening_dialog"]]
     if "win_dialog" in story:
-        story["win_dialog_index"] = dialog_map[story["win_dialog"]]
+        story["win_dialog_index"] = object_type_data["dialog"]["map"][story["win_dialog"]]
     if "credits_dialog" in story:
-        story["credits_dialog_index"] = dialog_map[story["credits_dialog"]]
+        story["credits_dialog_index"] = object_type_data["dialog"]["map"][story["credits_dialog"]]
 
 def pack_engineinfo(engineinfo):
     binarydata = pack_integer(engineinfo["image_index"]["title_image"])
@@ -783,7 +693,7 @@ def write_engineinfo(engineinfo, datafile):
     # Now that all the index and size data has been written, write out the accumulated data
     datafile.write(write_state["binarydata"])
 
-def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
+def process_engineinfo(engineinfo, appinfo, data_objects): #TODO: This needs to be updated to match the way storydoes things
     # Process the stories to include. This includes generating the data files,
     # adding them to the appinfo, and storing a list of images used.
     
@@ -803,7 +713,7 @@ def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
                 quit("Two stories with the same id: " + story_map[story["id"]] + ", " + story["name"])
             else:
                 story_map[story["id"]] = story["name"]
-            process_story(story, imagelist, m)
+            process_story(story, m)
             with open("resources/data/" + story_datafile, 'wb') as datafile:
                 hash = struct.unpack("<H", m.digest()[-2:])
                 write_story(story, datafile, hash[0])
@@ -815,17 +725,16 @@ def process_engineinfo(engineinfo, appinfo, data_objects, imagelist):
     for k, v in engineinfo["images"].items():
         engineinfo["image_index"][k] = add_image(imagelist, v)
 
-    data_index = 1 # 0 is reserved for the main story struct
-    dialog_map = {}
-    data_index = process_dialog(engineinfo, dialog_map, data_index)
+    assign_object_indexes(engineinfo)
+    process_object_types(engineinfo)
 
-    engineinfo["tutorial_dialog_index"] = dialog_map[engineinfo["tutorial_dialog"]]
-    engineinfo["gameover_dialog_index"] = dialog_map[engineinfo["gameover_dialog"]]
-    engineinfo["battlewin_dialog_index"] = dialog_map[engineinfo["battlewin_dialog"]]
-    engineinfo["levelup_dialog_index"] = dialog_map[engineinfo["levelup_dialog"]]
-    engineinfo["engine_credits_dialog_index"] = dialog_map[engineinfo["engine_credits_dialog"]]
-    engineinfo["reset_dialog_index"] = dialog_map[engineinfo["reset_dialog"]]
-    engineinfo["exit_dialog_index"] = dialog_map[engineinfo["exit_dialog"]]
+    engineinfo["tutorial_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["tutorial_dialog"]]
+    engineinfo["gameover_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["gameover_dialog"]]
+    engineinfo["battlewin_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["battlewin_dialog"]]
+    engineinfo["levelup_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["levelup_dialog"]]
+    engineinfo["engine_credits_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["engine_credits_dialog"]]
+    engineinfo["reset_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["reset_dialog"]]
+    engineinfo["exit_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["exit_dialog"]]
 
     with open("resources/data/" + "engineinfo.dat", 'wb') as datafile:
         write_engineinfo(engineinfo, datafile)
@@ -991,7 +900,7 @@ with open("src_data/base-appinfo.json") as appinfo_file:
 with open("src_data/engineinfo.json") as engineinfo_file:
     engineinfo = json.load(engineinfo_file)
 
-icon_index = process_engineinfo(engineinfo, appinfo, data_objects, imagelist)
+icon_index = process_engineinfo(engineinfo, appinfo, data_objects)
 
 create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index)
 
