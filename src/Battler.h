@@ -37,3 +37,4 @@ bool BattlerWrapper_CheckVulnerability(BattlerWrapper *wrapper, uint16_t damageT
 bool BattlerWrapper_CheckResistance(BattlerWrapper *wrapper, uint16_t damageType);
 bool BattlerWrapper_CheckAbsorption(BattlerWrapper *wrapper, uint16_t damageType);
 bool BattlerWrapper_CheckStatusImmunity(BattlerWrapper *wrapper, uint16_t status);
+uint16_t BattlerWrapper_GetAIType(BattlerWrapper *wrapper);

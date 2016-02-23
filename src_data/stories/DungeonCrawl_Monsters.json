@@ -28,7 +28,7 @@
             "speed": 100,
             "damage_types": ["physical", "piercing"],
             "potency": 25,
-            "cooldown": 3
+            "cooldown": 0
         },
         {
             "id": "gnaw",
@@ -107,7 +107,8 @@
                     "id": "gnaw",
                     "min_level": 2
                 }
-            ]
+            ],
+            "ai_type": "random"
         },
         {
             "id": "goblin",

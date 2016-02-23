@@ -32,6 +32,7 @@ typedef struct Battler
     uint16_t immune;
     uint16_t absorb;
     uint16_t statusImmunities;
+    uint16_t aiType;
 } Battler;
 
 typedef struct BattlerWrapper
@@ -220,4 +221,9 @@ bool BattlerWrapper_CheckAbsorption(BattlerWrapper *wrapper, uint16_t damageType
 bool BattlerWrapper_CheckStatusImmunity(BattlerWrapper *wrapper, uint16_t status)
 {
     return wrapper->battler.statusImmunities & status;
+}
+
+uint16_t BattlerWrapper_GetAIType(BattlerWrapper *wrapper)
+{
+    return wrapper->battler.aiType;
 }

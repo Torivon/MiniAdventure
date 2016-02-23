@@ -248,6 +248,8 @@ def pack_battler(battler):
     binarydata += pack_integer_with_default(battler, "absorb_value", 0)
     binarydata += pack_integer_with_default(battler, "status_immunities_value", 0)
 
+    binarydata += pack_integer_with_default(battler, "ai_type_value", g_ai_stage_types.index("sequential"))
+
     return binarydata
 
 def pack_story(story, hash):
@@ -443,6 +445,11 @@ def process_battler(battler):
         for battle_event in battler["battle_events"]:
             battler["battle_events_index"].append(object_type_data["battle_events"]["map"][battle_event])
 
+
+    if "ai_type" in battler:
+        if g_ai_stage_types.count(battler["ai_type"]) == 0:
+            quit("Invalid ai type " + battler["ai_type"])
+        battler["ai_type_value"] = g_ai_stage_types.index(battler["ai_type"])
 
     process_bit_field(battler, "vulnerable", g_damage_types)
     process_bit_field(battler, "resistant", g_damage_types)
