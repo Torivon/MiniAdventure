@@ -70,8 +70,8 @@ g_location_properties["level_up"] = 1 << 2
 
 g_battle_event_prereqs = {}
 g_battle_event_prereqs["monster_health_below_percent"] = 0
-g_battle_event_prereqs["player_health_below_percent"] = 1
-g_battle_event_prereqs["time_above"] = 2
+#g_battle_event_prereqs["player_health_below_percent"] = 1
+#g_battle_event_prereqs["time_above"] = 2
 
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
@@ -108,16 +108,22 @@ def pack_integer_with_default(dict, key, default):
         binarydata = pack_integer(default)
     return binarydata
 
-def pack_integerlist_with_default(dict, list_key, max_size, default):
+def pack_integerlist_with_default(dict, list_key, max_size, default, include_count = True):
     if list_key in dict:
-        binarydata = pack_integer(len(dict[list_key]))
+        if include_count:
+            binarydata = pack_integer(len(dict[list_key]))
+        else:
+            binarydata = b""
         for index in range(max_size):
             if index < len(dict[list_key]):
                 binarydata += pack_integer(dict[list_key][index])
             else:
                 binarydata += pack_integer(default)
     else:
-        binarydata = pack_integer(0)
+        if include_count:
+            binarydata = pack_integer(0)
+        else:
+            binarydata = b""
         for index in range(max_size):
             binarydata += pack_integer(default)
     return binarydata
@@ -208,7 +214,7 @@ def pack_battle_event(battle_event):
     binarydata += pack_bool_with_default(battle_event, "automatic", True)
     binarydata += pack_integer_with_default(battle_event, "dialog_index", 0)
     binarydata += pack_integerlist_with_default(battle_event, "prerequisite_types", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0)
-    binarydata += pack_integerlist_with_default(battle_event, "prerequisite_values", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0)
+    binarydata += pack_integerlist_with_default(battle_event, "prerequisite_values", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0, False)
     binarydata += pack_bool_with_default(battle_event, "battler_switch", False)
     binarydata += pack_integer_with_default(battle_event, "new_battler_index", 0)
     binarydata += pack_bool_with_default(battle_event, "full_heal_on_switch", False)
@@ -219,10 +225,7 @@ def pack_battler(battler):
     Write out all information needed for a battler into a packed binary file
     '''
     binarydata = pack_string(battler["name"], g_size_constants["MAX_STORY_NAME_LENGTH"])
-    if "description" in battler:
-        binarydata += pack_string(battler["description"], g_size_constants["MAX_STORY_DESC_LENGTH"])
-    else:
-        binarydata += pack_string("", g_size_constants["MAX_STORY_DESC_LENGTH"])
+    binarydata += pack_string_with_default(battler, "description", "", g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integer(battler["image_index"])
     for stat in battler["combatantclass_values"]:
         binarydata += pack_integer(stat)
@@ -235,6 +238,8 @@ def pack_battler(battler):
         else:
             binarydata += pack_integer(0)
             binarydata += pack_integer(0)
+
+    binarydata += pack_integerlist_with_default(battler, "battle_events_index", g_size_constants["MAX_BATTLE_EVENTS"], 0)
 
     binarydata += pack_integer_with_default(battler, "event_index", 0)
     binarydata += pack_integer_with_default(battler, "vulnerable_value", 0)
@@ -269,16 +274,9 @@ def get_total_objects(story):
     This includes locations, monsters, classes, skills, and possibly more
     '''
     count = 1 #main object
-    if "dialog" in story:
-        count += len(story["dialog"])
-    if "events" in story:
-        count += len(story["events"])
-    if "skills" in story:
-        count += len(story["skills"])
-    if "battlers" in story:
-        count += len(story["battlers"])
-    if "locations" in story:
-        count += len(story["locations"])
+    for object_type in object_type_list:
+        if object_type in story:
+            count += len(story[object_type])
     return count
 
 def write_data_block(datafile, write_state, new_data):
@@ -397,12 +395,13 @@ def process_battle_event(battle_event):
     if "prerequisites" in battle_event:
         if len(battle_event["prerequisites"]) > g_size_constants["MAX_BATTLE_EVENT_PREREQS"]:
             quit("Too many battle prerequisites")
+        battle_event["prerequisite_count"] = len(battle_event["prerequisites"])
         battle_event["prerequisite_types"] = []
         battle_event["prerequisite_values"] = []
-        for k, v in battle_event["prerequisites"]:
+        for k, v in battle_event["prerequisites"].items():
             if not g_battle_event_prereqs.has_key(k):
                  quit("Invalid battle event prerequisite " + k)
-            battle_event["prerequisite_types"].append(k)
+            battle_event["prerequisite_types"].append(g_battle_event_prereqs[k])
             battle_event["prerequisite_values"].append(v)
 
 def process_skill(skill):
@@ -435,6 +434,16 @@ def process_battler(battler):
 
     if "event" in battler:
         battler["event_index"] = object_type_data["events"]["map"][battler["event"]]
+
+    if "battle_events" in battler:
+        if len(battler["battle_events"]) > g_size_constants["MAX_BATTLE_EVENTS"]:
+            quit("Too many battle events on " + battler["name"])
+
+        battler["battle_events_index"] = []
+        for battle_event in battler["battle_events"]:
+            battler["battle_events_index"].append(object_type_data["battle_events"]["map"][battle_event])
+
+
     process_bit_field(battler, "vulnerable", g_damage_types)
     process_bit_field(battler, "resistant", g_damage_types)
     process_bit_field(battler, "immune", g_damage_types)
@@ -595,6 +604,8 @@ def assign_object_indexes(story):
         object_type_data[object_type]["map"] = {}
         if object_type in story:
             for object in story[object_type]:
+                if object_type_data[object_type]["map"].has_key(object["id"]):
+                    quit("Duplicate id " + object["id"] + " for " + object_type + ".")
                 object_type_data[object_type]["map"][object["id"]] = data_index
                 data_index += 1
 
@@ -814,6 +825,13 @@ def write_headers(imagemap, data_objects):
             ai_file.write("#define AI_STAGE_TYPE_" + type.upper() + " " + str(index) + "\n")
 
         ai_file.write("\n")
+
+    with open("src/AutoBattleEventConstants.h", 'w') as battle_event_file:
+        battle_event_file.write("#pragma once\n\n")
+        for k, v in g_battle_event_prereqs.items():
+            battle_event_file.write("#define BATTLE_EVENT_TYPE_" + k.upper() + " " + str(v) + "\n")
+
+        battle_event_file.write("\n")
 
 def create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index):
     # Prep the appinfo for resources

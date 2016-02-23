@@ -78,9 +78,29 @@
                 {
                     "id": "bite",
                     "min_level": 1
-                },
+                }
+            ],
+            "battle_events": ["rat_enrage"]
+        },
+        {
+            "id": "enraged_rat",
+            "name": "Enraged Rat",
+            "image": "images/enragedrat.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "ranks",
+                "health": "rankc"
+            },
+            "skill_list": [
                 {
                     "id": "bigbite",
+                    "min_level": 1
+                },
+                {
+                    "id": "bite",
                     "min_level": 1
                 },
                 {
@@ -209,6 +229,24 @@
                     "min_level": 1
                 }
             ]
+        }
+    ],
+    "battle_events": [
+        {
+            "id": "rat_enrage",
+            "dialog": "rat_enrage",
+            "battler_switch": true,
+            "new_battler": "enraged_rat",
+            "automatic": true,
+            "full_heal_on_switch": true,
+            "prerequisites": {"monster_health_below_percent": 50}
+        }
+    ],
+    "dialog": [
+        {
+            "id": "rat_enrage",
+            "name": "Rat",
+            "text": "The rat is getting enraged!"
         }
     ]
 }

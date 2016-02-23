@@ -1,0 +1,4 @@
+#pragma once
+
+#define BATTLE_EVENT_TYPE_MONSTER_HEALTH_BELOW_PERCENT 0
+

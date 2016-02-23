@@ -34,6 +34,11 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/enragedrat.png",
+                "name": "IMAGE_ENRAGEDRAT",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/goblin.png",
                 "name": "IMAGE_GOBLIN",
                 "type": "bitmap"
