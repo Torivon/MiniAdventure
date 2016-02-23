@@ -67,6 +67,7 @@ typedef struct BattleActor
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
     uint16_t statusEffectDurations[MAX_STATUS_EFFECTS];
     AIState aiState;
+    uint16_t timeInCombat;
 } BattleActor;
 
 typedef struct BattleActorWrapper

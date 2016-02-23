@@ -4,6 +4,7 @@
 #include "AutoSkillConstants.h"
 #include "BaseWindow.h"
 #include "Battle.h"
+#include "BattleEvents.h"
 #include "Battler.h"
 #include "BinaryResourceLoading.h"
 #include "Character.h"
@@ -51,6 +52,16 @@ static BattleState gBattleState =
         .battlerWrapper = NULL
     }
 };
+
+BattleActor *GetMonsterActor(void)
+{
+    return &gBattleState.monster.actor;
+}
+
+BattleActor *GetPlayerActor(void)
+{
+    return &gBattleState.player.actor;
+}
 
 static uint16_t currentMonsterIndex = 0;
 
@@ -130,7 +141,7 @@ void Battle_SetCleanExit(void)
 
 uint16_t BattleScreen_MenuSectionCount(void)
 {
-    return 2 + EngineMenu_GetSectionCount();
+    return 3 + EngineMenu_GetSectionCount();
 }
 
 const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
@@ -140,8 +151,10 @@ const char *BattleScreen_MenuSectionName(uint16_t sectionIndex)
         case 0:
             return "Skills";
         case 1:
-            return "Battle";
+            return "Events";
         case 2:
+            return "Battle";
+        case 3:
             return EngineMenu_GetSectionName();
     }
     return "None";
@@ -160,9 +173,13 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
         }
         case 1:
         {
-            return 4;
+            return BattleEvent_GetCurrentAvailableBattleEvents();
         }
         case 2:
+        {
+            return 4;
+        }
+        case 3:
         {
             return EngineMenu_GetCellCount();
         }
@@ -184,6 +201,10 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
         }
         case 1:
         {
+            return BattleEvent_GetCurrentBattleEventName(index->row);
+        }
+        case 2:
+        {
             switch(index->row)
             {
                 case 0:
@@ -197,7 +218,7 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
             }
             break;
         }
-        case 2:
+        case 3:
         {
             return EngineMenu_GetCellName(index->row);
         }
@@ -221,6 +242,10 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
         }
         case 1:
         {
+            return BattleEvent_GetCurrentBattleEventDescription(index->row);
+        }
+        case 2:
+        {
             switch(index->row)
             {
                 case 0:
@@ -234,7 +259,7 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
             }
             break;
         }
-        case 2:
+        case 3:
         {
             return EngineMenu_GetCellName(index->row);
         }
@@ -270,6 +295,11 @@ void BattleScreen_MenuSelect(MenuIndex *index)
         }
         case 1:
         {
+            BattleEvent_MenuQueue(index->row);
+            break;
+        }
+        case 2:
+        {
             switch(index->row)
             {
                 case 0:
@@ -297,7 +327,7 @@ void BattleScreen_MenuSelect(MenuIndex *index)
             }
             break;
         }
-        case 2:
+        case 3:
         {
             EngineMenu_SelectAction(index->row);
         }
@@ -367,6 +397,18 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
     }
     actorWrapper->actor.aiState.stage = 0;
     actorWrapper->actor.aiState.skillIndex = 0;
+    actorWrapper->actor.timeInCombat = 0;
+}
+
+void Battle_InitializeNewMonster(uint16_t monsterIndex, bool fullHeal)
+{
+    Monster_UnloadCurrent();
+    gBattleState.monster.battlerWrapper = NULL;
+    Monster_LoadCurrent(monsterIndex);
+    gBattleState.monster.battlerWrapper = BattlerWrapper_GetMonsterWrapper();
+    currentMonsterIndex = monsterIndex;
+    uint16_t skillCooldowns[MAX_SKILLS_IN_LIST] = {0};
+    InitializeBattleActorWrapper(&gBattleState.monster, BattlerWrapper_GetMonsterWrapper(), Location_GetCurrentBaseLevel(), fullHeal ? 0 : gBattleState.monster.actor.currentHealth, skillCooldowns);
 }
 
 void BattleInit(void)
@@ -479,6 +521,7 @@ static void UpdateActor(BattleActorWrapper *wrapper)
     }
     
     wrapper->actor.currentTime += currentSpeed;
+    wrapper->actor.timeInCombat++;
 }
 
 static void UpdateStatusEffects(BattleActorWrapper *wrapper)
@@ -520,6 +563,11 @@ void UpdateBattle(void *unused)
     if(gBattleState.player.actor.currentHealth <= 0 || gBattleState.monster.actor.currentHealth <= 0)
     {
         CloseBattleWindow();
+        return;
+    }
+    
+    if(BattleEvent_TriggerAutomaticBattleEvents())
+    {
         return;
     }
     

@@ -28,7 +28,7 @@
             "speed": 100,
             "damage_types": ["physical", "piercing"],
             "potency": 25,
-            "cooldown": 3
+            "cooldown": 0
         },
         {
             "id": "gnaw",
@@ -48,6 +48,17 @@
             "speed": 35,
             "damage_types": ["physical", "bludgeoning"],
             "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "shell_reflect",
+            "name": "Shell Reflect",
+            "description": "Counter a magic attack",
+            "target": "counter",
+            "speed": 100,
+            "damage_types": ["magic"],
+            "counter_damage_types": ["magic"],
+            "potency": 20,
             "cooldown": 0
         },
         {
@@ -78,16 +89,37 @@
                 {
                     "id": "bite",
                     "min_level": 1
-                },
+                }
+            ],
+            "battle_events": ["rat_enrage"]
+        },
+        {
+            "id": "enraged_rat",
+            "name": "Enraged Rat",
+            "image": "images/enragedrat.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "ranks",
+                "health": "rankc"
+            },
+            "skill_list": [
                 {
                     "id": "bigbite",
+                    "min_level": 1
+                },
+                {
+                    "id": "bite",
                     "min_level": 1
                 },
                 {
                     "id": "gnaw",
                     "min_level": 2
                 }
-            ]
+            ],
+            "ai_type": "random"
         },
         {
             "id": "goblin",
@@ -167,7 +199,29 @@
                     "id": "bash",
                     "min_level": 1
                 }
-            ]
+            ],
+            "battle_events": ["turtle_hide"]
+        },
+        {
+            "id": "turtle_hide",
+            "name": "Retracted Turtle",
+            "image": "images/turtle_hide.png",
+            "combatantclass": {
+                "strength": "rankb",
+                "magic": "rankf",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranka"
+            },
+            "immune": ["physical"],
+            "skill_list": [
+                {
+                    "id": "shell_reflect",
+                    "min_level": 1
+                }
+            ],
+            "battle_events": ["turtle_emerge"]
         },
         {
             "id": "lich",
@@ -209,6 +263,52 @@
                     "min_level": 1
                 }
             ]
+        }
+    ],
+    "battle_events": [
+        {
+            "id": "rat_enrage",
+            "dialog": "rat_enrage",
+            "battler_switch": true,
+            "new_battler": "enraged_rat",
+            "automatic": true,
+            "full_heal_on_switch": true,
+            "prerequisites": {"monster_health_below_percent": 50}
+        },
+        {
+            "id": "turtle_hide",
+            "dialog": "turtle_hide",
+            "battler_switch": true,
+            "new_battler": "turtle_hide",
+            "automatic": true,
+            "full_heal_on_switch": false,
+            "prerequisites": {"time_above": 10}
+        },
+        {
+            "id": "turtle_emerge",
+            "dialog": "turtle_emerge",
+            "battler_switch": true,
+            "new_battler": "turtle",
+            "automatic": true,
+            "full_heal_on_switch": false,
+            "prerequisites": {"time_above": 10}
+        }
+    ],
+    "dialog": [
+        {
+            "id": "rat_enrage",
+            "name": "Rat",
+            "text": "The rat is getting enraged!"
+        },
+        {
+            "id": "turtle_hide",
+            "name": "Turtle",
+            "text": "The turtle withdraws into its shell!"
+        },
+        {
+            "id": "turtle_emerge",
+            "name": "Turtle",
+            "text": "The turtle reappears!"
         }
     ]
 }

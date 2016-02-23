@@ -12,8 +12,13 @@
 void ExecuteAI(BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
     AIState *state = &attacker->actor.aiState;
+    uint16_t aiType = BattlerWrapper_GetAIType(attacker->battlerWrapper);
     int i = state->skillIndex;
     SkillList *skillList = BattlerWrapper_GetSkillList(attacker->battlerWrapper);
+    if(aiType == AI_STAGE_TYPE_RANDOM)
+    {
+        i = Random(skillList->count);
+    }
     do
     {
         SkillListEntry *entry = &skillList->entries[i];

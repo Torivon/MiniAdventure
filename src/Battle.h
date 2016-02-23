@@ -35,3 +35,6 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex);
 const char *BattleScreen_MenuCellName(MenuIndex *index);
 const char *BattleScreen_MenuCellDescription(MenuIndex *index);
 void BattleScreen_MenuSelect(MenuIndex *index);
+
+void Battle_InitializeNewMonster(uint16_t monsterIndex, bool fullHeal);
+uint16_t Battle_TimeInCombat(void);

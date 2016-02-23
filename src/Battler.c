@@ -8,6 +8,7 @@
 
 #include <pebble.h>
 #include "AutoSizeConstants.h"
+#include "BattleEvents.h"
 #include "Battler.h"
 #include "BinaryResourceLoading.h"
 #include "CombatantClass.h"
@@ -23,12 +24,15 @@ typedef struct Battler
     uint16_t image;
     CombatantClass combatantClass;
     SkillList skillList;
+    uint16_t battleEventCount;
+    uint16_t battleEvents[MAX_BATTLE_EVENTS];
     uint16_t event;
     uint16_t vulnerable; // These are bit fields that use the damage type enums
     uint16_t resistant;
     uint16_t immune;
     uint16_t absorb;
     uint16_t statusImmunities;
+    uint16_t aiType;
 } Battler;
 
 typedef struct BattlerWrapper
@@ -107,6 +111,7 @@ void Battler_UnloadBattler(BattlerWrapper *wrapper)
 
 void Monster_UnloadCurrent(void)
 {
+    BattleEvent_FreeCurrentBattleEvents();
     Battler_UnloadBattler(&currentMonster);
 }
 
@@ -140,7 +145,12 @@ bool Battler_LoadBattler(BattlerWrapper *wrapper, uint16_t logical_index)
 
 bool Monster_LoadCurrent(uint16_t logical_index)
 {
-    return Battler_LoadBattler(&currentMonster, logical_index);
+    bool returnval = Battler_LoadBattler(&currentMonster, logical_index);
+    if(returnval)
+    {
+        BattleEvent_LoadCurrentBattleEvents(currentMonster.battler.battleEventCount, currentMonster.battler.battleEvents);
+    }
+    return returnval;
 }
 
 void Battler_LoadPlayer(uint16_t classId)
@@ -211,4 +221,9 @@ bool BattlerWrapper_CheckAbsorption(BattlerWrapper *wrapper, uint16_t damageType
 bool BattlerWrapper_CheckStatusImmunity(BattlerWrapper *wrapper, uint16_t status)
 {
     return wrapper->battler.statusImmunities & status;
+}
+
+uint16_t BattlerWrapper_GetAIType(BattlerWrapper *wrapper)
+{
+    return wrapper->battler.aiType;
 }
