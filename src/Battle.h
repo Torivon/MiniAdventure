@@ -37,3 +37,4 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index);
 void BattleScreen_MenuSelect(MenuIndex *index);
 
 void Battle_InitializeNewMonster(uint16_t monsterIndex, bool fullHeal);
+uint16_t Battle_TimeInCombat(void);

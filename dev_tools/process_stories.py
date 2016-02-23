@@ -70,8 +70,8 @@ g_location_properties["level_up"] = 1 << 2
 
 g_battle_event_prereqs = {}
 g_battle_event_prereqs["monster_health_below_percent"] = 0
-#g_battle_event_prereqs["player_health_below_percent"] = 1
-#g_battle_event_prereqs["time_above"] = 2
+g_battle_event_prereqs["player_health_below_percent"] = 1
+g_battle_event_prereqs["time_above"] = 2
 
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 

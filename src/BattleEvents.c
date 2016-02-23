@@ -86,6 +86,19 @@ bool BattleEvent_CheckPrerequisites(BattleEvent *battleEvent)
                 returnval = returnval && (percent <= battleEvent->prerequisiteValue[i]);
                 break;
             }
+            case BATTLE_EVENT_TYPE_PLAYER_HEALTH_BELOW_PERCENT:
+            {
+                BattleActor *playerActor = GetPlayerActor();
+                uint16_t percent = playerActor->currentHealth * 100 / playerActor->maxHealth;
+                returnval = returnval && (percent <= battleEvent->prerequisiteValue[i]);
+                break;
+            }
+            case BATTLE_EVENT_TYPE_TIME_ABOVE:
+            {
+                BattleActor *monsterActor = GetMonsterActor();
+                returnval = returnval && monsterActor->timeInCombat > battleEvent->prerequisiteValue[i];
+                break;
+            }
             default:
             {
                 break;

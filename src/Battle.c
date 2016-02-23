@@ -397,6 +397,7 @@ static void InitializeBattleActorWrapper(BattleActorWrapper *actorWrapper, Battl
     }
     actorWrapper->actor.aiState.stage = 0;
     actorWrapper->actor.aiState.skillIndex = 0;
+    actorWrapper->actor.timeInCombat = 0;
 }
 
 void Battle_InitializeNewMonster(uint16_t monsterIndex, bool fullHeal)
@@ -520,6 +521,7 @@ static void UpdateActor(BattleActorWrapper *wrapper)
     }
     
     wrapper->actor.currentTime += currentSpeed;
+    wrapper->actor.timeInCombat++;
 }
 
 static void UpdateStatusEffects(BattleActorWrapper *wrapper)

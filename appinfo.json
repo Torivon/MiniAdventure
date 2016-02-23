@@ -54,6 +54,11 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/turtle_hide.png",
+                "name": "IMAGE_TURTLE_HIDE",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/lich.png",
                 "name": "IMAGE_LICH",
                 "type": "bitmap"
