@@ -28,7 +28,7 @@ bool currentDialogAllowsCancel = false;
 #define DIALOG_FRAME_HEIGHT 80
 #define CANCEL_FRAME_WIDTH 20
 #define CANCEL_FRAME_HEIGHT 22
-#define DIALOG_TEXT_X_OFFSET 2
+#define DIALOG_TEXT_X_OFFSET 3
 #define DIALOG_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
 static GRect dialogFrame = {.origin = {.x = 144 / 2 - DIALOG_FRAME_WIDTH / 2, .y = 168 / 2 - DIALOG_FRAME_HEIGHT / 2}, .size = {.w = DIALOG_FRAME_WIDTH, .h = DIALOG_FRAME_HEIGHT}};

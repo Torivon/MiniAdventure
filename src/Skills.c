@@ -126,7 +126,7 @@ void ApplyStatus(Skill *skill, BattleActorWrapper *target)
 
 const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
-    static char description[30];
+    static char description[MAX_DIALOG_LENGTH];
     DEBUG_VERBOSE_LOG("ExecuteSkill");
     
     switch(skill->target)
@@ -141,7 +141,7 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
                 {
                     int potency = ComputeSkillPotency(counterSkill, defender, attacker);
                     DealDamage(potency, &attacker->actor);
-                    snprintf(description, sizeof(description), "%s counters for %d damage", BattlerWrapper_GetBattlerName(defender->battlerWrapper), potency);
+                    snprintf(description, sizeof(description), "%s counters for %d damage with %s", BattlerWrapper_GetBattlerName(defender->battlerWrapper), potency, counterSkill->description);
                     countered = true;
                     ApplyStatus(counterSkill, attacker);
                 }
@@ -152,7 +152,7 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
             {
                 int potency = ComputeSkillPotency(skill, attacker, defender);
                 DealDamage(potency, &defender->actor);
-                snprintf(description, sizeof(description), "%s takes %d damage", BattlerWrapper_GetBattlerName(defender->battlerWrapper), potency);
+                snprintf(description, sizeof(description), "%s deals %d damage with %s", BattlerWrapper_GetBattlerName(attacker->battlerWrapper), potency, skill->description);
                 ApplyStatus(skill, defender);
             }
             break;
@@ -168,7 +168,7 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
             int potency = ComputeSkillPotency(skill, attacker, NULL);
             DealDamage(-potency, &attacker->actor);
             ApplyStatus(skill, attacker);
-            snprintf(description, sizeof(description), "%s heals %d damage", BattlerWrapper_GetBattlerName(attacker->battlerWrapper), potency);
+            snprintf(description, sizeof(description), "%s heals %d damage with %s", BattlerWrapper_GetBattlerName(attacker->battlerWrapper), potency, skill->description);
             break;
         }
         default:

@@ -115,7 +115,6 @@ void Battle_ReadMonsterData(int index)
 
 static bool gPlayerTurn = false;
 static bool gPlayerActed = false;
-static int gSkillDelay = 0;
 static const char *gEffectDescription = NULL;
 
 void CloseBattleWindow(void)
@@ -511,8 +510,8 @@ static void DoSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapp
     gEffectDescription = ExecuteSkill(skill, attacker, defender);
     MarkProgressBarDirty(playerHealthBar);
     MarkProgressBarDirty(monsterHealthBar);
-    SetDescription(gEffectDescription);
-    gSkillDelay = SKILL_DELAY;
+    DialogData *dialog = DialogData_Create("Skill Effect", gEffectDescription, false);
+    Dialog_Trigger(dialog);
     attacker->actor.currentTime = 0;
     MarkProgressBarDirty(playerTimeBar);
     MarkProgressBarDirty(monsterTimeBar);
@@ -572,14 +571,6 @@ void UpdateBattle(void *unused)
         --battleSaveTickDelay;
     }
     
-    if(gSkillDelay > 0)
-    {
-        --gSkillDelay;
-        if(gSkillDelay == 0)
-            SetDescription(Monster_GetCurrentName());
-        return;
-    }
-    
     if(gPlayerTurn)
         return;
     
@@ -616,12 +607,14 @@ void UpdateBattle(void *unused)
                     RegisterMenuState(GetMainMenu(), STATE_BATTLE);
                     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
                     Menu_ResetSelection(GetMainMenu());
-                    SetDescription("Your turn");
+                    DialogData *dialog = DialogData_Create("Player's Turn", "Choose an action.", false);
+                    Dialog_Trigger(dialog);
+                    QueueMenu(GetMainMenu());
                 }
                 else
                 {
-                    SetDescription("You are stunned");
-                    gSkillDelay = SKILL_DELAY;
+                    DialogData *dialog = DialogData_Create("Player's Turn", "You are stunned and cannot act.", false);
+                    Dialog_Trigger(dialog);
                     gBattleState.player.actor.currentTime = 0;
                     MarkProgressBarDirty(playerTimeBar);
                     MarkProgressBarDirty(monsterTimeBar);
@@ -669,6 +662,14 @@ void UpdateBattle(void *unused)
                 if(act)
                 {
                     ExecuteAI(&gBattleState.monster, &gBattleState.player);
+                    Skill *skill = BattlerWrapper_GetSkillByIndex(gBattleState.monster.battlerWrapper, gBattleState.monster.actor.activeSkill);
+                    if(skill)
+                    {
+                        char text[MAX_DIALOG_LENGTH] = {0};
+                        snprintf(text, MAX_DIALOG_LENGTH, "%s prepares %s", Monster_GetCurrentName(), skill->name);
+                        DialogData *dialog = DialogData_Create("", text, false);
+                        Dialog_Trigger(dialog);
+                    }
                 }
                 UpdateStatusEffects(&gBattleState.monster);
             }

@@ -3,7 +3,7 @@
         {
             "id": "attack",
             "name": "Attack",
-            "description": "Basic sword attack",
+            "description": "a basic sword attack",
             "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
@@ -13,7 +13,7 @@
         {
             "id": "bite",
             "name": "Rat Bite",
-            "description": "Quick bite",
+            "description": "a quick bite",
             "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
@@ -22,8 +22,8 @@
         },
         {
             "id": "bigbite",
-            "name": "Rat Bite",
-            "description": "Quick bite",
+            "name": "Big Bite",
+            "description": "a powerful bite",
             "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],

@@ -34,7 +34,7 @@ void battery_state_handler(BatteryChargeState charge)
 	UpdateBatteryLevel(charge);
 }
 
-// Called once per minute
+// Called once per second
 void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
 	if(!hasFocus)
