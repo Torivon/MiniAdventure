@@ -173,6 +173,9 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
         }
         case 1:
         {
+            if(!gPlayerTurn)
+                return 0;
+            
             return BattleEvent_GetCurrentAvailableBattleEvents();
         }
         case 2:
@@ -201,6 +204,9 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
         }
         case 1:
         {
+            if(!gPlayerTurn)
+                return NULL;
+
             return BattleEvent_GetCurrentBattleEventName(index->row);
         }
         case 2:
@@ -242,6 +248,9 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
         }
         case 1:
         {
+            if(!gPlayerTurn)
+                return NULL;
+
             return BattleEvent_GetCurrentBattleEventDescription(index->row);
         }
         case 2:
@@ -295,6 +304,9 @@ void BattleScreen_MenuSelect(MenuIndex *index)
         }
         case 1:
         {
+            if(!gPlayerTurn)
+                return;
+
             BattleEvent_MenuQueue(index->row);
             break;
         }
