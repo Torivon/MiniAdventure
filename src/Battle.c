@@ -63,6 +63,16 @@ BattleActor *GetPlayerActor(void)
     return &gBattleState.player.actor;
 }
 
+BattleActorWrapper *GetMonsterActorWrapper(void)
+{
+    return &gBattleState.monster;
+}
+
+BattleActorWrapper *GetPlayerActorWrapper(void)
+{
+    return &gBattleState.player;
+}
+
 static uint16_t currentMonsterIndex = 0;
 
 uint16_t Battle_GetCurrentMonsterIndex(void)
@@ -308,6 +318,7 @@ void BattleScreen_MenuSelect(MenuIndex *index)
                 return;
 
             BattleEvent_MenuQueue(index->row);
+            gPlayerActed = true;
             break;
         }
         case 2:

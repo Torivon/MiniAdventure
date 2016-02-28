@@ -13,6 +13,7 @@
 #include "BattleEvents.h"
 #include "BinaryResourceLoading.h"
 #include "DialogFrame.h"
+#include "Events.h"
 #include "Logging.h"
 #include "Skills.h"
 #include "Story.h"
@@ -23,6 +24,8 @@ typedef struct BattleEvent
     char menuDescription[MAX_STORY_DESC_LENGTH];
     uint16_t automatic; // boolean
     uint16_t dialog;
+    uint16_t subEvent;
+    uint16_t skill;
     uint16_t prerequisiteCount;
     uint16_t prerequisiteType[MAX_BATTLE_EVENT_PREREQS];
     uint16_t prerequisiteValue[MAX_BATTLE_EVENT_PREREQS];
@@ -33,6 +36,8 @@ typedef struct BattleEvent
 
 static uint16_t currentBattleEventCount = 0;
 static BattleEvent *currentBattleEvents[MAX_BATTLE_EVENTS] = {0};
+static Event *currentBattleEventSubEvents[MAX_BATTLE_EVENTS] = {0};
+static Skill *currentBattleEventSkills[MAX_BATTLE_EVENTS] = {0};
 
 BattleEvent *BattleEvent_Load(uint16_t logical_index)
 {
@@ -56,6 +61,10 @@ void BattleEvent_LoadCurrentBattleEvents(uint16_t count, uint16_t *eventIds)
     for(int i = 0; i < currentBattleEventCount; ++i)
     {
         currentBattleEvents[i] = BattleEvent_Load(eventIds[i]);
+        if(currentBattleEvents[i]->subEvent)
+            currentBattleEventSubEvents[i] = Event_Load(currentBattleEvents[i]->subEvent);
+        if(currentBattleEvents[i]->skill)
+            currentBattleEventSkills[i] = Skill_Load(currentBattleEvents[i]->skill);
     }
 }
 
@@ -68,12 +77,27 @@ void BattleEvent_FreeCurrentBattleEvents(void)
             BattleEvent_Free(currentBattleEvents[i]);
             currentBattleEvents[i] = NULL;
         }
+        if(currentBattleEventSubEvents[i])
+        {
+            Event_Free(currentBattleEventSubEvents[i]);
+            currentBattleEventSubEvents[i] = NULL;
+        }
+        if(currentBattleEventSkills[i])
+        {
+            Skill_Free(currentBattleEventSkills[i]);
+            currentBattleEventSkills[i] = NULL;
+        }
     }
 }
 
-bool BattleEvent_CheckPrerequisites(BattleEvent *battleEvent)
+bool BattleEvent_CheckPrerequisites(BattleEvent *battleEvent, Event *subEvent)
 {
     bool returnval = true;
+    
+    if(subEvent)
+    {
+        returnval = returnval && Event_CheckPrerequisites(subEvent);
+    }
     
     for(int i = 0; i < battleEvent->prerequisiteCount; ++i)
     {
@@ -109,11 +133,20 @@ bool BattleEvent_CheckPrerequisites(BattleEvent *battleEvent)
     return returnval;
 }
 
-void BattleEvent_Trigger(BattleEvent *battleEvent)
+// Trigger is only used for automatic events. Any skills triggered by these come from the enemy
+void BattleEvent_Trigger(BattleEvent *battleEvent, Event *subEvent, Skill *skill)
 {
     if(battleEvent->dialog > 0)
     {
         Dialog_TriggerFromResource(Story_GetCurrentResHandle(), battleEvent->dialog);
+    }
+    if(subEvent)
+    {
+        Event_TriggerEvent(subEvent, false);
+    }
+    if(skill)
+    {
+        ExecuteSkill(skill, GetMonsterActorWrapper(), GetPlayerActorWrapper());
     }
     if(battleEvent->battlerSwitch)
     {
@@ -122,11 +155,20 @@ void BattleEvent_Trigger(BattleEvent *battleEvent)
     return;
 }
 
-void BattleEvent_Queue(BattleEvent *battleEvent)
+// Queue is only used for active events. Any skills trigger by these come from the player
+void BattleEvent_Queue(BattleEvent *battleEvent, Event *subEvent, Skill *skill)
 {
     if(battleEvent->dialog > 0)
     {
         Dialog_QueueFromResource(Story_GetCurrentResHandle(), battleEvent->dialog);
+    }
+    if(subEvent)
+    {
+        Event_TriggerEvent(subEvent, false);
+    }
+    if(skill)
+    {
+        ExecuteSkill(skill, GetPlayerActorWrapper(), GetMonsterActorWrapper());
     }
     if(battleEvent->battlerSwitch)
     {
@@ -141,7 +183,7 @@ void BattleEvent_MenuQueue(uint16_t index)
     uint16_t indexToUse = 0;
     for(int i = 0; i < currentBattleEventCount; ++i)
     {
-        if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i]))
+        if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i], currentBattleEventSubEvents[i]))
         {
             if(newIndex == index)
             {
@@ -152,16 +194,16 @@ void BattleEvent_MenuQueue(uint16_t index)
         }
     }
     
-    BattleEvent_Queue(currentBattleEvents[indexToUse]);
+    BattleEvent_Queue(currentBattleEvents[indexToUse], currentBattleEventSubEvents[indexToUse], currentBattleEventSkills[indexToUse]);
 }
 
 bool BattleEvent_TriggerAutomaticBattleEvents(void)
 {
     for(int i = 0; i < currentBattleEventCount; ++i)
     {
-        if(currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i]))
+        if(currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i], currentBattleEventSubEvents[i]))
         {
-            BattleEvent_Trigger(currentBattleEvents[i]);
+            BattleEvent_Trigger(currentBattleEvents[i], currentBattleEventSubEvents[i], currentBattleEventSkills[i]);
             DEBUG_LOG("Triggering battle event");
             return true;
         }
@@ -176,7 +218,7 @@ uint16_t BattleEvent_GetCurrentAvailableBattleEvents(void)
         uint16_t count = 0;
         for(int i = 0; i < currentBattleEventCount; ++i)
         {
-            if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i]))
+            if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i], currentBattleEventSubEvents[i]))
                 ++count;
         }
         return count;
@@ -192,7 +234,7 @@ const char *BattleEvent_GetCurrentBattleEventName(uint16_t index)
     uint16_t currentIndex = 0;
     for(int i = 0; i < currentBattleEventCount; ++i)
     {
-        if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i]))
+        if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i], currentBattleEventSubEvents[i]))
         {
             if(currentIndex == index)
                 return currentBattleEvents[i]->name;
@@ -208,7 +250,7 @@ const char *BattleEvent_GetCurrentBattleEventDescription(uint16_t index)
     uint16_t currentIndex = 0;
     for(int i = 0; i < currentBattleEventCount; ++i)
     {
-        if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i]))
+        if(!currentBattleEvents[i]->automatic && BattleEvent_CheckPrerequisites(currentBattleEvents[i], currentBattleEventSubEvents[i]))
         {
             if(currentIndex == index)
                 return currentBattleEvents[i]->menuDescription;

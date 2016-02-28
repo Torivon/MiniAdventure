@@ -213,6 +213,8 @@ def pack_battle_event(battle_event):
     binarydata += pack_string_with_default(battle_event, "menu_description", "", g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_bool_with_default(battle_event, "automatic", True)
     binarydata += pack_integer_with_default(battle_event, "dialog_index", 0)
+    binarydata += pack_integer_with_default(battle_event, "sub_event_index", 0)
+    binarydata += pack_integer_with_default(battle_event, "skill_index", 0)
     binarydata += pack_integerlist_with_default(battle_event, "prerequisite_types", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0)
     binarydata += pack_integerlist_with_default(battle_event, "prerequisite_values", g_size_constants["MAX_BATTLE_EVENT_PREREQS"], 0, False)
     binarydata += pack_bool_with_default(battle_event, "battler_switch", False)
@@ -392,6 +394,12 @@ def process_battle_event(battle_event):
 
     if "new_battler" in battle_event:
         battle_event["new_battler_index"] = object_type_data["battlers"]["map"][battle_event["new_battler"]]
+
+    if "sub_event" in battle_event:
+        battle_event["sub_event_index"] = object_type_data["events"]["map"][battle_event["sub_event"]]
+
+    if "skill" in battle_event:
+        battle_event["skill_index"] = object_type_data["skills"]["map"][battle_event["skill"]]
 
     # Prerequisites should be a dictionary. We then turn it into a pair of arrays at packing time.
     if "prerequisites" in battle_event:

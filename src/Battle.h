@@ -1,6 +1,7 @@
 #pragma once
 	
 typedef struct BattleActor BattleActor;
+typedef struct BattleActorWrapper BattleActorWrapper;
 
 bool ClosingWhileInBattle(void);
 int GetCurrentMonsterHealth(void);
@@ -13,6 +14,8 @@ bool IsBattleForced(void);
 
 BattleActor *GetPlayerActor(void);
 BattleActor *GetMonsterActor(void);
+BattleActorWrapper *GetPlayerActorWrapper(void);
+BattleActorWrapper *GetMonsterActorWrapper(void);
 void TriggerBattleScreen(void);
 bool IsBattleForced(void);
 bool ClosingWhileInBattle(void);
