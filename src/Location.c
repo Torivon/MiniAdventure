@@ -25,6 +25,8 @@ typedef struct Location
     uint16_t adjacentLocations[MAX_ADJACENT_LOCATIONS];
     uint16_t backgroundImageCount;
     uint16_t backgroundImages[MAX_BACKGROUND_IMAGES];
+    uint16_t overrideBattleFloor;
+    uint16_t battleFloorImageId;
     uint16_t locationProperties;
     uint16_t length;
     uint16_t baseLevel;
@@ -170,6 +172,14 @@ int Location_GetCurrentBackgroundImageId(void)
     {
         return -1;
     }
+}
+
+int Location_GetCurrentBattleFloorImageId(void)
+{
+    if(currentLocation->overrideBattleFloor)
+        return currentLocation->battleFloorImageId;
+    else
+        return -1;
 }
 
 bool Location_CurrentLocationIsPath(void)

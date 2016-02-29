@@ -23,6 +23,7 @@ const char *Location_GetAdjacentLocationDescription(uint16_t index);
 uint16_t Location_GetCurrentLength(void);
 const char *Location_GetCurrentName(void);
 int Location_GetCurrentBackgroundImageId(void);
+int Location_GetCurrentBattleFloorImageId(void);
 uint16_t Location_GetCurrentEncounterChance(void);
 uint16_t Location_GetCurrentBaseLevel(void);
 bool Location_CurrentLocationHasMonster(void);

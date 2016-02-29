@@ -15,6 +15,7 @@
 #include "EngineInfo.h"
 #include "EngineMenu.h"
 #include "GlobalState.h"
+#include "ImageMap.h"
 #include "Location.h"
 #include "Logging.h"
 #include "MainImage.h"
@@ -372,7 +373,10 @@ void BattleScreenAppear(void *data)
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);
     SetForegroundImage(Monster_GetCurrentImage());
 #if defined(PBL_COLOR)
-    SetBackgroundImage(RESOURCE_ID_IMAGE_BATTLEFLOOR);
+    int battleFloor = Location_GetCurrentBattleFloorImageId();
+    if(battleFloor == -1)
+        battleFloor = EngineInfo_GetInfo()->battleFloorImage;
+    SetBackgroundImage(ImageMap_GetIdByIndex(battleFloor));
 #endif
     SetMainImageVisibility(true, true, true);
 }

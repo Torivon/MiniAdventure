@@ -151,6 +151,8 @@ def pack_location(location):
     binarydata += pack_string_with_default(location, "menu_description", location["name"], g_size_constants["MAX_STORY_DESC_LENGTH"])
     binarydata += pack_integerlist_with_default(location, "adjacent_locations_index", g_size_constants["MAX_ADJACENT_LOCATIONS"], 0)
     binarydata += pack_integerlist_with_default(location, "background_images_index", g_size_constants["MAX_BACKGROUND_IMAGES"], 0)
+    binarydata += pack_bool_with_default(location, "override_battle_floor", False)
+    binarydata += pack_integer_with_default(location, "battle_floor_index", 0)
     binarydata += pack_integer_with_default(location, "location_properties_value", 0)
     binarydata += pack_integer_with_default(location, "length", 0)
     binarydata += pack_integer_with_default(location, "base_level", 0)
@@ -486,6 +488,9 @@ def process_location(location):
     location["background_images_index"] = []
     for background_image in location["background_images"]:
         location["background_images_index"].append(add_image(imagelist, background_image))
+    if "battle_floor" in location:
+        location["battle_floor_index"] = add_image(imagelist, location["battle_floor"])
+        location["override_battle_floor"] = True
     if "monsters" in location:
         location["monsters_index"] = []
         for monster in location["monsters"]:
@@ -680,7 +685,9 @@ def pack_engineinfo(engineinfo):
     binarydata += pack_integer(engineinfo["image_index"]["right_arrow_image"])
     binarydata += pack_integer(engineinfo["image_index"]["left_arrow_image"])
     binarydata += pack_integer(engineinfo["image_index"]["rest_image"])
+    print(engineinfo["image_index"]["default_battlefloor"])
     binarydata += pack_integer(engineinfo["image_index"]["default_battlefloor"])
+    print(engineinfo["image_index"]["engine_repository"])
     binarydata += pack_integer(engineinfo["image_index"]["engine_repository"])
     binarydata += pack_integer(engineinfo["image_index"]["default_adventure_image"])
     binarydata += pack_integer(engineinfo["tutorial_dialog_index"])
