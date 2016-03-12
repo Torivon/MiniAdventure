@@ -254,6 +254,36 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/status_effect_slow.png",
+                "name": "IMAGE_STATUS_EFFECT_SLOW",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/status_effect_stun.png",
+                "name": "IMAGE_STATUS_EFFECT_STUN",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/status_effect_poison.png",
+                "name": "IMAGE_STATUS_EFFECT_POISON",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/status_effect_haste.png",
+                "name": "IMAGE_STATUS_EFFECT_HASTE",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/status_effect_passify.png",
+                "name": "IMAGE_STATUS_EFFECT_PASSIFY",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/status_effect_silence.png",
+                "name": "IMAGE_STATUS_EFFECT_SILENCE",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/icon.png",
                 "menuIcon": true,
                 "name": "IMAGE_ICON",

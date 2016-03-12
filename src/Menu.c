@@ -510,7 +510,7 @@ Menu *CreateMenuLayer(int onScreenX,
 void MenuUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
-	DrawContentFrame(ctx, &bounds);
+	DrawContentFrame(ctx, &bounds, GColorBlue);
 }
 
 void InitializeMenuLayer(Menu *menu, Window *window)

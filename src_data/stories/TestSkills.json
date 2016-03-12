@@ -42,7 +42,7 @@
             "potency": 0,
             "cooldown": 6,
             "skill_properties": ["passify"],
-            "property_duration": 3
+            "property_duration": 8
         },
         {
             "id": "silence",
@@ -54,7 +54,7 @@
             "potency": 0,
             "cooldown": 6,
             "skill_properties": ["silence"],
-            "property_duration": 3
+            "property_duration": 8
         },
         {
             "id": "haste",
@@ -66,7 +66,7 @@
             "potency": 0,
             "cooldown": 6,
             "skill_properties": ["haste"],
-            "property_duration": 3
+            "property_duration": 8
         },
         {
             "id": "slow",
@@ -78,7 +78,7 @@
             "potency": 0,
             "cooldown": 6,
             "skill_properties": ["slow"],
-            "property_duration": 3
+            "property_duration": 8
         },
         {
             "id": "poison",
@@ -90,7 +90,7 @@
             "potency": 0,
             "cooldown": 6,
             "skill_properties": ["poison"],
-            "property_duration": 4
+            "property_duration": 8
         },
         {
             "id": "physical_counter",

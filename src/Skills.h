@@ -1,4 +1,5 @@
 #pragma once
+#include "AutoSkillConstants.h"
 #include "CombatantClass.h"
 #include "Utils.h"
 #include "MiniAdventure.h"
@@ -65,7 +66,7 @@ typedef struct BattleActor
     uint16_t activeSkill;
     uint16_t counterSkill;
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
-    uint16_t statusEffectDurations[MAX_STATUS_EFFECTS];
+    uint16_t statusEffectDurations[STATUS_EFFECT_COUNT];
     AIState aiState;
     uint16_t timeInCombat;
 } BattleActor;

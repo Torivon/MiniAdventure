@@ -23,6 +23,7 @@ g_size_constants["MAX_AI_STAGES"] = 4
 g_size_constants["MAX_AI_INTERRUPTS"] = 10
 g_size_constants["MAX_BATTLE_EVENT_PREREQS"] = 5
 g_size_constants["MAX_BATTLE_EVENTS"] = 5
+g_size_constants["MAX_STATUS_ICONS"] = 5
 
 g_ai_stage_types = ["sequential", "random"]
 
@@ -697,6 +698,7 @@ def pack_engineinfo(engineinfo):
     binarydata += pack_integer(engineinfo["engine_credits_dialog_index"])
     binarydata += pack_integer(engineinfo["reset_dialog_index"])
     binarydata += pack_integer(engineinfo["exit_dialog_index"])
+    binarydata += pack_integerlist_with_default(engineinfo, "status_icon_index", len(g_skill_properties), 0)
     return binarydata
 
 def write_engineinfo(engineinfo, datafile):
@@ -769,6 +771,10 @@ def process_engineinfo(engineinfo, appinfo, data_objects): #TODO: This needs to 
     engineinfo["reset_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["reset_dialog"]]
     engineinfo["exit_dialog_index"] = object_type_data["dialog"]["map"][engineinfo["exit_dialog"]]
 
+    engineinfo["status_icon_index"] = [0 for i in range(len(g_skill_properties))]
+    for k, v in engineinfo["status_icons"].items():
+        engineinfo["status_icon_index"][g_skill_properties[k]] = add_image(imagelist, v)
+
     with open("resources/data/" + "engineinfo.dat", 'wb') as datafile:
         write_engineinfo(engineinfo, datafile)
     newobject = {"file": "data/" + "engineinfo.dat", "name": "ENGINEINFO", "type": "raw"}
@@ -818,6 +824,7 @@ def write_headers(imagemap, data_objects):
 
         for k, v in g_skill_properties.items():
             skill_file.write("#define STATUS_EFFECT_" + k.upper() + " " + str(v) + "\n")
+        skill_file.write("#define STATUS_EFFECT_COUNT " + str(len(g_skill_properties)) + "\n")
         skill_file.write("\n")
 
         for k, v in g_skill_properties_bits.items():

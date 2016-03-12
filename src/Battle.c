@@ -6,6 +6,7 @@
 #include "Battle.h"
 #include "BattleEvents.h"
 #include "Battler.h"
+#include "BattleStatusFrame.h"
 #include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "Clock.h"
@@ -30,13 +31,8 @@ typedef struct BattleState
     BattleActorWrapper monster;
 } BattleState;
 
-static ProgressBar *playerHealthBar = NULL;
-static ProgressBar *playerTimeBar = NULL;
-
-static ProgressBar *monsterHealthBar = NULL;
-static ProgressBar *monsterTimeBar = NULL;
-
-static uint16_t maxTimeCount = 100;
+static BattleStatusFrame *playerStatusFrame = NULL;
+static BattleStatusFrame *monsterStatusFrame = NULL;
 
 static bool battleCleanExit = true;
 
@@ -476,20 +472,14 @@ void BattleInit(void)
         return;
     }
     
-    GRect playerHealthFrame = PLAYER_HEALTH_FRAME;
-    GRect playerTimeFrame = PLAYER_TIME_FRAME;
-    GRect monsterHealthFrame = MONSTER_HEALTH_FRAME;
-    GRect monsterTimeFrame = MONSTER_TIME_FRAME;
+    GRect playerStatusBounds = PLAYER_STATUS_BOUNDS;
+    GRect monsterStatusBounds = MONSTER_STATUS_BOUNDS;
     
-    playerHealthBar = CreateProgressBar(&gBattleState.player.actor.currentHealth, &gBattleState.player.actor.maxHealth, FILL_UP, &playerHealthFrame, GColorBrightGreen, -1);
-    monsterHealthBar = CreateProgressBar(&gBattleState.monster.actor.currentHealth, &gBattleState.monster.actor.maxHealth, FILL_DOWN, &monsterHealthFrame, GColorFolly, -1);
-    playerTimeBar = CreateProgressBar(&gBattleState.player.actor.currentTime, &maxTimeCount, FILL_UP, &playerTimeFrame, GColorVeryLightBlue, -1);
-    monsterTimeBar = CreateProgressBar(&gBattleState.monster.actor.currentTime, &maxTimeCount, FILL_DOWN, &monsterTimeFrame, GColorRichBrilliantLavender, -1);
+    playerStatusFrame = BattleStatusFrame_Create(&gBattleState.player.actor, &playerStatusBounds, GColorBlue, GColorBrightGreen, GColorWhite);
+    monsterStatusFrame = BattleStatusFrame_Create(&gBattleState.monster.actor, &monsterStatusBounds, GColorRed, GColorBrightGreen, GColorWhite);
     
-    InitializeProgressBar(playerHealthBar, GetBaseWindow());
-    InitializeProgressBar(playerTimeBar, GetBaseWindow());
-    InitializeProgressBar(monsterHealthBar, GetBaseWindow());
-    InitializeProgressBar(monsterTimeBar, GetBaseWindow());
+    BattleStatusFrame_Initialize(playerStatusFrame, GetBaseWindow());
+    BattleStatusFrame_Initialize(monsterStatusFrame, GetBaseWindow());
     
 #if defined(PBL_ROUND)
     HideDateLayer();
@@ -512,13 +502,11 @@ void BattleInit(void)
 static void DoSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
     gEffectDescription = ExecuteSkill(skill, attacker, defender);
-    MarkProgressBarDirty(playerHealthBar);
-    MarkProgressBarDirty(monsterHealthBar);
     DialogData *dialog = DialogData_Create("Skill Effect", gEffectDescription, false);
     Dialog_Trigger(dialog);
     attacker->actor.currentTime = 0;
-    MarkProgressBarDirty(playerTimeBar);
-    MarkProgressBarDirty(monsterTimeBar);
+    BattleStatusFrame_MarkDirty(playerStatusFrame);
+    BattleStatusFrame_MarkDirty(monsterStatusFrame);
     attacker->actor.skillQueued = false;
 }
 
@@ -594,7 +582,7 @@ void UpdateBattle(void *unused)
     
     if(playerAhead)
     {
-        if(gBattleState.player.actor.currentTime >= maxTimeCount)
+        if(gBattleState.player.actor.currentTime >= MAX_TIME_COUNT)
         {
             if(gBattleState.player.actor.skillQueued)
             {
@@ -620,8 +608,8 @@ void UpdateBattle(void *unused)
                     DialogData *dialog = DialogData_Create("Player's Turn", "You are stunned and cannot act.", false);
                     Dialog_Trigger(dialog);
                     gBattleState.player.actor.currentTime = 0;
-                    MarkProgressBarDirty(playerTimeBar);
-                    MarkProgressBarDirty(monsterTimeBar);
+                    BattleStatusFrame_MarkDirty(playerStatusFrame);
+                    BattleStatusFrame_MarkDirty(monsterStatusFrame);
                 }
                 UpdateStatusEffects(&gBattleState.player);
             }
@@ -630,7 +618,7 @@ void UpdateBattle(void *unused)
     }
     else
     {
-        if(gBattleState.monster.actor.currentTime >= maxTimeCount)
+        if(gBattleState.monster.actor.currentTime >= MAX_TIME_COUNT)
         {
             if(gBattleState.monster.actor.skillQueued)
             {
@@ -686,8 +674,8 @@ void UpdateBattle(void *unused)
         UpdateActor(&gBattleState.player);
         UpdateActor(&gBattleState.monster);
 
-        MarkProgressBarDirty(playerTimeBar);
-        MarkProgressBarDirty(monsterTimeBar);
+        BattleStatusFrame_MarkDirty(playerStatusFrame);
+        BattleStatusFrame_MarkDirty(monsterStatusFrame);
     }
 }
 
@@ -699,18 +687,12 @@ void BattleScreenPush(void *data)
 void BattleScreenPop(void *data)
 {
     DEBUG_LOG("BattleScreenPop");
-    RemoveProgressBar(playerHealthBar);
-    RemoveProgressBar(playerTimeBar);
-    RemoveProgressBar(monsterHealthBar);
-    RemoveProgressBar(monsterTimeBar);
-    FreeProgressBar(playerHealthBar);
-    playerHealthBar = NULL;
-    FreeProgressBar(playerTimeBar);
-    playerTimeBar = NULL;
-    FreeProgressBar(monsterHealthBar);
-    monsterHealthBar = NULL;
-    FreeProgressBar(monsterTimeBar);
-    monsterTimeBar = NULL;
+    BattleStatusFrame_Remove(playerStatusFrame);
+    BattleStatusFrame_Remove(monsterStatusFrame);
+    BattleStatusFrame_Free(playerStatusFrame);
+    playerStatusFrame = NULL;
+    BattleStatusFrame_Free(monsterStatusFrame);
+    monsterStatusFrame = NULL;
     Monster_UnloadCurrent();
 }
 

@@ -251,14 +251,14 @@ void UpdateLocationProgress(void)
 {
     if(Location_CurrentLocationIsPath())
     {
-        ShowProgressBar(locationProgress);
+        ProgressBar_Show(locationProgress);
         currentProgress = Story_GetTimeOnPath();
         maxProgress = Location_GetCurrentLength();
-        MarkProgressBarDirty(locationProgress);
+        ProgressBar_MarkDirty(locationProgress);
     }
     else
     {
-        HideProgressBar(locationProgress);
+        ProgressBar_Hide(locationProgress);
     }
 }
 
@@ -357,8 +357,8 @@ void UpdateAdventure(void *data)
 void AdventureScreenPush(void *data)
 {
     GRect locationProgressFrame = LOCATION_PROGRESS_FRAME;
-    locationProgress = CreateProgressBar(&currentProgress, &maxProgress, FILL_UP, &locationProgressFrame, GColorYellow, -1);
-    InitializeProgressBar(locationProgress, GetBaseWindow());
+    locationProgress = ProgressBar_Create(&currentProgress, &maxProgress, FILL_UP, &locationProgressFrame, GColorYellow, -1);
+    ProgressBar_Initialize(locationProgress, window_get_root_layer(GetBaseWindow()));
     
     // Force the main menu to the front
     InitializeMenuLayer(GetMainMenu(), GetBaseWindow());
@@ -430,7 +430,7 @@ void AdventureScreenAppear(void *data)
 void AdventureScreenDisappear(void *data)
 {
     gUpdateAdventure = false;
-    HideProgressBar(locationProgress);
+    ProgressBar_Hide(locationProgress);
 }
 
 void AdventureScreenPop(void *data)
@@ -438,8 +438,8 @@ void AdventureScreenPop(void *data)
     if(!skipFinalSave)
         SaveStoryPersistedData();
     Story_ClearCurrentStory();
-    RemoveProgressBar(locationProgress);
-    FreeProgressBar(locationProgress);
+    ProgressBar_Remove(locationProgress);
+    ProgressBar_Free(locationProgress);
 }
 
 void Adventure_Trigger(void)
