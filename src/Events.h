@@ -8,6 +8,14 @@
 
 #pragma once
 
+#include "AutoSizeConstants.h"
+
+typedef struct EventStateChange
+{
+    uint16_t positiveStateChanges[MAX_GAME_STATE_VARIABLES];
+    uint16_t negativeStateChanges[MAX_GAME_STATE_VARIABLES];
+} EventStateChange;
+
 typedef struct Event Event;
 
 Event *Event_Load(uint16_t logical_index);

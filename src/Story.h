@@ -17,6 +17,7 @@ typedef enum
 } StoryUpdateReturnType;
 
 typedef struct Story Story;
+typedef struct EventStateChange EventStateChange;
 
 ResHandle Story_GetCurrentResHandle(void);
 
@@ -47,7 +48,7 @@ uint16_t Story_GetCurrentStoryHash(void);
 uint16_t Story_GetCurrentStoryXPMonstersPerLevel(void);
 uint16_t Story_GetCurrentStoryXPDifferenceScale(void);
 uint16_t *Story_GetCurrentGameState(void);
-void Story_UpdateGameState(uint16_t *stateChanges);
+void Story_UpdateGameState(EventStateChange *stateChanges);
 
 void Story_QueueCreditsDialog(void);
 void Story_TriggerWinDialog(void);

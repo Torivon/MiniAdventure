@@ -7,7 +7,6 @@
 //
 
 #include <pebble.h>
-#include "AutoSizeConstants.h"
 #include "BinaryResourceLoading.h"
 #include "DialogFrame.h"
 #include "Events.h"
@@ -22,7 +21,6 @@ typedef struct Event
     uint16_t usePrerequisites;
     uint16_t positivePrerequisites[MAX_GAME_STATE_VARIABLES];
     uint16_t negativePrerequisites[MAX_GAME_STATE_VARIABLES];
-    uint16_t stateChanges[MAX_GAME_STATE_VARIABLES];
 } Event;
 
 static uint16_t localEventCount = 0;
@@ -77,7 +75,6 @@ bool Event_CheckPrerequisites(Event *event)
 
 void Event_UpdateGameState(void *data)
 {
-    Story_UpdateGameState((uint16_t *)data);
 }
 
 void Event_UpdateGameState_Push(void *data)
@@ -95,14 +92,11 @@ void Event_TriggerEvent(Event *event, bool now)
             Dialog_TriggerFromResource(Story_GetCurrentResHandle(), event->dialog);
         else
             Dialog_QueueFromResource(Story_GetCurrentResHandle(), event->dialog);
-        GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, event->stateChanges);
     }
     else
     {
         if(now)
-            GlobalState_Push(STATE_UPDATE_GAME_STATE, 0, event->stateChanges);
         else
-            GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, event->stateChanges);
     }
 }
 
@@ -126,11 +120,9 @@ void Event_Trigger(uint16_t index)
     if(localEvents[indexToUse]->dialog > 0)
     {
         Dialog_TriggerFromResource(Story_GetCurrentResHandle(), localEvents[indexToUse]->dialog);
-        GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, localEvents[indexToUse]->stateChanges);
     }
     else
     {
-        GlobalState_Push(STATE_UPDATE_GAME_STATE, 0, localEvents[indexToUse]->stateChanges);
     }
 }
 
@@ -153,7 +145,6 @@ void Event_Queue(uint16_t index)
     
     if(localEvents[indexToUse]->dialog > 0)
         Dialog_QueueFromResource(Story_GetCurrentResHandle(), localEvents[indexToUse]->dialog);
-    GlobalState_Queue(STATE_UPDATE_GAME_STATE, 0, localEvents[indexToUse]->stateChanges);
 }
 
 

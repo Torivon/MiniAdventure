@@ -265,7 +265,7 @@
             "menu_description": "Ask Bob for permission to leave town.",
             "dialog": "bob1",
             "negative_prerequisites": ["talk_to_bob"],
-            "state_changes": ["talk_to_bob", "villagekey"]
+            "positive_state_changes": ["talk_to_bob", "villagekey"]
         },
         {
             "id": "bob2",
@@ -280,7 +280,7 @@
             "menu_description": "Buy some cheese.",
             "dialog": "shop1",
             "negative_prerequisites": ["bought_cheese"],
-            "state_changes": ["bought_cheese"]
+            "positive_state_changes": ["bought_cheese"]
         },
         {
             "id": "shop2",
@@ -308,9 +308,8 @@
         },
         {
             "id": "have_rat_poison",
-            "negative_prerequisites": ["used_rat_poison"],
             "positive_prerequisites": ["rat_poison"],
-            "state_changes": ["used_rat_poison"]
+            "negative_state_changes": ["rat_poison"]
         },
         {
             "id": "fred1",
@@ -318,7 +317,7 @@
             "menu_description": "Discuss your day.",
             "dialog": "fred1",
             "negative_prerequisites": ["talk_to_fred"],
-            "state_changes": ["rat_poison", "talk_to_fred"]
+            "positive_state_changes": ["rat_poison", "talk_to_fred"]
         },
         {
             "id": "fred2",

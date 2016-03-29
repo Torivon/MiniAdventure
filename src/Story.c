@@ -11,6 +11,7 @@
 #include "BinaryResourceLoading.h"
 #include "Character.h"
 #include "DialogFrame.h"
+#include "Events.h"
 #include "Location.h"
 #include "Persistence.h"
 #include "Story.h"
@@ -77,11 +78,12 @@ uint16_t *Story_GetCurrentGameState(void)
     return currentStoryState.persistedStoryState.gameState;
 }
 
-void Story_UpdateGameState(uint16_t *stateChanges)
+void Story_UpdateGameState(EventStateChange *stateChanges)
 {
     for(int i = 0; i < MAX_GAME_STATE_VARIABLES; ++i)
     {
-        currentStoryState.persistedStoryState.gameState[i] |= stateChanges[i];
+        currentStoryState.persistedStoryState.gameState[i] |= stateChanges->positiveStateChanges[i];
+        currentStoryState.persistedStoryState.gameState[i] &= ~stateChanges->negativeStateChanges[i];
     }
 }
 

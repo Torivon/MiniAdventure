@@ -208,7 +208,8 @@ def pack_event(event):
     binarydata += pack_bool_with_default(event, "use_prerequisites", False)
     binarydata += pack_gamestate(event, "positive_prerequisites_values")
     binarydata += pack_gamestate(event, "negative_prerequisites_values")
-    binarydata += pack_gamestate(event, "state_changes_values")
+    binarydata += pack_gamestate(event, "positive_state_changes_values")
+    binarydata += pack_gamestate(event, "negative_state_changes_values")
     return binarydata
 
 def pack_battle_event(battle_event):
@@ -379,7 +380,8 @@ def process_event(event):
 
     process_gamestate_list(event, gamestate_list, "positive_prerequisites", "positive_prerequisites_values")
     process_gamestate_list(event, gamestate_list, "negative_prerequisites", "negative_prerequisites_values")
-    process_gamestate_list(event, gamestate_list, "state_changes", "state_changes_values")
+    process_gamestate_list(event, gamestate_list, "positive_state_changes", "positive_state_changes_values")
+    process_gamestate_list(event, gamestate_list, "negative_state_changes", "negative_state_changes_values")
     if "positive_prerequisites_values" in event or "negative_prerequisites_values" in event:
         event["use_prerequisites"] = True
 
