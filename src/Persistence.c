@@ -79,6 +79,7 @@ bool SaveGlobalPersistedData(void)
     persist_write_bool(PERSISTED_WORKER_CAN_LAUNCH, GetWorkerCanLaunch());
     persist_write_int(PERSISTED_CURRENT_GAME, Story_GetLastStoryId());
     persist_write_bool(PERSISTED_CURRENT_GAME_VALID, Story_IsLastStoryIdValid());
+    persist_write_bool(PERSISTED_ALLOW_ACTIVITY, GetAllowActivity());
     
     uint16_t count = 0;
     uint16_t *buffer = NULL;
@@ -144,6 +145,7 @@ bool LoadGlobalPersistedData(void)
         Story_SetLastStoryId(persist_read_int(PERSISTED_CURRENT_GAME));
     }
     SetVibration(persist_read_bool(PERSISTED_VIBRATION));
+    SetAllowActivity(persist_read_bool(PERSISTED_ALLOW_ACTIVITY));
     useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
     if(useWorkerApp)
     {

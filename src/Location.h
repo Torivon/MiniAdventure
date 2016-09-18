@@ -33,3 +33,10 @@ bool Location_CurrentLocationIsLevelUp(void);
 bool Location_CurrentLocationEndsGame(void);
 
 uint16_t Location_MoveToAdjacentLocation(uint16_t menuIndex);
+
+bool Location_CurrentLocationUseActivityTracking(void);
+uint16_t Location_CurrentInactiveSpeed(void);
+uint16_t Location_CurrentActiveSpeed(void);
+bool Location_CurrentSkipEncountersIfActive(void);
+bool Location_CurrentGrantXPForSkippedEncounters(void);
+bool Location_CurrentExtendPathDuringActivity(void);

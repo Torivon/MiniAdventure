@@ -13,9 +13,11 @@
 #include "DialogFrame.h"
 #include "Events.h"
 #include "Location.h"
+#include "OptionsMenu.h"
 #include "Persistence.h"
 #include "Story.h"
 #include "StoryList.h"
+#include "Logging.h"
 
 typedef struct Story
 {
@@ -32,6 +34,8 @@ typedef struct Story
     uint16_t openingDialog;
     uint16_t winDialog;
     uint16_t creditsDialog;
+    uint16_t defaultActivityTracking;
+    uint16_t activityThreshold;
 } Story;
 
 static Story *Story_GetCurrentStory();
@@ -48,6 +52,7 @@ static int16_t currentStoryIndex = -1;
 static uint16_t lastStoryId = 0;
 static bool isLastStoryIdValid = false;
 static StoryState currentStoryState = {0};
+static HealthValue lastActiveSecondsSum = 0;
 
 bool Story_IsLastStoryIdValid(void)
 {
@@ -122,10 +127,71 @@ uint16_t Story_GetCurrentLocationIndex(void)
     return currentStoryState.persistedStoryState.currentLocationIndex;
 }
 
-bool Story_IncrementTimeOnPath(void)
+StoryUpdateReturnType Story_IncrementTimeOnPath(void)
 {
-    currentStoryState.persistedStoryState.timeOnPath++;
-    return currentStoryState.persistedStoryState.timeOnPath >= Location_GetCurrentLength();
+    Story *story = Story_GetCurrentStory();
+    
+    bool useActivityTracking = PBL_IF_HEALTH_ELSE(true, false);
+    bool active = false;
+    
+    useActivityTracking = useActivityTracking && GetAllowActivity();
+    
+    if (useActivityTracking)
+    {
+        uint16_t locationActivityTracking = Location_CurrentLocationUseActivityTracking();
+        if (locationActivityTracking == 2)
+        {
+            if (story)
+            {
+                useActivityTracking = useActivityTracking && story->defaultActivityTracking;
+            }
+            else
+            {
+                useActivityTracking = false;
+            }
+        }
+        else
+        {
+            useActivityTracking = useActivityTracking && locationActivityTracking;
+        }
+    }
+    
+    if (useActivityTracking)
+    {
+        HealthValue currentActiveSecondsSum = health_service_sum_today(HealthMetricActiveSeconds);
+        if (story && (currentActiveSecondsSum - lastActiveSecondsSum >= story->activityThreshold))
+        {
+            active = true;
+        }
+        lastActiveSecondsSum = currentActiveSecondsSum;
+    }
+    
+    if(active)
+    {
+        DEBUG_LOG("Active, adding %u progress.", Location_CurrentActiveSpeed());
+        currentStoryState.persistedStoryState.timeOnPath += Location_CurrentActiveSpeed();
+    }
+    else
+    {
+        DEBUG_LOG("Inactive, adding %u progress.", Location_CurrentInactiveSpeed());
+        currentStoryState.persistedStoryState.timeOnPath += Location_CurrentInactiveSpeed();
+    }
+
+    if(currentStoryState.persistedStoryState.timeOnPath >= Location_GetCurrentLength() &&
+       (!active || !Location_CurrentExtendPathDuringActivity()))
+    {
+        return STORYUPDATE_ENDPATH;
+    }
+    
+    if(active && Location_CurrentSkipEncountersIfActive())
+    {
+        if(Location_CurrentGrantXPForSkippedEncounters())
+            return STORYUPDATE_SKIP_ENCOUNTER_WITH_XP;
+        else
+            return STORYUPDATE_SKIP_ENCOUNTER_NO_XP;
+    }
+    
+    return STORYUPDATE_COMPUTERANDOM;
 }
 
 uint16_t Story_GetTimeOnPath(void)
@@ -137,14 +203,14 @@ StoryUpdateReturnType Story_UpdateCurrentLocation(void)
 {
     if(Location_CurrentLocationIsPath())
     {
-        bool pathEnded = Story_IncrementTimeOnPath();
-        if(pathEnded)
+        StoryUpdateReturnType incrementResult = Story_IncrementTimeOnPath();
+        if(incrementResult == STORYUPDATE_ENDPATH)
         {
             return Story_MoveToLocation(currentStoryState.persistedStoryState.destinationIndex);
         }
         else
         {
-            return STORYUPDATE_COMPUTERANDOM;
+            return incrementResult;
         }
     }
     
@@ -161,6 +227,7 @@ StoryUpdateReturnType Story_MoveToLocation(uint16_t index)
         currentStoryState.persistedStoryState.timeOnPath = 0;
         currentStoryState.persistedStoryState.encounterChance = Location_GetCurrentEncounterChance();
         currentStoryState.persistedStoryState.pathLength = Location_GetCurrentLength();
+        lastActiveSecondsSum = health_service_sum_today(HealthMetricActiveSeconds);
         
         if(Location_CurrentLocationIsRestArea())
         {
@@ -331,6 +398,7 @@ void Story_UpdateStoryWithPersistedState(void)
     Location_SetCurrentLocation(currentStoryState.persistedStoryState.currentLocationIndex);
     currentStoryState.persistedStoryState.encounterChance = Location_GetCurrentEncounterChance();
     currentStoryState.persistedStoryState.pathLength = Location_GetCurrentLength();
+    lastActiveSecondsSum = health_service_sum_today(HealthMetricActiveSeconds);
     Battler_UnloadPlayer();
 }
 

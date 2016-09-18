@@ -7,6 +7,7 @@
     "classes": ["adventurer"],
     "opening_dialog": "wake_up",
     "win_dialog": "game_end",
+    "default_activity_tracking": true,
     "locations": [
         {
             "id": "village2",
@@ -80,7 +81,10 @@
             "base_level": 1,
             "encounter_chance": 50,
             "monsters": ["rat"],
-            "initial_event": "poplar_enter"
+            "initial_event": "poplar_enter",
+            "inactive_speed": 0,
+            "skip_encounters_if_active": true,
+            "extend_path_during_activity": true
         }
     ],
     "skills": [

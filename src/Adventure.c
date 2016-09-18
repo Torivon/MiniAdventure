@@ -333,6 +333,14 @@ static void StoryUpdateResponse(StoryUpdateReturnType returnVal, bool vibration)
             GlobalState_QueueStatePop();
             break;
         }
+        case STORYUPDATE_SKIP_ENCOUNTER_WITH_XP:
+        case STORYUPDATE_SKIP_ENCOUNTER_NO_XP:
+        {
+            // TODO: Actually grant experience for the with XP version
+            LoadLocationImage();
+            UpdateLocationProgress();
+            break;            
+        }
         default:
         {
         }

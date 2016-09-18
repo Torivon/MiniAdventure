@@ -161,6 +161,12 @@ def pack_location(location):
     binarydata += pack_integerlist_with_default(location, "monsters_index", g_size_constants["MAX_MONSTERS"], 0)
     binarydata += pack_integer_with_default(location, "initial_event_index", 0)
     binarydata += pack_integerlist_with_default(location, "events_index", g_size_constants["MAX_EVENTS"], 0)
+    binarydata += pack_integer_with_default(location, "use_activity_tracking", 2)
+    binarydata += pack_integer_with_default(location, "inactive_speed", 1)
+    binarydata += pack_integer_with_default(location, "active_speed", 1)
+    binarydata += pack_bool_with_default(location, "skip_encounters_if_active", True)
+    binarydata += pack_bool_with_default(location, "grant_xp_for_skipped_encounters", False)
+    binarydata += pack_bool_with_default(location, "extend_path_during_activity", False)
 
     return binarydata
 
@@ -274,6 +280,8 @@ def pack_story(story, hash):
     binarydata += pack_integer_with_default(story, "opening_dialog_index", 0)
     binarydata += pack_integer_with_default(story, "win_dialog_index", 0)
     binarydata += pack_integer_with_default(story, "credits_dialog_index", 0)
+    binarydata += pack_bool_with_default(story, "default_activity_tracking", False)
+    binarydata += pack_integer_with_default(story, "activity_threshold", 30)
     return binarydata
 
 def get_total_objects(story):
@@ -586,6 +594,18 @@ def process_dungeons(story):
                             location["monsters"].append(dungeon["monsters"][monster_index])
                         elif monster_index <= floor / dungeon["monster_scaling"]:
                             location["monsters"].append(dungeon["monsters"][monster_index])
+                if "use_activity_tracking" in dungeon:
+                    location["use_activity_tracking"] = dungeon["use_activity_tracking"]
+                if "inactive_speed" in dungeon:
+                    location["inactive_speed"] = dungeon["inactive_speed"]
+                if "active_speed" in dungeon:
+                    location["active_speed"] = dungeon["active_speed"]
+                if "skip_encounters_if_active" in dungeon:
+                    location["skip_encounters_if_active"] = dungeon["skip_encounters_if_active"]
+                if "grant_xp_for_skipped_encounters" in dungeon:
+                    location["grant_xp_for_skipped_encounters"] = dungeon["grant_xp_for_skipped_encounters"]
+                if "active_speed" in dungeon:
+                    location["extend_path_during_activity"] = dungeon["extend_path_during_activity"]
             else:
                 location["background_images"] = list(dungeon["fixed_background_image"])
                 location["length"] = 0

@@ -36,6 +36,12 @@ typedef struct Location
     uint16_t initialEvent;
     uint16_t localEventCount;
     uint16_t localEvents[MAX_EVENTS];
+    uint16_t useActivityTracking; //Three values, false, true, default
+    uint16_t inactiveSpeed;
+    uint16_t activeSpeed;
+    uint16_t skipEncountersIfActive;
+    uint16_t grantXPForSkippedEncounters;
+    uint16_t extendPathDuringActivity;
 } Location;
 
 static Location *currentLocation = NULL;
@@ -320,5 +326,41 @@ bool Location_CurrentLocationIsLevelUp(void)
 bool Location_CurrentLocationEndsGame(void)
 {
     return currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_GAME_WIN);
+}
+
+bool Location_CurrentLocationUseActivityTracking(void)
+{
+    return currentLocation && (currentLocation->useActivityTracking);
+}
+
+uint16_t Location_CurrentInactiveSpeed(void)
+{
+    if (!currentLocation)
+        return 1;
+    
+    return currentLocation->inactiveSpeed;
+}
+
+uint16_t Location_CurrentActiveSpeed(void)
+{
+    if (!currentLocation)
+        return 1;
+    
+    return currentLocation->activeSpeed;
+}
+
+bool Location_CurrentSkipEncountersIfActive(void)
+{
+    return currentLocation && (currentLocation->skipEncountersIfActive);
+}
+
+bool Location_CurrentGrantXPForSkippedEncounters(void)
+{
+    return currentLocation && (currentLocation->grantXPForSkippedEncounters);
+}
+
+bool Location_CurrentExtendPathDuringActivity(void)
+{
+    return currentLocation && (currentLocation->extendPathDuringActivity);
 }
 
