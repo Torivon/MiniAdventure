@@ -604,7 +604,7 @@ def process_dungeons(story):
                     location["skip_encounters_if_active"] = dungeon["skip_encounters_if_active"]
                 if "grant_xp_for_skipped_encounters" in dungeon:
                     location["grant_xp_for_skipped_encounters"] = dungeon["grant_xp_for_skipped_encounters"]
-                if "active_speed" in dungeon:
+                if "extend_path_during_activity" in dungeon:
                     location["extend_path_during_activity"] = dungeon["extend_path_during_activity"]
             else:
                 location["background_images"] = list(dungeon["fixed_background_image"])
