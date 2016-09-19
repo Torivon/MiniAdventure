@@ -289,11 +289,6 @@ bool ComputeRandomEvent(void)
     if(result > chanceOfEvent)
         return false;
     
-    if(GetVibration())
-        vibes_short_pulse();
-    
-    TriggerBattleScreen();
-    
     return true;
 }
 
@@ -309,7 +304,12 @@ static void StoryUpdateResponse(StoryUpdateReturnType returnVal, bool vibration)
         case STORYUPDATE_COMPUTERANDOM:
         {
             if(ComputeRandomEvent())
+            {
+                if(GetVibration())
+                    vibes_short_pulse();
+                TriggerBattleScreen();
                 break;
+            }
             LoadLocationImage();
             UpdateLocationProgress();
             break;
@@ -334,12 +334,16 @@ static void StoryUpdateResponse(StoryUpdateReturnType returnVal, bool vibration)
             break;
         }
         case STORYUPDATE_SKIP_ENCOUNTER_WITH_XP:
+        {
+            if(ComputeRandomEvent())
+                Character_GrantXP(Location_GetCurrentBaseLevel());
+            // Intentionally fall through
+        }
         case STORYUPDATE_SKIP_ENCOUNTER_NO_XP:
         {
-            // TODO: Actually grant experience for the with XP version
             LoadLocationImage();
             UpdateLocationProgress();
-            break;            
+            break;
         }
         default:
         {

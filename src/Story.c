@@ -168,12 +168,10 @@ StoryUpdateReturnType Story_IncrementTimeOnPath(void)
     
     if(active)
     {
-        DEBUG_LOG("Active, adding %u progress.", Location_CurrentActiveSpeed());
         currentStoryState.persistedStoryState.timeOnPath += Location_CurrentActiveSpeed();
     }
     else
     {
-        DEBUG_LOG("Inactive, adding %u progress.", Location_CurrentInactiveSpeed());
         currentStoryState.persistedStoryState.timeOnPath += Location_CurrentInactiveSpeed();
     }
 
