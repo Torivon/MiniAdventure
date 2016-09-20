@@ -1,9 +1,10 @@
 {
     "id": 56,
-    "version": 4,
+    "version": 5,
     "name": "Wander Test",
     "description": "A test of path traveling",
     "start_location": "house3",
+    "xp_monsters_per_level": 5,
     "classes": ["adventurer"],
     "opening_dialog": "wake_up",
     "win_dialog": "game_end",
@@ -84,6 +85,7 @@
             "initial_event": "poplar_enter",
             "inactive_speed": 0,
             "skip_encounters_if_active": true,
+            "grant_xp_for_skipped_encounters": true,
             "extend_path_during_activity": true
         }
     ],
