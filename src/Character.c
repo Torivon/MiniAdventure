@@ -198,6 +198,9 @@ void Character_ShowKeyItems(void)
     {
         if(keyItemList[i] && Story_GetCurrentGameStateValue(i))
         {
+            if(strlen(text) >= MAX_DIALOG_LENGTH - (strlen(keyItemList[i]) + 2))
+                break;
+            
             if(first)
             {
                 first = false;
