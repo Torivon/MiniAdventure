@@ -50,6 +50,7 @@ uint16_t Story_GetCurrentStoryVersion(void);
 uint16_t Story_GetCurrentStoryHash(void);
 uint16_t Story_GetCurrentStoryXPMonstersPerLevel(void);
 uint16_t Story_GetCurrentStoryXPDifferenceScale(void);
+bool Story_GetCurrentGameStateValue(uint16_t bit);
 uint16_t *Story_GetCurrentGameState(void);
 void Story_UpdateGameState(EventStateChange *stateChanges);
 

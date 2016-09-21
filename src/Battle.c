@@ -186,7 +186,7 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex)
         }
         case 2:
         {
-            return 4;
+            return 5;
         }
         case 3:
         {
@@ -226,6 +226,8 @@ const char *BattleScreen_MenuCellName(MenuIndex *index)
                 case 2:
                     return "Skills";
                 case 3:
+                    return "Key Items";
+                case 4:
                     return "Reset";
             }
             break;
@@ -270,6 +272,8 @@ const char *BattleScreen_MenuCellDescription(MenuIndex *index)
                 case 2:
                     return "Skills";
                 case 3:
+                    return "Key Items";
+                case 4:
                     return "Reset";
             }
             break;
@@ -337,6 +341,11 @@ void BattleScreen_MenuSelect(MenuIndex *index)
                     break;
                 }
                 case 3:
+                {
+                    Character_ShowKeyItems();
+                    break;
+                }
+                case 4:
                 {
                     EngineInfo_QueueResetDialog();
                     GlobalState_QueueStatePop();

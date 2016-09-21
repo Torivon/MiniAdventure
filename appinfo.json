@@ -321,7 +321,7 @@
             }
         ]
     },
-    "sdkVersion": "4",
+    "sdkVersion": "3",
     "shortName": "MiniAdventure",
     "targetPlatforms": [
         "basalt",

@@ -1,5 +1,6 @@
 #include <pebble.h>
 
+#include "AutoKeyItemConstants.h"
 #include "Adventure.h"
 #include "Battler.h"
 #include "Character.h"
@@ -186,4 +187,27 @@ void Character_ShowStatus(void)
     snprintf(text, MAX_DIALOG_LENGTH, "Status\n\nLevel: %d\nXP: %d/%d, Health: %d/%d", character.level, character.currentXP, XP_TO_LEVEL_UP, character.currentHealth, CombatantClass_GetHealth(combatant, character.level));
     
     Dialog_Queue(DialogData_Create("", text, false));
+}
+
+void Character_ShowKeyItems(void)
+{
+    bool first = true;
+    char text[MAX_DIALOG_LENGTH];
+    snprintf(text, MAX_DIALOG_LENGTH, "%s", "");
+    for(uint16_t i = 0; i < sizeof(keyItemList)/sizeof(*keyItemList); ++i)
+    {
+        if(keyItemList[i] && Story_GetCurrentGameStateValue(i))
+        {
+            if(first)
+            {
+                first = false;
+            }
+            else
+            {
+                strncat(text, ", ", 2);
+            }
+            strncat(text, keyItemList[i], strlen(keyItemList[i]));
+        }
+    }
+    Dialog_Queue(DialogData_Create("Key Items", text, false));
 }

@@ -8,7 +8,7 @@
     "classes": ["adventurer"],
     "opening_dialog": "wake_up",
     "win_dialog": "game_end",
-    "default_activity_tracking": true,
+    "default_activity_tracking": false,
     "locations": [
         {
             "id": "village2",
@@ -83,10 +83,10 @@
             "encounter_chance": 50,
             "monsters": ["rat"],
             "initial_event": "poplar_enter",
-            "inactive_speed": 0,
-            "skip_encounters_if_active": true,
-            "grant_xp_for_skipped_encounters": true,
-            "extend_path_during_activity": true
+            "inactive_speed": 1,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
         }
     ],
     "skills": [
@@ -346,6 +346,20 @@
         {
             "id": "daytime",
             "negative_prerequisites": ["bought_cheese"]
+        }
+    ],
+    "key_items": [
+        {
+            "id": "rat_poison",
+            "name": "Rat Poison"
+        },
+        {
+            "id": "villagekey",
+            "name": "Village Key"
+        },
+        {
+            "id": "bought_cheese",
+            "name": "Cheese"
         }
     ]
 }

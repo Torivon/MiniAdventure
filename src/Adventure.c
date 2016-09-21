@@ -110,7 +110,7 @@ uint16_t Adventure_MenuCellCount(uint16_t sectionIndex)
         }
         case 2:
         {
-            return 5;
+            return 6;
         }
         case 3:
         {
@@ -139,8 +139,10 @@ const char *Adventure_MenuCellName(MenuIndex *index)
                 case 2:
                     return "Skills";
                 case 3:
-                    return "Credits";
+                    return "Key Items";
                 case 4:
+                    return "Credits";
+                case 5:
                     return "Reset";
             }
             break;
@@ -170,8 +172,10 @@ const char *Adventure_MenuCellDescription(MenuIndex *index)
                 case 2:
                     return "Skills";
                 case 3:
-                    return "Credits";
+                    return "Key Items";
                 case 4:
+                    return "Credits";
+                case 5:
                     return "Reset";
             }
             break;
@@ -227,10 +231,15 @@ void Adventure_MenuSelect(MenuIndex *index)
                 }
                 case 3:
                 {
-                    Story_QueueCreditsDialog();
+                    Character_ShowKeyItems();
                     break;
                 }
                 case 4:
+                {
+                    Story_QueueCreditsDialog();
+                    break;
+                }
+                case 5:
                 {
                     Dialog_QueueFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->resetPromptDialog);
                     GlobalState_Queue(STATE_RESET_GAME, 0, NULL);

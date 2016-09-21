@@ -78,6 +78,19 @@ static Story *Story_GetCurrentStory(void)
     return storyList[currentStoryIndex];
 }
 
+bool Story_GetCurrentGameStateValue(uint16_t bit)
+{
+    // These count backwards
+    uint16_t variableIndex = 15;
+    while(bit >= 16)
+    {
+        bit -= 16;
+        variableIndex -= 1;
+    }
+    
+    return currentStoryState.persistedStoryState.gameState[variableIndex] & (1 << bit);
+}
+
 uint16_t *Story_GetCurrentGameState(void)
 {
     return currentStoryState.persistedStoryState.gameState;

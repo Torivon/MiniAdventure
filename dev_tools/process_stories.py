@@ -631,6 +631,7 @@ def process_external_files(story, file_list_key, m):
                     story[k].extend(object_list[k])
 
 gamestate_list = []
+key_item_list = {}
 object_type_list = ["dialog", "events", "battle_events", "skills", "battlers", "locations"]
 
 object_type_data = {}
@@ -665,6 +666,14 @@ def pack_object_types(story, datafile, write_state):
                 binary_data = object_type_data[object_type]["pack"](object)
                 write_data_block(datafile, write_state, binary_data)
 
+def process_key_items(story, gamestate_list, key_item_list):
+    if not "key_items" in story:
+        return
+
+    for key_item in story["key_items"]:
+        if gamestate_list.count(key_item["id"]) > 0:
+            key_item_list[gamestate_list.index(key_item["id"])] = key_item["name"]
+
 def process_story(story, m):
     '''
     Here we prepare the story for being written to a packed binary file.
@@ -686,6 +695,7 @@ def process_story(story, m):
     # written to the file in the same order they were processed.
     assign_object_indexes(story)
     process_object_types(story)
+    process_key_items(story, gamestate_list, key_item_list)
 
     story["start_location_index"] = object_type_data["locations"]["map"][story["start_location"]]
 
@@ -708,9 +718,7 @@ def pack_engineinfo(engineinfo):
     binarydata += pack_integer(engineinfo["image_index"]["right_arrow_image"])
     binarydata += pack_integer(engineinfo["image_index"]["left_arrow_image"])
     binarydata += pack_integer(engineinfo["image_index"]["rest_image"])
-    print(engineinfo["image_index"]["default_battlefloor"])
     binarydata += pack_integer(engineinfo["image_index"]["default_battlefloor"])
-    print(engineinfo["image_index"]["engine_repository"])
     binarydata += pack_integer(engineinfo["image_index"]["engine_repository"])
     binarydata += pack_integer(engineinfo["image_index"]["default_adventure_image"])
     binarydata += pack_integer(engineinfo["tutorial_dialog_index"])
@@ -804,7 +812,7 @@ def process_engineinfo(engineinfo, appinfo, data_objects): #TODO: This needs to 
 
     return add_image(imagelist, engineinfo["icon"])
 
-def write_headers(imagemap, data_objects):
+def write_headers(imagemap, data_objects, key_item_list):
     # Write out a mapping of image indexes to resource ids in a header file
     with open("src/AutoImageMap.h", 'w') as imagemap_file:
         if len(imagemap) == 0:
@@ -883,6 +891,20 @@ def write_headers(imagemap, data_objects):
             battle_event_file.write("#define BATTLE_EVENT_TYPE_" + k.upper() + " " + str(v) + "\n")
 
         battle_event_file.write("\n")
+
+    with open("src/AutoKeyItemConstants.h", 'w') as key_item_file:
+        key_item_file.write("#pragma once\n\n")
+        key_item_file.write("const char *keyItemList[] = \n{\n")
+    
+        for index in range(len(gamestate_list)):
+            found = False
+            for k, v in key_item_list.items():
+                if k == index:
+                    key_item_file.write("\t\"" + v + "\",\n")
+                    found = True
+            if found == False:
+                key_item_file.write("\tNULL,\n")
+        key_item_file.write("};\n")
 
 def create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index):
     # Prep the appinfo for resources
@@ -975,4 +997,4 @@ create_appinfo(appinfo, imagelist, imagemap, prefixlist, icon_index)
 
 update_files(appinfo, prefixlist)
 
-write_headers(imagemap, data_objects)
+write_headers(imagemap, data_objects, key_item_list)
