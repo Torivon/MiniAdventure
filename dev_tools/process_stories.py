@@ -68,6 +68,7 @@ g_location_properties = {}
 g_location_properties["rest_area"] = 1 << 0
 g_location_properties["game_win"] = 1 << 1
 g_location_properties["level_up"] = 1 << 2
+g_location_properties["respawn_point"] = 1 << 3
 
 g_battle_event_prereqs = {}
 g_battle_event_prereqs["monster_health_below_percent"] = 0
@@ -282,6 +283,7 @@ def pack_story(story, hash):
     binarydata += pack_integer_with_default(story, "credits_dialog_index", 0)
     binarydata += pack_bool_with_default(story, "default_activity_tracking", False)
     binarydata += pack_integer_with_default(story, "activity_threshold", 30)
+    binarydata += pack_bool_with_default(story, "allow_respawn_on_death", False)
     return binarydata
 
 def get_total_objects(story):

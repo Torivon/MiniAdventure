@@ -29,6 +29,7 @@ uint16_t Location_GetCurrentBaseLevel(void);
 bool Location_CurrentLocationHasMonster(void);
 int Location_GetCurrentMonster(void);
 bool Location_CurrentLocationIsRestArea(void);
+bool Location_CurrentLocationIsRespawnPoint(void);
 bool Location_CurrentLocationIsLevelUp(void);
 bool Location_CurrentLocationEndsGame(void);
 

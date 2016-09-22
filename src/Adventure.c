@@ -427,17 +427,24 @@ void AdventureScreenAppear(void *data)
     {
         int temp = newLocation;
         newLocation = -1;
-        returnVal = Story_MoveToLocation(temp);
+        returnVal = Story_MoveToAdjacentLocation(temp);
     }
     StoryUpdateResponse(returnVal, false);
 
     if(!dead && Character_GetHealth() <= 0)
     {
         Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->gameOverDialog);
-        ClearCurrentStoryPersistedData();
-        skipFinalSave = true;
-        GlobalState_QueueStatePop();
-        dead = true;
+        if(Story_GetCurrentStoryAllowRespawn())
+        {
+            Story_MoveToRespawnPoint();
+        }
+        else
+        {
+            ClearCurrentStoryPersistedData();
+            skipFinalSave = true;
+            GlobalState_QueueStatePop();
+            dead = true;
+        }
         return;
     }
 

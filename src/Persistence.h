@@ -2,7 +2,7 @@
 
 #include "AutoSizeConstants.h"
 
-#define CURRENT_DATA_VERSION 11
+#define CURRENT_DATA_VERSION 12
 
 #define PERSISTED_DATA_GAP 1000
 
@@ -50,6 +50,7 @@ typedef struct PersistedStoryState
     uint16_t pathLength;
     uint16_t encounterChance;
     uint16_t gameState[MAX_GAME_STATE_VARIABLES];
+    uint16_t respawnLocationIndex;
 } PersistedStoryState;
 
 inline bool IsGlobalPersistedDataCurrent(void)

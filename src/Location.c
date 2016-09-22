@@ -318,6 +318,11 @@ bool Location_CurrentLocationIsRestArea(void)
     return currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_REST_AREA);
 }
 
+bool Location_CurrentLocationIsRespawnPoint(void)
+{
+    return currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_RESPAWN_POINT);
+}
+
 bool Location_CurrentLocationIsLevelUp(void)
 {
     return currentLocation && (currentLocation->locationProperties & LOCATION_PROPERTY_LEVEL_UP);

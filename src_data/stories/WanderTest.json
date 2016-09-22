@@ -9,6 +9,7 @@
     "opening_dialog": "wake_up",
     "win_dialog": "game_end",
     "default_activity_tracking": false,
+    "allow_respawn_on_death": true,
     "locations": [
         {
             "id": "village2",
@@ -50,7 +51,8 @@
             "menu_description": "Fred and his wife are friendly.",
             "adjacent_locations": ["village2"],
             "background_images": ["images/VillageInterior.png"],
-            "events": ["fred1", "fred2", "wife1"]
+            "events": ["fred1", "fred2", "wife1"],
+            "location_properties": ["rest_area", "respawn_point"]
         },
         {
             "id": "house3",
@@ -60,7 +62,7 @@
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
             "initial_event": "daytime",
-            "location_properties": ["rest_area"]
+            "location_properties": ["rest_area", "respawn_point"]
         },
         {
             "id": "house3-bed",
@@ -101,6 +103,16 @@
             "cooldown": 0
         },
         {
+            "id": "donothing",
+            "name": "Idle",
+            "description": "Stand idle",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 0,
+            "cooldown": 0
+        },
+        {
             "id": "slowattack",
             "name": "Slow Attack",
             "description": "Heavy Slash",
@@ -127,7 +139,7 @@
             "target": "self",
             "speed": 100,
             "damage_types": ["magic"],
-            "potency": 10,
+            "potency": 100,
             "cooldown": 4
         },
         {
@@ -147,11 +159,11 @@
             "name": "Rat",
             "image": "images/rat.png",
             "combatantclass": {
-                "strength": "rankf",
+                "strength": "ranks",
                 "magic": "rankf",
                 "defense": "rankf",
                 "magic_defense": "rankf",
-                "speed": "rankf",
+                "speed": "rankb",
                 "health": "rankf"
             },
             "skill_list": [
@@ -170,7 +182,7 @@
             "combatantclass": {
                 "strength": "ranks",
                 "magic": "ranks",
-                "defense": "ranks",
+                "defense": "rankf",
                 "magic_defense": "ranks",
                 "speed": "ranks",
                 "health": "ranks"
@@ -182,6 +194,10 @@
                 },
                 {
                     "id": "potion",
+                    "min_level": 1
+                },
+                {
+                    "id": "donothing",
                     "min_level": 1
                 }
             ]          

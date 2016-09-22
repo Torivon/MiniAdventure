@@ -36,6 +36,7 @@ typedef struct Story
     uint16_t creditsDialog;
     uint16_t defaultActivityTracking;
     uint16_t activityThreshold;
+    uint16_t allowRespawnOnDeath;
 } Story;
 
 static Story *Story_GetCurrentStory();
@@ -127,6 +128,7 @@ void Story_InitializeCurrent(void)
 {
     currentStoryState.persistedStoryState.currentLocationIndex = Story_GetCurrentStory()->start_location;
     currentStoryState.persistedStoryState.timeOnPath = 0;
+    currentStoryState.persistedStoryState.respawnLocationIndex = Story_GetCurrentStory()->start_location;
     for(int i = 0; i < MAX_GAME_STATE_VARIABLES; ++i)
     {
         currentStoryState.persistedStoryState.gameState[i] = 0;
@@ -217,7 +219,7 @@ StoryUpdateReturnType Story_UpdateCurrentLocation(void)
         StoryUpdateReturnType incrementResult = Story_IncrementTimeOnPath();
         if(incrementResult == STORYUPDATE_ENDPATH)
         {
-            return Story_MoveToLocation(currentStoryState.persistedStoryState.destinationIndex);
+            return Story_MoveToAdjacentLocation(currentStoryState.persistedStoryState.destinationIndex);
         }
         else
         {
@@ -228,48 +230,65 @@ StoryUpdateReturnType Story_UpdateCurrentLocation(void)
     return STORYUPDATE_DONOTHING;
 }
 
-StoryUpdateReturnType Story_MoveToLocation(uint16_t index)
+StoryUpdateReturnType Story_MoveToGlobalLocation(uint16_t globalIndex)
+{
+    uint16_t oldIndex = currentStoryState.persistedStoryState.currentLocationIndex;
+    currentStoryState.persistedStoryState.currentLocationIndex = globalIndex;
+    currentStoryState.persistedStoryState.timeOnPath = 0;
+    currentStoryState.persistedStoryState.encounterChance = Location_GetCurrentEncounterChance();
+    currentStoryState.persistedStoryState.pathLength = Location_GetCurrentLength();
+    lastActiveSecondsSum = health_service_sum_today(HealthMetricActiveSeconds);
+    
+    if(Location_CurrentLocationIsRestArea())
+    {
+        Character_Rest();
+    }
+    
+    if(Location_CurrentLocationIsLevelUp())
+    {
+        Character_GrantLevel();
+    }
+    
+    if(Location_CurrentLocationIsRespawnPoint())
+    {
+        Character_Rest();
+        currentStoryState.persistedStoryState.respawnLocationIndex = globalIndex;
+    }
+    
+    if(Location_CurrentLocationEndsGame())
+    {
+        return STORYUPDATE_WIN;
+    }
+    
+    if(Location_CurrentLocationIsPath())
+    {
+        if(Location_GetCurrentAdjacentLocationByIndex(0) == oldIndex)
+            currentStoryState.persistedStoryState.destinationIndex = 1;
+        else
+            currentStoryState.persistedStoryState.destinationIndex = 0;
+    }
+    else
+    {
+        if(Location_CurrentLocationHasMonster())
+        {
+            return STORYUPDATE_TRIGGER_BATTLE;
+        }
+    }
+    return STORYUPDATE_FULLREFRESH;
+}
+
+StoryUpdateReturnType Story_MoveToRespawnPoint(void)
+{
+    Location_SetCurrentLocation(currentStoryState.persistedStoryState.respawnLocationIndex);
+    return Story_MoveToGlobalLocation(currentStoryState.persistedStoryState.respawnLocationIndex);
+}
+
+StoryUpdateReturnType Story_MoveToAdjacentLocation(uint16_t index)
 {
     uint16_t globalIndex = 0;
     if((globalIndex = Location_MoveToAdjacentLocation(index)))
     {
-        uint16_t oldIndex = currentStoryState.persistedStoryState.currentLocationIndex;
-        currentStoryState.persistedStoryState.currentLocationIndex = globalIndex;
-        currentStoryState.persistedStoryState.timeOnPath = 0;
-        currentStoryState.persistedStoryState.encounterChance = Location_GetCurrentEncounterChance();
-        currentStoryState.persistedStoryState.pathLength = Location_GetCurrentLength();
-        lastActiveSecondsSum = health_service_sum_today(HealthMetricActiveSeconds);
-        
-        if(Location_CurrentLocationIsRestArea())
-        {
-            Character_Rest();
-        }
-        
-        if(Location_CurrentLocationIsLevelUp())
-        {
-            Character_GrantLevel();
-        }
-        
-        if(Location_CurrentLocationEndsGame())
-        {
-            return STORYUPDATE_WIN;
-        }
-        
-        if(Location_CurrentLocationIsPath())
-        {
-            if(Location_GetCurrentAdjacentLocationByIndex(0) == oldIndex)
-                currentStoryState.persistedStoryState.destinationIndex = 1;
-            else
-                currentStoryState.persistedStoryState.destinationIndex = 0;
-        }
-        else
-        {
-            if(Location_CurrentLocationHasMonster())
-            {
-                return STORYUPDATE_TRIGGER_BATTLE;
-            }
-        }
-        return STORYUPDATE_FULLREFRESH;
+        return Story_MoveToGlobalLocation(globalIndex);
     }
     return STORYUPDATE_DONOTHING;
 }
@@ -391,6 +410,11 @@ uint16_t Story_GetCurrentStoryXPMonstersPerLevel(void)
 uint16_t Story_GetCurrentStoryXPDifferenceScale(void)
 {
     return Story_GetCurrentStory()->xpDifferenceScale;
+}
+
+bool Story_GetCurrentStoryAllowRespawn(void)
+{
+    return Story_GetCurrentStory()->allowRespawnOnDeath;
 }
 
 uint16_t Story_GetClassByIndex(uint16_t index)

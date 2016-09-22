@@ -44,12 +44,14 @@ uint16_t Story_GetCurrentLocationLength(void);
 uint16_t Story_GetClassByIndex(uint16_t index);
 
 StoryUpdateReturnType Story_UpdateCurrentLocation(void);
-StoryUpdateReturnType Story_MoveToLocation(uint16_t index);
+StoryUpdateReturnType Story_MoveToAdjacentLocation(uint16_t index);
+StoryUpdateReturnType Story_MoveToRespawnPoint(void);
 uint16_t Story_GetCurrentStoryId(void);
 uint16_t Story_GetCurrentStoryVersion(void);
 uint16_t Story_GetCurrentStoryHash(void);
 uint16_t Story_GetCurrentStoryXPMonstersPerLevel(void);
 uint16_t Story_GetCurrentStoryXPDifferenceScale(void);
+bool Story_GetCurrentStoryAllowRespawn(void);
 bool Story_GetCurrentGameStateValue(uint16_t bit);
 uint16_t *Story_GetCurrentGameState(void);
 void Story_UpdateGameState(EventStateChange *stateChanges);
