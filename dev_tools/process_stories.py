@@ -284,6 +284,7 @@ def pack_story(story, hash):
     binarydata += pack_bool_with_default(story, "default_activity_tracking", False)
     binarydata += pack_integer_with_default(story, "activity_threshold", 30)
     binarydata += pack_bool_with_default(story, "allow_respawn_on_death", False)
+    binarydata += pack_integer(story["debug_variable_index"])
     return binarydata
 
 def get_total_objects(story):
@@ -688,6 +689,14 @@ def process_story(story, m):
     # the contents into the appropriate lists.
     process_external_files(story, "external_files", m)
     
+    if not "debug_variable" in story:
+        story["debug_variable"] = "debug"
+    
+    add_gamestate_to_list(gamestate_list, story["debug_variable"])
+
+    story["debug_variable_index"] = gamestate_list.index(story["debug_variable"])
+
+
     # This just unrolls the dungeon definitions into the appropriate
     # number of locations. Actual writing to the file happens when
     # we process the rest of the locations.

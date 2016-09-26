@@ -37,6 +37,7 @@ typedef struct Story
     uint16_t defaultActivityTracking;
     uint16_t activityThreshold;
     uint16_t allowRespawnOnDeath;
+    uint16_t debugVariableIndex;
 } Story;
 
 static Story *Story_GetCurrentStory();
@@ -90,6 +91,32 @@ bool Story_GetCurrentGameStateValue(uint16_t bit)
     }
     
     return currentStoryState.persistedStoryState.gameState[variableIndex] & (1 << bit);
+}
+
+void Story_SetCurrentGameStateValue(uint16_t bit)
+{
+    // These count backwards
+    uint16_t variableIndex = 15;
+    while(bit >= 16)
+    {
+        bit -= 16;
+        variableIndex -= 1;
+    }
+    
+    currentStoryState.persistedStoryState.gameState[variableIndex] |= (1 << bit);
+}
+
+void Story_ClearCurrentGameStateValue(uint16_t bit)
+{
+    // These count backwards
+    uint16_t variableIndex = 15;
+    while(bit >= 16)
+    {
+        bit -= 16;
+        variableIndex -= 1;
+    }
+    
+    currentStoryState.persistedStoryState.gameState[variableIndex] &= ~(1 << bit);
 }
 
 uint16_t *Story_GetCurrentGameState(void)
@@ -430,6 +457,11 @@ void Story_GetPersistedData(uint16_t *count, uint8_t **buffer)
 
 void Story_UpdateStoryWithPersistedState(void)
 {
+#if PUBLISH
+    Story_ClearCurrentGameStateValue(Story_GetCurrentStory()->debugVariableIndex);
+#else
+    Story_SetCurrentGameStateValue(Story_GetCurrentStory()->debugVariableIndex);
+#endif
     Location_SetCurrentLocation(currentStoryState.persistedStoryState.currentLocationIndex);
     currentStoryState.persistedStoryState.encounterChance = Location_GetCurrentEncounterChance();
     currentStoryState.persistedStoryState.pathLength = Location_GetCurrentLength();

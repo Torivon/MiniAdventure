@@ -9,28 +9,43 @@
     "resources": {
         "media": [
             {
+                "file": "images/rat.png",
+                "name": "IMAGE_RAT",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/Title.png",
                 "name": "IMAGE_TITLE",
                 "type": "bitmap"
             },
             {
-                "file": "images/turtle.png",
-                "name": "IMAGE_TURTLE",
+                "file": "images/VillageInterior.png",
+                "name": "IMAGE_VILLAGEINTERIOR",
                 "type": "bitmap"
             },
             {
-                "file": "images/dungeonstraight.png",
-                "name": "IMAGE_DUNGEONSTRAIGHT",
+                "file": "images/Road1.png",
+                "name": "IMAGE_ROAD1",
                 "type": "bitmap"
             },
             {
-                "file": "images/dungeondeadend.png",
-                "name": "IMAGE_DUNGEONDEADEND",
+                "file": "images/VillageExterior.png",
+                "name": "IMAGE_VILLAGEEXTERIOR",
                 "type": "bitmap"
             },
             {
-                "file": "images/rat.png",
-                "name": "IMAGE_RAT",
+                "file": "images/Forest1.png",
+                "name": "IMAGE_FOREST1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/TombEntrance.png",
+                "name": "IMAGE_TOMBENTRANCE",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/shop.png",
+                "name": "IMAGE_SHOP",
                 "type": "bitmap"
             },
             {
@@ -54,6 +69,11 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/turtle.png",
+                "name": "IMAGE_TURTLE",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/turtle_hide.png",
                 "name": "IMAGE_TURTLE_HIDE",
                 "type": "bitmap"
@@ -74,6 +94,16 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/dungeonstraight.png",
+                "name": "IMAGE_DUNGEONSTRAIGHT",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/dungeondeadend.png",
+                "name": "IMAGE_DUNGEONDEADEND",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/dungeonright.png",
                 "name": "IMAGE_DUNGEONRIGHT",
                 "type": "bitmap"
@@ -84,56 +114,6 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/VillageExterior.png",
-                "name": "IMAGE_VILLAGEEXTERIOR",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/VillageInterior.png",
-                "name": "IMAGE_VILLAGEINTERIOR",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cave1.png",
-                "name": "IMAGE_CAVE1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cave2.png",
-                "name": "IMAGE_CAVE2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Cave3.png",
-                "name": "IMAGE_CAVE3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/ForestCave.png",
-                "name": "IMAGE_FORESTCAVE",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Forest1.png",
-                "name": "IMAGE_FOREST1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Forest2.png",
-                "name": "IMAGE_FOREST2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Forest3.png",
-                "name": "IMAGE_FOREST3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Road1.png",
-                "name": "IMAGE_ROAD1",
-                "type": "bitmap"
-            },
-            {
                 "file": "images/Road2.png",
                 "name": "IMAGE_ROAD2",
                 "type": "bitmap"
@@ -141,91 +121,6 @@
             {
                 "file": "images/Road3.png",
                 "name": "IMAGE_ROAD3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/WaterfallBase.png",
-                "name": "IMAGE_WATERFALLBASE",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/WaterfallTop.png",
-                "name": "IMAGE_WATERFALLTOP",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Desert1.png",
-                "name": "IMAGE_DESERT1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Desert2.png",
-                "name": "IMAGE_DESERT2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Desert3.png",
-                "name": "IMAGE_DESERT3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Oasis.png",
-                "name": "IMAGE_OASIS",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/PyramidExterior.png",
-                "name": "IMAGE_PYRAMIDEXTERIOR",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Sarcophagus.png",
-                "name": "IMAGE_SARCOPHAGUS",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Boat.png",
-                "name": "IMAGE_BOAT",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/MountainExterior1.png",
-                "name": "IMAGE_MOUNTAINEXTERIOR1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/MountainExterior2.png",
-                "name": "IMAGE_MOUNTAINEXTERIOR2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/MountainExterior3.png",
-                "name": "IMAGE_MOUNTAINEXTERIOR3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/TombEntrance.png",
-                "name": "IMAGE_TOMBENTRANCE",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/TreasureRoom.png",
-                "name": "IMAGE_TREASUREROOM",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Beach.png",
-                "name": "IMAGE_BEACH",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/CaveFixed.png",
-                "name": "IMAGE_CAVEFIXED",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/shop.png",
-                "name": "IMAGE_SHOP",
                 "type": "bitmap"
             },
             {
@@ -290,23 +185,13 @@
                 "type": "bitmap"
             },
             {
-                "file": "data/AutoStatusTestArena.dat",
-                "name": "STORY_DATA_AUTOSTATUSTESTARENA",
-                "type": "raw"
-            },
-            {
-                "file": "data/AutoBattleArena.dat",
-                "name": "STORY_DATA_AUTOBATTLEARENA",
+                "file": "data/AutoPuzzleDungeon.dat",
+                "name": "STORY_DATA_AUTOPUZZLEDUNGEON",
                 "type": "raw"
             },
             {
                 "file": "data/AutoDungeonCrawl.dat",
                 "name": "STORY_DATA_AUTODUNGEONCRAWL",
-                "type": "raw"
-            },
-            {
-                "file": "data/AutoDragonQuest.dat",
-                "name": "STORY_DATA_AUTODRAGONQUEST",
                 "type": "raw"
             },
             {

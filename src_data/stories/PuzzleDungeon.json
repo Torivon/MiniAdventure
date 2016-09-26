@@ -1,0 +1,302 @@
+{
+    "id": 576,
+    "version": 1,
+    "name": "Bad Archaeologist",
+    "description": "An archaeologist plundering a historical site.",
+    "start_location": "office",
+    "xp_monsters_per_level": 0,
+    "classes": ["archaeologist"],
+    "opening_dialog": "opening_dialog",
+    "win_dialog": "win_dialog",
+    "default_activity_tracking": false,
+    "allow_respawn_on_death": true,
+    "locations": [
+        {
+            "id": "office",
+            "name": "Your Office",
+            "menu_description": "An archaeologist's office.",
+            "adjacent_locations": ["journey_to_base_camp", "debug_room"],
+            "background_images": ["images/VillageInterior.png"],
+            "events": ["get_luggage"]
+        },
+        {
+            "id": "journey_to_base_camp",
+            "name": "Travel",
+            "menu_description": "Travel from your office to base camp",
+            "adjacent_locations": ["office", "base_camp"],
+            "background_images": ["images/Road1.png"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 0,
+            "inactive_speed": 1,
+            "active_speed": 1,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
+        },
+        {
+            "id": "base_camp",
+            "name": "Base Camp",
+            "menu_description": "A group of tents and equipment.",
+            "adjacent_locations": ["river"],
+            "background_images": ["images/VillageExterior.png"],
+            "events": ["inspect_luggage", "get_raft", "talk_to_camp_master1", "talk_to_camp_master2", "talk_to_camp_master3"]
+        },
+        {
+            "id": "river",
+            "name": "River",
+            "menu_description": "River to the ruins",
+            "adjacent_locations": ["base_camp", "front_door"],
+            "background_images": ["images/Forest1.png"],
+            "length": 15,
+            "base_level": 1,
+            "encounter_chance": 0,
+            "inactive_speed": 1,
+            "active_speed": 3,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false,
+            "initial_event": "river_prereq"
+        },
+        {
+            "id": "front_door",
+            "name": "Front Door",
+            "menu_description": "The main entrance to the ruins.",
+            "background_images": ["images/TombEntrance.png"],
+            "initial_event": "front_door_prereq",
+            "adjacent_locations": []
+        },
+        {
+            "id": "debug_room",
+            "name": "Debug Room",
+            "menu_description": "A debug room to help testing.",
+            "background_images": ["images/shop.png"],
+            "initial_event": "debug_room_prereq",
+            "adjacent_locations": ["office"]
+        }
+    ],
+    "skills": [
+        {
+            "id": "crush",
+            "name": "Boulder Crush",
+            "description": "rolling crush",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10000,
+            "cooldown": 0
+        },
+        {
+            "id": "donothing",
+            "name": "Idle",
+            "description": "Stand idle",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 0,
+            "cooldown": 0
+        }
+    ],
+    "battlers": [
+        {
+            "id": "boulder",
+            "name": "Boulder",
+            "image": "images/rat.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "crush",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "archaeologist",
+            "name": "Archaeologist",
+            "description": "A professional destroyer of historical sites.",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankf",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "rankf",
+                "health": "rankf"
+            },
+            "skill_list": [
+                {
+                    "id": "donothing",
+                    "min_level": 1
+                }
+            ]          
+        }
+    ],
+    "dialog": [
+        {
+            "id": "acquired_luggage",
+            "name": "Luggage",
+            "text": "You gather your luggage in preparation for leaving for base camp."
+        },
+        {
+            "id": "inspecting_luggage",
+            "name": "Inspecting Luggage",
+            "text": "Looking through your luggage, you find your journal of information about the ruins you are about to investigate."
+        },    
+        {
+            "id": "getting_raft",
+            "name": "Inflatable Raft",
+            "text": "You acquire an inflatable raft that will take you to the ruins."
+        },    
+        {
+            "id": "river_description",
+            "name": "River",
+            "text": "A relatively slow flowing river. Rowing should make you get to your destination faster."
+        },
+        {
+            "id": "front_door_description",
+            "name": "Front Door",
+            "text": "The main entrance to the ruins. You are excited to see what might lie inside."
+        },
+        {
+            "id": "talk_to_camp_master1",
+            "name": "Quartermaster",
+            "text": "Welcome to camp. Someone found this red gem along the river bank. Maybe it will be useful to you. You should make sure to check out your raft before heading out."
+        },  
+        {
+            "id": "talk_to_camp_master2",
+            "name": "Quartermaster",
+            "text": "You should make sure to check out your raft before heading out."
+        },  
+        {
+            "id": "talk_to_camp_master3",
+            "name": "Quartermaster",
+            "text": "It looks like everything is ready. You should head down the river. "
+        },
+        {
+            "id": "opening_dialog",
+            "name": "Opening",
+            "text": "Time to get ready for your expedition to some ancient ruins."
+        },
+        {
+            "id": "win_dialog",
+            "name": "Win",
+            "text": "You have finished exploring the ruins."
+        }
+    ],
+    "events": [
+        {
+            "id": "get_luggage",
+            "name": "Luggage",
+            "menu_description": "Pick up your luggage.",
+            "dialog": "acquired_luggage",
+            "negative_prerequisites": ["luggage"],
+            "positive_state_changes": ["luggage"]
+        },
+        {
+            "id": "inspect_luggage",
+            "name": "Inpect Luggage",
+            "menu_description": "Inspect your luggage",
+            "dialog": "inspecting_luggage",
+            "negative_prerequisites": ["journal"],
+            "positive_state_changes": ["journal"]
+        },
+        {
+            "id": "get_raft",
+            "name": "Get Raft",
+            "menu_description": "Get Raft",
+            "dialog": "getting_raft",
+            "negative_prerequisites": ["raft"],
+            "positive_state_changes": ["raft"]
+        },
+        {
+            "id": "river_prereq",
+            "name": "River",
+            "dialog": "river_description",
+            "positive_prerequisites": ["raft"],
+            "negative_state_changes": ["luggage"]
+        },
+        {
+            "id": "front_door_prereq",
+            "name": "Front Door",
+            "dialog": "front_door_description",
+            "negative_state_changes": ["raft"]
+        },
+        {
+            "id": "debug_room_prereq",
+            "name": "Debug Room",
+            "positive_prerequisites": ["debug"]
+        },
+        {
+            "id": "talk_to_camp_master1",
+            "name": "Quartermaster",
+            "menu_description": "Talk to Quartermaster",
+            "dialog": "talk_to_camp_master1",
+            "negative_prerequisites": ["red_gem", "talked_to_camp_master1"],
+            "positive_state_changes": ["red_gem", "talked_to_camp_master1"]
+        },
+        {
+            "id": "talk_to_camp_master2",
+            "name": "Quartermaster",
+            "menu_description": "Talk to Quartermaster",
+            "dialog": "talk_to_camp_master2",
+            "positive_prerequisites": ["red_gem", "talked_to_camp_master1"],
+            "negative_prerequisites": ["raft"]
+        },
+        {
+            "id": "talk_to_camp_master3",
+            "name": "Quartermaster",
+            "menu_description": "Talk to Quartermaster",
+            "dialog": "talk_to_camp_master3",
+            "positive_prerequisites": ["red_gem", "raft", "talked_to_camp_master1"]
+        }
+    ],
+    "key_items": [
+        {
+            "id": "red_gem",
+            "name": "Red Gem"
+        },
+        {
+            "id": "yellow_gem",
+            "name": "Yellow Gem"
+        },
+        {
+            "id": "blue_gem",
+            "name": "Blue Gem"
+        },
+        {
+            "id": "journal",
+            "name": "Journal"
+        },
+        {
+            "id": "luggage",
+            "name": "Luggage"
+        },
+        {
+            "id": "raft",
+            "name": "Raft"
+        },
+        {
+            "id": "tablet_piece_1",
+            "name": "Tablet Fragment"
+        },
+        {
+            "id": "tablet_piece_2",
+            "name": "Tablet Fragment"
+        },
+        {
+            "id": "tablet_piece_3",
+            "name": "Tablet Fragment"
+        },
+        {
+            "id": "tablet_piece_4",
+            "name": "Tablet Fragment"
+        }
+    ]
+}
