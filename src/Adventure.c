@@ -419,9 +419,10 @@ void AdventureScreenAppear(void *data)
 
     if(newEvent > -1)
     {
-        Event_Trigger(newEvent);
+        int eventToTrigger = newEvent;
+        newEvent = -1;
+        Event_Trigger(eventToTrigger);
     }
-    newEvent = -1;
     StoryUpdateReturnType returnVal = STORYUPDATE_FULLREFRESH;
     if(newLocation > -1)
     {
