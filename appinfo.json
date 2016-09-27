@@ -19,6 +19,11 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/shop.png",
+                "name": "IMAGE_SHOP",
+                "type": "bitmap"
+            },
+            {
                 "file": "images/VillageInterior.png",
                 "name": "IMAGE_VILLAGEINTERIOR",
                 "type": "bitmap"
@@ -44,8 +49,18 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/shop.png",
-                "name": "IMAGE_SHOP",
+                "file": "images/dungeonstraight.png",
+                "name": "IMAGE_DUNGEONSTRAIGHT",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/newfloor.png",
+                "name": "IMAGE_NEWFLOOR",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/dungeondeadend.png",
+                "name": "IMAGE_DUNGEONDEADEND",
                 "type": "bitmap"
             },
             {
@@ -86,21 +101,6 @@
             {
                 "file": "images/dragon.png",
                 "name": "IMAGE_DRAGON",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/newfloor.png",
-                "name": "IMAGE_NEWFLOOR",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/dungeonstraight.png",
-                "name": "IMAGE_DUNGEONSTRAIGHT",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/dungeondeadend.png",
-                "name": "IMAGE_DUNGEONDEADEND",
                 "type": "bitmap"
             },
             {
