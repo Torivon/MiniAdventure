@@ -1,0 +1,235 @@
+{
+    "locations": [
+        {
+            "id": "tier1_room1",
+            "name": "Entrance Hall",
+            "menu_description": "The main entrance hall",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier1_room1_door_open_initial_event", "tier1_room1_initial_event"],
+            "adjacent_locations": ["front_door", "tier1_ladder", "tier1_danger", "debug_room"],
+            "location_properties": ["respawn_point"],
+            "events": ["tier1_switch1_off", "tier1_switch1_on", "get_tablet1"]
+        },
+        {
+            "id": "tier1_ladder",
+            "name": "Ladder",
+            "menu_description": "Ladder",
+            "adjacent_locations": ["tier1_room1", "tier1_room2"],
+            "background_images": ["images/newfloor.png"],
+            "length": 10,
+            "base_level": 1,
+            "encounter_chance": 0,
+            "inactive_speed": 0,
+            "active_speed": 1,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false,
+            "initial_events": ["ladder_prereq"]
+        },
+        {
+            "id": "tier1_room2",
+            "name": "Upper Hall",
+            "menu_description": "The upper hall",
+            "background_images": ["images/dungeondeadend.png"],
+            "initial_events": ["tier1_room2_initial_event"],
+            "adjacent_locations": ["tier1_ladder", "tier1_slide1"],
+            "events": ["tier1_switch2_off", "tier1_switch2_on"]
+        },
+        {
+            "id": "tier1_slide1",
+            "name": "Upper Ramp",
+            "menu_description": "Upper Ramp",
+            "adjacent_locations": ["tier1_room2", "tier1_room3"],
+            "background_images": ["images/dungeonstraight.png"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 0,
+            "inactive_speed": 1,
+            "active_speed": 1,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false,
+            "initial_events": ["ramp_prereq"]
+        },
+        {
+            "id": "tier1_room3",
+            "name": "Hidden Room",
+            "menu_description": "A hidden room.",
+            "background_images": ["images/dungeondeadend.png"],
+            "initial_events": ["tier1_room3_initial_event"],
+            "adjacent_locations": ["tier1_slide2"],
+            "events": ["tier1_switch3_off", "tier1_switch3_on"]
+        },
+        {
+            "id": "tier1_slide2",
+            "name": "Lower Ramp",
+            "menu_description": "Lower Ramp",
+            "adjacent_locations": ["tier1_room3", "tier1_room1"],
+            "background_images": ["images/dungeonstraight.png"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 0,
+            "inactive_speed": 1,
+            "active_speed": 1,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false,
+            "initial_events": ["ramp_prereq"]
+        },
+        {
+            "id": "tier1_danger",
+            "name": "Trap Room",
+            "menu_description": "Trap Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier1_danger_prereq"],
+            "adjacent_locations": ["tier1_room1", "tier2_room1"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 100,
+            "monsters": ["boulder"],
+            "inactive_speed": 0,
+            "active_speed": 1,
+            "skip_encounters_if_active": true,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
+        }
+    ],
+    "dialog": [
+        {
+            "id": "ladder_description",
+            "name": "Ladder",
+            "text": "This rickety ladder will take some effort to climb."
+        },
+        {
+            "id": "tier1_room1_initial_dialog",
+            "name": "Main Entrance Hall",
+            "text": "You have entered the main entrance hall. There is a switch on the wall, a ladder to a higher floor, a sealed door, and a ramp, too steep and slick to climb."
+        },
+        {
+            "id": "tier1_room1_door_open_initial_dialog",
+            "name": "Main Entrance Hall",
+            "text": "You have entered the main entrance hall. A slot has opened in the wall that may be worth investigating. In addition, the previously sealed door is now open. You sense danger on the other side."
+        },
+        {
+            "id": "tier1_room2_initial_dialog",
+            "name": "Upper Hall",
+            "text": "You have entered the upper hall. There is a switch on the wall, a ladder to a lower floor, and ramp down."
+        },
+        {
+            "id": "tier1_room3_initial_dialog",
+            "name": "Hidden Room",
+            "text": "You have entered a hidden room. There is a switch on the wall, a ramp down, and the ramp from above that you just came down."
+        },
+        {
+            "id": "tier1_danger_door_open",
+            "name": "Open Door",
+            "text": "As you open the door, a slot opens in the side wall. In addition, you hear rumbling ahead. Get ready run from the danger."
+        },
+        {
+            "id": "tier1_danger_prereq",
+            "name": "Trap Room",
+            "text": "As you enter the room, a boulder starts rolling towards you. RUN!"
+        },
+        {
+            "id": "ramp_description",
+            "name": "Ramp",
+            "text": "You are sliding down a ramp. Nothing to do but wait it out."
+        },
+        {
+            "id": "acquired_tablet_piece",
+            "name": "Tablet Piece",
+            "text": "You acquire a fragment of an ancient tablet."
+        }
+    ],
+    "events": [
+        {
+            "id": "ladder_prereq",
+            "name": "Ladder",
+            "dialog": "ladder_description"
+        },
+        {
+            "id": "tier1_room1_door_open_initial_event",
+            "name": "Main Entrance Hall",
+            "dialog": "tier1_room1_door_open_initial_dialog",
+            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"]
+        },
+        {
+            "id": "tier1_room1_initial_event",
+            "name": "Main Entrance Hall",
+            "dialog": "tier1_room1_initial_dialog"
+        },
+        {
+            "id": "ramp_prereq",
+            "name": "Ramp",
+            "dialog": "ramp_description"
+        },
+        {
+            "id": "tier1_switch1_off",
+            "name": "Flip Switch",
+            "menu_description": "The switch is off.",
+            "negative_prerequisites": ["tier1_switch1"],
+            "positive_state_changes": ["tier1_switch1"]
+        },
+        {
+            "id": "tier1_switch1_on",
+            "name": "Flip Switch",
+            "menu_description": "The switch is on.",
+            "positive_prerequisites": ["tier1_switch1"],
+            "negative_state_changes": ["tier1_switch1"]
+        },
+        {
+            "id": "tier1_room2_initial_event",
+            "name": "Upper Hall",
+            "dialog": "tier1_room2_initial_dialog"
+        },
+        {
+            "id": "tier1_room3_initial_event",
+            "name": "Hidden Room",
+            "dialog": "tier1_room3_initial_dialog"
+        },
+        {
+            "id": "tier1_switch2_off",
+            "name": "Flip Switch",
+            "menu_description": "The switch is off.",
+            "negative_prerequisites": ["tier1_switch2"],
+            "positive_state_changes": ["tier1_switch2"]
+        },
+        {
+            "id": "tier1_switch2_on",
+            "name": "Flip Switch",
+            "menu_description": "The switch is on.",
+            "positive_prerequisites": ["tier1_switch2"],
+            "negative_state_changes": ["tier1_switch2"]
+        },
+        {
+            "id": "tier1_switch3_off",
+            "name": "Flip Switch",
+            "menu_description": "The switch is off.",
+            "negative_prerequisites": ["tier1_switch3"],
+            "positive_state_changes": ["tier1_switch3"]
+        },
+        {
+            "id": "tier1_switch3_on",
+            "name": "Flip Switch",
+            "menu_description": "The switch is on.",
+            "positive_prerequisites": ["tier1_switch3"],
+            "negative_state_changes": ["tier1_switch3"]
+        },
+        {
+            "id": "tier1_danger_prereq",
+            "name": "Trap Room",
+            "menu_description": "Trap Room",
+            "dialog": "tier1_danger_prereq",
+            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"]
+        },
+        {
+            "id": "get_tablet1",
+            "name": "Tablet Piece",
+            "menu_description": "Acquire the tablet piece.",
+            "dialog": "acquired_tablet_piece",
+            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"],
+            "negative_prerequisites": ["tablet_piece1"],
+            "positive_state_changes": ["tablet_piece1"]
+        }
+    ]
+}

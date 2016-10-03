@@ -664,7 +664,7 @@ def process_external_files(story, file_list_key, m):
                     for newobject in object_list[k]:
                         for oldobject in story[k]:
                             if newobject["id"] == oldobject["id"]:
-                                quit("Duplicate id, " + oldobject["id"] + " in list of " + object_key)
+                                quit("Duplicate id, " + oldobject["id"] + " in list of " + k)
                     story[k].extend(object_list[k])
 
 object_type_list = ["dialog", "events", "battle_events", "skills", "battlers", "locations", "key_items"]

@@ -1,0 +1,27 @@
+{
+    "locations": [
+        {
+            "id": "tier2_room1",
+            "name": "Safe Room",
+            "menu_description": "A momentarily safe space",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier2_room1_initial_event"],
+            "adjacent_locations": ["debug_room"],
+            "location_properties": ["respawn_point"]
+        }
+    ],
+    "dialog": [
+        {
+            "id": "tier2_room1_initial_dialog",
+            "name": "Safe Space",
+            "text": "Having escaped the rolling boulder, you have arrived in a new set of connected rooms."
+        }
+    ],
+    "events": [
+        {
+            "id": "tier2_room1_initial_event",
+            "name": "Safe Space",
+            "dialog": "tier2_room1_initial_dialog"
+        }
+    ]
+}
