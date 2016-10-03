@@ -17,11 +17,17 @@ typedef struct EventStateChange
 } EventStateChange;
 
 typedef struct Event Event;
+typedef struct KeyItem KeyItem;
 
 Event *Event_Load(uint16_t logical_index);
 void Event_Free(Event *event);
 void Event_LoadLocalEvents(uint16_t count, uint16_t *eventIds);
 void Event_FreeLocalEvents(void);
+
+KeyItem *KeyItem_Load(uint16_t logical_index);
+void KeyItem_Free(KeyItem *keyItem);
+uint16_t KeyItem_GetGameStateIndex(KeyItem *keyItem);
+char *KeyItem_GetName(KeyItem *keyItem);
 
 uint16_t Event_GetCurrentLocalEvents(void);
 const char *Event_GetLocalEventName(uint16_t index);

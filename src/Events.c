@@ -25,6 +25,12 @@ typedef struct Event
     EventStateChange stateChanges;
 } Event;
 
+typedef struct KeyItem
+{
+    uint16_t gameStateIndex;
+    char name[MAX_STORY_NAME_LENGTH];
+} KeyItem;
+
 static uint16_t localEventCount = 0;
 static Event *localEvents[MAX_EVENTS] = {0};
 
@@ -42,6 +48,38 @@ void Event_Free(Event *event)
 {
     if(event)
         free(event);
+}
+
+KeyItem *KeyItem_Load(uint16_t logical_index)
+{
+    if(logical_index == 0)
+        return NULL;
+    
+    KeyItem *keyItem = calloc(sizeof(KeyItem), 1);
+    ResourceLoadStruct(Story_GetCurrentResHandle(), logical_index, (uint8_t*)keyItem, sizeof(KeyItem), "KeyItem");
+    return keyItem;
+}
+
+void KeyItem_Free(KeyItem *keyItem)
+{
+    if(keyItem)
+        free(keyItem);
+}
+
+uint16_t KeyItem_GetGameStateIndex(KeyItem *keyItem)
+{
+    if(!keyItem)
+        return 0;
+    
+    return keyItem->gameStateIndex;
+}
+
+char *KeyItem_GetName(KeyItem *keyItem)
+{
+    if(!keyItem)
+        return 0;
+    
+    return keyItem->name;
 }
 
 static bool CheckPrerequisites(uint16_t *gameStateList, uint16_t *prerequisiteList, bool positive)

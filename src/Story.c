@@ -38,6 +38,8 @@ typedef struct Story
     uint16_t activityThreshold;
     uint16_t allowRespawnOnDeath;
     uint16_t debugVariableIndex;
+    uint16_t keyItemCount;
+    uint16_t keyItemList[MAX_KEY_ITEMS];
 } Story;
 
 static Story *Story_GetCurrentStory();
@@ -484,3 +486,15 @@ void Story_TriggerOpeningDialog(void)
     Dialog_TriggerFromResource(Story_GetCurrentResHandle(), Story_GetCurrentStory()->openingDialog);
 }
 
+void Story_GetCurrentKeyItemList(uint16_t *count, uint16_t **list)
+{
+    Story *story = Story_GetCurrentStory();
+    if(!story)
+    {
+        *count = 0;
+        return;
+    }
+    
+    *count = story->keyItemCount;
+    *list = story->keyItemList;
+}

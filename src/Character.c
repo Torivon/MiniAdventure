@@ -1,11 +1,11 @@
 #include <pebble.h>
 
-#include "AutoKeyItemConstants.h"
 #include "Adventure.h"
 #include "Battler.h"
 #include "Character.h"
 #include "CombatantClass.h"
 #include "DialogFrame.h"
+#include "Events.h"
 #include "Logging.h"
 #include "Skills.h"
 #include "Story.h"
@@ -194,11 +194,16 @@ void Character_ShowKeyItems(void)
     bool first = true;
     char text[MAX_DIALOG_LENGTH];
     snprintf(text, MAX_DIALOG_LENGTH, "%s", "");
-    for(uint16_t i = 0; i < sizeof(keyItemList)/sizeof(*keyItemList); ++i)
+    uint16_t keyItemCount = 0;
+    uint16_t *keyItemList = NULL;
+    Story_GetCurrentKeyItemList(&keyItemCount, &keyItemList);
+    for(uint16_t i = 0; i < keyItemCount; ++i)
     {
-        if(keyItemList[i] && Story_GetCurrentGameStateValue(i))
+        KeyItem *keyItem = KeyItem_Load(keyItemList[i]);
+        if(Story_GetCurrentGameStateValue(KeyItem_GetGameStateIndex(keyItem)))
         {
-            if(strlen(text) >= MAX_DIALOG_LENGTH - (strlen(keyItemList[i]) + 2))
+            char *name = KeyItem_GetName(keyItem);
+            if(strlen(text) >= MAX_DIALOG_LENGTH - (strlen(name) + 2))
                 break;
             
             if(first)
@@ -209,8 +214,9 @@ void Character_ShowKeyItems(void)
             {
                 strncat(text, ", ", 2);
             }
-            strncat(text, keyItemList[i], strlen(keyItemList[i]));
+            strncat(text, name, strlen(name));
         }
+        KeyItem_Free(keyItem);
     }
     Dialog_Queue(DialogData_Create("Key Items", text, false));
 }

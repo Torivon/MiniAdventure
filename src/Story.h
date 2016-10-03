@@ -62,3 +62,5 @@ void Story_TriggerOpeningDialog(void);
 
 void Story_LoadAll(void);
 void Story_FreeAll(void);
+
+void Story_GetCurrentKeyItemList(uint16_t *count, uint16_t **list);
