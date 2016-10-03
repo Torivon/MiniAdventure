@@ -118,11 +118,13 @@ void Location_FreeAdjacentLocations(void)
         {
             Location_Free(adjacentLocations[i]);
             adjacentLocations[i] = NULL;
-            for(int j = 0; j < MAX_EVENTS; ++j)
-            {
-                Event_Free(adjacentLocationInitialEvents[i][j]);
-                adjacentLocationInitialEvents[i][j] = NULL;
-            }
+        }
+        // When we switch locations, we set adjacentLocations[i] to NULL for the location to which we are moving.
+        // We have to make sure we clear out extra initial events for the new location.
+        for(int j = 0; j < MAX_EVENTS; ++j)
+        {
+            Event_Free(adjacentLocationInitialEvents[i][j]);
+            adjacentLocationInitialEvents[i][j] = NULL;
         }
     }
 }
