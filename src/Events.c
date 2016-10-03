@@ -11,6 +11,7 @@
 #include "DialogFrame.h"
 #include "Events.h"
 #include "GlobalState.h"
+#include "logging.h"
 #include "Story.h"
 
 typedef struct Event
@@ -52,9 +53,9 @@ static bool CheckPrerequisites(uint16_t *gameStateList, uint16_t *prerequisiteLi
         uint16_t prerequisite = prerequisiteList[i];
         if(prerequisite > 0)
         {
-            bool result = ((gameState & prerequisite) == prerequisite);
             if(!positive)
-                result = !result;
+                gameState = ~gameState;
+            bool result = ((gameState & prerequisite) == prerequisite);
             match = match && result;
         }
     }
@@ -72,6 +73,33 @@ bool Event_CheckPrerequisites(Event *event)
     match = match && CheckPrerequisites(gameStateList, event->positivePrerequisites, true);
     match = match && CheckPrerequisites(gameStateList, event->negativePrerequisites, false);
     return match;
+}
+
+bool EventList_CheckPrerequisites(Event **eventList, uint16_t *index)
+{
+    // If there are no events, return true, if there are some non-zero events only return true
+    // if one of the events is true.
+    if(!eventList || !eventList[0])
+    {
+        if(index)
+            *index = 0;
+        return true;
+    }
+    
+    for(int i = 0; i < MAX_EVENTS; ++i)
+    {
+        Event *event = eventList[i];
+        if(!event)
+            return false;
+        
+        if(Event_CheckPrerequisites(event))
+        {
+            if(index)
+                *index = i;
+            return true;
+        }
+    }
+    return false;
 }
 
 void Event_UpdateGameState(void *data)

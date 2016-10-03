@@ -24,7 +24,7 @@
             "menu_description": "Visit the cheese shop",
             "adjacent_locations": ["village2"],
             "background_images": ["images/shop.png"],
-            "initial_event": "shop_enter",
+            "initial_events": ["shop_enter"],
             "events": ["shop1", "shop2"]
         },
         {
@@ -41,7 +41,7 @@
             "menu_description": "Bob is in charge of village security.",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
-            "initial_event": "bobs_house_enter",
+            "initial_events": ["bobs_house_enter"],
             "events": ["bob1", "bob2"]
         },
         {
@@ -61,7 +61,7 @@
             "menu_description": "Your home",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
-            "initial_event": "daytime",
+            "initial_events": ["daytime"],
             "location_properties": ["rest_area", "respawn_point"]
         },
         {
@@ -71,7 +71,7 @@
             "menu_description": "Your home",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
-            "initial_event": "bedtime",
+            "initial_events": ["bedtime"],
             "location_properties": ["game_win"]
         },
         {
@@ -84,7 +84,7 @@
             "base_level": 1,
             "encounter_chance": 50,
             "monsters": ["rat"],
-            "initial_event": "poplar_enter",
+            "initial_events": ["poplar_enter"],
             "inactive_speed": 1,
             "skip_encounters_if_active": false,
             "grant_xp_for_skipped_encounters": false,

@@ -13,7 +13,6 @@ const char *keyItemList[] =
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	"Village Key",
 	"Cheese",
 	"Rat Poison",

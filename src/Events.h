@@ -28,6 +28,7 @@ const char *Event_GetLocalEventName(uint16_t index);
 const char *Event_GetLocalEventDescription(uint16_t index);
 
 bool Event_CheckPrerequisites(Event *event);
+bool EventList_CheckPrerequisites(Event **eventList, uint16_t *index);
 void Event_Trigger(uint16_t index);
 void Event_TriggerEvent(Event *event, bool now);
 

@@ -16,7 +16,7 @@
             "name": "Debug Room",
             "menu_description": "A debug room to help testing.",
             "background_images": ["images/shop.png"],
-            "initial_event": "debug_room_prereq",
+            "initial_events": ["debug_room_prereq"],
             "adjacent_locations": ["office", "tier1_room1", "tier2_room1"]
         },
         {
@@ -64,14 +64,14 @@
             "skip_encounters_if_active": false,
             "grant_xp_for_skipped_encounters": false,
             "extend_path_during_activity": false,
-            "initial_event": "river_prereq"
+            "initial_events": ["river_prereq"]
         },
         {
             "id": "front_door",
             "name": "Front Door",
             "menu_description": "The main entrance to the ruins.",
             "background_images": ["images/TombEntrance.png"],
-            "initial_event": "front_door_prereq",
+            "initial_events": ["front_door_prereq"],
             "adjacent_locations": ["tier1_room1"]
         },
         {
@@ -79,10 +79,10 @@
             "name": "Entrance Hall",
             "menu_description": "The main entrance hall",
             "background_images": ["images/dungeonstraight.png"],
-            "initial_event": "tier1_room1_initial_event",
+            "initial_events": ["tier1_room1_door_open_initial_event", "tier1_room1_initial_event"],
             "adjacent_locations": ["front_door", "tier1_ladder", "tier1_danger", "debug_room"],
             "location_properties": ["respawn_point"],
-            "events": ["tier1_switch1_off", "tier1_switch1_on", "tier1_danger_door_open", "get_tablet1"]
+            "events": ["tier1_switch1_off", "tier1_switch1_on", "get_tablet1"]
         },
         {
             "id": "tier1_ladder",
@@ -90,7 +90,7 @@
             "menu_description": "Ladder",
             "adjacent_locations": ["tier1_room1", "tier1_room2"],
             "background_images": ["images/newfloor.png"],
-            "length": 5,
+            "length": 10,
             "base_level": 1,
             "encounter_chance": 0,
             "inactive_speed": 0,
@@ -98,14 +98,14 @@
             "skip_encounters_if_active": false,
             "grant_xp_for_skipped_encounters": false,
             "extend_path_during_activity": false,
-            "initial_event": "ladder_prereq"
+            "initial_events": ["ladder_prereq"]
         },
         {
             "id": "tier1_room2",
             "name": "Upper Hall",
             "menu_description": "The upper hall",
             "background_images": ["images/dungeondeadend.png"],
-            "initial_event": "tier1_room2_initial_event",
+            "initial_events": ["tier1_room2_initial_event"],
             "adjacent_locations": ["tier1_ladder", "tier1_slide1"],
             "events": ["tier1_switch2_off", "tier1_switch2_on"]
         },
@@ -123,15 +123,15 @@
             "skip_encounters_if_active": false,
             "grant_xp_for_skipped_encounters": false,
             "extend_path_during_activity": false,
-            "initial_event": "ramp_prereq"
+            "initial_events": ["ramp_prereq"]
         },
         {
             "id": "tier1_room3",
             "name": "Hidden Room",
             "menu_description": "A hidden room.",
             "background_images": ["images/dungeondeadend.png"],
-            "initial_event": "tier1_room3_initial_event",
-            "adjacent_locations": ["tier1_ladder"],
+            "initial_events": ["tier1_room3_initial_event"],
+            "adjacent_locations": ["tier1_slide2"],
             "events": ["tier1_switch3_off", "tier1_switch3_on"]
         },
         {
@@ -148,14 +148,14 @@
             "skip_encounters_if_active": false,
             "grant_xp_for_skipped_encounters": false,
             "extend_path_during_activity": false,
-            "initial_event": "ramp_prereq"
+            "initial_events": ["ramp_prereq"]
         },
         {
             "id": "tier1_danger",
             "name": "Trap Room",
             "menu_description": "Trap Room",
             "background_images": ["images/dungeonstraight.png"],
-            "initial_event": "tier1_danger_prereq",
+            "initial_events": ["tier1_danger_prereq"],
             "adjacent_locations": ["tier1_room1", "tier2_room1"],
             "length": 5,
             "base_level": 1,
@@ -172,7 +172,7 @@
             "name": "Safe Room",
             "menu_description": "A momentarily safe space",
             "background_images": ["images/dungeonstraight.png"],
-            "initial_event": "tier2_room1_initial_event",
+            "initial_events": ["tier2_room1_initial_event"],
             "adjacent_locations": ["debug_room"],
             "location_properties": ["respawn_point"]
         }
@@ -299,7 +299,12 @@
         {
             "id": "tier1_room1_initial_dialog",
             "name": "Main Entrance Hall",
-            "text": "You have entered the main entrance hall. There is a switch on the wall, a ladder to a higher floor, a sealed door, and ramp, too steep and slick to climb."
+            "text": "You have entered the main entrance hall. There is a switch on the wall, a ladder to a higher floor, a sealed door, and a ramp, too steep and slick to climb."
+        },
+        {
+            "id": "tier1_room1_door_open_initial_dialog",
+            "name": "Main Entrance Hall",
+            "text": "You have entered the main entrance hall. A slot has opened in the wall that may be worth investigating. In addition, the previously sealed door is now open. You sense danger on the other side."
         },
         {
             "id": "tier1_room2_initial_dialog",
@@ -409,6 +414,12 @@
             "positive_prerequisites": ["red_gem", "raft", "talked_to_camp_master1"]
         },
         {
+            "id": "tier1_room1_door_open_initial_event",
+            "name": "Main Entrance Hall",
+            "dialog": "tier1_room1_door_open_initial_dialog",
+            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"]
+        },
+        {
             "id": "tier1_room1_initial_event",
             "name": "Main Entrance Hall",
             "dialog": "tier1_room1_initial_dialog"
@@ -460,30 +471,22 @@
             "id": "tier1_switch3_off",
             "name": "Flip Switch",
             "menu_description": "The switch is off.",
-            "negative_prerequisites": ["tier1_switch2"],
-            "positive_state_changes": ["tier1_switch2"]
+            "negative_prerequisites": ["tier1_switch3"],
+            "positive_state_changes": ["tier1_switch3"]
         },
         {
             "id": "tier1_switch3_on",
             "name": "Flip Switch",
             "menu_description": "The switch is on.",
-            "positive_prerequisites": ["tier1_switch2"],
-            "negative_state_changes": ["tier1_switch2"]
-        },
-        {
-            "id": "tier1_danger_door_open",
-            "name": "Open Door",
-            "menu_description": "Open the door",
-            "dialog": "tier1_danger_door_open",
-            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"],
-            "positive_state_changes": ["tier1_danger_door_open"]
+            "positive_prerequisites": ["tier1_switch3"],
+            "negative_state_changes": ["tier1_switch3"]
         },
         {
             "id": "tier1_danger_prereq",
             "name": "Trap Room",
             "menu_description": "Trap Room",
             "dialog": "tier1_danger_prereq",
-            "positive_prerequisites": ["tier1_danger_door_open"]
+            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"]
         },
         {
             "id": "tier2_room1_initial_event",
@@ -495,7 +498,7 @@
             "name": "Tablet Piece",
             "menu_description": "Acquire the tablet piece.",
             "dialog": "acquired_tablet_piece",
-            "positive_prerequisites": ["tier1_danger_door_open"],
+            "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"],
             "negative_prerequisites": ["tablet_piece1"],
             "positive_state_changes": ["tablet_piece1"]
         }

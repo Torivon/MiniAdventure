@@ -13,6 +13,7 @@
 #include "Events.h"
 #include "ImageMap.h"
 #include "Location.h"
+#include "logging.h"
 #include "Story.h"
 #include "Utils.h"
 
@@ -33,7 +34,8 @@ typedef struct Location
     uint16_t encounterChance;
     uint16_t monsterCount;
     uint16_t monsters[MAX_MONSTERS];
-    uint16_t initialEvent;
+    uint16_t initialEventCount;
+    uint16_t initialEvents[MAX_EVENTS];
     uint16_t localEventCount;
     uint16_t localEvents[MAX_EVENTS];
     uint16_t useActivityTracking; //Three values, false, true, default
@@ -47,7 +49,7 @@ typedef struct Location
 static Location *currentLocation = NULL;
 static Event *currentLocationInitialEvent = NULL;
 static Location *adjacentLocations[MAX_ADJACENT_LOCATIONS] = {0};
-static Event *adjacentLocationInitialEvents[MAX_ADJACENT_LOCATIONS] = {0};
+static Event *adjacentLocationInitialEvents[MAX_ADJACENT_LOCATIONS][MAX_EVENTS];
 
 static Location *Location_Load(uint16_t logical_index)
 {
@@ -101,7 +103,10 @@ void Location_LoadAdjacentLocations(void)
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
         adjacentLocations[i] = Location_Load(currentLocation->adjacentLocations[i]);
-        adjacentLocationInitialEvents[i] = Event_Load(adjacentLocations[i]->initialEvent);
+        for(int j = 0; j < MAX_EVENTS; ++j)
+        {
+            adjacentLocationInitialEvents[i][j] = Event_Load(adjacentLocations[i]->initialEvents[j]);
+        }
     }
 }
 
@@ -113,8 +118,11 @@ void Location_FreeAdjacentLocations(void)
         {
             Location_Free(adjacentLocations[i]);
             adjacentLocations[i] = NULL;
-            Event_Free(adjacentLocationInitialEvents[i]);
-            adjacentLocationInitialEvents[i] = NULL;
+            for(int j = 0; j < MAX_EVENTS; ++j)
+            {
+                Event_Free(adjacentLocationInitialEvents[i][j]);
+                adjacentLocationInitialEvents[i][j] = NULL;
+            }
         }
     }
 }
@@ -124,7 +132,7 @@ uint16_t Location_GetCurrentAdjacentLocations(void)
     uint16_t count = 0;
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
-        if(Event_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        if(EventList_CheckPrerequisites(adjacentLocationInitialEvents[i], NULL))
             ++count;
     }
     return count;
@@ -140,7 +148,7 @@ const char *Location_GetAdjacentLocationName(uint16_t index)
     uint16_t currentIndex = 0;
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
-        if(Event_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        if(EventList_CheckPrerequisites(adjacentLocationInitialEvents[i], NULL))
         {
             if(currentIndex == index)
                 return adjacentLocations[i]->menuName;
@@ -156,7 +164,7 @@ const char *Location_GetAdjacentLocationDescription(uint16_t index)
     uint16_t currentIndex = 0;
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
-        if(Event_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        if(EventList_CheckPrerequisites(adjacentLocationInitialEvents[i], NULL))
         {
             if(currentIndex == index)
                 return adjacentLocations[i]->menuDescription;
@@ -244,10 +252,10 @@ void Location_SetCurrentLocation(uint16_t locationIndex)
     {
         Location_Free(currentLocation);
         Event_Free(currentLocationInitialEvent);
+        currentLocationInitialEvent = NULL;
     }
     
     currentLocation = Location_Load(locationIndex);
-    currentLocationInitialEvent = Event_Load(currentLocation->initialEvent);
     Location_FreeAdjacentLocations();
     Location_LoadAdjacentLocations();
     Event_FreeLocalEvents();
@@ -261,9 +269,10 @@ uint16_t Location_MoveToAdjacentLocation(uint16_t menuIndex)
 {
     uint16_t newIndex = 0;
     uint16_t indexToUse = 0;
+    uint16_t initialEventIndex = 0;
     for(int i = 0; i < currentLocation->adjacentLocationCount; ++i)
     {
-        if(Event_CheckPrerequisites(adjacentLocationInitialEvents[i]))
+        if(EventList_CheckPrerequisites(adjacentLocationInitialEvents[i], &initialEventIndex))
         {
             if(newIndex == menuIndex)
             {
@@ -277,9 +286,9 @@ uint16_t Location_MoveToAdjacentLocation(uint16_t menuIndex)
     if(currentLocation)
     {
         Location *newLocation = adjacentLocations[indexToUse];
-        Event *newInitialEvent = adjacentLocationInitialEvents[indexToUse];
+        Event *newInitialEvent = adjacentLocationInitialEvents[indexToUse][initialEventIndex];
         adjacentLocations[indexToUse] = NULL;
-        adjacentLocationInitialEvents[indexToUse] = NULL;
+        adjacentLocationInitialEvents[indexToUse][initialEventIndex] = NULL;
         
         uint16_t globalIndex = currentLocation->adjacentLocations[indexToUse];
         
@@ -287,11 +296,13 @@ uint16_t Location_MoveToAdjacentLocation(uint16_t menuIndex)
         Location_FreeAdjacentLocations();
         Location_Free(currentLocation);
         Event_Free(currentLocationInitialEvent);
+        currentLocationInitialEvent = newInitialEvent;
         
         currentLocation = newLocation;
-        currentLocationInitialEvent = newInitialEvent;
         if(currentLocationInitialEvent)
+        {
             Event_TriggerEvent(currentLocationInitialEvent, true);
+        }
         Location_LoadAdjacentLocations();
         Event_LoadLocalEvents(currentLocation->localEventCount, currentLocation->localEvents);
         return globalIndex;

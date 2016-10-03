@@ -160,7 +160,7 @@ def pack_location(location):
     binarydata += pack_integer_with_default(location, "base_level", 0)
     binarydata += pack_integer_with_default(location, "encounter_chance", 0)
     binarydata += pack_integerlist_with_default(location, "monsters_index", g_size_constants["MAX_MONSTERS"], 0)
-    binarydata += pack_integer_with_default(location, "initial_event_index", 0)
+    binarydata += pack_integerlist_with_default(location, "initial_events_index", g_size_constants["MAX_EVENTS"], 0)
     binarydata += pack_integerlist_with_default(location, "events_index", g_size_constants["MAX_EVENTS"], 0)
     binarydata += pack_integer_with_default(location, "use_activity_tracking", 2)
     binarydata += pack_integer_with_default(location, "inactive_speed", 1)
@@ -509,9 +509,15 @@ def process_location(location):
         location["monsters_index"] = []
         for monster in location["monsters"]:
             location["monsters_index"].append(object_type_data["battlers"]["map"][monster])
-    if "initial_event" in location:
-        location["initial_event_index"] = object_type_data["events"]["map"][location["initial_event"]]
+    if "initial_events" in location:
+        if len(location["initial_events"]) > g_size_constants["MAX_EVENTS"]:
+            quit("Too many initial events: " + location["name"])
+        location["initial_events_index"] = []
+        for initial_event in location["initial_events"]:
+            location["initial_events_index"].append(object_type_data["events"]["map"][initial_event])
     if "events" in location:
+        if len(location["events"]) > g_size_constants["MAX_EVENTS"]:
+            quit("Too many events: " + location["name"])
         location["events_index"] = []
         for event in location["events"]:
             location["events_index"].append(object_type_data["events"]["map"][event])
