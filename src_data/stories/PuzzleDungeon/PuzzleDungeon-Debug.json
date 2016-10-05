@@ -6,7 +6,7 @@
             "menu_description": "A debug room to help testing.",
             "background_images": ["images/shop.png"],
             "initial_events": ["debug_room_prereq"],
-            "adjacent_locations": ["office", "tier1_room1", "tier2_room1"]
+            "adjacent_locations": ["office", "tier1_room1", "tier2_room1", "tier3_entrance"]
         }
     ],
     "events": [

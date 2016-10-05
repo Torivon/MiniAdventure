@@ -1,0 +1,26 @@
+{
+    "locations": [
+        {
+            "id": "tier3_entrance",
+            "name": "Maze Entrance",
+            "menu_description": "What seems to be the entrance to a maze",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["debug_room_prereq"],
+            "adjacent_locations": ["debug_room"]
+        }
+    ],
+    "dialog": [
+        {
+            "id": "tier3_entrance_dialog",
+            "name": "Maze Entrance",
+            "text": "You seem to have entered a maze."
+        }
+    ],
+    "events": [
+        {
+            "id": "tier3_entrance_prereq",
+            "name": "Maze Entrance",
+            "dialog": "tier3_entrance_dialog"
+        }
+    ]
+}

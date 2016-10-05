@@ -128,7 +128,7 @@
         {
             "id": "tier1_danger_prereq",
             "name": "Trap Room",
-            "text": "As you enter the room, a boulder starts rolling towards you. RUN!"
+            "text": "As you enter the room, a boulder starts rolling towards you. \n\nRUN!"
         },
         {
             "id": "ramp_description",
@@ -228,8 +228,8 @@
             "menu_description": "Acquire the tablet piece.",
             "dialog": "acquired_tablet_piece",
             "positive_prerequisites": ["tier1_switch1", "tier1_switch2", "tier1_switch3"],
-            "negative_prerequisites": ["tablet_piece1"],
-            "positive_state_changes": ["tablet_piece1"]
+            "negative_prerequisites": ["tablet_piece_1"],
+            "positive_state_changes": ["tablet_piece_1"]
         }
     ]
 }

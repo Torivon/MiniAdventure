@@ -2,26 +2,323 @@
     "locations": [
         {
             "id": "tier2_room1",
-            "name": "Safe Room",
+            "name": "Reset Room",
             "menu_description": "A momentarily safe space",
             "background_images": ["images/dungeonstraight.png"],
-            "initial_events": ["tier2_room1_initial_event"],
-            "adjacent_locations": ["debug_room"],
-            "location_properties": ["respawn_point"]
+            "initial_events": ["tier2_room1_initial_event", "tier2_room1_enter_switch_up", "tier2_room1_enter_switch_down"],
+            "adjacent_locations": ["debug_room", "tier2_puzzle_room1"],
+            "location_properties": ["respawn_point"],
+            "events": ["tier2_reset_switch"]
+        },
+        {
+            "id": "tier2_puzzle_room1",
+            "name": "Puzzle Room 1",
+            "menu_description": "Puzzle Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier2_room1", "tier2_puzzle_room2", "tier2_puzzle_room4"],
+            "events": ["tier2_switch1_from_324", "tier2_switch1_from_24", "tier2_switch1_from_nothing", "tier2_switch1_from_broken", "tier2_switch1_to_broken", "get_tablet2"]
+        },
+        {
+            "id": "tier2_puzzle_room2",
+            "name": "Puzzle Room 2",
+            "menu_description": "Puzzle Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier2_puzzle_room1", "tier2_puzzle_room3"],
+            "events": ["tier2_switch2_from_143", "tier2_switch2_from_3", "tier2_switch2_from_nothing", "tier2_switch2_from_broken", "tier2_switch2_to_broken", "get_yellow_gem"]
+        },
+        {
+            "id": "tier2_puzzle_room3",
+            "name": "Puzzle Room 3",
+            "menu_description": "Puzzle Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier2_puzzle_room2", "tier2_puzzle_room4", "tier2_trap_room"],
+            "location_properties": ["respawn_point"],
+            "events": ["tier2_switch3_from_241", "tier2_switch3_from_14", "tier2_switch3_from_nothing", "tier2_switch3_from_broken", "tier2_switch3_to_broken"]
+        },
+        {
+            "id": "tier2_puzzle_room4",
+            "name": "Puzzle Room 4",
+            "menu_description": "Puzzle Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier2_puzzle_room1", "tier2_puzzle_room3"],
+            "events": ["tier2_switch4_from_32", "tier2_switch4_from_2", "tier2_switch4_from_1", "tier2_switch4_from_broken", "tier2_switch4_to_broken"]
+        },
+        {
+            "id": "tier2_trap_room",
+            "name": "Trap Room",
+            "menu_description": "Poison Dart Trap Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier2_danger_prereq"],
+            "adjacent_locations": ["tier2_puzzle_room3", "tier3_entrance"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 100,
+            "monsters": ["poison_dart"],
+            "inactive_speed": 0,
+            "active_speed": 1,
+            "skip_encounters_if_active": true,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
         }
     ],
     "dialog": [
         {
             "id": "tier2_room1_initial_dialog",
-            "name": "Safe Space",
-            "text": "Having escaped the rolling boulder, you have arrived in a new set of connected rooms."
+            "name": "Reset Room",
+            "text": "Having escaped the rolling boulder, you have arrived in a new set of connected rooms. This room has a recessed floor plate that you can't do anything with for now."
+        },
+        {
+            "id": "tier2_room1_enter_switch_down",
+            "name": "Reset Room",
+            "text": "This room has a recessed floor plate that you can't do anything with for now."
+        },
+        {
+            "id": "tier2_room1_enter_switch_up",
+            "name": "Reset Room",
+            "text": "The floor plate has risen up. You can now interact with it."
+        },
+        {
+            "id": "tier2_switch_press",
+            "name": "Floor Switch",
+            "text": "You step on the floor plate and hear a rumbling in the nearby rooms."
+        },
+        {
+            "id": "acquired_yellow_gem",
+            "name": "Yellow Gem",
+            "text": "You pick up a yellow gemstone."
+        },
+        {
+            "id": "tier2_danger_prereq",
+            "name": "Trap Room",
+            "text": "As you enter the room, a poison darts start flying out of the walls. \n\nRUN!"
         }
     ],
     "events": [
         {
             "id": "tier2_room1_initial_event",
-            "name": "Safe Space",
-            "dialog": "tier2_room1_initial_dialog"
+            "name": "Reset Room",
+            "dialog": "tier2_room1_initial_dialog",
+            "negative_prerequisites": ["tier2_room1_initial_entry"],
+            "positive_state_changes": ["tier2_room1_initial_entry"] 
+        },
+        {
+            "id": "tier2_room1_enter_switch_down",
+            "name": "Reset Room",
+            "dialog": "tier2_room1_enter_switch_down"
+        },
+        {
+            "id": "tier2_room1_enter_switch_up",
+            "name": "Reset Room",
+            "dialog": "tier2_room1_enter_switch_up",
+            "positive_prerequisites": ["tier2_any_switch_pressed"]
+        },
+        {
+            "id": "tier2_reset_switch",
+            "name": "Reset Switch",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_any_switch_pressed"],
+            "negative_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_switch2", "tier2_switch3", "tier2_switch4", "tier2_state1", "tier2_state2", "tier2_state3", "tier2_state_broken", "tier2_state24", "tier2_state241", "tier2_state2413", "tier2_state14", "tier2_state143", "tier2_state1432", "tier2_state32", "tier2_state324", "tier2_state3241"]
+        },
+        {
+            "id": "tier2_switch1_from_324",
+            "name": "Switch 1 324",
+            "menu_description": "Switch 1 324",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state324"],
+            "negative_prerequisites": ["tier2_switch1", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state3241"]
+        },
+        {
+            "id": "tier2_switch1_from_24",
+            "name": "Switch 1 24",
+            "menu_description": "Switch 1 24",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state24"],
+            "negative_prerequisites": ["tier2_switch1", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state241"]
+        },
+        {
+            "id": "tier2_switch1_from_nothing",
+            "name": "Switch 1 -",
+            "menu_description": "Switch 1 -",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state1"]
+        },
+        {
+            "id": "tier2_switch1_from_broken",
+            "name": "Switch 1 broken",
+            "menu_description": "Switch 1 broken",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch1"],
+            "positive_prerequisites": ["tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1"]
+        },
+        {
+            "id": "tier2_switch1_to_broken",
+            "name": "Switch 1 other",
+            "menu_description": "Switch 1 other",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch1", "tier2_state324", "tier2_state24", "tier2_state_broken"],
+            "positive_prerequisites": ["tier2_any_switch_pressed"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state_broken"]
+        },
+        {
+            "id": "tier2_switch2_from_143",
+            "name": "Switch 2 143",
+            "menu_description": "Switch 2 143",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state143"],
+            "negative_prerequisites": ["tier2_switch2", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state1432"]
+        },
+        {
+            "id": "tier2_switch2_from_3",
+            "name": "Switch 2 3",
+            "menu_description": "Switch 2 3",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state3"],
+            "negative_prerequisites": ["tier2_switch2", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state32"]
+        },
+        {
+            "id": "tier2_switch2_from_nothing",
+            "name": "Switch 2 -",
+            "menu_description": "Switch 2 -",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state2"]
+        },
+        {
+            "id": "tier2_switch2_from_broken",
+            "name": "Switch 2 broken",
+            "menu_description": "Switch 2 broken",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch2"],
+            "positive_prerequisites": ["tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2"]
+        },
+        {
+            "id": "tier2_switch2_to_broken",
+            "name": "Switch 2 other",
+            "menu_description": "Switch 2 other",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch2", "tier2_state143", "tier2_state3", "tier2_state_broken"],
+            "positive_prerequisites": ["tier2_any_switch_pressed"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state_broken"]
+        },
+        {
+            "id": "tier2_switch3_from_241",
+            "name": "Switch 3 241",
+            "menu_description": "Switch 3 241",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state241"],
+            "negative_prerequisites": ["tier2_switch3", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state2413"]
+        },
+        {
+            "id": "tier2_switch3_from_14",
+            "name": "Switch 3 14",
+            "menu_description": "Switch 3 14",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state14"],
+            "negative_prerequisites": ["tier2_switch3", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state143"]
+        },
+        {
+            "id": "tier2_switch3_from_nothing",
+            "name": "Switch 3 -",
+            "menu_description": "Switch 3 -",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state3"]
+        },
+        {
+            "id": "tier2_switch3_from_broken",
+            "name": "Switch 3 broken",
+            "menu_description": "Switch 3 broken",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch3"],
+            "positive_prerequisites": ["tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3"]
+        },
+        {
+            "id": "tier2_switch3_to_broken",
+            "name": "Switch 3 other",
+            "menu_description": "Switch 3 other",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch3", "tier2_state241", "tier2_state14", "tier2_state_broken"],
+            "positive_prerequisites": ["tier2_any_switch_pressed"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state_broken"]
+        },
+        {
+            "id": "tier2_switch4_from_32",
+            "name": "Switch 4 32",
+            "menu_description": "Switch 4 32",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state32"],
+            "negative_prerequisites": ["tier2_switch4", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch4", "tier2_state324"]
+        },
+        {
+            "id": "tier2_switch4_from_2",
+            "name": "Switch 4 2",
+            "menu_description": "Switch 4 2",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state2"],
+            "negative_prerequisites": ["tier2_switch4", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch4", "tier2_state24"]
+        },
+        {
+            "id": "tier2_switch4_from_1",
+            "name": "Switch 4 1",
+            "menu_description": "Switch 4 1",
+            "dialog": "tier2_switch_press",
+            "positive_prerequisites": ["tier2_state1"],
+            "negative_prerequisites": ["tier2_switch4", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch4", "tier2_state14"]
+        },
+        {
+            "id": "tier2_switch4_from_broken",
+            "name": "Switch 4 broken",
+            "menu_description": "Switch 4 broken",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch4"],
+            "positive_prerequisites": ["tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch4"]
+        },
+        {
+            "id": "tier2_switch4_to_broken",
+            "name": "Switch 4 other",
+            "menu_description": "Switch 4 other",
+            "dialog": "tier2_switch_press",
+            "negative_prerequisites": ["tier2_switch4", "tier2_state32", "tier2_state2", "tier2_state1", "tier2_state_broken"],
+            "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch4", "tier2_state_broken"]
+        },
+        {
+            "id": "get_tablet2",
+            "name": "Tablet Piece",
+            "menu_description": "Acquire the tablet piece.",
+            "dialog": "acquired_tablet_piece",
+            "positive_prerequisites": ["tier2_state3241"],
+            "negative_prerequisites": ["tablet_piece_2"],
+            "positive_state_changes": ["tablet_piece_2"]
+        },
+        {
+            "id": "get_yellow_gem",
+            "name": "Yellow Gem",
+            "menu_description": "Acquire the yellow gem.",
+            "dialog": "acquired_yellow_gem",
+            "positive_prerequisites": ["tier2_state1432"],
+            "negative_prerequisites": ["yellow_gem"],
+            "positive_state_changes": ["yellow_gem"]
+        },
+        {
+            "id": "tier2_danger_prereq",
+            "name": "Trap Room",
+            "menu_description": "Trap Room",
+            "dialog": "tier2_danger_prereq",
+            "positive_prerequisites": ["tier2_state2413"]
         }
     ]
 }
