@@ -2,8 +2,8 @@
     "locations": [
         {
             "id": "tier2_room1",
-            "name": "Reset Room",
-            "menu_description": "A momentarily safe space",
+            "name": "Puzzle Entrance",
+            "menu_description": "The entrance to a set of puzzle rooms.",
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier2_room1_initial_event", "tier2_room1_enter_switch_up", "tier2_room1_enter_switch_down"],
             "adjacent_locations": ["debug_room", "tier2_puzzle_room1"],
@@ -12,24 +12,24 @@
         },
         {
             "id": "tier2_puzzle_room1",
-            "name": "Puzzle Room 1",
-            "menu_description": "Puzzle Room",
+            "name": "NW Room",
+            "menu_description": "Northwest Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_room1", "tier2_puzzle_room2", "tier2_puzzle_room4"],
             "events": ["tier2_switch1_from_324", "tier2_switch1_from_24", "tier2_switch1_from_nothing", "tier2_switch1_from_broken", "tier2_switch1_to_broken", "get_tablet2"]
         },
         {
             "id": "tier2_puzzle_room2",
-            "name": "Puzzle Room 2",
-            "menu_description": "Puzzle Room",
+            "name": "NE Room",
+            "menu_description": "Northeast Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_puzzle_room1", "tier2_puzzle_room3"],
             "events": ["tier2_switch2_from_143", "tier2_switch2_from_3", "tier2_switch2_from_nothing", "tier2_switch2_from_broken", "tier2_switch2_to_broken", "get_yellow_gem"]
         },
         {
             "id": "tier2_puzzle_room3",
-            "name": "Puzzle Room 3",
-            "menu_description": "Puzzle Room",
+            "name": "SE Room",
+            "menu_description": "Southeast Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_puzzle_room2", "tier2_puzzle_room4", "tier2_trap_room"],
             "location_properties": ["respawn_point"],
@@ -37,8 +37,8 @@
         },
         {
             "id": "tier2_puzzle_room4",
-            "name": "Puzzle Room 4",
-            "menu_description": "Puzzle Room",
+            "name": "SW Room",
+            "menu_description": "Southwest Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_puzzle_room1", "tier2_puzzle_room3"],
             "events": ["tier2_switch4_from_32", "tier2_switch4_from_2", "tier2_switch4_from_1", "tier2_switch4_from_broken", "tier2_switch4_to_broken"]
@@ -64,17 +64,17 @@
     "dialog": [
         {
             "id": "tier2_room1_initial_dialog",
-            "name": "Reset Room",
+            "name": "Puzzle Entrance",
             "text": "Having escaped the rolling boulder, you have arrived in a new set of connected rooms. This room has a recessed floor plate that you can't do anything with for now."
         },
         {
             "id": "tier2_room1_enter_switch_down",
-            "name": "Reset Room",
+            "name": "Puzzle Entrance",
             "text": "This room has a recessed floor plate that you can't do anything with for now."
         },
         {
             "id": "tier2_room1_enter_switch_up",
-            "name": "Reset Room",
+            "name": "Puzzle Entrance",
             "text": "The floor plate has risen up. You can now interact with it."
         },
         {
@@ -90,25 +90,38 @@
         {
             "id": "tier2_danger_prereq",
             "name": "Trap Room",
-            "text": "As you enter the room, a poison darts start flying out of the walls. \n\nRUN!"
+            "text": "Poison darts start flying out of the walls. \n\nRUN!"
+        },
+        {
+            "id": "tier2_reveal_secret",
+            "name": "Secret Compartment",
+            "text": "When you step on the floor plate, a secret compartment in the wall opens up. Perhaps you should investigate."
+        },
+        {
+            "id": "tier2_open_door",
+            "name": "Door Opens",
+            "text": "When you step on the floor plate, a secret door in this room opens. It looks like the way on, but you have a bad feeling about it."
         }
     ],
     "events": [
         {
             "id": "tier2_room1_initial_event",
-            "name": "Reset Room",
+            "name": "Puzzle Entrance",
+            "menu_description": "Puzzle Entrance",
             "dialog": "tier2_room1_initial_dialog",
             "negative_prerequisites": ["tier2_room1_initial_entry"],
             "positive_state_changes": ["tier2_room1_initial_entry"] 
         },
         {
             "id": "tier2_room1_enter_switch_down",
-            "name": "Reset Room",
+            "name": "Puzzle Entrance",
+            "menu_description": "Puzzle Entrance",
             "dialog": "tier2_room1_enter_switch_down"
         },
         {
             "id": "tier2_room1_enter_switch_up",
-            "name": "Reset Room",
+            "name": "Puzzle Entrance",
+            "menu_description": "Puzzle Entrance",
             "dialog": "tier2_room1_enter_switch_up",
             "positive_prerequisites": ["tier2_any_switch_pressed"]
         },
@@ -121,17 +134,17 @@
         },
         {
             "id": "tier2_switch1_from_324",
-            "name": "Switch 1 324",
-            "menu_description": "Switch 1 324",
-            "dialog": "tier2_switch_press",
+            "name": "NW Switch",
+            "menu_description": "Northwest Switch",
+            "dialog": "tier2_reveal_secret",
             "positive_prerequisites": ["tier2_state324"],
             "negative_prerequisites": ["tier2_switch1", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state3241"]
         },
         {
             "id": "tier2_switch1_from_24",
-            "name": "Switch 1 24",
-            "menu_description": "Switch 1 24",
+            "name": "NW Switch",
+            "menu_description": "Northwest Switch",
             "dialog": "tier2_switch_press",
             "positive_prerequisites": ["tier2_state24"],
             "negative_prerequisites": ["tier2_switch1", "tier2_state_broken"],
@@ -139,16 +152,16 @@
         },
         {
             "id": "tier2_switch1_from_nothing",
-            "name": "Switch 1 -",
-            "menu_description": "Switch 1 -",
+            "name": "NW Switch",
+            "menu_description": "Northwest Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch1", "tier2_state1"]
         },
         {
             "id": "tier2_switch1_from_broken",
-            "name": "Switch 1 broken",
-            "menu_description": "Switch 1 broken",
+            "name": "NW Switch",
+            "menu_description": "Northwest Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch1"],
             "positive_prerequisites": ["tier2_state_broken"],
@@ -156,8 +169,8 @@
         },
         {
             "id": "tier2_switch1_to_broken",
-            "name": "Switch 1 other",
-            "menu_description": "Switch 1 other",
+            "name": "NW Switch",
+            "menu_description": "Northwest Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch1", "tier2_state324", "tier2_state24", "tier2_state_broken"],
             "positive_prerequisites": ["tier2_any_switch_pressed"],
@@ -165,17 +178,17 @@
         },
         {
             "id": "tier2_switch2_from_143",
-            "name": "Switch 2 143",
-            "menu_description": "Switch 2 143",
-            "dialog": "tier2_switch_press",
+            "name": "NE Switch",
+            "menu_description": "Northeast Switch",
+            "dialog": "tier2_reveal_secret",
             "positive_prerequisites": ["tier2_state143"],
             "negative_prerequisites": ["tier2_switch2", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state1432"]
         },
         {
             "id": "tier2_switch2_from_3",
-            "name": "Switch 2 3",
-            "menu_description": "Switch 2 3",
+            "name": "NE Switch",
+            "menu_description": "Northeast Switch",
             "dialog": "tier2_switch_press",
             "positive_prerequisites": ["tier2_state3"],
             "negative_prerequisites": ["tier2_switch2", "tier2_state_broken"],
@@ -183,16 +196,16 @@
         },
         {
             "id": "tier2_switch2_from_nothing",
-            "name": "Switch 2 -",
-            "menu_description": "Switch 2 -",
+            "name": "NE Switch",
+            "menu_description": "Northeast Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch2", "tier2_state2"]
         },
         {
             "id": "tier2_switch2_from_broken",
-            "name": "Switch 2 broken",
-            "menu_description": "Switch 2 broken",
+            "name": "NE Switch",
+            "menu_description": "Northeast Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch2"],
             "positive_prerequisites": ["tier2_state_broken"],
@@ -200,8 +213,8 @@
         },
         {
             "id": "tier2_switch2_to_broken",
-            "name": "Switch 2 other",
-            "menu_description": "Switch 2 other",
+            "name": "NE Switch",
+            "menu_description": "Northeast Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch2", "tier2_state143", "tier2_state3", "tier2_state_broken"],
             "positive_prerequisites": ["tier2_any_switch_pressed"],
@@ -209,17 +222,17 @@
         },
         {
             "id": "tier2_switch3_from_241",
-            "name": "Switch 3 241",
-            "menu_description": "Switch 3 241",
-            "dialog": "tier2_switch_press",
+            "name": "SE Switch",
+            "menu_description": "Southeast Switch",
+            "dialog": "tier2_open_door",
             "positive_prerequisites": ["tier2_state241"],
             "negative_prerequisites": ["tier2_switch3", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state2413"]
         },
         {
             "id": "tier2_switch3_from_14",
-            "name": "Switch 3 14",
-            "menu_description": "Switch 3 14",
+            "name": "SE Switch",
+            "menu_description": "Southeast Switch",
             "dialog": "tier2_switch_press",
             "positive_prerequisites": ["tier2_state14"],
             "negative_prerequisites": ["tier2_switch3", "tier2_state_broken"],
@@ -227,16 +240,16 @@
         },
         {
             "id": "tier2_switch3_from_nothing",
-            "name": "Switch 3 -",
-            "menu_description": "Switch 3 -",
+            "name": "SE Switch",
+            "menu_description": "Southeast Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch3", "tier2_state3"]
         },
         {
             "id": "tier2_switch3_from_broken",
-            "name": "Switch 3 broken",
-            "menu_description": "Switch 3 broken",
+            "name": "SE Switch",
+            "menu_description": "Southeast Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch3"],
             "positive_prerequisites": ["tier2_state_broken"],
@@ -244,8 +257,8 @@
         },
         {
             "id": "tier2_switch3_to_broken",
-            "name": "Switch 3 other",
-            "menu_description": "Switch 3 other",
+            "name": "SE Switch",
+            "menu_description": "Southeast Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch3", "tier2_state241", "tier2_state14", "tier2_state_broken"],
             "positive_prerequisites": ["tier2_any_switch_pressed"],
@@ -253,8 +266,8 @@
         },
         {
             "id": "tier2_switch4_from_32",
-            "name": "Switch 4 32",
-            "menu_description": "Switch 4 32",
+            "name": "SW Switch",
+            "menu_description": "Southwest Switch",
             "dialog": "tier2_switch_press",
             "positive_prerequisites": ["tier2_state32"],
             "negative_prerequisites": ["tier2_switch4", "tier2_state_broken"],
@@ -262,8 +275,8 @@
         },
         {
             "id": "tier2_switch4_from_2",
-            "name": "Switch 4 2",
-            "menu_description": "Switch 4 2",
+            "name": "SW Switch",
+            "menu_description": "Southwest Switch",
             "dialog": "tier2_switch_press",
             "positive_prerequisites": ["tier2_state2"],
             "negative_prerequisites": ["tier2_switch4", "tier2_state_broken"],
@@ -271,8 +284,8 @@
         },
         {
             "id": "tier2_switch4_from_1",
-            "name": "Switch 4 1",
-            "menu_description": "Switch 4 1",
+            "name": "SW Switch",
+            "menu_description": "Southwest Switch",
             "dialog": "tier2_switch_press",
             "positive_prerequisites": ["tier2_state1"],
             "negative_prerequisites": ["tier2_switch4", "tier2_state_broken"],
@@ -280,8 +293,8 @@
         },
         {
             "id": "tier2_switch4_from_broken",
-            "name": "Switch 4 broken",
-            "menu_description": "Switch 4 broken",
+            "name": "SW Switch",
+            "menu_description": "Southwest Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch4"],
             "positive_prerequisites": ["tier2_state_broken"],
@@ -289,8 +302,8 @@
         },
         {
             "id": "tier2_switch4_to_broken",
-            "name": "Switch 4 other",
-            "menu_description": "Switch 4 other",
+            "name": "SW Switch",
+            "menu_description": "Southwest Switch",
             "dialog": "tier2_switch_press",
             "negative_prerequisites": ["tier2_switch4", "tier2_state32", "tier2_state2", "tier2_state1", "tier2_state_broken"],
             "positive_state_changes": ["tier2_any_switch_pressed", "tier2_switch4", "tier2_state_broken"]
