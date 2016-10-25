@@ -11,7 +11,7 @@ void ReloadOptionsMenu(void);
 static bool vibration = true;
 static bool useWorkerApp = false;
 static bool workerCanLaunch = true;
-static bool allowActivity = false;
+static bool allowActivity = true;
 
 void ToggleVibration(void)
 {

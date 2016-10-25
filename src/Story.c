@@ -175,32 +175,33 @@ StoryUpdateReturnType Story_IncrementTimeOnPath(void)
 {
     Story *story = Story_GetCurrentStory();
     
-    bool useActivityTracking = PBL_IF_HEALTH_ELSE(true, false);
+    bool activityTrackingAvailable = PBL_IF_HEALTH_ELSE(true, false);
+    bool activityTrackingRequested = true;
     bool active = false;
     
-    useActivityTracking = useActivityTracking && GetAllowActivity();
-    
-    if (useActivityTracking)
+    // If the player has activity tracking turned off, pretend that they are always active.
+    // This allows the player to participate in activity-based stories even if they do not
+    // want, or are unable to be active.
+    activityTrackingAvailable = activityTrackingAvailable && GetAllowActivity();
+
+    uint16_t locationActivityTracking = Location_CurrentLocationUseActivityTracking();
+    if (locationActivityTracking == 2)
     {
-        uint16_t locationActivityTracking = Location_CurrentLocationUseActivityTracking();
-        if (locationActivityTracking == 2)
+        if (story)
         {
-            if (story)
-            {
-                useActivityTracking = useActivityTracking && story->defaultActivityTracking;
-            }
-            else
-            {
-                useActivityTracking = false;
-            }
+            activityTrackingRequested = activityTrackingRequested && story->defaultActivityTracking;
         }
         else
         {
-            useActivityTracking = useActivityTracking && locationActivityTracking;
+            activityTrackingRequested = false;
         }
     }
+    else
+    {
+        activityTrackingRequested = activityTrackingRequested && locationActivityTracking;
+    }
     
-    if (useActivityTracking)
+    if (activityTrackingRequested && activityTrackingAvailable)
     {
         HealthValue currentActiveSecondsSum = health_service_sum_today(HealthMetricActiveSeconds);
         if (story && (currentActiveSecondsSum - lastActiveSecondsSum >= story->activityThreshold))
@@ -208,6 +209,10 @@ StoryUpdateReturnType Story_IncrementTimeOnPath(void)
             active = true;
         }
         lastActiveSecondsSum = currentActiveSecondsSum;
+    }
+    else if (activityTrackingRequested && !activityTrackingAvailable)
+    {
+        active = true;
     }
     
     if(active)
