@@ -78,6 +78,8 @@ g_battle_event_prereqs["time_above"] = 2
 
 g_combatant_stats = ["strength", "magic", "defense", "magic_defense", "speed", "health"]
 
+def get_write_location(count):
+    return count * 4 + (1 + count) * 2
 
 def add_image(imagelist, imagename):
     if imagelist.count(imagename) == 0:
@@ -103,6 +105,12 @@ def pack_integer(i):
     Write out an integer into a packed binary file
     '''
     return struct.pack('<H', i)
+
+def pack_long_integer(i):
+    '''
+        Write out an integer into a packed binary file
+        '''
+    return struct.pack('<L', i)
 
 def pack_integer_with_default(dict, key, default):
     if key in dict:
@@ -319,7 +327,7 @@ def get_total_objects(story):
     return count
 
 def write_data_block(datafile, write_state, new_data):
-    datafile.write(pack_integer(write_state["next_write_location"]))
+    datafile.write(pack_long_integer(write_state["next_write_location"]))
     datafile.write(pack_integer(len(new_data)))
     write_state["binarydata"] += new_data
     write_state["next_write_location"] += len(new_data)
@@ -338,13 +346,13 @@ def write_story(story, datafile, hash):
     # we always write count first, though it is not clear it is necessary
     count = get_total_objects(story)
     datafile.write(pack_integer(count))
-    # For each object in the file, we store two 16 bit (2 byte) integers, start index and size.
-    # With an additional number for count, this gives us the location to start writing actual object data.
-    write_state["next_write_location"] = (1 + 2 * count) * 2
+    # For each object in the file, we store one 32 bit (4 byte) integer and one 16 bit (2 byte) integer, start index and size.
+    # With an additional 16 bit integer for count, this gives us the location to start writing actual object data.
+    write_state["next_write_location"] = get_write_location(count)
     
     # Here, we generate the binary data for the main story object, and write out its size
     write_state["binarydata"] = pack_story(story, hash)
-    datafile.write(pack_integer(write_state["next_write_location"]))
+    datafile.write(pack_long_integer(write_state["next_write_location"]))
     datafile.write(pack_integer(len(write_state["binarydata"])))
     write_state["next_write_location"] += len(write_state["binarydata"])
     
@@ -780,11 +788,11 @@ def write_engineinfo(engineinfo, datafile):
     datafile.write(pack_integer(count))
     # For each object in the file, we store two 16 bit (2 byte) integers, start index and size.
     # With an additional number for count, this gives us the location to start writing actual object data.
-    write_state["next_write_location"] = (1 + 2 * count) * 2
+    write_state["next_write_location"] = get_write_location(count)
     
     # Here, we generate the binary data for the main story object, and write out its size
     write_state["binarydata"] = pack_engineinfo(engineinfo)
-    datafile.write(pack_integer(write_state["next_write_location"]))
+    datafile.write(pack_long_integer(write_state["next_write_location"]))
     datafile.write(pack_integer(len(write_state["binarydata"])))
     write_state["next_write_location"] += len(write_state["binarydata"])
     
