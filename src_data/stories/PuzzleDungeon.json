@@ -10,7 +10,7 @@
     "win_dialog": "win_dialog",
     "default_activity_tracking": false,
     "allow_respawn_on_death": true,
-    "external_files": ["PuzzleDungeon/PuzzleDungeon-Debug.json", "PuzzleDungeon/PuzzleDungeon-Intro.json", "PuzzleDungeon/PuzzleDungeon-Tier1.json", "PuzzleDungeon/PuzzleDungeon-Tier2.json", "PuzzleDungeon/PuzzleDungeon-Tier3.json"],
+    "external_files": ["PuzzleDungeon/PuzzleDungeon-Debug.json", "PuzzleDungeon/PuzzleDungeon-Intro.json", "PuzzleDungeon/PuzzleDungeon-Tier1.json", "PuzzleDungeon/PuzzleDungeon-Tier2.json", "PuzzleDungeon/PuzzleDungeon-Tier3.json", "PuzzleDungeon/PuzzleDungeon-Tier4.json"],
     "skills": [
         {
             "id": "crush",
@@ -29,6 +29,16 @@
             "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
+            "potency": 10000,
+            "cooldown": 0
+        },
+        {
+            "id": "fall",
+            "name": "Collapse",
+            "description": "collapsing",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
             "potency": 10000,
             "cooldown": 0
         },
@@ -78,6 +88,25 @@
             "skill_list": [
                 {
                     "id": "pierce",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "collapsing_floor",
+            "name": "Collapsing Floor",
+            "image": "images/rat.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "fall",
                     "min_level": 1
                 }
             ]

@@ -6,7 +6,8 @@
             "menu_description": "A debug room to help testing.",
             "background_images": ["images/shop.png"],
             "initial_events": ["debug_room_prereq"],
-            "adjacent_locations": ["office", "tier1_room1", "tier2_room1", "tier3_entrance"]
+            "adjacent_locations": ["office", "tier1_room1", "tier2_room1", "tier3_entrance", "tier4_room1"],
+            "events": ["debug_get_tablet1", "debug_get_tablet2", "debug_get_tablet3", "debug_get_tablet4", "debug_get_journal", "debug_get_red_gem", "debug_get_yellow_gem", "debug_get_blue_gem"]
         }
     ],
     "events": [
@@ -14,6 +15,51 @@
             "id": "debug_room_prereq",
             "name": "Debug Room",
             "positive_prerequisites": ["debug"]
+        },
+        {
+            "id": "debug_get_tablet1",
+            "name": "Tablet1",
+            "positive_state_changes": ["tablet_piece_1"]
+        },
+        {
+            "id": "debug_get_tablet2",
+            "name": "Tablet2",
+            "positive_state_changes": ["tablet_piece_2"]
+        },
+        {
+            "id": "debug_get_tablet3",
+            "name": "Tablet3",
+            "positive_state_changes": ["tablet_piece_3"]
+        },
+        {
+            "id": "debug_get_tablet4",
+            "name": "Tablet4",
+            "positive_state_changes": ["tablet_piece_4"]
+        },
+        {
+            "id": "debug_get_journal",
+            "name": "Journal",
+            "positive_state_changes": ["journal"]
+        },
+        {
+            "id": "debug_get_red_gem",
+            "name": "Red Gem",
+            "positive_state_changes": ["red_gem"]
+        },
+        {
+            "id": "debug_get_yellow_gem",
+            "name": "Yellow Gem",
+            "positive_state_changes": ["yellow_gem"]
+        },
+        {
+            "id": "debug_get_blue_gem",
+            "name": "Blue Gem",
+            "positive_state_changes": ["blue_gem"]
+        },
+        {
+            "id": "debug_reset_key_items",
+            "name": "Reset",
+            "negative_state_changes": ["tablet_piece_1", "tablet_piece_2", "tablet_piece_3", "tablet_piece_4", "journal", "red_gem", "yellow_gem", "blue_gem"]
         }
     ]
 }

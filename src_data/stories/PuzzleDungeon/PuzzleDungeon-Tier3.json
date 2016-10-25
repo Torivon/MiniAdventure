@@ -113,7 +113,8 @@
             "menu_description": "Room 12",
             "initial_events": ["tier3_room_12_prereq"],
             "background_images": ["images/dungeonstraight.png"],
-            "adjacent_locations": ["tier3_hall_12_6", "tier3_trap_room"]
+            "adjacent_locations": ["tier3_hall_12_6", "tier3_trap_room"],
+            "location_properties": ["respawn_point"]
         },
         {
             "id": "tier3_hall_e_2",
@@ -370,10 +371,20 @@
         },
         {
             "id": "tier3_trap_room",
-            "name": "Oubliette",
-            "menu_description": "Dead end",
-            "background_images": ["images/dungeondeadend.png"],
-            "adjacent_locations": ["debug_room"]
+            "name": "Trap Room",
+            "menu_description": "Poison Dart Trap Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_danger_prereq"],
+            "adjacent_locations": ["tier3_room_12", "tier4_room1"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 100,
+            "monsters": ["collapsing_floor"],
+            "inactive_speed": 0,
+            "active_speed": 1,
+            "skip_encounters_if_active": true,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
         }
     ],
     "dialog": [
@@ -471,6 +482,11 @@
             "id": "acquired_blue_gem",
             "name": "Blue Gem",
             "text": "You pick up a blue gemstone."
+        },
+        {
+            "id": "tier3_danger_prereq",
+            "name": "Trap Room",
+            "text": "The floor starts collapsing under you. \n\nRUN!"
         }
     ],
     "events": [
@@ -846,6 +862,12 @@
             "dialog": "acquired_blue_gem",
             "negative_prerequisites": ["blue_gem"],
             "positive_state_changes": ["blue_gem"]
+        },
+        {
+            "id": "tier3_danger_prereq",
+            "name": "Trap Room",
+            "menu_description": "Trap Room",
+            "dialog": "tier3_danger_prereq"
         }
     ]
 }
