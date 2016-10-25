@@ -171,19 +171,19 @@
         },
         {
             "id": "tablet_piece_1",
-            "name": "Tablet Fragment"
+            "name": "Tablet Fragment 1"
         },
         {
             "id": "tablet_piece_2",
-            "name": "Tablet Fragment"
+            "name": "Tablet Fragment 2"
         },
         {
             "id": "tablet_piece_3",
-            "name": "Tablet Fragment"
+            "name": "Tablet Fragment 3"
         },
         {
             "id": "tablet_piece_4",
-            "name": "Tablet Fragment"
+            "name": "Tablet Fragment 4"
         }
     ]
 }

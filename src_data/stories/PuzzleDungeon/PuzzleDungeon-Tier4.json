@@ -46,12 +46,19 @@
         },
         {
             "id": "tier4_room6",
-            "name": "Exit",
-            "menu_description": "Exit",
+            "name": "Outside",
+            "menu_description": "Outside",
             "background_images": ["images/TombEntrance.png"],
-            "initial_events": ["tier4_room6"],
+            "initial_events": ["exit_event_all", "exit_event_not_all"],
+            "adjacent_locations": ["debug_room", "tier4_the_end"]
+        },
+        {
+            "id": "tier4_the_end",
+            "name": "The End",
+            "menu_description": "The End",
+            "background_images": ["images/TombEntrance.png"],
             "location_properties": ["game_win"],
-            "adjacent_locations": ["debug_room"]
+            "adjacent_locations": ["tier4_room6"]
         }
     ],
     "dialog": [
@@ -79,11 +86,6 @@
             "id": "tier4_room5_dialog",
             "name": "Artifact Room",
             "text": "There seems to be an alcove of some kind in the wall. You also see a door that will lead back outside. Your time in the ruins is almost over."
-        },
-        {
-            "id": "tier4_room6_dialog",
-            "name": "The End",
-            "text": "You have made it through the ruins."
         },
         {
             "id": "place_red_gem_dialog",
@@ -119,6 +121,16 @@
             "id": "yellow_gem_placed_dialog",
             "name": "Yellow Gem",
             "text": "There is a yellow gem placed in the slot on the pillar."
+        },
+        {
+            "id": "exit_event_all_dialog",
+            "name": "Tablets Found",
+            "text": "You found all four tablets in the ruins. Congratulations!"
+        },
+        {
+            "id": "exit_event_not_all_dialog",
+            "name": "Tablets Found",
+            "text": "You missed some of the tablets in the ruins. Check the Key Items menu option to see which you found. Try again to find the rest."
         }
     ],
     "events": [
@@ -127,7 +139,7 @@
             "name": "Tablet Piece",
             "menu_description": "Acquire the tablet piece.",
             "dialog": "acquired_tablet_piece",
-            "positive_prerequisites": ["yellow__gem_placed", "red__gem_placed", "blue__gem_placed"],
+            "positive_prerequisites": ["yellow_gem_placed", "red_gem_placed", "blue_gem_placed"],
             "negative_prerequisites": ["tablet_piece_4"],
             "positive_state_changes": ["tablet_piece_4"]
         },
@@ -160,12 +172,6 @@
             "name": "Artifact Room",
             "menu_description": "Artifact Room",
             "dialog": "tier4_room5_dialog"
-        },
-        {
-            "id": "tier4_room6",
-            "name": "Exit",
-            "menu_description": "Leave the ruins",
-            "dialog": "tier4_room6_dialog"
         },
         {
             "id": "place_red_gem",
@@ -235,6 +241,15 @@
             "menu_description": "Inspect Gem",
             "dialog": "yellow_gem_placed_dialog",
             "positive_prerequisites": ["yellow_gem_placed"]
+        },
+        {
+            "id": "exit_event_all",
+            "dialog": "exit_event_all_dialog",
+            "positive_prerequisites": ["tablet_piece_1", "tablet_piece_2", "tablet_piece_3", "tablet_piece_4"]
+        },
+        {
+            "id": "exit_event_not_all",
+            "dialog": "exit_event_not_all_dialog"
         }
     ]
 }
