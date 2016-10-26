@@ -374,14 +374,14 @@
         {
             "id": "tier3_trap_room",
             "name": "Trap Room",
-            "menu_description": "Poison Dart Trap Room",
+            "menu_description": "Trap Room",
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier3_danger_prereq"],
             "adjacent_locations": ["tier3_room_12", "tier4_room1"],
             "length": 5,
             "base_level": 1,
             "encounter_chance": 100,
-            "monsters": ["collapsing_floor"],
+            "monsters": ["poison_dart"],
             "inactive_speed": 0,
             "active_speed": 1,
             "skip_encounters_if_active": true,
@@ -488,7 +488,7 @@
         {
             "id": "tier3_danger_prereq",
             "name": "Trap Room",
-            "text": "The floor starts collapsing under you. \n\nRUN!"
+            "text": "Poison darts start flying out of the walls. \n\nRUN!"
         }
     ],
     "events": [
