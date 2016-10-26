@@ -6,7 +6,8 @@
             "menu_description": "Stable ground",
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room1"],
-            "adjacent_locations": ["tier4_room2", "debug_room"]
+            "adjacent_locations": ["tier4_room2", "debug_room"],
+            "events": ["journal_tier4"]
         },
         {
             "id": "tier4_room2",
@@ -15,7 +16,7 @@
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room2"],
             "adjacent_locations": ["tier4_room1", "tier4_room3"],
-            "events": ["place_red_gem", "no_red_gem", "red_gem_placed"]
+            "events": ["journal_tier4", "place_red_gem", "no_red_gem", "red_gem_placed"]
         },
         {
             "id": "tier4_room3",
@@ -24,7 +25,7 @@
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room3"],
             "adjacent_locations": ["tier4_room2", "tier4_room4"],
-            "events": ["place_yellow_gem", "no_yellow_gem", "yellow_gem_placed"]
+            "events": ["journal_tier4", "place_yellow_gem", "no_yellow_gem", "yellow_gem_placed"]
         },
         {
             "id": "tier4_room4",
@@ -33,7 +34,7 @@
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room4"],
             "adjacent_locations": ["tier4_room3", "tier4_room5"],
-            "events": ["place_blue_gem", "no_blue_gem", "blue_gem_placed"]
+            "events": ["journal_tier4", "place_blue_gem", "no_blue_gem", "blue_gem_placed"]
         },
         {
             "id": "tier4_room5",
@@ -42,7 +43,7 @@
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room5"],
             "adjacent_locations": ["tier4_room4", "tier4_room6"],
-            "events": ["get_tablet4"]
+            "events": ["journal_tier4", "get_tablet4"]
         },
         {
             "id": "tier4_room6",

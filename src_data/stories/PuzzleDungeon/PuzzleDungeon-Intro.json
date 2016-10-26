@@ -29,7 +29,7 @@
             "menu_description": "A group of tents and equipment.",
             "adjacent_locations": ["river"],
             "background_images": ["images/VillageExterior.png"],
-            "events": ["inspect_luggage", "get_raft", "talk_to_camp_master1", "talk_to_camp_master2", "talk_to_camp_master3"]
+            "events": ["journal_intro", "inspect_luggage", "get_raft", "talk_to_camp_master1", "talk_to_camp_master2", "talk_to_camp_master3"]
         },
         {
             "id": "river",
@@ -53,7 +53,8 @@
             "menu_description": "The main entrance to the ruins.",
             "background_images": ["images/TombEntrance.png"],
             "initial_events": ["front_door_prereq"],
-            "adjacent_locations": ["tier1_room1"]
+            "adjacent_locations": ["tier1_room1"],
+            "events": ["journal_intro"]
         }
     ],
     "dialog": [

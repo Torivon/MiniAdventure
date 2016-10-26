@@ -8,7 +8,7 @@
             "initial_events": ["tier2_room1_initial_event", "tier2_room1_enter_switch_up", "tier2_room1_enter_switch_down"],
             "adjacent_locations": ["debug_room", "tier2_puzzle_room1"],
             "location_properties": ["respawn_point"],
-            "events": ["tier2_reset_switch"]
+            "events": ["journal_tier2", "tier2_reset_switch"]
         },
         {
             "id": "tier2_puzzle_room1",
@@ -16,7 +16,7 @@
             "menu_description": "Northwest Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_room1", "tier2_puzzle_room2", "tier2_puzzle_room4"],
-            "events": ["tier2_switch1_from_324", "tier2_switch1_from_24", "tier2_switch1_from_nothing", "tier2_switch1_from_broken", "tier2_switch1_to_broken", "get_tablet2"]
+            "events": ["journal_tier2", "tier2_switch1_from_324", "tier2_switch1_from_24", "tier2_switch1_from_nothing", "tier2_switch1_from_broken", "tier2_switch1_to_broken", "get_tablet2"]
         },
         {
             "id": "tier2_puzzle_room2",
@@ -24,7 +24,7 @@
             "menu_description": "Northeast Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_puzzle_room1", "tier2_puzzle_room3"],
-            "events": ["tier2_switch2_from_143", "tier2_switch2_from_3", "tier2_switch2_from_nothing", "tier2_switch2_from_broken", "tier2_switch2_to_broken", "get_yellow_gem"]
+            "events": ["journal_tier2", "tier2_switch2_from_143", "tier2_switch2_from_3", "tier2_switch2_from_nothing", "tier2_switch2_from_broken", "tier2_switch2_to_broken", "get_yellow_gem"]
         },
         {
             "id": "tier2_puzzle_room3",
@@ -33,7 +33,7 @@
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_puzzle_room2", "tier2_puzzle_room4", "tier2_trap_room"],
             "location_properties": ["respawn_point"],
-            "events": ["tier2_switch3_from_241", "tier2_switch3_from_14", "tier2_switch3_from_nothing", "tier2_switch3_from_broken", "tier2_switch3_to_broken"]
+            "events": ["journal_tier2", "tier2_switch3_from_241", "tier2_switch3_from_14", "tier2_switch3_from_nothing", "tier2_switch3_from_broken", "tier2_switch3_to_broken"]
         },
         {
             "id": "tier2_puzzle_room4",
@@ -41,7 +41,7 @@
             "menu_description": "Southwest Puzzle Room",
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier2_puzzle_room1", "tier2_puzzle_room3"],
-            "events": ["tier2_switch4_from_32", "tier2_switch4_from_2", "tier2_switch4_from_1", "tier2_switch4_from_broken", "tier2_switch4_to_broken"]
+            "events": ["journal_tier2", "tier2_switch4_from_32", "tier2_switch4_from_2", "tier2_switch4_from_1", "tier2_switch4_from_broken", "tier2_switch4_to_broken"]
         },
         {
             "id": "tier2_trap_room",

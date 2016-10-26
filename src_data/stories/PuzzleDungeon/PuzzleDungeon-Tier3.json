@@ -6,7 +6,8 @@
             "menu_description": "What seems to be the entrance to a maze",
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_entrance_prereq"],
-            "adjacent_locations": ["debug_room", "tier3_hall_e_2"]
+            "adjacent_locations": ["debug_room", "tier3_hall_e_2"],
+            "events": ["journal_tier3"]
         },
         {
             "id": "tier3_room_1",
@@ -15,7 +16,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_1_prereq"],
             "adjacent_locations": ["tier3_hall_1_2", "tier3_hall_1_4"],
-            "events": ["tier3_hall_1_2_locked", "tier3_hall_1_4_locked"]
+            "events": ["journal_tier3", "tier3_hall_1_2_locked", "tier3_hall_1_4_locked"]
         },
         {
             "id": "tier3_room_2",
@@ -24,7 +25,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_2_prereq"],
             "adjacent_locations": ["tier3_hall_2_e", "tier3_hall_2_3", "tier3_hall_2_5", "tier3_hall_2_1"],
-            "events": ["tier3_switch_2_on", "tier3_switch_2_off", "tier3_hall_2_e_locked", "tier3_hall_2_3_locked", "tier3_hall_2_5_locked", "tier3_hall_2_1_locked"]
+            "events": ["journal_tier3", "tier3_switch_2_on", "tier3_switch_2_off", "tier3_hall_2_e_locked", "tier3_hall_2_3_locked", "tier3_hall_2_5_locked", "tier3_hall_2_1_locked"]
         },
         {
             "id": "tier3_room_3",
@@ -33,7 +34,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_3_prereq"],
             "adjacent_locations": ["tier3_hall_3_6", "tier3_hall_3_2"],
-            "events": ["tier3_hall_3_6_locked", "tier3_hall_3_2_locked"]
+            "events": ["journal_tier3", "tier3_hall_3_6_locked", "tier3_hall_3_2_locked"]
         },
         {
             "id": "tier3_room_4",
@@ -42,7 +43,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_4_prereq"],
             "adjacent_locations": ["tier3_hall_4_1", "tier3_hall_4_5", "tier3_hall_4_7", "tier3_hall_4_10"],
-            "events": ["tier3_hall_4_1_locked", "tier3_hall_4_5_locked", "tier3_hall_4_7_locked", "tier3_hall_4_10_locked"]
+            "events": ["journal_tier3", "tier3_hall_4_1_locked", "tier3_hall_4_5_locked", "tier3_hall_4_7_locked", "tier3_hall_4_10_locked"]
         },
         {
             "id": "tier3_room_5",
@@ -51,7 +52,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_5_prereq"],
             "adjacent_locations": ["tier3_hall_5_2", "tier3_hall_5_6", "tier3_hall_5_8", "tier3_hall_5_4"],
-            "events": ["tier3_hall_5_2_locked", "tier3_hall_5_6_locked", "tier3_hall_5_8_locked", "tier3_hall_5_4_locked"]
+            "events": ["journal_tier3", "tier3_hall_5_2_locked", "tier3_hall_5_6_locked", "tier3_hall_5_8_locked", "tier3_hall_5_4_locked"]
         },
         {
             "id": "tier3_room_6",
@@ -60,7 +61,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_6_prereq"],
             "adjacent_locations": ["tier3_hall_6_3", "tier3_hall_6_12", "tier3_hall_6_9", "tier3_hall_6_5"],
-            "events": ["tier3_hall_6_3_locked", "tier3_hall_6_12_locked", "tier3_hall_6_9_locked", "tier3_hall_6_5_locked"]
+            "events": ["journal_tier3", "tier3_hall_6_3_locked", "tier3_hall_6_12_locked", "tier3_hall_6_9_locked", "tier3_hall_6_5_locked"]
         },
         {
             "id": "tier3_room_7",
@@ -69,7 +70,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_7_prereq"],
             "adjacent_locations": ["tier3_hall_7_4", "tier3_hall_7_8"],
-            "events": ["tier3_switch_7_on", "tier3_switch_7_off", "tier3_hall_7_4_locked", "tier3_hall_7_8_locked"]
+            "events": ["journal_tier3", "tier3_switch_7_on", "tier3_switch_7_off", "tier3_hall_7_4_locked", "tier3_hall_7_8_locked"]
         },
         {
             "id": "tier3_room_8",
@@ -78,7 +79,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_8_prereq"],
             "adjacent_locations": ["tier3_hall_8_5", "tier3_hall_8_9", "tier3_hall_8_11", "tier3_hall_8_7"],
-            "events": ["tier3_switch_8_on", "tier3_switch_8_off", "tier3_hall_8_5_locked", "tier3_hall_8_9_locked", "tier3_hall_8_11_locked", "tier3_hall_8_7_locked"]
+            "events": ["journal_tier3", "tier3_switch_8_on", "tier3_switch_8_off", "tier3_hall_8_5_locked", "tier3_hall_8_9_locked", "tier3_hall_8_11_locked", "tier3_hall_8_7_locked"]
         },
         {
             "id": "tier3_room_9",
@@ -87,7 +88,7 @@
             "background_images": ["images/dungeonright.png"],
             "initial_events": ["tier3_room_9_prereq"],
             "adjacent_locations": ["tier3_hall_9_6", "tier3_hall_9_8"],
-            "events": ["tier3_switch_9_on", "tier3_switch_9_off", "tier3_hall_9_6_locked", "tier3_hall_9_8_locked"]
+            "events": ["journal_tier3", "tier3_switch_9_on", "tier3_switch_9_off", "tier3_hall_9_6_locked", "tier3_hall_9_8_locked"]
         },
         {
             "id": "tier3_room_10",
@@ -96,7 +97,7 @@
             "initial_events": ["tier3_room_10_prereq"],
             "background_images": ["images/dungeondeadend.png"],
             "adjacent_locations": ["tier3_hall_10_4"],
-            "events": ["get_tablet3"]
+            "events": ["journal_tier3", "get_tablet3"]
         },
         {
             "id": "tier3_room_11",
@@ -105,7 +106,7 @@
             "initial_events": ["tier3_room_11_prereq"],
             "background_images": ["images/dungeondeadend.png"],
             "adjacent_locations": ["tier3_hall_11_8"],
-            "events": ["get_blue_gem"]
+            "events": ["journal_tier3", "get_blue_gem"]
         },
         {
             "id": "tier3_room_12",
@@ -114,7 +115,8 @@
             "initial_events": ["tier3_room_12_prereq"],
             "background_images": ["images/dungeonstraight.png"],
             "adjacent_locations": ["tier3_hall_12_6", "tier3_trap_room"],
-            "location_properties": ["respawn_point"]
+            "location_properties": ["respawn_point"],
+            "events": ["journal_tier3"]
         },
         {
             "id": "tier3_hall_e_2",

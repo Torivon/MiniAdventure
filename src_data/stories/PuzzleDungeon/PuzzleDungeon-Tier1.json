@@ -8,7 +8,7 @@
             "initial_events": ["tier1_room1_door_open_initial_event", "tier1_room1_initial_event"],
             "adjacent_locations": ["front_door", "tier1_ladder", "tier1_danger", "debug_room"],
             "location_properties": ["respawn_point"],
-            "events": ["tier1_switch1_off", "tier1_switch1_on", "get_tablet1"]
+            "events": ["journal_tier1", "tier1_switch1_off", "tier1_switch1_on", "get_tablet1"]
         },
         {
             "id": "tier1_ladder",
@@ -33,7 +33,7 @@
             "background_images": ["images/dungeondeadend.png"],
             "initial_events": ["tier1_room2_initial_event"],
             "adjacent_locations": ["tier1_ladder", "tier1_slide1"],
-            "events": ["tier1_switch2_off", "tier1_switch2_on"]
+            "events": ["journal_tier1", "tier1_switch2_off", "tier1_switch2_on"]
         },
         {
             "id": "tier1_slide1",
@@ -58,7 +58,7 @@
             "background_images": ["images/dungeondeadend.png"],
             "initial_events": ["tier1_room3_initial_event"],
             "adjacent_locations": ["tier1_slide2"],
-            "events": ["tier1_switch3_off", "tier1_switch3_on"]
+            "events": ["journal_tier1", "tier1_switch3_off", "tier1_switch3_on"]
         },
         {
             "id": "tier1_slide2",
