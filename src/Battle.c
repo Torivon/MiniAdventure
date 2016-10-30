@@ -21,6 +21,7 @@
 #include "Logging.h"
 #include "MainImage.h"
 #include "Menu.h"
+#include "OptionsMenu.h"
 #include "Persistence.h"
 #include "ProgressBar.h"
 #include "Skills.h"
@@ -481,6 +482,9 @@ void BattleInit(void)
         return;
     }
     
+    if(GetVibration())
+        vibes_short_pulse();
+
     GRect playerStatusBounds = PLAYER_STATUS_BOUNDS;
     GRect monsterStatusBounds = MONSTER_STATUS_BOUNDS;
     

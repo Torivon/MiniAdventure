@@ -172,7 +172,8 @@
                     "min_level": 1
                 }
             ],
-            "battle_events": ["use_rat_poison"]
+            "battle_events": ["use_rat_poison"],
+            "event": "bedtime"
         },
         {
             "id": "adventurer",

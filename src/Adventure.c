@@ -314,8 +314,6 @@ static void StoryUpdateResponse(StoryUpdateReturnType returnVal, bool vibration)
         {
             if(ComputeRandomEvent())
             {
-                if(GetVibration())
-                    vibes_short_pulse();
                 TriggerBattleScreen();
                 break;
             }
