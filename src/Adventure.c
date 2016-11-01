@@ -13,6 +13,7 @@
 #include "GlobalState.h"
 #include "Location.h"
 #include "Logging.h"
+#include "MiniAdventure.h"
 #include "MainImage.h"
 #include "Battle.h"
 #include "Menu.h"
@@ -394,6 +395,7 @@ void AdventureScreenAppear(void *data)
 {
     gUpdateAdventure = true;
 
+    TickOncePerMinute();
     UpdateLocationProgress();
     RegisterMenuState(GetMainMenu(), STATE_ADVENTURE);
     RegisterMenuState(GetSlaveMenu(), STATE_NONE);

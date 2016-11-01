@@ -39,6 +39,8 @@ void handle_time_tick(struct tm* tick_time, TimeUnits units_changed)
 {
 	if(!hasFocus)
 		return;
+    
+    DEBUG_VERBOSE_LOG("Tick: %u", units_changed);
 	
 	GlobalState_Update(units_changed);
 		
@@ -61,6 +63,16 @@ void focus_handler(bool in_focus) {
 	{
 		INFO_LOG("Lost focus.");
 	}
+}
+
+void TickOncePerMinute(void)
+{
+    tick_timer_service_subscribe(MINUTE_UNIT, &handle_time_tick);
+}
+
+void TickOncePerSecond(void)
+{
+    tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
 }
 
 void handle_init() {
@@ -91,7 +103,7 @@ void handle_init() {
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	TitleScreen_Register();
-	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
+    TickOncePerMinute();
 	app_focus_service_subscribe(focus_handler);
 	battery_state_service_subscribe(battery_state_handler);
 }

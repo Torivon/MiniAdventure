@@ -20,6 +20,7 @@
 #include "Location.h"
 #include "Logging.h"
 #include "MainImage.h"
+#include "MiniAdventure.h"
 #include "Menu.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
@@ -385,6 +386,7 @@ void BattleScreenAppear(void *data)
     SetBackgroundImage(ImageMap_GetIdByIndex(battleFloor));
 #endif
     SetMainImageVisibility(true, true, true);
+    TickOncePerSecond();
 }
 
 static bool forcedBattle = false;
