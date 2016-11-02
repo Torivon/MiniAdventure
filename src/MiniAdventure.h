@@ -48,6 +48,8 @@ typedef struct Window Window;
 void ResetGame(void);
 int HasFocus(void);
 Window *GetBaseWindow(void);
+void TickOncePerMinute(void);
+void TickOncePerSecond(void);
 
 #define MAX_TIME_COUNT 100
 
