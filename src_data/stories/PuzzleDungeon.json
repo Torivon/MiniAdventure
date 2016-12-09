@@ -57,7 +57,7 @@
         {
             "id": "boulder",
             "name": "Boulder",
-            "image": "images/rat.png",
+            "image": "images/dungeonstraight.png",
             "combatantclass": {
                 "strength": "ranks",
                 "magic": "ranks",
@@ -76,7 +76,7 @@
         {
             "id": "poison_dart",
             "name": "Poison Dart",
-            "image": "images/rat.png",
+            "image": "images/dungeonstraight.png",
             "combatantclass": {
                 "strength": "ranks",
                 "magic": "ranks",
@@ -95,7 +95,7 @@
         {
             "id": "collapsing_floor",
             "name": "Collapsing Floor",
-            "image": "images/rat.png",
+            "image": "images/dungeonstraight.png",
             "combatantclass": {
                 "strength": "ranks",
                 "magic": "ranks",

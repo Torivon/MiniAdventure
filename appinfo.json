@@ -9,8 +9,8 @@
     "resources": {
         "media": [
             {
-                "file": "images/rat.png",
-                "name": "IMAGE_RAT",
+                "file": "images/dungeonstraight.png",
+                "name": "IMAGE_DUNGEONSTRAIGHT",
                 "type": "bitmap"
             },
             {
@@ -49,11 +49,6 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/dungeonstraight.png",
-                "name": "IMAGE_DUNGEONSTRAIGHT",
-                "type": "bitmap"
-            },
-            {
                 "file": "images/newfloor.png",
                 "name": "IMAGE_NEWFLOOR",
                 "type": "bitmap"
@@ -66,6 +61,11 @@
             {
                 "file": "images/dungeonright.png",
                 "name": "IMAGE_DUNGEONRIGHT",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/rat.png",
+                "name": "IMAGE_RAT",
                 "type": "bitmap"
             },
             {
@@ -211,7 +211,8 @@
     "targetPlatforms": [
         "basalt",
         "chalk",
-        "diorite"
+        "diorite",
+        "emery"
     ],
     "uuid": "39a8ce3d-7be7-4ecc-b7bf-508d9cb4598b",
     "versionLabel": "1.0",

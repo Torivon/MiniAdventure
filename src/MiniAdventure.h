@@ -39,9 +39,9 @@
 // TODO: consider making this tunable
 #define POISON_DAMAGE_PERCENT 10
 
-#define ALLOW_WORKER_APP 1
-#define ALLOW_WORKER_APP_MESSAGES 1
-#define ALLOW_WORKER_APP_LISTENING 1
+#define ALLOW_WORKER_APP 0
+#define ALLOW_WORKER_APP_MESSAGES 0
+#define ALLOW_WORKER_APP_LISTENING 0
 
 typedef struct Window Window;
 
