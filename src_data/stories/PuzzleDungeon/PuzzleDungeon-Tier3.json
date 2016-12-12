@@ -1,0 +1,875 @@
+{
+    "locations": [
+        {
+            "id": "tier3_entrance",
+            "name": "Maze Entrance",
+            "menu_description": "What seems to be the entrance to a maze",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_entrance_prereq"],
+            "adjacent_locations": ["debug_room", "tier3_hall_e_2"],
+            "events": ["journal_tier3"]
+        },
+        {
+            "id": "tier3_room_1",
+            "name": "Room 1",
+            "menu_description": "Room 1",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_1_prereq"],
+            "adjacent_locations": ["tier3_hall_1_2", "tier3_hall_1_4"],
+            "events": ["journal_tier3", "tier3_hall_1_2_locked", "tier3_hall_1_4_locked"]
+        },
+        {
+            "id": "tier3_room_2",
+            "name": "Room 2",
+            "menu_description": "Room 2",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_2_prereq"],
+            "adjacent_locations": ["tier3_hall_2_e", "tier3_hall_2_3", "tier3_hall_2_5", "tier3_hall_2_1"],
+            "events": ["journal_tier3", "tier3_switch_2_on", "tier3_switch_2_off", "tier3_hall_2_e_locked", "tier3_hall_2_3_locked", "tier3_hall_2_5_locked", "tier3_hall_2_1_locked"]
+        },
+        {
+            "id": "tier3_room_3",
+            "name": "Room 3",
+            "menu_description": "Room 3",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_3_prereq"],
+            "adjacent_locations": ["tier3_hall_3_6", "tier3_hall_3_2"],
+            "events": ["journal_tier3", "tier3_hall_3_6_locked", "tier3_hall_3_2_locked"]
+        },
+        {
+            "id": "tier3_room_4",
+            "name": "Room 4",
+            "menu_description": "Room 4",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_4_prereq"],
+            "adjacent_locations": ["tier3_hall_4_1", "tier3_hall_4_5", "tier3_hall_4_7", "tier3_hall_4_10"],
+            "events": ["journal_tier3", "tier3_hall_4_1_locked", "tier3_hall_4_5_locked", "tier3_hall_4_7_locked", "tier3_hall_4_10_locked"]
+        },
+        {
+            "id": "tier3_room_5",
+            "name": "Room 5",
+            "menu_description": "Room 5",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_5_prereq"],
+            "adjacent_locations": ["tier3_hall_5_2", "tier3_hall_5_6", "tier3_hall_5_8", "tier3_hall_5_4"],
+            "events": ["journal_tier3", "tier3_hall_5_2_locked", "tier3_hall_5_6_locked", "tier3_hall_5_8_locked", "tier3_hall_5_4_locked"]
+        },
+        {
+            "id": "tier3_room_6",
+            "name": "Room 6",
+            "menu_description": "Room 6",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_6_prereq"],
+            "adjacent_locations": ["tier3_hall_6_3", "tier3_hall_6_12", "tier3_hall_6_9", "tier3_hall_6_5"],
+            "events": ["journal_tier3", "tier3_hall_6_3_locked", "tier3_hall_6_12_locked", "tier3_hall_6_9_locked", "tier3_hall_6_5_locked"]
+        },
+        {
+            "id": "tier3_room_7",
+            "name": "Room 7",
+            "menu_description": "Room 7",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_7_prereq"],
+            "adjacent_locations": ["tier3_hall_7_4", "tier3_hall_7_8"],
+            "events": ["journal_tier3", "tier3_switch_7_on", "tier3_switch_7_off", "tier3_hall_7_4_locked", "tier3_hall_7_8_locked"]
+        },
+        {
+            "id": "tier3_room_8",
+            "name": "Room 8",
+            "menu_description": "Room 8",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_8_prereq"],
+            "adjacent_locations": ["tier3_hall_8_5", "tier3_hall_8_9", "tier3_hall_8_11", "tier3_hall_8_7"],
+            "events": ["journal_tier3", "tier3_switch_8_on", "tier3_switch_8_off", "tier3_hall_8_5_locked", "tier3_hall_8_9_locked", "tier3_hall_8_11_locked", "tier3_hall_8_7_locked"]
+        },
+        {
+            "id": "tier3_room_9",
+            "name": "Room 9",
+            "menu_description": "Room 9",
+            "background_images": ["images/dungeonright.png"],
+            "initial_events": ["tier3_room_9_prereq"],
+            "adjacent_locations": ["tier3_hall_9_6", "tier3_hall_9_8"],
+            "events": ["journal_tier3", "tier3_switch_9_on", "tier3_switch_9_off", "tier3_hall_9_6_locked", "tier3_hall_9_8_locked"]
+        },
+        {
+            "id": "tier3_room_10",
+            "name": "Room 10",
+            "menu_description": "Room 10",
+            "initial_events": ["tier3_room_10_prereq"],
+            "background_images": ["images/dungeondeadend.png"],
+            "adjacent_locations": ["tier3_hall_10_4"],
+            "events": ["journal_tier3", "get_tablet3"]
+        },
+        {
+            "id": "tier3_room_11",
+            "name": "Room 11",
+            "menu_description": "Room 11",
+            "initial_events": ["tier3_room_11_prereq"],
+            "background_images": ["images/dungeondeadend.png"],
+            "adjacent_locations": ["tier3_hall_11_8"],
+            "events": ["journal_tier3", "get_blue_gem"]
+        },
+        {
+            "id": "tier3_room_12",
+            "name": "Room 12",
+            "menu_description": "Room 12",
+            "initial_events": ["tier3_room_12_prereq"],
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier3_hall_12_6", "tier3_trap_room"],
+            "location_properties": ["respawn_point"],
+            "events": ["journal_tier3"]
+        },
+        {
+            "id": "tier3_hall_e_2",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south.",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_off_prereq"],
+            "adjacent_locations": ["tier3_entrance", "tier3_room_2"]
+        },
+        {
+            "id": "tier3_hall_1_2",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_on_prereq"],
+            "adjacent_locations": ["tier3_room_1", "tier3_room_2"]
+        },
+        {
+            "id": "tier3_hall_1_4",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_on_prereq"],
+            "adjacent_locations": ["tier3_room_1", "tier3_room_4"]
+        },
+        {
+            "id": "tier3_hall_2_e",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_off_prereq"],
+            "adjacent_locations": ["tier3_room_2", "tier3_entrance"]
+        },
+        {
+            "id": "tier3_hall_2_1",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_on_prereq"],
+            "adjacent_locations": ["tier3_room_2", "tier3_room_1"]
+        },
+        {
+            "id": "tier3_hall_2_3",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch7_on_prereq"],
+            "adjacent_locations": ["tier3_room_2", "tier3_room_3"]
+        },
+        {
+            "id": "tier3_hall_2_5",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch7_on_prereq"],
+            "adjacent_locations": ["tier3_room_2", "tier3_room_5"]
+        },
+        {
+            "id": "tier3_hall_3_2",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch7_on_prereq"],
+            "adjacent_locations": ["tier3_room_3", "tier3_room_2"]
+        },
+        {
+            "id": "tier3_hall_3_6",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_off_prereq"],
+            "adjacent_locations": ["tier3_room_3", "tier3_room_6"]
+        },
+        {
+            "id": "tier3_hall_4_1",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_on_prereq"],
+            "adjacent_locations": ["tier3_room_4", "tier3_room_1"]
+        },
+        {
+            "id": "tier3_hall_4_5",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch9_on_prereq"],
+            "adjacent_locations": ["tier3_room_4", "tier3_room_5"]
+        },
+        {
+            "id": "tier3_hall_4_7",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_on_prereq"],
+            "adjacent_locations": ["tier3_room_4", "tier3_room_7"]
+        },
+        {
+            "id": "tier3_hall_4_10",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch8_on_prereq"],
+            "adjacent_locations": ["tier3_room_4", "tier3_room_10"]
+        },
+        {
+            "id": "tier3_hall_5_2",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch7_on_prereq"],
+            "adjacent_locations": ["tier3_room_5", "tier3_room_2"]
+        },
+        {
+            "id": "tier3_hall_5_6",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch8_on_prereq"],
+            "adjacent_locations": ["tier3_room_5", "tier3_room_6"]
+        },
+        {
+            "id": "tier3_hall_5_8",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch9_on_prereq"],
+            "adjacent_locations": ["tier3_room_5", "tier3_room_8"]
+        },
+        {
+            "id": "tier3_hall_5_4",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch9_on_prereq"],
+            "adjacent_locations": ["tier3_room_5", "tier3_room_4"]
+        },
+        {
+            "id": "tier3_hall_6_3",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_off_prereq"],
+            "adjacent_locations": ["tier3_room_6", "tier3_room_3"]
+        },
+        {
+            "id": "tier3_hall_6_12",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch9_on_prereq"],
+            "adjacent_locations": ["tier3_room_6", "tier3_room_12"]
+        },
+        {
+            "id": "tier3_hall_6_9",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_off_prereq"],
+            "adjacent_locations": ["tier3_room_6", "tier3_room_9"]
+        },
+        {
+            "id": "tier3_hall_6_5",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch8_on_prereq"],
+            "adjacent_locations": ["tier3_room_6", "tier3_room_5"]
+        },
+        {
+            "id": "tier3_hall_7_4",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_on_prereq"],
+            "adjacent_locations": ["tier3_room_7", "tier3_room_4"]
+        },
+        {
+            "id": "tier3_hall_7_8",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch8_on_prereq"],
+            "adjacent_locations": ["tier3_room_7", "tier3_room_8"]
+        },
+        {
+            "id": "tier3_hall_8_5",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch9_on_prereq"],
+            "adjacent_locations": ["tier3_room_8", "tier3_room_5"]
+        },
+        {
+            "id": "tier3_hall_8_9",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch7_off_prereq"],
+            "adjacent_locations": ["tier3_room_8", "tier3_room_9"]
+        },
+        {
+            "id": "tier3_hall_8_11",
+            "name": "Hallway",
+            "menu_description": "Hallway heading south",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch9_off_prereq"],
+            "adjacent_locations": ["tier3_room_8", "tier3_room_11"]
+        },
+        {
+            "id": "tier3_hall_8_7",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch8_on_prereq"],
+            "adjacent_locations": ["tier3_room_8", "tier3_room_7"]
+        },
+        {
+            "id": "tier3_hall_9_6",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch2_off_prereq"],
+            "adjacent_locations": ["tier3_room_9", "tier3_room_6"]
+        },
+        {
+            "id": "tier3_hall_9_8",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_switch7_off_prereq"],
+            "adjacent_locations": ["tier3_room_9", "tier3_room_8"]
+        },
+        {
+            "id": "tier3_hall_10_4",
+            "name": "Hallway",
+            "menu_description": "Hallway heading east",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier3_room_10", "tier3_room_4"]
+        },
+        {
+            "id": "tier3_hall_11_8",
+            "name": "Hallway",
+            "menu_description": "Hallway heading north",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier3_room_11", "tier3_room_8"]
+        },
+        {
+            "id": "tier3_hall_12_6",
+            "name": "Hallway",
+            "menu_description": "Hallway heading west",
+            "background_images": ["images/dungeonstraight.png"],
+            "adjacent_locations": ["tier3_room_12", "tier3_room_6"]
+        },
+        {
+            "id": "tier3_trap_room",
+            "name": "Trap Room",
+            "menu_description": "Trap Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier3_danger_prereq"],
+            "adjacent_locations": ["tier3_room_12", "tier4_room1"],
+            "length": 5,
+            "base_level": 1,
+            "encounter_chance": 100,
+            "monsters": ["poison_dart"],
+            "inactive_speed": 0,
+            "active_speed": 1,
+            "skip_encounters_if_active": true,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
+        }
+    ],
+    "dialog": [
+        {
+            "id": "tier3_entrance_dialog",
+            "name": "Maze Entrance",
+            "text": "You seem to have entered a maze."
+        },
+        {
+            "id": "tier3_switch_2_locked",
+            "name": "Sealed door",
+            "text": "There is a sealed door with a 2 written on it."
+        },
+        {
+            "id": "tier3_switch_7_locked",
+            "name": "Sealed door",
+            "text": "There is a sealed door with a 7 written on it."
+        },
+        {
+            "id": "tier3_switch_8_locked",
+            "name": "Sealed door",
+            "text": "There is a sealed door with a 8 written on it."
+        },
+        {
+            "id": "tier3_switch_9_locked",
+            "name": "Sealed door",
+            "text": "There is a sealed door with a 9 written on it."
+        },
+        {
+            "id": "tier3_room_1_dialog",
+            "name": "Room 1",
+            "text": "This maze room has a one engraved on the floor and doors to the east and south."
+        },
+        {
+            "id": "tier3_room_2_dialog",
+            "name": "Room 2",
+            "text": "This maze room has a two engraved on the floor, a switch on the wall, and doorways in all directions."
+        },
+        {
+            "id": "tier3_room_3_dialog",
+            "name": "Room 3",
+            "text": "This maze room has a three engraved on the floor and doorways to the west and south."
+        },
+        {
+            "id": "tier3_switch_toggle",
+            "name": "Switch",
+            "text": "As you flip the switch, you hear the sounds of doors sliding."
+        },
+        {
+            "id": "tier3_room_4_dialog",
+            "name": "Room 4",
+            "text": "This maze room has a four engraved on the floor and doorways in all directions."
+        },
+        {
+            "id": "tier3_room_5_dialog",
+            "name": "Room 5",
+            "text": "This maze room has a five engraved on the floor and doorways in all directions."
+        },
+        {
+            "id": "tier3_room_6_dialog",
+            "name": "Room 6",
+            "text": "This maze room has a six engraved on the floor and doorways in all directions."
+        },
+        {
+            "id": "tier3_room_7_dialog",
+            "name": "Room 7",
+            "text": "This maze room has a seven engraved on the floor and doorways to the north and east."
+        },
+        {
+            "id": "tier3_room_8_dialog",
+            "name": "Room 8",
+            "text": "This maze room has a eight engraved on the floor and doorways in all directions."
+        },
+        {
+            "id": "tier3_room_9_dialog",
+            "name": "Room 9",
+            "text": "This maze room has a nine engraved on the floor and doorways to the north and west."
+        },
+        {
+            "id": "tier3_room_10_dialog",
+            "name": "Room 10",
+            "text": "This maze room has a ten engraved on the floor and a doorway to the east. There is also an alcove that might hold something."
+        },
+        {
+            "id": "tier3_room_11_dialog",
+            "name": "Room 11",
+            "text": "This maze room has an eleven engraved on the floor and a doorway to the north. There is also an alcove that might hold something."
+        },
+        {
+            "id": "tier3_room_12_dialog",
+            "name": "Room 12",
+            "text": "This maze room has a 12 engraved on the floor and doorways to the west and east. What you can see of the eastern passage makes you uneasy."
+        },
+        {
+            "id": "acquired_blue_gem",
+            "name": "Blue Gem",
+            "text": "You pick up a blue gemstone."
+        },
+        {
+            "id": "tier3_danger_prereq",
+            "name": "Trap Room",
+            "text": "Poison darts start flying out of the walls. \n\nRUN!"
+        }
+    ],
+    "events": [
+        {
+            "id": "tier3_entrance_prereq",
+            "name": "Maze Entrance",
+            "dialog": "tier3_entrance_dialog"
+        },
+        {
+            "id": "tier3_room_1_prereq",
+            "name": "Room 1",
+            "dialog": "tier3_room_1_dialog"
+        },
+        {
+            "id": "tier3_room_2_prereq",
+            "name": "Room 2",
+            "dialog": "tier3_room_2_dialog"
+        },
+        {
+            "id": "tier3_room_3_prereq",
+            "name": "Room 3",
+            "dialog": "tier3_room_3_dialog"
+        },
+        {
+            "id": "tier3_room_4_prereq",
+            "name": "Room 4",
+            "dialog": "tier3_room_4_dialog"
+        },
+        {
+            "id": "tier3_room_5_prereq",
+            "name": "Room 5",
+            "dialog": "tier3_room_5_dialog"
+        },
+        {
+            "id": "tier3_room_6_prereq",
+            "name": "Room 6",
+            "dialog": "tier3_room_6_dialog"
+        },
+        {
+            "id": "tier3_room_7_prereq",
+            "name": "Room 7",
+            "dialog": "tier3_room_7_dialog"
+        },
+        {
+            "id": "tier3_room_8_prereq",
+            "name": "Room 8",
+            "dialog": "tier3_room_8_dialog"
+        },
+        {
+            "id": "tier3_room_9_prereq",
+            "name": "Room 9",
+            "dialog": "tier3_room_9_dialog"
+        },
+        {
+            "id": "tier3_room_10_prereq",
+            "name": "Room 10",
+            "dialog": "tier3_room_10_dialog"
+        },
+        {
+            "id": "tier3_room_11_prereq",
+            "name": "Room 11",
+            "dialog": "tier3_room_11_dialog"
+        },
+        {
+            "id": "tier3_room_12_prereq",
+            "name": "Room 12",
+            "dialog": "tier3_room_12_dialog"
+        },
+        {
+            "id": "tier3_switch2_off_prereq",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_switch2_on_prereq",
+            "positive_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_switch7_off_prereq",
+            "negative_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_switch7_on_prereq",
+            "positive_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_switch8_off_prereq",
+            "negative_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_switch8_on_prereq",
+            "positive_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_switch9_off_prereq",
+            "negative_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_switch9_on_prereq",
+            "positive_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_1_2_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_2_locked",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_1_4_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_2_locked",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_2_e_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_2_locked",
+            "positive_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_2_1_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_2_locked",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_2_3_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_7_locked",
+            "negative_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_hall_2_5_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_7_locked",
+            "negative_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_hall_3_2_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_7_locked",
+            "negative_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_hall_3_6_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_2_locked",
+            "positive_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_4_1_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_2_locked",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_4_5_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_9_locked",
+            "negative_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_4_7_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_2_locked",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_4_10_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_8_locked",
+            "negative_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_hall_5_2_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_7_locked",
+            "negative_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_hall_5_6_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_8_locked",
+            "negative_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_hall_5_8_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_9_locked",
+            "negative_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_5_4_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_9_locked",
+            "negative_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_6_3_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_2_locked",
+            "positive_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_6_12_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_9_locked",
+            "negative_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_6_9_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_2_locked",
+            "positive_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_6_5_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_8_locked",
+            "negative_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_hall_7_4_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_2_locked",
+            "negative_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_7_8_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_8_locked",
+            "negative_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_hall_8_5_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_9_locked",
+            "negative_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_8_9_locked",
+            "name": "East",
+            "menu_description": "Inspect the eastern door",
+            "dialog": "tier3_switch_7_locked",
+            "positive_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_hall_8_11_locked",
+            "name": "South",
+            "menu_description": "Inspect the southern door",
+            "dialog": "tier3_switch_9_locked",
+            "positive_prerequisites": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_hall_8_7_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_8_locked",
+            "negative_prerequisites": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_hall_9_6_locked",
+            "name": "North",
+            "menu_description": "Inspect the northern door",
+            "dialog": "tier3_switch_2_locked",
+            "positive_prerequisites": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_hall_9_8_locked",
+            "name": "West",
+            "menu_description": "Inspect the western door",
+            "dialog": "tier3_switch_7_locked",
+            "positive_prerequisites": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_switch_2_on",
+            "name": "Switch 2",
+            "menu_description": "Turn on switch 2",
+            "dialog": "tier3_switch_toggle",
+            "negative_prerequisites": ["tier3_switch_2"],
+            "positive_state_changes": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_switch_2_off",
+            "name": "Switch 2",
+            "menu_description": "Turn off switch 2",
+            "dialog": "tier3_switch_toggle",
+            "positive_prerequisites": ["tier3_switch_2"],
+            "negative_state_changes": ["tier3_switch_2"]
+        },
+        {
+            "id": "tier3_switch_7_on",
+            "name": "Switch 7",
+            "menu_description": "Turn on switch 7",
+            "dialog": "tier3_switch_toggle",
+            "negative_prerequisites": ["tier3_switch_7"],
+            "positive_state_changes": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_switch_7_off",
+            "name": "Switch 7",
+            "menu_description": "Turn off switch 7",
+            "dialog": "tier3_switch_toggle",
+            "positive_prerequisites": ["tier3_switch_7"],
+            "negative_state_changes": ["tier3_switch_7"]
+        },
+        {
+            "id": "tier3_switch_8_on",
+            "name": "Switch 8",
+            "menu_description": "Turn on switch 8",
+            "dialog": "tier3_switch_toggle",
+            "negative_prerequisites": ["tier3_switch_8"],
+            "positive_state_changes": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_switch_8_off",
+            "name": "Switch 8",
+            "menu_description": "Turn off switch 8",
+            "dialog": "tier3_switch_toggle",
+            "positive_prerequisites": ["tier3_switch_8"],
+            "negative_state_changes": ["tier3_switch_8"]
+        },
+        {
+            "id": "tier3_switch_9_on",
+            "name": "Switch 9",
+            "menu_description": "Turn on switch 9",
+            "dialog": "tier3_switch_toggle",
+            "negative_prerequisites": ["tier3_switch_9"],
+            "positive_state_changes": ["tier3_switch_9"]
+        },
+        {
+            "id": "tier3_switch_9_off",
+            "name": "Switch 9",
+            "menu_description": "Turn off switch 9",
+            "dialog": "tier3_switch_toggle",
+            "positive_prerequisites": ["tier3_switch_9"],
+            "negative_state_changes": ["tier3_switch_9"]
+        },
+        {
+            "id": "get_tablet3",
+            "name": "Tablet Piece",
+            "menu_description": "Acquire the tablet piece.",
+            "dialog": "acquired_tablet_piece",
+            "negative_prerequisites": ["tablet_piece_3"],
+            "positive_state_changes": ["tablet_piece_3"]
+        },
+        {
+            "id": "get_blue_gem",
+            "name": "Blue Gem",
+            "menu_description": "Acquire the blue gem.",
+            "dialog": "acquired_blue_gem",
+            "negative_prerequisites": ["blue_gem"],
+            "positive_state_changes": ["blue_gem"]
+        },
+        {
+            "id": "tier3_danger_prereq",
+            "name": "Trap Room",
+            "menu_description": "Trap Room",
+            "dialog": "tier3_danger_prereq"
+        }
+    ]
+}

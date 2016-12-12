@@ -1,0 +1,64 @@
+{
+    "battlers": [
+        {
+            "id": "mimic",
+            "name": "Mimic",
+            "description": "Has access to a wide variety of skills",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "rankb",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "basicattack",
+                    "min_level": 1
+                },
+                {
+                    "id": "basicmagic",
+                    "min_level": 1
+                },
+                {
+                    "id": "panacea",
+                    "min_level": 1
+                },
+                {
+                    "id": "stun",
+                    "min_level": 1
+                },
+                {
+                    "id": "passify",
+                    "min_level": 1
+                },
+                {
+                    "id": "silence",
+                    "min_level": 1
+                },
+                {
+                    "id": "haste",
+                    "min_level": 1
+                },
+                {
+                    "id": "slow",
+                    "min_level": 1
+                },
+                {
+                    "id": "poison",
+                    "min_level": 1
+                },
+                {
+                    "id": "physical_counter",
+                    "min_level": 1
+                },
+                {
+                    "id": "magic_counter",
+                    "min_level": 1
+                }
+            ]
+        }
+    ]
+}

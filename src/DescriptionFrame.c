@@ -7,15 +7,10 @@
 
 static TextBox *descriptionTextBox = NULL;
 
-#define DESC_FRAME_WIDTH 84
-#define DESC_FRAME_HEIGHT 35
-#define DESC_TEXT_X_OFFSET 2
-#define DESC_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
-static GRect descriptionFrame = {.origin = {.x = 144 / 2 - DESC_FRAME_WIDTH / 2, .y = 0}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
+static GRect descriptionFrame = {.origin = {.x = DESC_FRAME_ORIGIN_X, .y = 0}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-#define VERTICAL_OFFSET 11
-static GRect descriptionFrame = {.origin = {.x = 180 / 2 - DESC_FRAME_WIDTH / 2, .y = VERTICAL_OFFSET}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
+static GRect descriptionFrame = {.origin = {.x = DESC_FRAME_ORIGIN_X, .y = VERTICAL_OFFSET}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
 #endif
 
 void SetDescription(const char *text)
@@ -37,10 +32,10 @@ void InitializeDescriptionLayer(Window *window)
 {
 	if(!descriptionTextBox)
 	{
-		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame);
+		descriptionTextBox = CreateTextBox(DESC_TEXT_X_OFFSET, DESC_TEXT_Y_OFFSET, fonts_get_system_font(FONT_KEY_GOTHIC_14), descriptionFrame, GTextAlignmentCenter, false, PBL_IF_RECT_ELSE(false, true));
 	}
 	
-	InitializeTextBox(window, descriptionTextBox, "");
+	InitializeTextBox(window_get_root_layer(window), descriptionTextBox, "");
 }
 
 void FreeDescriptionLayer(void)

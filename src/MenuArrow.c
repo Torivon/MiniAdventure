@@ -13,7 +13,7 @@ static GBitmap *leftArrowImage = NULL;
 #define ARROW_OFFSET 5
 #if defined(PBL_RECT)
 static GRect menuArrowInactiveFrame = {.origin = {.x = 144 - ARROW_DIMENSION - ARROW_OFFSET, .y = 168 / 2 - ARROW_DIMENSION / 2}, .size = {.w = ARROW_DIMENSION, .h = ARROW_DIMENSION}};
-static GRect menuArrowActiveFrame = {.origin = {.x = ARROW_OFFSET, .y = 168 / 4 - ARROW_DIMENSION / 2}, .size = {.w = ARROW_DIMENSION, .h = ARROW_DIMENSION}};
+static GRect menuArrowActiveFrame = {.origin = {.x = ARROW_OFFSET, .y = 168 / 4 - ARROW_DIMENSION / 2 - ARROW_DIMENSION}, .size = {.w = ARROW_DIMENSION, .h = ARROW_DIMENSION}};
 #elif defined(PBL_ROUND)
 static GRect menuArrowInactiveFrame = {.origin = {.x = 180 - ARROW_DIMENSION - ARROW_OFFSET, .y = 180 / 2 - ARROW_DIMENSION / 2}, .size = {.w = ARROW_DIMENSION, .h = ARROW_DIMENSION}};
 static GRect menuArrowActiveFrame = {.origin = {.x = ARROW_OFFSET, .y = 180 / 2 - ARROW_DIMENSION / 2}, .size = {.w = ARROW_DIMENSION, .h = ARROW_DIMENSION}};

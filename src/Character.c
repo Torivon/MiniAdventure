@@ -1,10 +1,14 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Adventure.h"
+#include "Battler.h"
 #include "Character.h"
 #include "CombatantClass.h"
+#include "DialogFrame.h"
+#include "Events.h"
 #include "Logging.h"
-#include "ResourceStory.h"
+#include "Skills.h"
+#include "Story.h"
 #include "Utils.h"
 
 typedef struct Character
@@ -70,7 +74,7 @@ size_t Character_GetDataSize(void)
 
 void Character_Rest(void)
 {
-    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
     
     for(int i = 0; i < MAX_SKILLS_IN_LIST; ++i)
     {
@@ -82,16 +86,17 @@ void Character_Rest(void)
 void Character_GrantLevel(void)
 {
     character.level++;
-    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
 }
 
-void Character_GrantXP(uint16_t monsterLevel)
+bool Character_GrantXP(uint16_t monsterLevel)
 {
-    uint16_t xpMonstersPerLevel = ResourceStory_GetCurrentStoryXPMonstersPerLevel();
-    uint16_t xpDifferenceScale = ResourceStory_GetCurrentStoryXPDifferenceScale();
+    bool leveledUp = false;
+    uint16_t xpMonstersPerLevel = Story_GetCurrentStoryXPMonstersPerLevel();
+    uint16_t xpDifferenceScale = Story_GetCurrentStoryXPDifferenceScale();
     
     if(xpMonstersPerLevel == 0)
-        return;
+        return leveledUp;
     
     // We add 1 to work around truncation issues.
     uint16_t xpGain = (XP_TO_LEVEL_UP * (100 + (monsterLevel - character.level) * xpDifferenceScale)) / (xpMonstersPerLevel * 100) + 1;
@@ -101,14 +106,17 @@ void Character_GrantXP(uint16_t monsterLevel)
     {
         character.level++;
         character.currentXP -= XP_TO_LEVEL_UP;
-        character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+        character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
+        leveledUp = true;
     }
+    
+    return leveledUp;
 }
 
 void Character_ReadPersistedData(int index)
 {
 	persist_read_data(index, &character, sizeof(Character));	
-    ResourceBattler_LoadPlayer(character.classType);
+    Battler_LoadPlayer(character.classType);
 }
 
 void Character_WritePersistedData(int index)
@@ -120,8 +128,95 @@ void Character_Initialize(void)
 {
     INFO_LOG("Initializing character.");
     character.classType = 0; // Get the first class in the story
-    ResourceBattler_LoadPlayer(character.classType);
+    Battler_LoadPlayer(character.classType);
     character.level = 1;
     character.currentXP = 0;
-    character.currentHealth = CombatantClass_GetHealth(&BattlerWrapper_GetPlayerWrapper()->battler.combatantClass, character.level);
+    character.currentHealth = CombatantClass_GetHealth(BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper()), character.level);
+}
+
+char RankToCharacter(int rank)
+{
+    if(rank == 6)
+        return 'S';
+    else
+        return 'F' - rank;
+}
+
+void Character_ShowClass(void)
+{
+    char text[MAX_DIALOG_LENGTH];
+    CombatantClass *combatant = BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper());
+    snprintf(text, MAX_DIALOG_LENGTH, "Class: %s\n\nStrength: %c\nMagic: %c\nDefense: %c\nMagDefense: %c\nSpeed: %c\nHealth: %c\n", BattlerWrapper_GetBattlerName(BattlerWrapper_GetPlayerWrapper()), RankToCharacter(combatant->strengthRank),
+             RankToCharacter(combatant->magicRank),
+             RankToCharacter(combatant->defenseRank),
+             RankToCharacter(combatant->magicDefenseRank),
+             RankToCharacter(combatant->speedRank),
+             RankToCharacter(combatant->healthRank));
+    Dialog_Queue(DialogData_Create("", text, false));
+}
+
+void Character_ShowSkills(void)
+{
+    char text[MAX_DIALOG_LENGTH];
+    SkillList *skillList = BattlerWrapper_GetSkillList(BattlerWrapper_GetPlayerWrapper());
+    snprintf(text, MAX_DIALOG_LENGTH, "Skill: cooldown\n");
+    for(int i = 0; i < skillList->count; ++i)
+    {
+        if(skillList->entries[i].level > character.level)
+            break;
+        char skillInfo[20] = {0};
+        Skill *skill = BattlerWrapper_GetSkillByIndex(BattlerWrapper_GetPlayerWrapper(), i);
+        if(skill->cooldown == 0)
+        {
+            snprintf(skillInfo, 20, "%s: None\n", skill->name);
+        }
+        else
+        {
+            snprintf(skillInfo, 20, "%s: %d/%d\n", skill->name, character.skillCooldowns[i],skill->cooldown);
+        }
+        strncat(text, skillInfo, 20);
+    }
+    
+    Dialog_Queue(DialogData_Create("", text, false));
+}
+
+void Character_ShowStatus(void)
+{
+    char text[MAX_DIALOG_LENGTH];
+    CombatantClass *combatant = BattlerWrapper_GetCombatantClass(BattlerWrapper_GetPlayerWrapper());
+    snprintf(text, MAX_DIALOG_LENGTH, "Status\n\nLevel: %d\nXP: %d/%d, Health: %d/%d", character.level, character.currentXP, XP_TO_LEVEL_UP, character.currentHealth, CombatantClass_GetHealth(combatant, character.level));
+    
+    Dialog_Queue(DialogData_Create("", text, false));
+}
+
+void Character_ShowKeyItems(void)
+{
+    bool first = true;
+    char text[MAX_DIALOG_LENGTH];
+    snprintf(text, MAX_DIALOG_LENGTH, "%s", "");
+    uint16_t keyItemCount = 0;
+    uint16_t *keyItemList = NULL;
+    Story_GetCurrentKeyItemList(&keyItemCount, &keyItemList);
+    for(uint16_t i = 0; i < keyItemCount; ++i)
+    {
+        KeyItem *keyItem = KeyItem_Load(keyItemList[i]);
+        if(Story_GetCurrentGameStateValue(KeyItem_GetGameStateIndex(keyItem)))
+        {
+            char *name = KeyItem_GetName(keyItem);
+            if(strlen(text) >= MAX_DIALOG_LENGTH - (strlen(name) + 2))
+                break;
+            
+            if(first)
+            {
+                first = false;
+            }
+            else
+            {
+                strncat(text, ", ", 2);
+            }
+            strncat(text, name, strlen(name));
+        }
+        KeyItem_Free(keyItem);
+    }
+    Dialog_Queue(DialogData_Create("Key Items", text, false));
 }

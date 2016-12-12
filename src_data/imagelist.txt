@@ -1,7 +1,0 @@
-images/right_arrow.png
-images/rest.png
-images/left_arrow.png
-images/battlefloor.png
-images/Title.png
-images/RepositoryCode.png
-images/dungeonright.png

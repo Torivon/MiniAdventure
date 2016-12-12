@@ -20,6 +20,9 @@ uint16_t Random(uint16_t max);
 typedef struct GContext GContext;
 typedef struct GRect GRect;
 
-void DrawContentFrame(GContext *ctx, GRect *rect);
+#ifndef BUILD_WORKER_FILES
+void DrawContentFrame(GContext *ctx, GRect *rect, GColor fillColor);
+#endif
+void DrawBoundaryArcs(GContext * ctx, GRect *rect);
 void ShowLayer(Layer *layer);
 void HideLayer(Layer *layer);

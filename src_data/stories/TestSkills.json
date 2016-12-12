@@ -1,0 +1,130 @@
+{
+    "skills": [
+        {
+            "id": "basicattack",
+            "name": "Basic Attack",
+            "description": "Basic attack",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical"],
+            "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "basicmagic",
+            "name": "Basic Magic",
+            "description": "Basic Magic",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["magic"],
+            "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "stun",
+            "name": "Stun",
+            "description": "Stun",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical"],
+            "potency": 2,
+            "cooldown": 5,
+            "skill_properties": ["stun"],
+            "property_duration": 1
+        },
+        {
+            "id": "passify",
+            "name": "Passify",
+            "description": "Prevent physical attacks",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical"],
+            "potency": 0,
+            "cooldown": 6,
+            "skill_properties": ["passify"],
+            "property_duration": 8
+        },
+        {
+            "id": "silence",
+            "name": "Silence",
+            "description": "Prevent magic attacks",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["magic"],
+            "potency": 0,
+            "cooldown": 6,
+            "skill_properties": ["silence"],
+            "property_duration": 8
+        },
+        {
+            "id": "haste",
+            "name": "Haste",
+            "description": "Double action speed",
+            "target": "self",
+            "speed": 20,
+            "damage_types": ["magic"],
+            "potency": 0,
+            "cooldown": 6,
+            "skill_properties": ["haste"],
+            "property_duration": 8
+        },
+        {
+            "id": "slow",
+            "name": "Slow",
+            "description": "Halve action speed",
+            "target": "enemy",
+            "speed": 20,
+            "damage_types": ["magic"],
+            "potency": 0,
+            "cooldown": 6,
+            "skill_properties": ["slow"],
+            "property_duration": 8
+        },
+        {
+            "id": "poison",
+            "name": "Poison",
+            "description": "Damage over time",
+            "target": "enemy",
+            "speed": 20,
+            "damage_types": ["magic"],
+            "potency": 0,
+            "cooldown": 6,
+            "skill_properties": ["poison"],
+            "property_duration": 8
+        },
+        {
+            "id": "physical_counter",
+            "name": "Shield Bash",
+            "description": "Counter a physical attack",
+            "target": "counter",
+            "speed": 100,
+            "damage_types": ["physical"],
+            "counter_damage_types": ["physical"],
+            "potency": 20,
+            "cooldown": 3
+        },
+        {
+            "id": "magic_counter",
+            "name": "Reflect",
+            "description": "Counter a magic attack",
+            "target": "counter",
+            "speed": 100,
+            "damage_types": ["magic"],
+            "counter_damage_types": ["magic"],
+            "potency": 20,
+            "cooldown": 3
+        },
+        {
+            "id": "panacea",
+            "name": "Panacea",
+            "description": "Cure status",
+            "target": "self",
+            "speed": 100,
+            "damage_types": [],
+            "potency": 0,
+            "cooldown": 3,
+            "skill_properties": ["poison", "passify", "silence", "slow"],
+            "property_duration": 0
+        }
+    ]
+}

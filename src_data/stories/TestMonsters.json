@@ -1,0 +1,204 @@
+{
+    "battlers": [
+        {
+            "id": "physical",
+            "name": "Basic Physical",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "basicattack",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "magic",
+            "name": "Basic Magic",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "basicmagic",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "stunner",
+            "name": "Stunner",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "ranks",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "stun",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "passifier",
+            "name": "Passifier",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "passify",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "silencer",
+            "name": "Silencer",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "silence",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "haster",
+            "name": "Haster",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "haste",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "slower",
+            "name": "Slower",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "slow",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "poisoner",
+            "name": "Poisoner",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "poison",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "shield",
+            "name": "Shield",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "physical_counter",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "reflect",
+            "name": "Mirror",
+            "description": "Blah",
+            "image": "images/turtle.png",
+            "combatantclass": {
+                "strength": "rankd",
+                "magic": "rankd",
+                "defense": "rankd",
+                "magic_defense": "rankd",
+                "speed": "rankd",
+                "health": "rankd"
+            },
+            "skill_list": [
+                {
+                    "id": "magic_counter",
+                    "min_level": 1
+                }
+            ]
+        }
+    ]
+}

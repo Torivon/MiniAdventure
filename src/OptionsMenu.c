@@ -11,6 +11,7 @@ void ReloadOptionsMenu(void);
 static bool vibration = true;
 static bool useWorkerApp = false;
 static bool workerCanLaunch = true;
+static bool allowActivity = true;
 
 void ToggleVibration(void)
 {
@@ -31,7 +32,7 @@ void SetVibration(bool enable)
 void SetWorkerApp(bool enable)
 {
 	useWorkerApp = enable;
-    ReloadMenu(GetMainMenu());
+    ReloadOptionsMenu();
 }
 
 void ToggleWorkerApp(void)
@@ -70,6 +71,22 @@ bool GetWorkerCanLaunch(void)
 	return workerCanLaunch;
 }
 
+void ToggleActivity(void)
+{
+    allowActivity = !allowActivity;
+    ReloadOptionsMenu();
+}
+
+bool GetAllowActivity(void)
+{
+    return allowActivity;
+}
+
+void SetAllowActivity(bool enable)
+{
+    allowActivity = enable;
+}
+
 bool OptionsMenuIsVisible(void)
 {
 	return GlobalState_GetCurrent() == STATE_OPTIONS;
@@ -85,7 +102,7 @@ static bool firstLaunch = false;
 
 uint16_t OptionsMenu_CellCount(uint16_t sectionIndex)
 {
-    return 3;
+    return 4;
 }
 
 const char *OptionsMenu_SlaveCellName(MenuIndex *index)
@@ -103,6 +120,10 @@ const char *OptionsMenu_SlaveCellName(MenuIndex *index)
         case 2:
         {
             return "Launch";
+        }
+        case 3:
+        {
+            return "Activity";
         }
     }
     return "";
@@ -123,6 +144,10 @@ const char *OptionsMenu_CellDescription(MenuIndex *index)
         case 2:
         {
             return "Worker app can launch";
+        }
+        case 3:
+        {
+            return "Use activity to determine path progress";
         }
     }
     return "";
@@ -153,6 +178,13 @@ const char *OptionsMenu_MainCellName(MenuIndex *index)
 			else
 				return "Off";
 		}
+        case 3:
+        {
+            if(GetAllowActivity())
+                return "On";
+            else
+                return "Off";
+        }
 	}
 	return "";
 }
@@ -186,6 +218,11 @@ void OptionsMenu_Select(MenuIndex *index)
 			ToggleWorkerCanLaunch();
 			break;
 		}
+        case 3:
+        {
+            ToggleActivity();
+            break;
+        }
 	}
 }
 

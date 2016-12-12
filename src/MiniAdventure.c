@@ -1,4 +1,4 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Adventure.h"
 #include "BaseWindow.h"
@@ -7,10 +7,10 @@
 #include "GlobalState.h"
 #include "Logging.h"
 #include "Battle.h"
+#include "Battler.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
-#include "ResourceStory.h"
-#include "StoryList.h"
+#include "Story.h"
 #include "TitleScreen.h"
 #include "Utils.h"
 #include "WorkerControl.h"
@@ -34,11 +34,13 @@ void battery_state_handler(BatteryChargeState charge)
 	UpdateBatteryLevel(charge);
 }
 
-// Called once per minute
+// Called once per second
 void handle_time_tick(struct tm* tick_time, TimeUnits units_changed) 
 {
 	if(!hasFocus)
 		return;
+    
+    DEBUG_VERBOSE_LOG("Tick: %u", units_changed);
 	
 	GlobalState_Update(units_changed);
 		
@@ -63,9 +65,19 @@ void focus_handler(bool in_focus) {
 	}
 }
 
+void TickOncePerMinute(void)
+{
+    tick_timer_service_subscribe(MINUTE_UNIT, &handle_time_tick);
+}
+
+void TickOncePerSecond(void)
+{
+    tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
+}
+
 void handle_init() {
 	
-    ResourceStory_LoadAll();
+    Story_LoadAll();
 
     INFO_LOG("Starting MiniAdventure");
     GlobalState_Initialize();
@@ -91,7 +103,7 @@ void handle_init() {
 	DEBUG_LOG("push new window %p", baseWindow);
 	window_stack_push(baseWindow, false);
 	TitleScreen_Register();
-	tick_timer_service_subscribe(SECOND_UNIT, &handle_time_tick);
+    TickOncePerMinute();
 	app_focus_service_subscribe(focus_handler);
 	battery_state_service_subscribe(battery_state_handler);
 }
@@ -116,9 +128,9 @@ void handle_deinit()
 #endif
 	if(baseWindow)
 		window_destroy(baseWindow);
-    ResourceBattler_UnloadPlayer();
-    ResourceMonster_UnloadCurrent();
-    ResourceStory_FreeAll();
+    Battler_UnloadPlayer();
+    Monster_UnloadCurrent();
+    Story_FreeAll();
 }
 
 // The main event/run loop for our app

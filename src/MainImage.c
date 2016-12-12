@@ -1,12 +1,9 @@
 #include <pebble.h>
+#include "ImageMap.h"
+#include "EngineInfo.h"
 #include "MainImage.h"
 #include "MiniAdventure.h"
 #include "Utils.h"
-
-#define MAIN_IMAGE_LAYER_X 50
-#define MAIN_IMAGE_LAYER_Y 20
-#define MAIN_IMAGE_LAYER_W 84
-#define MAIN_IMAGE_LAYER_H 84
 
 #define INTERNAL_IMAGE_OFFSET 2
 
@@ -17,8 +14,11 @@ static Layer *mainImageTopLayer = NULL;
 static BitmapLayer *foregroundImageLayer = NULL;
 static BitmapLayer *backgroundImageLayer = NULL;
 
+#if defined(PBL_RECT)
 static GRect mainImagePosition = {.origin = {.x = MAIN_IMAGE_LAYER_X, .y = MAIN_IMAGE_LAYER_Y}, .size = {.w = MAIN_IMAGE_LAYER_W, .h = MAIN_IMAGE_LAYER_H}};
-
+#else
+static GRect mainImagePosition = {.origin = {.x = MAIN_IMAGE_LAYER_X, .y = MAIN_IMAGE_LAYER_Y}, .size = {.w = MAIN_IMAGE_LAYER_W, .h = MAIN_IMAGE_LAYER_H}};
+#endif
 static bool mainImageInitialized = false;
 
 static int foregroundResourceId = -1;
@@ -27,20 +27,13 @@ static int backgroundResourceId = -1;
 static void MainImageUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
-	DrawContentFrame(ctx, &bounds);
+	DrawContentFrame(ctx, &bounds, GColorBlue);
 }
 
 void InitializeMainImageLayer(Window *window)
 {
 	if(!mainImageInitialized)
 	{
-		GRect screen_bounds = layer_get_bounds(window_get_root_layer(window));
-#if defined(PBL_RECT)
-        mainImagePosition.origin.x = screen_bounds.size.w - mainImagePosition.size.w;
-#elif defined(PBL_ROUND)
-        mainImagePosition.origin.x = screen_bounds.size.w - mainImagePosition.size.w - 20;
-#endif
-		mainImagePosition.origin.y = screen_bounds.size.h / 2 - mainImagePosition.size.h / 2;
 		mainImageTopLayer = layer_create(mainImagePosition);
 		
 		GRect image_bounds = layer_get_bounds(mainImageTopLayer);
@@ -50,14 +43,16 @@ void InitializeMainImageLayer(Window *window)
 		image_bounds.size.h -= 2 * INTERNAL_IMAGE_OFFSET;
 
 		backgroundImageLayer = bitmap_layer_create(image_bounds);
-		backgroundResourceId = RESOURCE_ID_IMAGE_BATTLEFLOOR;
+        uint16_t battleFloor = EngineInfo_GetInfo()->battleFloorImage;
+		backgroundResourceId = ImageMap_GetIdByIndex(battleFloor);
 		backgroundImage = gbitmap_create_with_resource(backgroundResourceId);
 		bitmap_layer_set_bitmap(backgroundImageLayer, backgroundImage);
 		bitmap_layer_set_alignment(backgroundImageLayer, GAlignCenter);
 		layer_add_child(mainImageTopLayer, (Layer*)backgroundImageLayer);
 		
 		foregroundImageLayer = bitmap_layer_create(image_bounds);
-		foregroundResourceId = RESOURCE_ID_IMAGE_TITLE;
+        uint16_t titleImage = EngineInfo_GetInfo()->titleImage;
+		foregroundResourceId = ImageMap_GetIdByIndex(titleImage);
 		foregroundImage = gbitmap_create_with_resource(foregroundResourceId);
 		bitmap_layer_set_bitmap(foregroundImageLayer, foregroundImage);
 		bitmap_layer_set_alignment(foregroundImageLayer, GAlignCenter);

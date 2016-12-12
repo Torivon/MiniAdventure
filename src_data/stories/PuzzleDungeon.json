@@ -1,0 +1,189 @@
+{
+    "id": 576,
+    "version": 1,
+    "name": "Bad Archaeologist",
+    "description": "An archaeologist plundering a historical site.",
+    "start_location": "office",
+    "xp_monsters_per_level": 0,
+    "classes": ["archaeologist"],
+    "opening_dialog": "opening_dialog",
+    "win_dialog": "win_dialog",
+    "default_activity_tracking": false,
+    "allow_respawn_on_death": true,
+    "external_files": ["PuzzleDungeon/PuzzleDungeon-Debug.json", "PuzzleDungeon/PuzzleDungeon-Intro.json", "PuzzleDungeon/PuzzleDungeon-Tier1.json", "PuzzleDungeon/PuzzleDungeon-Tier2.json", "PuzzleDungeon/PuzzleDungeon-Tier3.json", "PuzzleDungeon/PuzzleDungeon-Tier4.json", "PuzzleDungeon/PuzzleDungeon-Journal.json"],
+    "skills": [
+        {
+            "id": "crush",
+            "name": "Boulder Crush",
+            "description": "rolling crush",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10000,
+            "cooldown": 0
+        },
+        {
+            "id": "pierce",
+            "name": "Poison Dart",
+            "description": "deadly poison",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 10000,
+            "cooldown": 0
+        },
+        {
+            "id": "fall",
+            "name": "Collapse",
+            "description": "collapsing",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "bludgeoning"],
+            "potency": 10000,
+            "cooldown": 0
+        },
+        {
+            "id": "donothing",
+            "name": "Idle",
+            "description": "Stand idle",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 0,
+            "cooldown": 0
+        }
+    ],
+    "battlers": [
+        {
+            "id": "boulder",
+            "name": "Boulder",
+            "image": "images/dungeonstraight.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "crush",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "poison_dart",
+            "name": "Poison Dart",
+            "image": "images/dungeonstraight.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "pierce",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "collapsing_floor",
+            "name": "Collapsing Floor",
+            "image": "images/dungeonstraight.png",
+            "combatantclass": {
+                "strength": "ranks",
+                "magic": "ranks",
+                "defense": "ranks",
+                "magic_defense": "ranks",
+                "speed": "ranks",
+                "health": "ranks"
+            },
+            "skill_list": [
+                {
+                    "id": "fall",
+                    "min_level": 1
+                }
+            ]
+        },
+        {
+            "id": "archaeologist",
+            "name": "Archaeologist",
+            "description": "A professional destroyer of historical sites.",
+            "image": "images/Title.png",
+            "combatantclass": {
+                "strength": "rankf",
+                "magic": "rankf",
+                "defense": "rankf",
+                "magic_defense": "rankf",
+                "speed": "rankf",
+                "health": "rankf"
+            },
+            "skill_list": [
+                {
+                    "id": "donothing",
+                    "min_level": 1
+                }
+            ]          
+        }
+    ],
+    "dialog": [
+	{
+            "id": "opening_dialog",
+            "name": "Opening",
+            "text": "Time to get ready for your expedition to some ancient ruins."
+        },
+        {
+            "id": "win_dialog",
+            "name": "Win",
+            "text": "You have finished exploring the ruins."
+        }
+    ],
+    "key_items": [
+        {
+            "id": "red_gem",
+            "name": "Red Gem"
+        },
+        {
+            "id": "yellow_gem",
+            "name": "Yellow Gem"
+        },
+        {
+            "id": "blue_gem",
+            "name": "Blue Gem"
+        },
+        {
+            "id": "journal",
+            "name": "Journal"
+        },
+        {
+            "id": "luggage",
+            "name": "Luggage"
+        },
+        {
+            "id": "raft",
+            "name": "Raft"
+        },
+        {
+            "id": "tablet_piece_1",
+            "name": "Tablet Fragment 1"
+        },
+        {
+            "id": "tablet_piece_2",
+            "name": "Tablet Fragment 2"
+        },
+        {
+            "id": "tablet_piece_3",
+            "name": "Tablet Fragment 3"
+        },
+        {
+            "id": "tablet_piece_4",
+            "name": "Tablet Fragment 4"
+        }
+    ]
+}

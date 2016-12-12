@@ -1,12 +1,15 @@
 {
     "id": 12,
-    "version": 7,
+    "version": 9,
     "name": "Battle Arena",
     "description": "Train against monsters",
     "start_location": "restarea",
     "xp_monsters_per_level": 4,
     "xp_difference_scale": 20,
     "classes": ["adventurer"],
+    "opening_dialog": "intro_text",
+    "win_dialog": "end_text",
+    "credits_dialog": "credits",
     "locations": [
         {
             "id": "restarea",
@@ -24,7 +27,7 @@
         },
         {
             "id": "win",
-            "name": "Finish in arena",
+            "name": "Exit arena",
             "adjacent_locations": ["restarea"],
             "background_images": ["images/dungeondeadend.png"],
             "location_properties": ["game_win"]
@@ -86,6 +89,19 @@
             "base_level": 20
         }
     ],
-    "skill_files": ["DungeonCrawl_MonsterSkills.json", "DungeonCrawl_AdventurerSkills.json"],
-    "battler_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"]
+    "external_files": ["DungeonCrawl_Monsters.json", "DungeonCrawl_Adventurer.json"],
+    "dialog": [
+        {
+            "id": "intro_text",
+            "text": "Welcome to the battle arena. Here you can face off against a collection of monsters. This is a debug story, used to help tune the monster and character stats."
+        },
+        {
+            "id": "end_text",
+            "text": "You have had enough of fighting monsters in the arena. Time to go do something else."
+        },
+        {
+            "id": "credits",
+            "text": "Design and art by Jonathan Panttaja."
+        }
+    ]
 }

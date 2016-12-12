@@ -3,6 +3,7 @@
 #include "BaseWindow.h"
 #include "Battle.h"
 #include "DescriptionFrame.h"
+#include "EngineMenu.h"
 #include "GlobalState.h"
 #include "Logging.h"
 #include "MenuArrow.h"
@@ -11,7 +12,6 @@
 #include "TitleScreen.h"
 #include "Utils.h"
 
-#define WINDOW_ROW_HEIGHT 16
 #define NUM_MENU_SECTIONS 1
 #define NUM_FIRST_MENU_ITEMS 10
 
@@ -49,6 +49,11 @@ uint16_t GetMenuCellCount(Menu *menu, uint16_t section_index)
     {
         switch(state)
         {
+            case STATE_ENGINE_MENU:
+            {
+                return EngineMenu_GetCellCount();
+                break;
+            }
             case STATE_ADVENTURE:
             {
                 return Adventure_MenuCellCount(section_index);
@@ -99,6 +104,11 @@ uint16_t GetMenuSectionCount(Menu *menu)
     {
         switch(state)
         {
+            case STATE_ENGINE_MENU:
+            {
+                return EngineMenu_GetSectionCount();
+                break;
+            }
             case STATE_ADVENTURE:
             {
                 return Adventure_MenuSectionCount();
@@ -157,6 +167,11 @@ const char *GetMenuName(Menu *menu, MenuIndex *index)
     GlobalState state = menu->menuState;
     switch(state)
     {
+        case STATE_ENGINE_MENU:
+        {
+            return EngineMenu_GetCellName(index->row);
+            break;
+        }
         case STATE_ADVENTURE:
         {
             return Adventure_MenuCellName(index);
@@ -196,6 +211,11 @@ const char *GetMenuSectionName(Menu *menu, uint16_t section_index)
     GlobalState state = menu->menuState;
     switch(state)
     {
+        case STATE_ENGINE_MENU:
+        {
+            return EngineMenu_GetSectionName();
+            break;
+        }
         case STATE_ADVENTURE:
         {
             return Adventure_MenuSectionName(section_index);
@@ -231,9 +251,14 @@ const char *GetMenuDescription(Menu *menu, MenuIndex *index)
     GlobalState state = menu->menuState;
     switch(state)
     {
+        case STATE_ENGINE_MENU:
+        {
+            return EngineMenu_GetCellName(index->row);
+            break;
+        }
         case STATE_ADVENTURE:
         {
-            return Adventure_MenuCellName(index);
+            return Adventure_MenuCellDescription(index);
             break;
         }
         case STATE_OPTIONS:
@@ -270,6 +295,11 @@ void CallMenuSelectCallback(Menu *menu, ClickRecognizerRef recognizer, Window *w
         GlobalState state = menu->menuState;
         switch(state)
         {
+            case STATE_ENGINE_MENU:
+            {
+                return EngineMenu_SelectAction(index.row);
+                break;
+            }
             case STATE_ADVENTURE:
             {
                 Adventure_MenuSelect(&index);
@@ -452,7 +482,7 @@ void selection_changed_callback(struct MenuLayer *menu_layer, MenuIndex new_inde
 {
 	Menu *menu = (Menu*)callback_context;
 	const char *newDescription = GetMenuDescription(menu, &new_index);
-	if(menu->mainMenu)
+	if(menu->mainMenu && !IsMenuHidden(menu))
 		SetDescription(newDescription ? newDescription : "");
 }
 
@@ -480,7 +510,7 @@ Menu *CreateMenuLayer(int onScreenX,
 void MenuUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
-	DrawContentFrame(ctx, &bounds);
+	DrawContentFrame(ctx, &bounds, GColorBlue);
 }
 
 void InitializeMenuLayer(Menu *menu, Window *window)
@@ -582,6 +612,28 @@ void ReloadMenu(Menu *menu)
 	}
 }
 
+typedef struct RegisterMenuState_data
+{
+    Menu *menu;
+    int state;
+} RegisterMenuState_data;
+
+void RegisterMenuState_Push(void *data)
+{
+    RegisterMenuState_data *menuData = (RegisterMenuState_data*)data;
+    RegisterMenuState(menuData->menu, menuData->state);
+    free(menuData);
+    GlobalState_Pop();
+}
+
+void QueueRegisterMenuState(Menu *menu, int state)
+{
+    RegisterMenuState_data *data = calloc(sizeof(RegisterMenuState_data), 1);
+    data->menu = menu;
+    data->state = state;
+    GlobalState_Queue(STATE_REGISTER_MENU_STATE, 0, data);
+}
+
 void RegisterMenuState(Menu *menu, int state)
 {
     menu->menuState = state;
@@ -597,4 +649,9 @@ void Menu_ResetSelection(Menu *menu)
 void TriggerMenu(Menu *menu)
 {
 	GlobalState_Push(STATE_MENU, 0, menu);
+}
+
+void QueueMenu(Menu *menu)
+{
+    GlobalState_Queue(STATE_MENU, 0, menu);
 }

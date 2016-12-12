@@ -2,6 +2,7 @@
 #include "Adventure.h"
 #include "Battle.h"
 #include "DialogFrame.h"
+#include "Events.h"
 #include "GlobalState.h"
 #include "LargeImage.h"
 #include "Logging.h"
@@ -26,7 +27,7 @@ static GlobalStateInstance *queueBack = NULL;
 
 static void PopAppear(void *data)
 {
-    GlobalState_Pop();
+    GlobalState_PopIgnoreQueue();
     GlobalState_Pop();
 }
 
@@ -34,6 +35,16 @@ void GlobalState_RunPushCallback(GlobalStateInstance *instance)
 {
     switch(instance->state)
     {
+        case STATE_REGISTER_MENU_STATE:
+        {
+            RegisterMenuState_Push(instance->data);
+            break;
+        }
+        case STATE_UPDATE_GAME_STATE:
+        {
+            Event_UpdateGameState_Push(instance->data);
+            break;
+        }
         case STATE_OPTIONS:
         {
             OptionScreenPush(instance->data);
@@ -161,6 +172,11 @@ void GlobalState_RunPopCallback(GlobalStateInstance *instance)
 {
     switch(instance->state)
     {
+        case STATE_DIALOG:
+        {
+            Dialog_Pop(instance->data);
+            break;
+        }
         case STATE_OPTIONS:
         {
             OptionScreenPop(instance->data);
@@ -197,6 +213,23 @@ void GlobalState_RunPopCallback(GlobalStateInstance *instance)
         }
     }
 }
+
+void GlobalState_RunCleanupCallback(GlobalStateInstance *instance)
+{
+    switch(instance->state)
+    {
+        case STATE_DIALOG:
+        {
+            Dialog_Pop(instance->data);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
 
 void GlobalState_Queue(GlobalState state,
                       TimeUnits triggerUnits,
@@ -265,6 +298,7 @@ void GlobalState_ClearQueue(void)
     while(queueBack)
     {
         GlobalStateInstance *instance = GlobalState_PopQueue();
+        GlobalState_RunCleanupCallback(instance);
         free(instance);
     }
 }
@@ -305,7 +339,7 @@ void GlobalState_Update(TimeUnits units_changed)
     GlobalState_RunUpdateCallback(stackTop, units_changed);
 }
 
-void GlobalState_Pop(void)
+void GlobalState_PopInternal(bool checkQueue)
 {
     if(!stackTop)
         return;
@@ -322,7 +356,7 @@ void GlobalState_Pop(void)
     
     free(oldInstance);
     
-    if(queueBack)
+    if(checkQueue && queueBack)
     {
         GlobalStateInstance *queuedInstance = GlobalState_PopQueue();
         if(queuedInstance)
@@ -339,6 +373,16 @@ void GlobalState_Pop(void)
 	}
 
     GlobalState_RunAppearCallback(stackTop);
+}
+
+void GlobalState_PopIgnoreQueue(void)
+{
+    GlobalState_PopInternal(false);
+}
+
+void GlobalState_Pop(void)
+{
+    GlobalState_PopInternal(true);
 }
 
 GlobalState GlobalState_GetCurrent(void)

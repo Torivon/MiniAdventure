@@ -1,10 +1,26 @@
 #include <pebble.h>
 #include "AutoSkillConstants.h"
+#include "Battler.h"
+#include "BinaryResourceLoading.h"
 #include "CombatantClass.h"
 #include "Logging.h"
 #include "MiniAdventure.h"
-#include "ResourceStory.h"
 #include "Skills.h"
+#include "Story.h"
+
+void Skill_Free(Skill *skill)
+{
+    if(skill)
+        free(skill);
+}
+
+Skill *Skill_Load(uint16_t logical_index)
+{
+    ResHandle currentStoryData = Story_GetCurrentResHandle();
+    Skill *newSkill = calloc(sizeof(Skill), 1);
+    ResourceLoadStruct(currentStoryData, logical_index, (uint8_t*)newSkill, sizeof(Skill), "Skill");
+    return newSkill;
+}
 
 char *GetSkillName(Skill *skill)
 {
@@ -34,49 +50,49 @@ int GetSkillCooldown(Skill *skill)
 
 static int ComputeSkillPotency(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
-    int attackPower = 1;
-    int defensePower = 1;
+    int attackPower = 0;
+    int defensePower = 0;
     
     // Compute immunity first. If the defender is immune, return 0
-    if(defender && skill->damageType & defender->battlerWrapper->battler.immune)
+    if(defender && BattlerWrapper_CheckImmunity(defender->battlerWrapper, skill->damageType))
         return 0;
+    
+    CombatantClass *attackerCombatantClass = BattlerWrapper_GetCombatantClass(attacker->battlerWrapper);
+    CombatantClass *defenderCombatantClass = defender ? BattlerWrapper_GetCombatantClass(defender->battlerWrapper) : NULL;
     
     if(skill->damageType & PHYSICAL)
     {
-        attackPower = CombatantClass_GetStrength(&attacker->battlerWrapper->battler.combatantClass, attacker->actor.level);
+        attackPower = CombatantClass_GetStrength(attackerCombatantClass, attacker->actor.level);
         if(defender)
-            defensePower = CombatantClass_GetDefense(&defender->battlerWrapper->battler.combatantClass, defender->actor.level);
+            defensePower = CombatantClass_GetDefense(defenderCombatantClass, defender->actor.level);
     }
     else if(skill->damageType & MAGIC)
     {
-        attackPower = CombatantClass_GetMagic(&attacker->battlerWrapper->battler.combatantClass, attacker->actor.level);
+        attackPower = CombatantClass_GetMagic(attackerCombatantClass, attacker->actor.level);
         if(defender)
-            defensePower = CombatantClass_GetMagicDefense(&defender->battlerWrapper->battler.combatantClass, defender->actor.level);
+            defensePower = CombatantClass_GetMagicDefense(defenderCombatantClass, defender->actor.level);
     }
-    
-    if(defensePower == 0)
-        defensePower = 1;
     
     int baseDamage = (skill->potency + (attackPower * skill->potency)) / 10;
     
     int damage = (baseDamage * (100 - defensePower)) / 100;
     
-    if(damage <= 0)
+    if(damage <= 0 && skill->potency > 0)
         damage = 1;
     
-    if(defender && skill->damageType & defender->battlerWrapper->battler.vulnerable)
+    if(defender && BattlerWrapper_CheckVulnerability(defender->battlerWrapper, skill->damageType))
         damage *= 2;
 
-    if(defender && skill->damageType & defender->battlerWrapper->battler.resistant)
+    if(defender && BattlerWrapper_CheckResistance(defender->battlerWrapper, skill->damageType))
         damage /= 2;
     
-    if(defender && skill->damageType & defender->battlerWrapper->battler.absorb)
+    if(defender && BattlerWrapper_CheckAbsorption(defender->battlerWrapper, skill->damageType))
         damage = -damage;
     
     return damage;
 }
 
-static void DealDamage(int potency, BattleActor *defender)
+void DealDamage(int potency, BattleActor *defender)
 {
     if(!defender)
         return;
@@ -88,44 +104,71 @@ static void DealDamage(int potency, BattleActor *defender)
         defender->currentHealth = defender->maxHealth;
 }
 
+void ApplyStatus(Skill *skill, BattleActorWrapper *target)
+{
+    if(skill->skillProperties > 0)
+    {
+        for(int i = 0; i < MAX_STATUS_EFFECTS; ++i)
+        {
+            uint16_t bit = 1 << i;
+            if(skill->skillProperties & bit && (!BattlerWrapper_CheckStatusImmunity(target->battlerWrapper, bit)))
+            {
+                target->actor.statusEffectDurations[i] = skill->propertyDuration;
+                if(i == STATUS_EFFECT_STUN)
+                {
+                    target->actor.skillQueued = false;
+                    target->actor.currentTime = 0;
+                }
+            }
+        }
+    }
+}
+
 const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender)
 {
-    static char description[30];
+    static char description[MAX_DIALOG_LENGTH];
     DEBUG_VERBOSE_LOG("ExecuteSkill");
     
-    switch(skill->type)
+    switch(skill->target)
     {
-        case SKILL_TYPE_ATTACK:
+        case SKILL_TARGET_ENEMY:
         {
+            bool countered = false;
             if(defender->actor.counterSkill != INVALID_SKILL)
             {
-                //TODO: Add an attack type to counters, so that we can differentiate between counters to magic attacks and counters to physical attacks
                 Skill *counterSkill = BattlerWrapper_GetSkillByIndex(defender->battlerWrapper, defender->actor.counterSkill);
-                int potency = ComputeSkillPotency(counterSkill, defender, attacker);
-                DealDamage(potency, &attacker->actor);
-                snprintf(description, sizeof(description), "%s counters for %d damage", defender->battlerWrapper->battler.name, potency);
-
+                if(counterSkill->counterDamageType & skill->damageType)
+                {
+                    int potency = ComputeSkillPotency(counterSkill, defender, attacker);
+                    DealDamage(potency, &attacker->actor);
+                    snprintf(description, sizeof(description), "%s counters for %d damage with %s", BattlerWrapper_GetBattlerName(defender->battlerWrapper), potency, counterSkill->description);
+                    countered = true;
+                    ApplyStatus(counterSkill, attacker);
+                }
                 defender->actor.counterSkill = INVALID_SKILL;
             }
-            else
+            
+            if(!countered)
             {
                 int potency = ComputeSkillPotency(skill, attacker, defender);
                 DealDamage(potency, &defender->actor);
-                snprintf(description, sizeof(description), "%s takes %d damage", defender->battlerWrapper->battler.name, potency);
+                snprintf(description, sizeof(description), "%s deals %d damage with %s", BattlerWrapper_GetBattlerName(attacker->battlerWrapper), potency, skill->description);
+                ApplyStatus(skill, defender);
             }
             break;
         }
-        case SKILL_TYPE_COUNTER:
+        case SKILL_TARGET_COUNTER:
         {
             attacker->actor.counterSkill = attacker->actor.activeSkill;
-            snprintf(description, sizeof(description), "%s prepares %s", attacker->battlerWrapper->battler.name, skill->name);
+            snprintf(description, sizeof(description), "%s prepares %s", BattlerWrapper_GetBattlerName(attacker->battlerWrapper), skill->name);
             break;
         }
-        case SKILL_TYPE_HEAL:
+        case SKILL_TARGET_SELF:
         {
             int potency = ComputeSkillPotency(skill, attacker, NULL);
             DealDamage(-potency, &attacker->actor);
-            snprintf(description, sizeof(description), "%s heals %d damage", attacker->battlerWrapper->battler.name, potency);
+            ApplyStatus(skill, attacker);
+            snprintf(description, sizeof(description), "%s heals %d damage with %s", BattlerWrapper_GetBattlerName(attacker->battlerWrapper), potency, skill->description);
             break;
         }
         default:
@@ -135,7 +178,6 @@ const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActor
         }
     }
     DEBUG_VERBOSE_LOG("Setting description: %s", description);
-    attacker->actor.skillCooldowns[attacker->actor.activeSkill] = GetSkillCooldown(skill);
     attacker->actor.activeSkill = INVALID_SKILL;
     return description;
 }
