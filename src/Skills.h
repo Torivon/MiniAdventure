@@ -1,4 +1,5 @@
 #pragma once
+#include "AutoSkillConstants.h"
 #include "CombatantClass.h"
 #include "Utils.h"
 #include "MiniAdventure.h"
@@ -48,6 +49,13 @@ typedef struct SkillList
     SkillListEntry entries[MAX_SKILLS_IN_LIST];
 } SkillList;
 
+// Persisted state of AI
+typedef struct AIState
+{
+    uint16_t stage;
+    uint16_t skillIndex;
+} AIState;
+
 typedef struct BattleActor
 {
     uint16_t level;
@@ -58,7 +66,9 @@ typedef struct BattleActor
     uint16_t activeSkill;
     uint16_t counterSkill;
     uint16_t skillCooldowns[MAX_SKILLS_IN_LIST];
-    uint16_t statusEffectDurations[MAX_STATUS_EFFECTS];
+    uint16_t statusEffectDurations[STATUS_EFFECT_COUNT];
+    AIState aiState;
+    uint16_t timeInCombat;
 } BattleActor;
 
 typedef struct BattleActorWrapper
@@ -67,6 +77,12 @@ typedef struct BattleActorWrapper
     BattlerWrapper *battlerWrapper;
 } BattleActorWrapper;
 
+
 const char *ExecuteSkill(Skill *skill, BattleActorWrapper *attacker, BattleActorWrapper *defender);
 void DealDamage(int potency, BattleActor *defender);
 void UpdateSkillCooldowns(uint16_t *skillCooldowns);
+int GetSkillCooldown(Skill *skill);
+
+Skill *Skill_Load(uint16_t logical_index);
+void Skill_Free(Skill *skill);
+

@@ -1,4 +1,6 @@
 #include <pebble.h>
+#include "ImageMap.h"
+#include "EngineInfo.h"
 #include "MainImage.h"
 #include "MiniAdventure.h"
 #include "Utils.h"
@@ -25,7 +27,7 @@ static int backgroundResourceId = -1;
 static void MainImageUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
-	DrawContentFrame(ctx, &bounds);
+	DrawContentFrame(ctx, &bounds, GColorBlue);
 }
 
 void InitializeMainImageLayer(Window *window)
@@ -41,14 +43,16 @@ void InitializeMainImageLayer(Window *window)
 		image_bounds.size.h -= 2 * INTERNAL_IMAGE_OFFSET;
 
 		backgroundImageLayer = bitmap_layer_create(image_bounds);
-		backgroundResourceId = RESOURCE_ID_IMAGE_BATTLEFLOOR;
+        uint16_t battleFloor = EngineInfo_GetInfo()->battleFloorImage;
+		backgroundResourceId = ImageMap_GetIdByIndex(battleFloor);
 		backgroundImage = gbitmap_create_with_resource(backgroundResourceId);
 		bitmap_layer_set_bitmap(backgroundImageLayer, backgroundImage);
 		bitmap_layer_set_alignment(backgroundImageLayer, GAlignCenter);
 		layer_add_child(mainImageTopLayer, (Layer*)backgroundImageLayer);
 		
 		foregroundImageLayer = bitmap_layer_create(image_bounds);
-		foregroundResourceId = RESOURCE_ID_IMAGE_TITLE;
+        uint16_t titleImage = EngineInfo_GetInfo()->titleImage;
+		foregroundResourceId = ImageMap_GetIdByIndex(titleImage);
 		foregroundImage = gbitmap_create_with_resource(foregroundResourceId);
 		bitmap_layer_set_bitmap(foregroundImageLayer, foregroundImage);
 		bitmap_layer_set_alignment(foregroundImageLayer, GAlignCenter);

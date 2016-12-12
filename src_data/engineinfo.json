@@ -16,7 +16,15 @@
     "engine_credits_dialog": "credits",
     "reset_dialog": "reset_prompt",
     "exit_dialog": "exit_prompt",
-    "stories": ["StatusTestArena.json", "BattleArena.json", "DungeonCrawl.json", "DragonQuest.json", "WanderTest.json"],
+    "stories": ["PuzzleDungeon.json", "DungeonCrawl.json", "WanderTest.json"],
+    "status_icons": {
+        "stun": "images/status_effect_stun.png",
+        "poison": "images/status_effect_poison.png",
+        "slow": "images/status_effect_slow.png",
+        "haste": "images/status_effect_haste.png",
+        "silence": "images/status_effect_silence.png",
+        "passify": "images/status_effect_passify.png"
+    },
     "dialog": [
         {
             "id": "tutorial",

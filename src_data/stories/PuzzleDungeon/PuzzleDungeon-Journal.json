@@ -1,0 +1,66 @@
+{
+    "dialog": [
+        {
+            "id": "journal_intro_dialog",
+            "name": "Journal",
+            "text": "\"As we rounded the bend of the river, we got our first glimpse of the ruins. I am extremely excited about what we may find inside.\""
+        },
+        {
+            "id": "journal_tier1_dialog",
+            "name": "Journal",
+            "text": "\"There are switches scattered around this area. Flipping them all revealed the way on. It also revealed an amazing ancient tablet. For now, continue exloring and come back for it later. We also found a red gemstone in one of the rooms.\""
+        },
+        {
+            "id": "journal_tier2_dialog",
+            "name": "Journal",
+            "text": "\"This section has floor plates that activate mechanisms hidden in the walls. Stepping on the NE, SW, NW, SE opens the way on. \n\nThere seem to be two other sequences ending in NE and NW. SW always comes after either NW or NE.\""
+        },
+        {
+            "id": "journal_tier3_dialog",
+            "name": "Journal",
+            "text": "\"This is the most complicated area yet. You have to flip the switches to open and close doors. We found the exit to the east, but there seem to be more rooms to the west and south. We were unable to figure out how to get to them.\""
+        },
+        {
+            "id": "journal_tier4_dialog",
+            "name": "Journal",
+            "text": "\"The last hallway had some sort of poison dart trap. Everyone else is dead. I was only hit by one, but I don't think I have much time. I'll try to get this journal and the gem we found out so maybe they can help the next explorer to come.\""
+        }
+    ],
+    "events": [
+        {
+            "id": "journal_intro",
+            "name": "Journal",
+            "menu_description": "Read the journal.",
+            "dialog": "journal_intro_dialog",
+            "positive_prerequisites": ["journal"]
+        },
+        {
+            "id": "journal_tier1",
+            "name": "Journal",
+            "menu_description": "Read the journal.",
+            "dialog": "journal_tier1_dialog",
+            "positive_prerequisites": ["journal"]
+        },
+        {
+            "id": "journal_tier2",
+            "name": "Journal",
+            "menu_description": "Read the journal.",
+            "dialog": "journal_tier2_dialog",
+            "positive_prerequisites": ["journal"]
+        },
+        {
+            "id": "journal_tier3",
+            "name": "Journal",
+            "menu_description": "Read the journal.",
+            "dialog": "journal_tier3_dialog",
+            "positive_prerequisites": ["journal"]
+        },
+        {
+            "id": "journal_tier4",
+            "name": "Journal",
+            "menu_description": "Read the journal.",
+            "dialog": "journal_tier4_dialog",
+            "positive_prerequisites": ["journal"]
+        }
+    ]
+}

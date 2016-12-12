@@ -2,12 +2,12 @@
 #include "Adventure.h"
 #include "Battle.h"
 #include "DialogFrame.h"
+#include "Events.h"
 #include "GlobalState.h"
 #include "LargeImage.h"
 #include "Logging.h"
 #include "Menu.h"
 #include "OptionsMenu.h"
-#include "ResourceStory.h"
 #include "TitleScreen.h"
 
 typedef struct GlobalStateInstance GlobalStateInstance;
@@ -42,7 +42,7 @@ void GlobalState_RunPushCallback(GlobalStateInstance *instance)
         }
         case STATE_UPDATE_GAME_STATE:
         {
-            ResourceEvent_UpdateGameState_Push(instance->data);
+            Event_UpdateGameState_Push(instance->data);
             break;
         }
         case STATE_OPTIONS:

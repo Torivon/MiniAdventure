@@ -1,4 +1,4 @@
-#include "pebble.h"
+#include <pebble.h>
 
 #include "Character.h"
 #include "GlobalState.h"
@@ -6,9 +6,9 @@
 #include "Battle.h"
 #include "OptionsMenu.h"
 #include "Persistence.h"
+#include "Story.h"
 #include "TitleScreen.h"
 #include "WorkerControl.h"
-#include "ResourceStory.h"
 
 void ClearStoryPersistedData(uint16_t storyId)
 {
@@ -27,7 +27,7 @@ void ClearStoryPersistedData(uint16_t storyId)
 
 void ClearCurrentStoryPersistedData(void)
 {
-    ClearStoryPersistedData(ResourceStory_GetCurrentStoryId());
+    ClearStoryPersistedData(Story_GetCurrentStoryId());
 }
 
 void ClearGlobalPersistedData(void)
@@ -77,12 +77,13 @@ bool SaveGlobalPersistedData(void)
     persist_write_bool(PERSISTED_VIBRATION, GetVibration());
     persist_write_bool(PERSISTED_WORKER_APP, GetWorkerApp());
     persist_write_bool(PERSISTED_WORKER_CAN_LAUNCH, GetWorkerCanLaunch());
-    persist_write_int(PERSISTED_CURRENT_GAME, ResourceStory_GetLastResourceStoryId());
-    persist_write_bool(PERSISTED_CURRENT_GAME_VALID, ResourceStory_IsLastResourceStoryIdValid());
+    persist_write_int(PERSISTED_CURRENT_GAME, Story_GetLastStoryId());
+    persist_write_bool(PERSISTED_CURRENT_GAME_VALID, Story_IsLastStoryIdValid());
+    persist_write_bool(PERSISTED_ALLOW_ACTIVITY, GetAllowActivity());
     
     uint16_t count = 0;
     uint16_t *buffer = NULL;
-    ResourceStory_GetStoryList(&count, &buffer);
+    Story_GetStoryList(&count, &buffer);
     persist_write_int(PERSISTED_STORY_LIST_SIZE, count);
     persist_write_data(PERSISTED_STORY_LIST, buffer, count * sizeof(uint16_t));
     free(buffer);
@@ -114,7 +115,7 @@ bool LoadGlobalPersistedData(void)
     uint16_t *newbuffer = NULL;
     uint16_t oldcount = 0;
     uint16_t *oldbuffer = NULL;
-    ResourceStory_GetStoryList(&newcount, &newbuffer);
+    Story_GetStoryList(&newcount, &newbuffer);
     oldcount = persist_read_int(PERSISTED_STORY_LIST_SIZE);
     oldbuffer = calloc(sizeof(uint16_t), oldcount);
     persist_read_data(PERSISTED_STORY_LIST, oldbuffer, oldcount * sizeof(uint16_t));
@@ -141,9 +142,10 @@ bool LoadGlobalPersistedData(void)
     
     if(persist_read_bool(PERSISTED_CURRENT_GAME_VALID))
     {
-        ResourceStory_SetLastResourceStoryId(persist_read_int(PERSISTED_CURRENT_GAME));
+        Story_SetLastStoryId(persist_read_int(PERSISTED_CURRENT_GAME));
     }
     SetVibration(persist_read_bool(PERSISTED_VIBRATION));
+    SetAllowActivity(persist_read_bool(PERSISTED_ALLOW_ACTIVITY));
     useWorkerApp = persist_read_bool(PERSISTED_WORKER_APP);
     if(useWorkerApp)
     {
@@ -165,9 +167,9 @@ bool LoadGlobalPersistedData(void)
 
 bool SaveStoryPersistedData(void)
 {
-    uint16_t storyId = ResourceStory_GetCurrentStoryId();
-    uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
-    uint16_t hash = ResourceStory_GetCurrentStoryHash();
+    uint16_t storyId = Story_GetCurrentStoryId();
+    uint16_t storyVersion = Story_GetCurrentStoryVersion();
+    uint16_t hash = Story_GetCurrentStoryHash();
     int offset = ComputeStoryPersistedDataOffset(storyId);
 
     if(!IsStoryPersistedDataCurrent(storyId, storyVersion, hash))
@@ -183,7 +185,7 @@ bool SaveStoryPersistedData(void)
     persist_write_int(offset + PERSISTED_STORY_MAX_KEY_USED, offset + PERSISTED_STORY_DATA_COUNT);
     uint16_t count;
     uint8_t *buffer;
-    ResourceStory_GetPersistedData(&count, &buffer);
+    Story_GetPersistedData(&count, &buffer);
     persist_write_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
     Character_WritePersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
     
@@ -201,9 +203,9 @@ bool SaveStoryPersistedData(void)
 
 bool LoadStoryPersistedData(void)
 {
-    uint16_t storyId = ResourceStory_GetCurrentStoryId();
-    uint16_t storyVersion = ResourceStory_GetCurrentStoryVersion();
-    uint16_t hash = ResourceStory_GetCurrentStoryHash();
+    uint16_t storyId = Story_GetCurrentStoryId();
+    uint16_t storyVersion = Story_GetCurrentStoryVersion();
+    uint16_t hash = Story_GetCurrentStoryHash();
     int offset = ComputeStoryPersistedDataOffset(storyId);
     
     if(!persist_exists(offset + PERSISTED_STORY_IS_DATA_SAVED) || !persist_read_bool(offset + PERSISTED_STORY_IS_DATA_SAVED))
@@ -222,10 +224,10 @@ bool LoadStoryPersistedData(void)
     INFO_LOG("Loading story persisted data.");
     uint16_t count;
     uint8_t *buffer;
-    ResourceStory_GetPersistedData(&count, &buffer);
+    Story_GetPersistedData(&count, &buffer);
     persist_read_data(offset + PERSISTED_STORY_STORY_DATA, buffer, count);
     
-    ResourceStory_UpdateStoryWithPersistedState();
+    Story_UpdateStoryWithPersistedState();
     Character_ReadPersistedData(offset + PERSISTED_STORY_CHARACTER_DATA);
     
     if(persist_read_bool(offset + PERSISTED_STORY_IN_COMBAT))

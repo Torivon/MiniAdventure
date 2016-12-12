@@ -5,6 +5,8 @@ bool GetWorkerApp(void);
 void SetWorkerApp(bool enable);
 bool GetWorkerCanLaunch(void);
 void SetWorkerCanLaunch(bool enable);
+bool GetAllowActivity(void);
+void SetAllowActivity(bool enable);
 
 void ShowOptionsMenu(void);
 

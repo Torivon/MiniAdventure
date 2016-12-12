@@ -6,12 +6,13 @@
     "companyName": "Torivon",
     "longName": "MiniAdventure",
     "projectType": "native",
-    "sdkVersion": "4",
+    "sdkVersion": "3",
     "shortName": "MiniAdventure",
     "targetPlatforms": [
         "basalt",
         "chalk",
-        "diorite"
+        "diorite",
+        "emery"
     ],
     "uuid": "39a8ce3d-7be7-4ecc-b7bf-508d9cb4598b",
     "versionLabel": "1.0",

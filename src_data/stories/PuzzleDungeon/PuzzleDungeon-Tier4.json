@@ -1,0 +1,256 @@
+{
+    "locations": [
+        {
+            "id": "tier4_room1",
+            "name": "Stable Ground",
+            "menu_description": "Stable ground",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier4_room1"],
+            "adjacent_locations": ["tier4_room2", "debug_room"],
+            "events": ["journal_tier4"]
+        },
+        {
+            "id": "tier4_room2",
+            "name": "Red Room",
+            "menu_description": "Red pillar room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier4_room2"],
+            "adjacent_locations": ["tier4_room1", "tier4_room3"],
+            "events": ["journal_tier4", "place_red_gem", "no_red_gem", "red_gem_placed"]
+        },
+        {
+            "id": "tier4_room3",
+            "name": "Yellow Room",
+            "menu_description": "Yellow pillar room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier4_room3"],
+            "adjacent_locations": ["tier4_room2", "tier4_room4"],
+            "events": ["journal_tier4", "place_yellow_gem", "no_yellow_gem", "yellow_gem_placed"]
+        },
+        {
+            "id": "tier4_room4",
+            "name": "Blue Room",
+            "menu_description": "Blue pillar room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier4_room4"],
+            "adjacent_locations": ["tier4_room3", "tier4_room5"],
+            "events": ["journal_tier4", "place_blue_gem", "no_blue_gem", "blue_gem_placed"]
+        },
+        {
+            "id": "tier4_room5",
+            "name": "Artifact Room",
+            "menu_description": "Artifact Room",
+            "background_images": ["images/dungeonstraight.png"],
+            "initial_events": ["tier4_room5"],
+            "adjacent_locations": ["tier4_room4", "tier4_room6"],
+            "events": ["journal_tier4", "get_tablet4"]
+        },
+        {
+            "id": "tier4_room6",
+            "name": "Outside",
+            "menu_description": "Outside",
+            "background_images": ["images/TombEntrance.png"],
+            "initial_events": ["exit_event_all", "exit_event_not_all"],
+            "adjacent_locations": ["debug_room", "tier4_the_end"]
+        },
+        {
+            "id": "tier4_the_end",
+            "name": "The End",
+            "menu_description": "The End",
+            "background_images": ["images/TombEntrance.png"],
+            "location_properties": ["game_win"],
+            "adjacent_locations": ["tier4_room6"]
+        }
+    ],
+    "dialog": [
+        {
+            "id": "tier4_room1_dialog",
+            "name": "Stable Ground",
+            "text": "You find some stable ground. Based on the faint natural light, you think you are close to the exit."
+        },
+        {
+            "id": "tier4_room2_dialog",
+            "name": "Red Room",
+            "text": "This room has red pillar in the center with a slot in it."
+        },
+        {
+            "id": "tier4_room3_dialog",
+            "name": "Yellow Room",
+            "text": "This room has yellow pillar in the center with a slot in it."
+        },
+        {
+            "id": "tier4_room4_dialog",
+            "name": "Blue Room",
+            "text": "This room has blue pillar in the center with a slot in it."
+        },
+        {
+            "id": "tier4_room5_dialog",
+            "name": "Artifact Room",
+            "text": "There seems to be an alcove of some kind in the wall. You also see a door that will lead back outside. Your time in the ruins is almost over."
+        },
+        {
+            "id": "place_red_gem_dialog",
+            "name": "Place Red Gem",
+            "text": "You place the red gem in the slot."
+        },
+        {
+            "id": "no_gem_dialog",
+            "name": "Inspect Slot",
+            "text": "There seems to be a slot for a gem of some kind. Perhaps you missed it somewhere along the way."
+        },
+        {
+            "id": "red_gem_placed_dialog",
+            "name": "Red Gem",
+            "text": "There is a red gem placed in the slot on the pillar."
+        },
+        {
+            "id": "place_blue_gem_dialog",
+            "name": "Place Blue Gem",
+            "text": "You place the blue gem in the slot."
+        },
+        {
+            "id": "blue_gem_placed_dialog",
+            "name": "Blue Gem",
+            "text": "There is a blue gem placed in the slot on the pillar."
+        },
+        {
+            "id": "place_yellow_gem_dialog",
+            "name": "Place Yellow Gem",
+            "text": "You place the yellow gem in the slot."
+        },
+        {
+            "id": "yellow_gem_placed_dialog",
+            "name": "Yellow Gem",
+            "text": "There is a yellow gem placed in the slot on the pillar."
+        },
+        {
+            "id": "exit_event_all_dialog",
+            "name": "Tablets Found",
+            "text": "You found all four tablets in the ruins. Congratulations!"
+        },
+        {
+            "id": "exit_event_not_all_dialog",
+            "name": "Tablets Found",
+            "text": "You missed some of the tablets in the ruins. Check the Key Items menu option to see which you found. Try again to find the rest."
+        }
+    ],
+    "events": [
+        {
+            "id": "get_tablet4",
+            "name": "Tablet Piece",
+            "menu_description": "Acquire the tablet piece.",
+            "dialog": "acquired_tablet_piece",
+            "positive_prerequisites": ["yellow_gem_placed", "red_gem_placed", "blue_gem_placed"],
+            "negative_prerequisites": ["tablet_piece_4"],
+            "positive_state_changes": ["tablet_piece_4"]
+        },
+        {
+            "id": "tier4_room1",
+            "name": "Stable Ground",
+            "menu_description": "Stable Ground",
+            "dialog": "tier4_room1_dialog"
+        },
+        {
+            "id": "tier4_room2",
+            "name": "Red Room",
+            "menu_description": "Red Room",
+            "dialog": "tier4_room2_dialog"
+        },
+        {
+            "id": "tier4_room3",
+            "name": "Yellow Room",
+            "menu_description": "Yellow Room",
+            "dialog": "tier4_room3_dialog"
+        },
+        {
+            "id": "tier4_room4",
+            "name": "Blue Room",
+            "menu_description": "Blue Room",
+            "dialog": "tier4_room4_dialog"
+        },
+        {
+            "id": "tier4_room5",
+            "name": "Artifact Room",
+            "menu_description": "Artifact Room",
+            "dialog": "tier4_room5_dialog"
+        },
+        {
+            "id": "place_red_gem",
+            "name": "Place Red Gem",
+            "menu_description": "Place the red gem in the slot.",
+            "dialog": "place_red_gem_dialog",
+            "positive_prerequisites": ["red_gem"],
+            "negative_state_changes": ["red_gem"],
+            "positive_state_changes": ["red_gem_placed"]
+        },
+        {
+            "id": "no_red_gem",
+            "name": "Inspect Slot",
+            "menu_description": "Inspect Slot",
+            "dialog": "no_gem_dialog",
+            "negative_prerequisites": ["red_gem", "red_gem_placed"]
+        },
+        {
+            "id": "red_gem_placed",
+            "name": "Inspect Gem",
+            "menu_description": "Inspect Gem",
+            "dialog": "red_gem_placed_dialog",
+            "positive_prerequisites": ["red_gem_placed"]
+        },
+        {
+            "id": "place_blue_gem",
+            "name": "Place Blue Gem",
+            "menu_description": "Place the blue gem in the slot.",
+            "dialog": "place_blue_gem_dialog",
+            "positive_prerequisites": ["blue_gem"],
+            "negative_state_changes": ["blue_gem"],
+            "positive_state_changes": ["blue_gem_placed"]
+        },
+        {
+            "id": "no_blue_gem",
+            "name": "Inspect Slot",
+            "menu_description": "Inspect Slot",
+            "dialog": "no_gem_dialog",
+            "negative_prerequisites": ["blue_gem", "blue_gem_placed"]
+        },
+        {
+            "id": "blue_gem_placed",
+            "name": "Inspect Gem",
+            "menu_description": "Inspect Gem",
+            "dialog": "blue_gem_placed_dialog",
+            "positive_prerequisites": ["blue_gem_placed"]
+        },
+        {
+            "id": "place_yellow_gem",
+            "name": "Place Yellow Gem",
+            "menu_description": "Place the yellow gem in the slot.",
+            "dialog": "place_yellow_gem_dialog",
+            "positive_prerequisites": ["yellow_gem"],
+            "negative_state_changes": ["yellow_gem"],
+            "positive_state_changes": ["yellow_gem_placed"]
+        },
+        {
+            "id": "no_yellow_gem",
+            "name": "Inspect Slot",
+            "menu_description": "Inspect Slot",
+            "dialog": "no_gem_dialog",
+            "negative_prerequisites": ["yellow_gem", "yellow_gem_placed"]
+        },
+        {
+            "id": "yellow_gem_placed",
+            "name": "Inspect Gem",
+            "menu_description": "Inspect Gem",
+            "dialog": "yellow_gem_placed_dialog",
+            "positive_prerequisites": ["yellow_gem_placed"]
+        },
+        {
+            "id": "exit_event_all",
+            "dialog": "exit_event_all_dialog",
+            "positive_prerequisites": ["tablet_piece_1", "tablet_piece_2", "tablet_piece_3", "tablet_piece_4"]
+        },
+        {
+            "id": "exit_event_not_all",
+            "dialog": "exit_event_not_all_dialog"
+        }
+    ]
+}

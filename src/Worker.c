@@ -4,8 +4,8 @@
 
 #include "../src/Utils.h"
 #include "../src/WorkerControl.h"
+#include "../src/Persistence.h"
 #include "Worker_Persistence.h"
-#include "../src/ResourceStory.h"
 
 #if ALLOW_WORKER_APP
 
@@ -45,7 +45,7 @@ void handle_minute_tick(struct tm* tick_time, TimeUnits units_changed)
 			return;
 		}
         
-        PersistedResourceStoryState *storyState = GetPersistedStoryState();
+        PersistedStoryState *storyState = GetPersistedStoryState();
         
         if(storyState->pathLength > 0)
         {

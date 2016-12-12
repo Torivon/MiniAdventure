@@ -81,13 +81,13 @@ TextBox *CreateTextBox(int xoffset, int yoffset, GFont font, GRect frame, GTextA
 void TextBoxUpdateProc(struct Layer *layer, GContext *ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
-	DrawContentFrame(ctx, &bounds);
+	DrawContentFrame(ctx, &bounds, GColorBlue);
 }
 
 void TextBoxRoundedUpdateProc(struct Layer *layer, GContext *ctx)
 {
     GRect bounds = layer_get_bounds(layer);
-    DrawContentFrame(ctx, &bounds);
+    DrawContentFrame(ctx, &bounds, GColorBlue);
     bounds = layer_get_frame(layer);
     DrawBoundaryArcs(ctx, &bounds);
 }

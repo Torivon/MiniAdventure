@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AutoSkillConstants.h"
 
 typedef struct EngineInfo
 {
@@ -17,7 +18,13 @@ typedef struct EngineInfo
     uint16_t engineCreditsDialog;
     uint16_t resetPromptDialog;
     uint16_t exitPromptDialog;
+    uint16_t statusEffectIconCount;
+    uint16_t statusEffectIcons[STATUS_EFFECT_COUNT];
 } EngineInfo;
 
 ResHandle EngineInfo_GetResHandle(void);
 EngineInfo *EngineInfo_GetInfo(void);
+
+void EngineInfo_QueueWinDialog(void);
+void EngineInfo_QueueLevelUpDialog(void);
+void EngineInfo_QueueResetDialog(void);

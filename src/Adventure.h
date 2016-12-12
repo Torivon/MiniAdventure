@@ -12,8 +12,8 @@ void UpdateAdventure(void *data);
 void AdventureScreenDisappear(void *data);
 void AdventureScreenPop(void *data);
 
-void TriggerAdventureScreen(void);
-void QueueAdventureScreen(void);
+void Adventure_Trigger(void);
+void Adventure_Queue(void);
 
 uint16_t Adventure_MenuSectionCount(void);
 const char *Adventure_MenuSectionName(uint16_t sectionIndex);

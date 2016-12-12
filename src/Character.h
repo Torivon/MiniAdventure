@@ -20,6 +20,7 @@ void Character_Rest(void);
 void Character_ShowClass(void);
 void Character_ShowSkills(void);
 void Character_ShowStatus(void);
+void Character_ShowKeyItems(void);
 
 void Character_WritePersistedData(int index);
 void Character_ReadPersistedData(int index);

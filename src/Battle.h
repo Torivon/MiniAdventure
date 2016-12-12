@@ -1,6 +1,7 @@
 #pragma once
 	
 typedef struct BattleActor BattleActor;
+typedef struct BattleActorWrapper BattleActorWrapper;
 
 bool ClosingWhileInBattle(void);
 int GetCurrentMonsterHealth(void);
@@ -13,6 +14,8 @@ bool IsBattleForced(void);
 
 BattleActor *GetPlayerActor(void);
 BattleActor *GetMonsterActor(void);
+BattleActorWrapper *GetPlayerActorWrapper(void);
+BattleActorWrapper *GetMonsterActorWrapper(void);
 void TriggerBattleScreen(void);
 bool IsBattleForced(void);
 bool ClosingWhileInBattle(void);
@@ -35,3 +38,6 @@ uint16_t BattleScreen_MenuCellCount(uint16_t sectionIndex);
 const char *BattleScreen_MenuCellName(MenuIndex *index);
 const char *BattleScreen_MenuCellDescription(MenuIndex *index);
 void BattleScreen_MenuSelect(MenuIndex *index);
+
+void Battle_InitializeNewMonster(uint16_t monsterIndex, bool fullHeal);
+uint16_t Battle_TimeInCombat(void);

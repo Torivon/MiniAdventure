@@ -8,3 +8,9 @@ build/
 .waf-*/
 .lock-waf*
 *~
+
+src/.DS_Store
+
+.DS_Store
+
+node_modules/

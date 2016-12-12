@@ -7,15 +7,10 @@
 
 static TextBox *descriptionTextBox = NULL;
 
-#define DESC_FRAME_WIDTH 84
-#define DESC_FRAME_HEIGHT 35
-#define DESC_TEXT_X_OFFSET 2
-#define DESC_TEXT_Y_OFFSET 2
 #if defined(PBL_RECT)
-static GRect descriptionFrame = {.origin = {.x = 15, .y = 0}, .size = {.w = SCREEN_WIDTH - 30, .h = DESC_FRAME_HEIGHT}};
+static GRect descriptionFrame = {.origin = {.x = DESC_FRAME_ORIGIN_X, .y = 0}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
 #elif defined(PBL_ROUND)
-#define VERTICAL_OFFSET 11
-static GRect descriptionFrame = {.origin = {.x = 15, .y = VERTICAL_OFFSET}, .size = {.w = SCREEN_WIDTH - 30, .h = DESC_FRAME_HEIGHT}};
+static GRect descriptionFrame = {.origin = {.x = DESC_FRAME_ORIGIN_X, .y = VERTICAL_OFFSET}, .size = {.w = DESC_FRAME_WIDTH, .h = DESC_FRAME_HEIGHT}};
 #endif
 
 void SetDescription(const char *text)

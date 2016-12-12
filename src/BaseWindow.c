@@ -62,17 +62,17 @@ bool GetHideMenuOnSelect(void)
 void UpdateBatteryLevel(BatteryChargeState chargeState)
 {
 	currentBatteryLevel = chargeState.charge_percent;
-	MarkProgressBarDirty(batteryBar);
+	ProgressBar_MarkDirty(batteryBar);
 }
 
 void HideBatteryLevel(void)
 {
-	HideProgressBar(batteryBar);
+	ProgressBar_Hide(batteryBar);
 }
 
 void ShowBatteryLevel(void)
 {
-	ShowProgressBar(batteryBar);
+	ProgressBar_Show(batteryBar);
 }
 
 // ******** CLICK **********//
@@ -163,20 +163,14 @@ static void BackSingleClickHandler(ClickRecognizerRef recognizer, Window *window
 		}
 		case STATE_BATTLE:
 		{
-            DialogData *dialog = calloc(sizeof(DialogData), 1);
-            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-            dialog->allowCancel = true;
-            TriggerDialog(dialog);
+            Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog);
             GlobalState_QueueStatePop();
             GlobalState_QueueStatePop();
 			break;
 		}
         case STATE_ADVENTURE:
         {
-            DialogData *dialog = calloc(sizeof(DialogData), 1);
-            ResourceLoadStruct(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog, (uint8_t*)dialog, sizeof(DialogData), "DialogData");
-            dialog->allowCancel = true;
-            TriggerDialog(dialog);
+            Dialog_TriggerFromResource(EngineInfo_GetResHandle(), EngineInfo_GetInfo()->exitPromptDialog);
             GlobalState_QueueStatePop();
             break;
         }
@@ -218,7 +212,7 @@ void BaseWindowAppear(Window *window)
 	InitializeDescriptionLayer(window);
 	InitializeMainImageLayer(window);
 	InitializeClockLayer(window);
-	InitializeProgressBar(batteryBar, window);
+	ProgressBar_Initialize(batteryBar, window_get_root_layer(window));
 	UpdateBatteryLevel(battery_state_service_peek());
 	InitializeMenuLayer(GetMainMenu(), window);
 	InitializeMenuLayer(GetSlaveMenu(), window);
@@ -234,7 +228,7 @@ void BaseWindowDisappear(Window *window)
 	RemoveMainImageLayer();
 	RemoveDescriptionLayer();
 	RemoveDialogLayer();
-	RemoveProgressBar(batteryBar);
+	ProgressBar_Remove(batteryBar);
 }
 
 void BaseWindowUnload(Window *window)
@@ -246,7 +240,7 @@ void BaseWindowUnload(Window *window)
 	CleanupMenu(mainMenu);
 	CleanupMenu(slaveMenu);
 	FreeDialogLayer();
-	FreeProgressBar(batteryBar);
+	ProgressBar_Free(batteryBar);
 }
 
 void SetWindowHandlers(Window *window)
@@ -276,7 +270,7 @@ Window * InitializeBaseWindow(void)
 							   true,
 							   true);
     GRect batteryFrame = BATTERY_FRAME;
-	batteryBar = CreateProgressBar(&currentBatteryLevel, &maxBatteryLevel, FILL_UP, &batteryFrame, GColorBrightGreen, -1);
+	batteryBar = ProgressBar_Create(&currentBatteryLevel, &maxBatteryLevel, FILL_UP, &batteryFrame, GColorBrightGreen, -1);
 	window_set_click_config_provider(window, MenuClickConfigProvider);
 	return window;		
 }

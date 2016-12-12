@@ -1,12 +1,15 @@
 {
     "id": 56,
-    "version": 4,
+    "version": 5,
     "name": "Wander Test",
     "description": "A test of path traveling",
     "start_location": "house3",
+    "xp_monsters_per_level": 5,
     "classes": ["adventurer"],
     "opening_dialog": "wake_up",
     "win_dialog": "game_end",
+    "default_activity_tracking": false,
+    "allow_respawn_on_death": true,
     "locations": [
         {
             "id": "village2",
@@ -21,7 +24,7 @@
             "menu_description": "Visit the cheese shop",
             "adjacent_locations": ["village2"],
             "background_images": ["images/shop.png"],
-            "initial_event": "shop_enter",
+            "initial_events": ["shop_enter"],
             "events": ["shop1", "shop2"]
         },
         {
@@ -38,7 +41,7 @@
             "menu_description": "Bob is in charge of village security.",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
-            "initial_event": "bobs_house_enter",
+            "initial_events": ["bobs_house_enter"],
             "events": ["bob1", "bob2"]
         },
         {
@@ -48,7 +51,8 @@
             "menu_description": "Fred and his wife are friendly.",
             "adjacent_locations": ["village2"],
             "background_images": ["images/VillageInterior.png"],
-            "events": ["fred1", "fred2", "wife1"]
+            "events": ["fred1", "fred2", "wife1"],
+            "location_properties": ["rest_area", "respawn_point"]
         },
         {
             "id": "house3",
@@ -57,8 +61,8 @@
             "menu_description": "Your home",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
-            "initial_event": "daytime",
-            "location_properties": ["rest_area"]
+            "initial_events": ["daytime"],
+            "location_properties": ["rest_area", "respawn_point"]
         },
         {
             "id": "house3-bed",
@@ -67,7 +71,7 @@
             "menu_description": "Your home",
             "adjacent_locations": ["village1"],
             "background_images": ["images/VillageInterior.png"],
-            "initial_event": "bedtime",
+            "initial_events": ["bedtime"],
             "location_properties": ["game_win"]
         },
         {
@@ -78,9 +82,13 @@
             "background_images": ["images/Road1.png", "images/Road2.png", "images/Road3.png"],
             "length": 5,
             "base_level": 1,
-            "encounter_chance": 25,
+            "encounter_chance": 50,
             "monsters": ["rat"],
-            "initial_event": "poplar_enter"
+            "initial_events": ["poplar_enter"],
+            "inactive_speed": 1,
+            "skip_encounters_if_active": false,
+            "grant_xp_for_skipped_encounters": false,
+            "extend_path_during_activity": false
         }
     ],
     "skills": [
@@ -92,6 +100,16 @@
             "speed": 100,
             "damage_types": ["physical", "piercing"],
             "potency": 10,
+            "cooldown": 0
+        },
+        {
+            "id": "donothing",
+            "name": "Idle",
+            "description": "Stand idle",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 0,
             "cooldown": 0
         },
         {
@@ -121,8 +139,18 @@
             "target": "self",
             "speed": 100,
             "damage_types": ["magic"],
-            "potency": 10,
+            "potency": 100,
             "cooldown": 4
+        },
+        {
+            "id": "rat_poison",
+            "name": "Rat Poison",
+            "description": "Kills rats instantly",
+            "target": "enemy",
+            "speed": 100,
+            "damage_types": ["physical", "piercing"],
+            "potency": 1000,
+            "cooldown": 0
         }
     ],
     "battlers": [
@@ -131,11 +159,11 @@
             "name": "Rat",
             "image": "images/rat.png",
             "combatantclass": {
-                "strength": "rankf",
+                "strength": "ranks",
                 "magic": "rankf",
                 "defense": "rankf",
                 "magic_defense": "rankf",
-                "speed": "rankf",
+                "speed": "rankb",
                 "health": "rankf"
             },
             "skill_list": [
@@ -144,7 +172,8 @@
                     "min_level": 1
                 }
             ],
-            "event": "no_rats"
+            "battle_events": ["use_rat_poison"],
+            "event": "bedtime"
         },
         {
             "id": "adventurer",
@@ -154,7 +183,7 @@
             "combatantclass": {
                 "strength": "ranks",
                 "magic": "ranks",
-                "defense": "ranks",
+                "defense": "rankf",
                 "magic_defense": "ranks",
                 "speed": "ranks",
                 "health": "ranks"
@@ -166,6 +195,10 @@
                 },
                 {
                     "id": "potion",
+                    "min_level": 1
+                },
+                {
+                    "id": "donothing",
                     "min_level": 1
                 }
             ]          
@@ -190,7 +223,7 @@
         {
             "id": "fred1",
             "name": "Fred",
-            "text": "If you are heading back home, take this rat repellent."
+            "text": "If you are heading back home, take this rat poison to defend yourself."
         },
         {
             "id": "fred2",
@@ -218,7 +251,7 @@
         {
             "id": "shop1",
             "name": "George",
-            "text": "What kind of cheese do you want?\n\nCheddar, eh?\n\nHere you go."
+            "text": "What kind of cheese do you want?\nCheddar, eh?\nHere you go."
         },
         {
             "id": "shop2",
@@ -229,6 +262,23 @@
             "id": "shop_enter",
             "name": "George",
             "text": "Welcome, how can I help you?"
+        },
+        {
+            "id": "use_rat_poison",
+            "name": "Rat Poison",
+            "text": "You poison the rat."
+        }
+    ],
+    "battle_events": [
+        {
+            "id": "use_rat_poison",
+            "name": "Rat Poison",
+            "menu_description": "Use rat poison.",
+            "dialog": "use_rat_poison",
+            "automatic": false,
+            "sub_event": "have_rat_poison",
+            "battler_switch": false,
+            "skill": "rat_poison"
         }
     ],
     "events": [
@@ -238,7 +288,7 @@
             "menu_description": "Ask Bob for permission to leave town.",
             "dialog": "bob1",
             "negative_prerequisites": ["talk_to_bob"],
-            "state_changes": ["talk_to_bob", "villagekey"]
+            "positive_state_changes": ["talk_to_bob", "villagekey"]
         },
         {
             "id": "bob2",
@@ -253,7 +303,7 @@
             "menu_description": "Buy some cheese.",
             "dialog": "shop1",
             "negative_prerequisites": ["bought_cheese"],
-            "state_changes": ["bought_cheese"]
+            "positive_state_changes": ["bought_cheese"]
         },
         {
             "id": "shop2",
@@ -280,9 +330,9 @@
             "dialog": "shop_enter"
         },
         {
-            "id": "no_rats",
-            "negative_prerequisites": ["rat_repellent"],
-            "state_changes": ["beat_rat"]
+            "id": "have_rat_poison",
+            "positive_prerequisites": ["rat_poison"],
+            "negative_state_changes": ["rat_poison"]
         },
         {
             "id": "fred1",
@@ -290,7 +340,7 @@
             "menu_description": "Discuss your day.",
             "dialog": "fred1",
             "negative_prerequisites": ["talk_to_fred"],
-            "state_changes": ["rat_repellent", "talk_to_fred"]
+            "positive_state_changes": ["rat_poison", "talk_to_fred"]
         },
         {
             "id": "fred2",
@@ -313,6 +363,20 @@
         {
             "id": "daytime",
             "negative_prerequisites": ["bought_cheese"]
+        }
+    ],
+    "key_items": [
+        {
+            "id": "rat_poison",
+            "name": "Rat Poison"
+        },
+        {
+            "id": "villagekey",
+            "name": "Village Key"
+        },
+        {
+            "id": "bought_cheese",
+            "name": "Cheese"
         }
     ]
 }
