@@ -9,6 +9,7 @@
     "classes": ["adventurer"],
     "opening_dialog": "intro_text",
     "win_dialog": "end_text",
+    "credits_dialog": "credits",
     "locations": [
         {
             "id": "entrance",
@@ -70,6 +71,10 @@
         {
             "id": "end_text",
             "text": "You have made it to the bottom of the dungeon and vanquished the dragon. Its treasure is now yours."
+        },
+        {
+            "id": "credits",
+            "text": "Design and art by Jonathan Panttaja."
         }
     ]
 }

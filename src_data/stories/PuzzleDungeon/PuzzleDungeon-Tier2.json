@@ -2,7 +2,7 @@
     "locations": [
         {
             "id": "tier2_room1",
-            "name": "Puzzle Entrance",
+            "name": "Entrance",
             "menu_description": "The entrance to a set of puzzle rooms.",
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier2_room1_initial_event", "tier2_room1_enter_switch_up", "tier2_room1_enter_switch_down"],
@@ -64,17 +64,17 @@
     "dialog": [
         {
             "id": "tier2_room1_initial_dialog",
-            "name": "Puzzle Entrance",
+            "name": "Entrance",
             "text": "Having escaped the rolling boulder, you have arrived in a new set of connected rooms. This room has a recessed floor plate that you can't do anything with for now."
         },
         {
             "id": "tier2_room1_enter_switch_down",
-            "name": "Puzzle Entrance",
+            "name": "Entrance",
             "text": "This room has a recessed floor plate that you can't do anything with for now."
         },
         {
             "id": "tier2_room1_enter_switch_up",
-            "name": "Puzzle Entrance",
+            "name": "Entrance",
             "text": "The floor plate has risen up. You can now interact with it."
         },
         {
@@ -106,21 +106,21 @@
     "events": [
         {
             "id": "tier2_room1_initial_event",
-            "name": "Puzzle Entrance",
-            "menu_description": "Puzzle Entrance",
+            "name": "Entrance",
+            "menu_description": "Entrance",
             "dialog": "tier2_room1_initial_dialog",
             "negative_prerequisites": ["tier2_room1_initial_entry"],
             "positive_state_changes": ["tier2_room1_initial_entry"] 
         },
         {
             "id": "tier2_room1_enter_switch_down",
-            "name": "Puzzle Entrance",
+            "name": "Entrance",
             "menu_description": "Puzzle Entrance",
             "dialog": "tier2_room1_enter_switch_down"
         },
         {
             "id": "tier2_room1_enter_switch_up",
-            "name": "Puzzle Entrance",
+            "name": "Entrance",
             "menu_description": "Puzzle Entrance",
             "dialog": "tier2_room1_enter_switch_up",
             "positive_prerequisites": ["tier2_any_switch_pressed"]

@@ -453,17 +453,17 @@
         {
             "id": "tier3_room_7_dialog",
             "name": "Room 7",
-            "text": "This maze room has a seven engraved on the floor and doorways to the north and east."
+            "text": "This maze room has a seven engraved on the floor, a switch on the wall,  and doorways to the north and east."
         },
         {
             "id": "tier3_room_8_dialog",
             "name": "Room 8",
-            "text": "This maze room has a eight engraved on the floor and doorways in all directions."
+            "text": "This maze room has a eight engraved on the floor, a switch on the wall, and doorways in all directions."
         },
         {
             "id": "tier3_room_9_dialog",
             "name": "Room 9",
-            "text": "This maze room has a nine engraved on the floor and doorways to the north and west."
+            "text": "This maze room has a nine engraved on the floor, a switch on the wall, and doorways to the north and west."
         },
         {
             "id": "tier3_room_10_dialog",

@@ -85,17 +85,17 @@
         },
         {
             "id": "talk_to_camp_master1",
-            "name": "Quartermaster",
+            "name": "Guide",
             "text": "Welcome to camp. Someone found this red gem along the river bank. Maybe it will be useful to you. You should make sure to check out your raft before heading out."
         },  
         {
             "id": "talk_to_camp_master2",
-            "name": "Quartermaster",
+            "name": "Guide",
             "text": "You should make sure to check out your raft before heading out."
         },  
         {
             "id": "talk_to_camp_master3",
-            "name": "Quartermaster",
+            "name": "Guide",
             "text": "It looks like everything is ready. You should head down the river. "
         }
     ],
@@ -139,24 +139,24 @@
         },
         {
             "id": "talk_to_camp_master1",
-            "name": "Quartermaster",
-            "menu_description": "Talk to Quartermaster",
+            "name": "Guide",
+            "menu_description": "Talk to the guide",
             "dialog": "talk_to_camp_master1",
             "negative_prerequisites": ["red_gem", "talked_to_camp_master1"],
             "positive_state_changes": ["red_gem", "talked_to_camp_master1"]
         },
         {
             "id": "talk_to_camp_master2",
-            "name": "Quartermaster",
-            "menu_description": "Talk to Quartermaster",
+            "name": "Guide",
+            "menu_description": "Talk to the guide",
             "dialog": "talk_to_camp_master2",
             "positive_prerequisites": ["red_gem", "talked_to_camp_master1"],
             "negative_prerequisites": ["raft"]
         },
         {
             "id": "talk_to_camp_master3",
-            "name": "Quartermaster",
-            "menu_description": "Talk to Quartermaster",
+            "name": "Guide",
+            "menu_description": "Talk to the guide",
             "dialog": "talk_to_camp_master3",
             "positive_prerequisites": ["red_gem", "raft", "talked_to_camp_master1"]
         }
