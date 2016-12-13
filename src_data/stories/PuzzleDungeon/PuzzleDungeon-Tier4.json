@@ -2,8 +2,8 @@
     "locations": [
         {
             "id": "tier4_room1",
-            "name": "Stable Ground",
-            "menu_description": "Stable ground",
+            "name": "Safe Room",
+            "menu_description": "Safe Room",
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room1"],
             "adjacent_locations": ["tier4_room2", "debug_room"],
@@ -38,8 +38,8 @@
         },
         {
             "id": "tier4_room5",
-            "name": "Artifact Room",
-            "menu_description": "Artifact Room",
+            "name": "Relic Room",
+            "menu_description": "Relic Room",
             "background_images": ["images/dungeonstraight.png"],
             "initial_events": ["tier4_room5"],
             "adjacent_locations": ["tier4_room4", "tier4_room6"],
@@ -65,7 +65,7 @@
     "dialog": [
         {
             "id": "tier4_room1_dialog",
-            "name": "Stable Ground",
+            "name": "Safe Room",
             "text": "You find some stable ground. Based on the faint natural light, you think you are close to the exit."
         },
         {
@@ -85,7 +85,7 @@
         },
         {
             "id": "tier4_room5_dialog",
-            "name": "Artifact Room",
+            "name": "Relic Room",
             "text": "There seems to be an alcove of some kind in the wall. You also see a door that will lead back outside. Your time in the ruins is almost over."
         },
         {
@@ -146,8 +146,8 @@
         },
         {
             "id": "tier4_room1",
-            "name": "Stable Ground",
-            "menu_description": "Stable Ground",
+            "name": "Safe Room",
+            "menu_description": "Safe Room",
             "dialog": "tier4_room1_dialog"
         },
         {
@@ -170,8 +170,8 @@
         },
         {
             "id": "tier4_room5",
-            "name": "Artifact Room",
-            "menu_description": "Artifact Room",
+            "name": "Relic Room",
+            "menu_description": "Relic Room",
             "dialog": "tier4_room5_dialog"
         },
         {

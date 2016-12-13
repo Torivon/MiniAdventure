@@ -128,7 +128,7 @@
         {
             "id": "tier1_danger_prereq",
             "name": "Trap Room",
-            "text": "As you enter the room, a boulder starts rolling towards you. \n\nRUN!"
+            "text": "A boulder starts rolling towards you. \n\nRUN!"
         },
         {
             "id": "ramp_description",

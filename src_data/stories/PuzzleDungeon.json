@@ -8,6 +8,7 @@
     "classes": ["archaeologist"],
     "opening_dialog": "opening_dialog",
     "win_dialog": "win_dialog",
+    "credits_dialog": "credits",
     "default_activity_tracking": false,
     "allow_respawn_on_death": true,
     "external_files": ["PuzzleDungeon/PuzzleDungeon-Debug.json", "PuzzleDungeon/PuzzleDungeon-Intro.json", "PuzzleDungeon/PuzzleDungeon-Tier1.json", "PuzzleDungeon/PuzzleDungeon-Tier2.json", "PuzzleDungeon/PuzzleDungeon-Tier3.json", "PuzzleDungeon/PuzzleDungeon-Tier4.json", "PuzzleDungeon/PuzzleDungeon-Journal.json"],
@@ -142,6 +143,10 @@
             "id": "win_dialog",
             "name": "Win",
             "text": "You have finished exploring the ruins."
+        },
+        {
+            "id": "credits",
+            "text": "Design and art by Jonathan Panttaja."
         }
     ],
     "key_items": [
