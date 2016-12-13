@@ -1,7 +1,7 @@
 {
     "appKeys": {},
     "capabilities": [
-        ""
+        "health"
     ],
     "companyName": "Torivon",
     "longName": "MiniAdventure",
@@ -11,8 +11,7 @@
     "targetPlatforms": [
         "basalt",
         "chalk",
-        "diorite",
-        "emery"
+        "diorite"
     ],
     "uuid": "39a8ce3d-7be7-4ecc-b7bf-508d9cb4598b",
     "versionLabel": "1.0",

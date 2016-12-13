@@ -13,7 +13,7 @@
 #include "Events.h"
 #include "ImageMap.h"
 #include "Location.h"
-#include "logging.h"
+#include "Logging.h"
 #include "Story.h"
 #include "Utils.h"
 

@@ -11,7 +11,7 @@
 #include "DialogFrame.h"
 #include "Events.h"
 #include "GlobalState.h"
-#include "logging.h"
+#include "Logging.h"
 #include "Story.h"
 
 typedef struct Event

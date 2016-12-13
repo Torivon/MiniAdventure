@@ -1,7 +1,7 @@
 {
-    "icon": "images/icon.png",
+    "icon": "images/MiniAdventureWatchIcon.png",
     "images": {
-        "title_image": "images/Title.png",
+        "title_image": "images/MiniAdventureIcon.png",
         "right_arrow_image": "images/right_arrow.png",
         "left_arrow_image": "images/left_arrow.png",
         "rest_image": "images/rest.png",
@@ -16,7 +16,7 @@
     "engine_credits_dialog": "credits",
     "reset_dialog": "reset_prompt",
     "exit_dialog": "exit_prompt",
-    "stories": ["PuzzleDungeon.json", "DungeonCrawl.json", "WanderTest.json"],
+    "stories": ["PuzzleDungeon.json", "DungeonCrawl.json"],
     "status_icons": {
         "stun": "images/status_effect_stun.png",
         "poison": "images/status_effect_poison.png",

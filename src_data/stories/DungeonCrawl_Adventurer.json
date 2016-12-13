@@ -3,7 +3,7 @@
         {
             "id": "swordattack",
             "name": "Attack",
-            "description": "Basic sword attack",
+            "description": "a basic sword attack",
             "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
@@ -13,7 +13,7 @@
         {
             "id": "potion",
             "name": "Potion",
-            "description": "Heal with a potion",
+            "description": "a healing potion",
             "target": "self",
             "speed": 100,
             "damage_types": ["magic"],
@@ -23,7 +23,7 @@
         {
             "id": "bomb",
             "name": "Bomb",
-            "description": "Blast of fire",
+            "description": "a blast of fire",
             "target": "enemy",
             "speed": 20,
             "damage_types": ["magic", "fire"],
@@ -33,7 +33,7 @@
         {
             "id": "icicle",
             "name": "Icicle",
-            "description": "Blast of ice",
+            "description": "a blast of ice",
             "target": "enemy",
             "speed": 20,
             "damage_types": ["magic", "ice"],
@@ -43,7 +43,7 @@
         {
             "id": "spark",
             "name": "Spark",
-            "description": "Blast of lightning",
+            "description": "a blast of lightning",
             "target": "enemy",
             "speed": 20,
             "damage_types": ["magic", "lightning"],
