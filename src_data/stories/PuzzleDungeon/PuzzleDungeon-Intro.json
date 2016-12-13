@@ -14,7 +14,7 @@
             "menu_description": "Travel from your office to base camp",
             "adjacent_locations": ["office", "base_camp"],
             "background_images": ["images/Road1.png"],
-            "length": 5,
+            "length": 10,
             "base_level": 1,
             "encounter_chance": 0,
             "inactive_speed": 1,
@@ -110,7 +110,7 @@
         },
         {
             "id": "inspect_luggage",
-            "name": "Inpect Luggage",
+            "name": "Luggage",
             "menu_description": "Inspect your luggage",
             "dialog": "inspecting_luggage",
             "negative_prerequisites": ["journal"],

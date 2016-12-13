@@ -27,13 +27,13 @@
             "target": "enemy",
             "speed": 100,
             "damage_types": ["physical", "piercing"],
-            "potency": 25,
+            "potency": 10,
             "cooldown": 0
         },
         {
             "id": "gnaw",
             "name": "Zombie Gnaw",
-            "description": "Going for brains",
+            "description": "a vicious bite",
             "target": "enemy",
             "speed": 10,
             "damage_types": ["physical", "piercing"],
@@ -43,7 +43,7 @@
         {
             "id": "bash",
             "name": "Shell Bash",
-            "description": "Body slam",
+            "description": "a body slam",
             "target": "enemy",
             "speed": 35,
             "damage_types": ["physical", "bludgeoning"],
@@ -64,7 +64,7 @@
         {
             "id": "fireball",
             "name": "Fireball",
-            "description": "Blast of fire",
+            "description": "a blast of fire",
             "target": "enemy",
             "speed": 20,
             "damage_types": ["magic", "fire"],
@@ -113,10 +113,6 @@
                 {
                     "id": "bite",
                     "min_level": 1
-                },
-                {
-                    "id": "gnaw",
-                    "min_level": 2
                 }
             ],
             "ai_type": "random"
@@ -199,29 +195,7 @@
                     "id": "bash",
                     "min_level": 1
                 }
-            ],
-            "battle_events": ["turtle_hide"]
-        },
-        {
-            "id": "turtle_hide",
-            "name": "Retracted Turtle",
-            "image": "images/turtle_hide.png",
-            "combatantclass": {
-                "strength": "rankb",
-                "magic": "rankf",
-                "defense": "ranks",
-                "magic_defense": "ranks",
-                "speed": "ranks",
-                "health": "ranka"
-            },
-            "immune": ["physical"],
-            "skill_list": [
-                {
-                    "id": "shell_reflect",
-                    "min_level": 1
-                }
-            ],
-            "battle_events": ["turtle_emerge"]
+            ]
         },
         {
             "id": "lich",
@@ -274,24 +248,6 @@
             "automatic": true,
             "full_heal_on_switch": true,
             "prerequisites": {"monster_health_below_percent": 50}
-        },
-        {
-            "id": "turtle_hide",
-            "dialog": "turtle_hide",
-            "battler_switch": true,
-            "new_battler": "turtle_hide",
-            "automatic": true,
-            "full_heal_on_switch": false,
-            "prerequisites": {"time_above": 10}
-        },
-        {
-            "id": "turtle_emerge",
-            "dialog": "turtle_emerge",
-            "battler_switch": true,
-            "new_battler": "turtle",
-            "automatic": true,
-            "full_heal_on_switch": false,
-            "prerequisites": {"time_above": 10}
         }
     ],
     "dialog": [
@@ -299,16 +255,6 @@
             "id": "rat_enrage",
             "name": "Rat",
             "text": "The rat is getting enraged!"
-        },
-        {
-            "id": "turtle_hide",
-            "name": "Turtle",
-            "text": "The turtle withdraws into its shell!"
-        },
-        {
-            "id": "turtle_emerge",
-            "name": "Turtle",
-            "text": "The turtle reappears!"
         }
     ]
 }

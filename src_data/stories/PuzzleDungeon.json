@@ -1,8 +1,8 @@
 {
     "id": 576,
     "version": 1,
-    "name": "Bad Archaeologist",
-    "description": "An archaeologist plundering a historical site.",
+    "name": "Tomb",
+    "description": "An archaeologist exploring a tomb.",
     "start_location": "office",
     "xp_monsters_per_level": 0,
     "classes": ["archaeologist"],

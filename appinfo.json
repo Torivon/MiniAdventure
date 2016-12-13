@@ -1,7 +1,7 @@
 {
     "appKeys": {},
     "capabilities": [
-        ""
+        "health"
     ],
     "companyName": "Torivon",
     "longName": "MiniAdventure",
@@ -94,11 +94,6 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/turtle_hide.png",
-                "name": "IMAGE_TURTLE_HIDE",
-                "type": "bitmap"
-            },
-            {
                 "file": "images/lich.png",
                 "name": "IMAGE_LICH",
                 "type": "bitmap"
@@ -111,16 +106,6 @@
             {
                 "file": "images/dungeonleft.png",
                 "name": "IMAGE_DUNGEONLEFT",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Road2.png",
-                "name": "IMAGE_ROAD2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/Road3.png",
-                "name": "IMAGE_ROAD3",
                 "type": "bitmap"
             },
             {
@@ -141,6 +126,11 @@
             {
                 "file": "images/RepositoryCode.png",
                 "name": "IMAGE_REPOSITORYCODE",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/MiniAdventureIcon.png",
+                "name": "IMAGE_MINIADVENTUREICON",
                 "type": "bitmap"
             },
             {
@@ -179,9 +169,9 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/icon.png",
+                "file": "images/MiniAdventureWatchIcon.png",
                 "menuIcon": true,
-                "name": "IMAGE_ICON",
+                "name": "IMAGE_MINIADVENTUREWATCHICON",
                 "type": "bitmap"
             },
             {
@@ -192,11 +182,6 @@
             {
                 "file": "data/AutoDungeonCrawl.dat",
                 "name": "STORY_DATA_AUTODUNGEONCRAWL",
-                "type": "raw"
-            },
-            {
-                "file": "data/AutoWanderTest.dat",
-                "name": "STORY_DATA_AUTOWANDERTEST",
                 "type": "raw"
             },
             {
@@ -211,8 +196,7 @@
     "targetPlatforms": [
         "basalt",
         "chalk",
-        "diorite",
-        "emery"
+        "diorite"
     ],
     "uuid": "39a8ce3d-7be7-4ecc-b7bf-508d9cb4598b",
     "versionLabel": "1.0",

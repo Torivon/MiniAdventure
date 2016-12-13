@@ -2,7 +2,7 @@
     "id": 567,
     "version": 4,
     "name": "Dungeon Crawl",
-    "description": "A 20 floor dungeon with a dragon at the bottom.",
+    "description": "A 20 floor dungeon.",
     "start_location": "entrance",
     "xp_monsters_per_level": 3,
     "xp_difference_scale": 50,
@@ -27,8 +27,8 @@
         },
         {
             "id": "dragon_room",
-            "name": "Dragon's Room",
-            "menu_name": "Dragon's Room",
+            "name": "Dragon Den",
+            "menu_name": "Dragon Den",
             "menu_description": "Fight the dragon.",
             "adjacent_locations": ["treasure"],
             "background_images": ["images/dungeonstraight.png"],
@@ -37,7 +37,7 @@
         },
         {
             "id": "treasure",
-            "name": "Treasure Room",
+            "name": "Hoard",
             "menu_description": "Investigate the dragon's hoard.",
             "adjacent_locations": [],
             "background_images": ["images/dungeondeadend.png"],
@@ -52,11 +52,11 @@
             "adjacent_locations": ["entrance", "dungeon_floor_20"],
             "background_images": ["images/dungeonstraight.png", "images/dungeonright.png", "images/dungeonleft.png"],
             "fixed_background_image": ["images/newfloor.png"],
-            "length": 5,
+            "length": 20,
             "floors": 19,
             "base_level": 1,
             "level_rate": 1,
-            "encounter_chance": 50,
+            "encounter_chance": 13,
             "monsters": ["rat", "goblin", "wizard", "zombie", "turtle", "lich"],
             "monster_scaling": 2       
         }
